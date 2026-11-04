@@ -1,0 +1,210 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "GRE Configuration Guide for Juniper SRX",
+  "source": {
+    "url": "https://help.zscaler.com/zia/gre-configuration-example-juniper-srx",
+    "node": "1399131",
+    "revision": "3247564",
+    "updated": "2026-10-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides examples for configuring a GRE tunnel between a Juniper SRX300 running Junos OS version 19.2R2.7 and Public Service Edges for Internet & SaaS (ZIA) in the Zscaler service."
+    },
+    {
+      "text": "As shown in the illustration, primary and secondary GRE tunnels are configured from the gateway port of the Juniper SRX to two Public Service Edges in the Zscaler service."
+    },
+    {
+      "text": "The public IP address of the gateway port gr-0/0/0 on the router is <Tunnel Source IP>."
+    },
+    {
+      "text": "The router receives ingress traffic on port ge-0/0/4. It forwards outbound traffic to ge-0/0/0 in the Untrust Zone, which uses the two sub-interfaces, unit0 and unit1, to send internet traffic through the GRE tunnel to the Zscaler service. It performs NAT on the traffic that it sends directly to the internet. For more information on configuring a GRE tunnel, see Configuring GRE Tunnels."
+    },
+    {
+      "text": "For more information about Juniper SRX300, refer to the Juniper documentation."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "The following parameters shown in red are required to configure a GRE tunnel with keepalives:"
+    },
+    {
+      "item": "<Tunnel Source IP>: The IP address of the tunnel source, which is from your organization (e.g., 10.96.19.5).",
+      "depth": 0
+    },
+    {
+      "item": "<Internal IP Range>: The internal range of IP addresses assigned by Zscaler for your organization (e.g., 172.23.119.128 - 172.23.119.131).",
+      "depth": 0
+    },
+    {
+      "item": "<Primary DC VIP>: The IP address of the primary tunnel destination, which is the GRE virtual IP address of Zscaler's primary data center (e.g., 10.66.45.208)",
+      "depth": 0
+    },
+    {
+      "item": "<Primary Internal Router IP>: The internal virtual IP address of the router (tunnel source) for the GRE tunnel associated with the primary data center (e.g., 172.23.119.129).",
+      "depth": 1
+    },
+    {
+      "item": "<Primary Internal Public Service Edge IP>: The internal virtual IP address of the tunnel destination on the primary data center (e.g., 172.23.119.130).",
+      "depth": 1
+    },
+    {
+      "item": "<Secondary DC VIP>: The IP address of the secondary tunnel destination, which is the GRE virtual IP address of Zscaler's secondary data center (e.g., 10.66.45.250).",
+      "depth": 0
+    },
+    {
+      "item": "<Secondary Internal Router IP>: The internal virtual IP address of the router (tunnel source) for the GRE tunnel associated with the secondary data center (e.g., 172.23.119.133).",
+      "depth": 1
+    },
+    {
+      "item": "<Secondary Internal Public Service Edge IP>: The internal virtual IP address of the tunnel destination on the secondary data center (e.g., 172.23.119.134)",
+      "depth": 1
+    },
+    {
+      "item": "<Keepalive Time>: The interval (in seconds) to send the NAT keepalive messages to detect if a tunnel is down.",
+      "depth": 0
+    },
+    {
+      "item": "<Hold Time>: The time (in seconds) that the originating end of a GRE tunnel waits for keepalive packets from the other end of the tunnel before marking the tunnel as operationally down. The hold time must be at least twice the keepalive time.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring a GRE Tunnel",
+      "level": 1
+    },
+    {
+      "text": "Refer to the following procedure to configure a GRE tunnel between Juniper SRX300 and Public Service Edges. Replace the sample values shown in red with the actual values for your deployment."
+    },
+    {
+      "item": "Step 1. Configure a GRE tunnel with keepalives.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following commands to configure a GRE tunnel with keepalives:",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300> show configuration interfaces gr-0/0/0 unit 0 { tunnel { source 10.96.19.5; destination 10.66.45.208; } family inet { address 172.23.119.129/30; } } root@srx300# show protocols oam gre-tunnel { traceoptions { file gre_tun.log; flag all; } interface gr-0/0/0 { keepalive-time 10; hold-time 60; } }",
+      "depth": 0
+    },
+    {
+      "item": "Step 2. Create an ICMP-based probe to monitor the GRE endpoints on the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to create an ICMP-based probe to monitor the GRE endpoints (<Primary Internal Public Service Edge IP> and <Secondary Internal Public Service Edge IP>) on the Zscaler service:",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show configuration services rpm probe icmp_gre_tunnel { test icmp { probe-type icmp-ping; target address 172.23.119.130; probe-count 5; probe-interval 5; test-interval 10; source-address 172.23.119.129; thresholds { successive-loss 5; total-loss 5; }",
+      "depth": 0
+    },
+    {
+      "item": "Step 3. Enable IP monitoring for the probe.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to enable IP address monitoring. The probe is sent to the primary interface at the Primary Internal Public Service Edge IP address (e.g., 172.23.119.130).",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show configuration services ip-monitoring policy failover { match { rpm-probe icmp_gre_tunnel; } then { preferred-route { routing-instances traffic_tunnel { route 0.0.0.0/0 { next-hop 172.23.119.130; } } } } }",
+      "depth": 0
+    },
+    {
+      "item": "Step 4. Create the required security zones.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to configure the required security zones:",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show configuration security zones functional-zone management { ge-0/0/5.0 { host-inbound-traffic { system-services { https; ping; ssh; } } } ge-0/0/1.0 { host-inbound-traffic { system-services { all; } } } } } security-zone trust { host-inbound-traffic { system-services { all; } protocols { all; } } interfaces { irb.0; } } security-zone untrust { screen untrust-screen; host-inbound-traffic { protocols { all; } } interfaces { ge-0/0/0.0 { host-inbound-traffic { system-services { dhcp; tftp; https; ping; ssh; } } } st0.0; gr-0/0/0.0; }",
+      "depth": 0
+    },
+    {
+      "item": "Step 5. Configure security policies that allow the specified traffic to and from the Trust and Untrust zones.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following command to configure security policies, allowing the specified traffic from the Trust zone to the Untrust zone and vice versa:",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show configuration security policies from-zone trust to-zone trust { policy trust-to-trust { match { source-address any; destination-address any; application any; } then { permit; } } } from-zone trust to-zone untrust { policy trust-to-untrust { match { source-address any; destination-address any; application any; } then { permit; } } }",
+      "depth": 0
+    },
+    {
+      "heading": "Verifying the GRE Tunnel Configuration",
+      "level": 1
+    },
+    {
+      "text": "From the navigation menu, go to Data Explorer > Internet & SaaS > Tunnel Insights to see data and monitor the health and status of your configured GRE tunnels. To learn more, see About Insights and About Insights Logs."
+    },
+    {
+      "text": "In Junos OS, you can use the following commands to monitor and troubleshoot the GRE tunnels."
+    },
+    {
+      "item": "Verify the Reachability of GRE Endpoints on the Zscaler service",
+      "depth": 0
+    },
+    {
+      "item": "Use the ping command to verify the reachability of GRE endpoints on the Zscaler service for the Primary Internal Public Service Edge IP address. In the following example, 172.23.119.130 is the Primary Internal Public Service Edge IP address and 172.23.119.129 is the Primary Internal Router IP address.",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300> ping 172.23.119.130 source 172.23.119.129 PING 172.23.119.130 (172.23.119.130): 56 data bytes 64 bytes from 172.23.119.130: icmp_seq=0 ttl=64 time=8.135 ms 64 bytes from 172.23.119.130: icmp_seq=1 ttl=64 time=6.322 ms 64 bytes from 172.23.119.130: icmp_seq=2 ttl=64 time=3.664 ms",
+      "depth": 0
+    },
+    {
+      "item": "Verify the GRE Tunnel Status on Juniper SRX",
+      "depth": 0
+    },
+    {
+      "item": "Use the show interfaces gr-/0/0/0 extensive command to verify the GRE keepalives adjacency state is up.",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show interfaces gr-0/0/0 extensive Physical interface: gr-0/0/0, Enabled, Physical link is Up Interface index: 147, SNMP ifIndex: 522, Generation: 150 Type: GRE, Link-level type: GRE, MTU: Unlimited, Speed: 800mbps Link flags : Scheduler Keepalives DTE Hold-times : Up 0 ms, Down 0 ms Device flags : Present Running Interface flags: Point-To-Point Statistics last cleared: Never Traffic statistics: Input bytes : 4394116 0 bps Output bytes : 1932957 0 bps Input packets: 101415 0 pps Output packets: 31694 0 pps Logical interface gr-0/0/0.0 (Index 75) (SNMP ifIndex 538) (Generation 150) Flags: Up Point-To-Point SNMP-Traps 0x0 IP-Header 10.66.45.208:10.96.19.5:47:df:64:0000000000000000 Encapsulation: GRE-NULL Copy-tos-to-outer-ip-header: Off, Copy-tos-to-outer-ip-header-transit: Off Gre keepalives configured: On, Gre keepalives adjacency state: up Traffic statistics: Input bytes : 24560164 Output bytes : 38111382 Input packets: 461523 Output packets: 506340 Local statistics: Input bytes : 24556029 Output bytes : 36178425 Input packets: 461470 Output packets: 474646 Transit statistics: Input bytes : 4135 0 bps Output bytes : 1932957 0 bps Input packets: 53 0 pps Output packets: 31694 0 pps Security: Zone: untrust Allowed host-inbound traffic : bfd bgp dvmrp igmp ldp msdp nhrp ospf pgm pim rip router-discovery rsvp sap vrrp Flow Statistics : Flow Input statistics : Self packets : 101362 ICMP packets : 69802 VPN packets : 0 Multicast packets : 0 Bytes permitted by policy : 4389981 Connections established : 0 Flow Output statistics: Multicast packets : 0 Bytes permitted by policy : 3894469 Flow error statistics (Packets dropped due to): Address spoofing: 0 Authentication failed: 0 Incoming NAT errors: 0 Invalid zone received packet: 0 Multiple user authentications: 0 Multiple incoming NAT: 0 No parent for a gate: 0 No one interested in self packets: 0 No minor session: 0 No more sessions: 0 No NAT gate: 0 No route present: 0 No SA for incoming SPI: 0 No tunnel found: 0 No session for a gate: 0 No zone or NULL zone binding 0 Policy denied: 0 Security association not active: 0 TCP sequence number out of window: 0 Syn-attack protection: 0 User authentication errors: 0 Protocol inet, MTU: 1476 Max nh cache: 0, New hold nh limit: 0, Curr nh cnt: 0, Curr new hold cnt: 0, NH drop cnt: 0 Generation: 165, Route table: 0 Flags: Sendbcast-pkt-to-re Addresses, Flags: Is-Default Is-Preferred Is-Primary Destination: 172.23.119.128/30, Local: 172.23.119.129, Broadcast: 172.23.119.131, Generation: 170",
+      "depth": 0
+    },
+    {
+      "item": "When the data center under the GRE virtual IP address goes down, Juniper SRX does not receive a keepalive message response and the adjacency state goes down. See the following example:",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300> show interfaces gr-0/0/0 extensive Physical interface: gr-0/0/0, Enabled, Physical link is Up Interface index: 147, SNMP ifIndex: 522, Generation: 150 Type: GRE, Link-level type: GRE, MTU: Unlimited, Speed: 800mbps Link flags : Scheduler Keepalives DTE Hold-times : Up 0 ms, Down 0 ms Device flags : Present Running Interface flags: Point-To-Point Statistics last cleared: Never Traffic statistics: Input bytes : 4443011 0 bps Output bytes : 1954856 0 bps Input packets: 102540 0 pps Output packets: 32053 0 pps Logical interface gr-0/0/0.0 (Index 75) (SNMP ifIndex 538) (Generation 150) Flags: Up Point-To-Point SNMP-Traps 0x0 IP-Header 10.66.45.208:10.96.19.5:47:df:64:0000000000000000 Encapsulation: GRE-NULL Copy-tos-to-outer-ip-header: Off, Copy-tos-to-outer-ip-header-transit: Off Gre keepalives configured: On, Gre keepalives adjacency state: down Traffic statistics: Input bytes : 24635211 Output bytes : 38242172 Input packets: 463115 Output packets: 508310 Local statistics: Input bytes : 24626995 Output bytes : 36287316 Input packets: 463009 Output packets: 476257 Transit statistics: Input bytes : 8216 0 bps Output bytes : 1954856 0 bps Input packets: 106 0 pps Output packets: 32053 0 pps Security: Zone: untrust Allowed host-inbound traffic : bfd bgp dvmrp igmp ldp msdp nhrp ospf pgm pim rip router-discovery rsvp sap vrrp Flow Statistics :",
+      "depth": 0
+    },
+    {
+      "item": "Verify the ICMP Probe Results",
+      "depth": 0
+    },
+    {
+      "item": "Use the show services rpm probe-results command to verify the ICMP probe results.",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show services rpm probe-results Owner: icmp_gre_tunnel, Test: icmp Target address: 172.23.119.130, Source address: 172.23.119.129, Probe type: icmp-ping, Icmp-id: 59, Test size: 5 probes Probe results: Response received Probe sent time: Tue Dec 20 19:12:58 2022 Probe rcvd/timeout time: Tue Dec 20 19:12:58 2022, No hardware timestamps Rtt: 1275 usec, Round trip jitter: -26390 usec Round trip interarrival jitter: 12800 usec Results over current test: Probes sent: 2, Probes received: 2, Loss percentage: 0.000000 Measurement: Round trip time Samples: 2, Minimum: 1275 usec, Maximum: 27665 usec, Average: 14470 usec, Peak to peak: 26390 usec, Stddev: 13195 usec, Sum: 28940 usec Measurement: Positive round trip jitter Samples: 1, Minimum: 26422 usec, Maximum: 26422 usec, Average: 26422 usec, Peak to peak: 0 usec, Stddev: 0 usec, Sum: 26422 usec Measurement: Negative round trip jitter Samples: 1, Minimum: 26390 usec, Maximum: 26390 usec, Average: 26390 usec, Peak to peak: 0 usec, Stddev: 0 usec, Sum: 26390 usec Results over last test: Probes sent: 5, Probes received: 5, Loss percentage: 0.000000 Test completed on Tue Dec 20 19:12:43 2022 Measurement: Round trip time Samples: 5, Minimum: 1205 usec, Maximum: 4243 usec, Average: 2159 usec, Peak to peak: 3038 usec, Stddev: 1134 usec, Sum: 10793 usec Measurement: Positive round trip jitter Samples: 2, Minimum: 1245 usec, Maximum: 3011 usec, Average: 2128 usec, Peak to peak: 1766 usec, Stddev: 883 usec, Sum: 4256 usec Measurement: Negative round trip jitter Samples: 3, Minimum: 447 usec, Maximum: 2591 usec, Average: 1415 usec, Peak to peak: 2144 usec, Stddev: 888 usec, Sum: 4245 usec Results over all tests: Probes sent: 69962, Probes received: 69806, Loss percentage: 0.222978 Measurement: Round trip time Samples: 69806, Minimum: 962 usec, Maximum: 808995 usec, Average: 5686 usec, Peak to peak: 808033 usec, Stddev: 13946 usec, Sum: 396946485 usec Measurement: Positive round trip jitter Samples: 35389, Minimum: 0 usec, Maximum: 807745 usec, Average: 6949 usec, Peak to peak: 807745 usec, Stddev: 18018 usec, Sum: 245916006 usec Measurement: Negative round trip jitter Samples: 34416, Minimum: 1 usec, Maximum: 804484 usec, Average: 7145 usec, Peak to peak: 804483 usec, Stddev: 18138 usec, Sum: 245916261 usec",
+      "depth": 0
+    },
+    {
+      "item": "Verify IP Monitoring",
+      "depth": 0
+    },
+    {
+      "item": "Use the show services ip-monitoring status command to verify IP monitoring.",
+      "depth": 0
+    },
+    {
+      "item": "root@srx300# run show services ip-monitoring status Policy - failover (Status: PASS) RPM Probes: Probe name Test Name Address Status ---------------------- --------------- ---------------- --------- icmp_gre_tunnel icmp 172.23.119.130 PASS Route-Action: route-instance route next-hop state ----------------- ----------------- ---------------- ------------- traffic_tunnel 0.0.0.0/0 172.23.119.130 NOT-APPLIED [edit]",
+      "depth": 0
+    }
+  ]
+}

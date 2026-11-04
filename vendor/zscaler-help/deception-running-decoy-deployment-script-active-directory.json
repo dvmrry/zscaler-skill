@@ -1,0 +1,583 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Running the Decoy Deployment Script on an Active Directory",
+  "source": {
+    "url": "https://help.zscaler.com/deception/running-decoy-deployment-script-active-directory",
+    "node": "1542324",
+    "revision": "3221810",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "To create decoy user accounts and computers in an Active Directory (AD), you must download the decoy deployment script from the Zscaler Deception Admin Portal and run it on the AD. You must run the deployment script to create user accounts in both the credential and credential-less modes."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure that the following prerequisites are met:"
+    },
+    {
+      "item": "Have admin access to the primary domain controller to run the script.",
+      "depth": 0
+    },
+    {
+      "item": "Have Powershell version 3.0 or later on your system.",
+      "depth": 0
+    },
+    {
+      "item": "Install PSReadLine on the AD server to read user inputs.",
+      "depth": 0
+    },
+    {
+      "heading": "Running the Decoy Deployment Script on an AD",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to run a deployment script on an AD:"
+    },
+    {
+      "item": "Step 1: Configure the Group Policy Management Security Settings on a Domain Controller",
+      "depth": 0
+    },
+    {
+      "item": "Press the Windows key+R on your system.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Run window, enter gpmc.msc to open the Group Policy Management console.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the security audit policy:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Right-click Default Domain Controllers Policy and select Edit from the drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          12,
+          45
+        ],
+        [
+          57,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Computer Configuration > Policies > Windows Settings > Security Settings > Advanced Audit Policy Configuration > Audit Policies > Logon/Logoff.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          31,
+          39
+        ],
+        [
+          42,
+          58
+        ],
+        [
+          61,
+          78
+        ],
+        [
+          81,
+          116
+        ],
+        [
+          119,
+          133
+        ],
+        [
+          136,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Logon/Logoff pane, double-click Audit Logon.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          39,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "In the Audit Logon Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          81,
+          88
+        ],
+        [
+          94,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enable Kerberos detection:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to Advanced Audit Policy Configuration > Audit Policies > Account Logon.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          41
+        ],
+        [
+          44,
+          58
+        ],
+        [
+          61,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "In the Account Logon pane, double-click Audit Kerberos Authentication Service.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          40,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "In the Audit Kerberos Authentication Service Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          55
+        ],
+        [
+          75,
+          105
+        ],
+        [
+          107,
+          114
+        ],
+        [
+          120,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Account Logon pane, double-click Audit Kerberos Service Ticket Operations.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          40,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "In the Audit Kerberos Service Ticket Operations Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          58
+        ],
+        [
+          78,
+          108
+        ],
+        [
+          110,
+          117
+        ],
+        [
+          123,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enable AD enumeration:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Go to Advanced Audit Policy Configuration > Audit Policies > DS Access.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          41
+        ],
+        [
+          44,
+          58
+        ],
+        [
+          61,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the DS Access pane, double-click Audit Directory Service Access.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          36,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "In the Audit Directory Service Access Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          48
+        ],
+        [
+          68,
+          98
+        ],
+        [
+          100,
+          107
+        ],
+        [
+          113,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enabling the logs increases the volume of logs generated by the AD.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Download the Deployment Script from the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "In the Deception Admin Portal, go to Deceive > Active Directory Decoys > Decoy Users.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          47,
+          70
+        ],
+        [
+          73,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Select an AD decoy user and click Download Deployment Script.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Run the Deployment Script",
+      "depth": 0
+    },
+    {
+      "item": "Copy the deployment script (Start-Deployment.ps1)to the primary domain controller.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Open PowerShell on the primary domain controller with administrative privileges.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Go to the path where the deployment script is saved.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the script on the primary domain controller using the following commands:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Unblock-File .\\Start-Deployment.ps1",
+      "depth": 2
+    },
+    {
+      "item": "Import-Module .\\Start-Deployment.ps1",
+      "depth": 2
+    },
+    {
+      "item": "Start-Deployment",
+      "depth": 2
+    },
+    {
+      "item": "The deployment script tests the configured audit policies for all the primary domain controllers and displays the results in green text.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 to create a decoy user.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After the decoy user is created, enter 7 to verify the decoy deployment.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 8 to generate the deployment JSON file.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "The script tries to upload the JSON file directly to the Deception Admin Portal.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If the script fails to upload the JSON file to the Deception Admin Portal, then the script writes the JSON file to your local computer (to the same folder where the deployment script is located). In this case, you must upload the JSON file to the Deception Admin Portal.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To upload the deployment JSON file to the Deception Admin Portal:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Deceive > Active Directory Decoys > Decoy Users.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          39
+        ],
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Click Actions > Upload Enumeration Detection JSON.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Browse to upload the JSON file.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "In the confirmation window, click OK.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          34,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "The deployment JSON is uploaded.",
+      "depth": 2
+    }
+  ]
+}

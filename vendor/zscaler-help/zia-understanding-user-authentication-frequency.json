@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding User Authentication Frequency",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-user-authentication-frequency",
+    "node": "1399521",
+    "revision": "3212390",
+    "updated": "2026-06-10",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler offers multiple options for how often users are required to authenticate to the Zscaler service. The authentication frequency options are:"
+    },
+    {
+      "item": "Daily",
+      "depth": 0
+    },
+    {
+      "item": "Only Once",
+      "depth": 0
+    },
+    {
+      "item": "Once Per Session",
+      "depth": 0
+    },
+    {
+      "item": "Custom",
+      "depth": 0
+    },
+    {
+      "text": "These options don't apply to users with Zscaler Client Connector."
+    },
+    {
+      "text": "To learn more about these options and how to configure them, see About Authentication Default Settings."
+    },
+    {
+      "text": "Zscaler recommends that you choose Only Once as your authentication frequency. This is the default authentication interval. Choosing Only Once as the authentication frequency allows for a seamless experience for the end user. The Zscaler service only needs to authenticate users once to set the cookie. After users have logged in, they do not need to authenticate again as long as the cookie is saved in the browser. Typically, the cookie expires in about two years. However, to log out of Zscaler, users must log out of the service explicitly or delete the cookie from their browser.",
+      "strong": [
+        [
+          35,
+          44
+        ],
+        [
+          133,
+          142
+        ]
+      ]
+    },
+    {
+      "text": "See below for information regarding concerns you might have when choosing Only Once as your authentication frequency.",
+      "strong": [
+        [
+          74,
+          83
+        ]
+      ]
+    },
+    {
+      "heading": "Security Concerns",
+      "level": 1
+    },
+    {
+      "text": "The following information addresses security concerns when setting the authentication frequency to only once."
+    },
+    {
+      "heading": "Zscaler Authentication Cookies",
+      "level": 2
+    },
+    {
+      "text": "The Zscaler service uses cookies to determine if a user has been authenticated. To learn more about the types of cookies the Zscaler service uses, see About Zscaler Cookies."
+    },
+    {
+      "text": "Zscaler issues an authentication cookie encrypted with SSL for the gateway cloud; therefore, that cookie can only be set and read from the gateway SSL site. It also can't be sniffed on the network. When a user browses to a website, the proxy can only get cookies from that website. It issues a redirect to the gateway to fetch the cookie, and then validates it. If the gateway cookie is valid, the proxy generates a new domain cookie for that website and issues a redirect to it. So the cookie, for the website to which the user browsed, provides the user identity for the Zscaler proxy. This domain cookie is rotated for every 12 hours."
+    },
+    {
+      "text": "If a user steals a domain cookie, that user can browse the internet through Zscaler to that website for up to 12 hours maximum. They cannot browse to another website if they do no have the gateway SSL cookie and the cookie generation algorithm for domain cookies."
+    },
+    {
+      "heading": "Stolen Device & User Termination",
+      "level": 2
+    },
+    {
+      "text": "If the user's device is stolen, the culprit can use it to browse the internet through Zscaler as that user. Alternatively, if a user is terminated, but has authenticated to the Zscaler service on a personal device, then that user can browse the internet through Zscaler. However, this is not a security issue because the Zscaler cookie does not give access to any privileged resources. The culprit might first try to disable the Zscaler traffic redirection because all of their actions on the stolen device are logged."
+    },
+    {
+      "text": "Private Access (ZPA) and Zscaler Client Connector do not use cookies for authentication. This is the recommended mechanism for companies that use Private Access or use Zscaler as an identity proxy."
+    },
+    {
+      "heading": "Active Directory Server Reliability and Scalability",
+      "level": 1
+    },
+    {
+      "text": "The following information addresses the Active Directory (AD) server reliability and scalability when setting the authentication frequency to more than once."
+    },
+    {
+      "heading": "Authenticating More Than Once",
+      "level": 2
+    },
+    {
+      "text": "If you choose Only Once as the authentication frequency, authentication is completely transparent to your end users during maintenance or a downtime window of your AD server. If you choose an authentication frequency that requires users to authenticate to the Zscaler service more than once, your users are authenticated against your AD server on a regular basis. For example, if you choose Daily as the authentication frequency, all of your users must authenticate themselves against the AD server everyday when they access the internet. You must ensure that your server can scale to service these requests.",
+      "strong": [
+        [
+          14,
+          23
+        ],
+        [
+          391,
+          396
+        ]
+      ]
+    },
+    {
+      "heading": "Updating Information",
+      "level": 1
+    },
+    {
+      "text": "The following information addresses information updates when setting the authentication frequency to more than once."
+    },
+    {
+      "heading": "Adding, Updating, and Deactivating Users & Groups",
+      "level": 2
+    },
+    {
+      "text": "User information and group information is updated when either a user is authenticated or the Zscaler server synchronizes data from the directory server."
+    },
+    {
+      "text": "If you choose Only Once as the authentication frequency, user and group information is only updated when synchronization is performed. If you do not synchronize the information with a directory server, you can either add and delete users manually, update the group information, or modify the group in the Zscaler Admin Console.",
+      "strong": [
+        [
+          14,
+          23
+        ]
+      ]
+    },
+    {
+      "text": "Zscaler also exposes the API to update the information via third-party IdP vendors, such as Okta."
+    }
+  ]
+}

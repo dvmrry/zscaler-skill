@@ -1,0 +1,179 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Votiro CDR",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/votiro-cdr",
+    "node": "1540761",
+    "revision": "3206421",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Votiro%20CDR_0.json?VersionId=gOK4qrGfmoGdsYmFL5d1XQXNB73ShSui",
+    "updated": "2026-05-15",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Votiro CDR"
+      }
+    ],
+    "paths": {
+      "/isolationVotiroCdr/policies": {
+        "get": {
+          "tags": [
+            "Votiro CDR"
+          ],
+          "summary": "Retrieves Votiro CDR policies configured for a tenant. To learn more, see <a href=\"/zscaler-technology-partners/zscaler-and-votiro-deployment-guide\" target=\"_blank\">Zscaler and Votiro Deployment Guide</a>.",
+          "description": "",
+          "operationId": "IsolationVotiroCdrResource_getVotiroCdrPolicyList",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/VotiroPolicy"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/isolationVotiroCdr/tokenConfig": {
+        "get": {
+          "tags": [
+            "Votiro CDR"
+          ],
+          "description": "Retrieves the Votiro CDR authentication credentials. To learn more, see <a href=\"/zscaler-technology-partners/understanding-votiro-integration-zero-trust-browser\" target=\"_blank\">Understanding Votiro Integration for Zero Trust Browser</a>.",
+          "operationId": "IsolationVotiroCdrResource_getVotiroTokenConfig",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/VotiroCdrTokenConfig"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Votiro CDR"
+          ],
+          "description": "Configures or updates the Votiro CDR authentication credentials. To learn more, see <b> Votiro CDR Integration</b> on <a href=\"/zero-trust-browser/creating-isolation-profiles-zia\" target=\"_blank\">Creating Isolation Profiles for ZIA</a>.",
+          "operationId": "IsolationVotiroCdrResource_updateVotiroTokenConfig",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "action",
+              "description": "Updates either the <b>token</b> or <b>hostname</b>. When you set the <b>token</b> or <b>hostname</b>, only the respective field in the <b>VotiroCdrTokenConfig</b> is updated.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Votiro CDR token configuration details",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/VotiroCdrTokenConfig"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/VotiroCdrTokenConfig"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Votiro CDR"
+          ],
+          "description": "Deletes the Votiro CDR authentication credentials",
+          "operationId": "IsolationVotiroCdrResource_deleteVotiroTokenConfig",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "default": {
+              "description": "successful operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "VotiroPolicy": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "System-generated identifier for the Votiro policy"
+          },
+          "name": {
+            "type": "string",
+            "description": "Votiro policy name"
+          }
+        }
+      },
+      "VotiroCdrTokenConfig": {
+        "type": "object",
+        "description": "The Votiro CDR token configuration details",
+        "properties": {
+          "token": {
+            "type": "string",
+            "description": "Votiro CDR authentication token"
+          },
+          "tokenEnding": {
+            "type": "string",
+            "description": "The masked token value shown in API responses"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Votiro service hostname URL"
+          },
+          "tokenExp": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Token expiration timestamp returned by Votiro, in epoch format"
+          }
+        }
+      }
+    }
+  }
+}

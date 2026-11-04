@@ -1,0 +1,320 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "CSV User Attributes",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/csv-user-attributes",
+    "node": "1541152",
+    "revision": "3211793",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/CSV%20User%20Attributes_2.json?VersionId=57keAbEFlnb2hS3wnuoTFsgeAXa8iLz4",
+    "updated": "2026-06-11",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Workflow Automation - DLP Incident  Management API",
+      "description": "Zscaler Workflow Automation - DLP Incident Management API.",
+      "termsOfService": "http://zscaler.com/terms/",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.us1.zsworkflow.net"
+      }
+    ],
+    "tags": [
+      {
+        "name": "CSV User Attributes"
+      }
+    ],
+    "paths": {
+      "/dlp/v1/csv-user-data/{csv_user_data_uuid}/download": {
+        "get": {
+          "tags": [
+            "CSV User Attributes"
+          ],
+          "operationId": "getCsvUserDataDownloadUrl",
+          "description": "Fetches a pre-signed AWS S3 bucket link to download your previously uploaded CSV file and the validation error file, depending on the parameter type.",
+          "parameters": [
+            {
+              "name": "csv_user_data_uuid",
+              "in": "path",
+              "required": true,
+              "description": "The unique identifier (UUID) used to identify a specific user in the CSV file.",
+              "schema": {
+                "type": "string",
+                "format": "uuid"
+              }
+            },
+            {
+              "name": "type",
+              "in": "query",
+              "required": false,
+              "description": "The type of the file that is downloaded.",
+              "schema": {
+                "type": "string",
+                "default": "userData"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/DownloadUrlResponse"
+                  },
+                  "examples": {
+                    "success": {
+                      "value": {
+                        "url": "https://signed-url.example.com/file.csv"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  },
+                  "examples": {
+                    "badRequest": {
+                      "value": {
+                        "message": "Invalid request"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authorization failure"
+            },
+            "404": {
+              "description": "Resource does not exist",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  },
+                  "examples": {
+                    "notFound": {
+                      "value": {
+                        "message": "File url not found"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Failed to process the request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  },
+                  "examples": {
+                    "error": {
+                      "value": {
+                        "message": "Something went wrong"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dlp/v1/csv-user-data/import": {
+        "post": {
+          "tags": [
+            "CSV User Attributes"
+          ],
+          "operationId": "importCsvUserData",
+          "description": "Imports the end user attributes as a CSV file. Only a valid CSV file that is constructed based on one of the CSV template versions and the CSV template instructions can be imported.",
+          "requestBody": {
+            "required": true,
+            "content": {
+              "multipart/form-data": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "version",
+                    "csvUserDataFile"
+                  ],
+                  "properties": {
+                    "version": {
+                      "type": "string",
+                      "description": "The template version to validate the imported CSV file.",
+                      "example": "v1"
+                    },
+                    "csvUserDataFile": {
+                      "type": "string",
+                      "format": "binary",
+                      "description": "The CSV file containing user data."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "responses": {
+            "202": {
+              "description": "Request accepted. The request has been received and processing",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ImportCsvUserDataAcceptedResponse"
+                  },
+                  "examples": {
+                    "accepted": {
+                      "value": {
+                        "message": "User attribute report is accepted and it is getting processed",
+                        "csvUserDataActivityId": "123e4567-e89b-12d3-a456-426614174000"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/CsvValidationDetails"
+                  },
+                  "examples": {
+                    "validationFailure": {
+                      "value": {
+                        "csvUserDataActivityId": "123e4567-e89b-12d3-a456-426614174000",
+                        "csvFileName": "users.csv",
+                        "csvFileSize": "1024",
+                        "totalRecords": 25,
+                        "globalError": true,
+                        "errorMessage": "CSV validation failed"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authorization failure"
+            },
+            "500": {
+              "description": "Failed to process the request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/MessageResponse"
+                  },
+                  "examples": {
+                    "error": {
+                      "value": {
+                        "message": "Something went wrong"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "DownloadUrlResponse": {
+          "type": "object",
+          "properties": {
+            "url": {
+              "type": "string",
+              "description": "The pre-signed AWS S3 link to download the requested file",
+              "example": "https://signed-url.example.com/file.csv"
+            }
+          }
+        },
+        "MessageResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "The response message for downloading the CSV validation error file",
+              "example": "Something went wrong"
+            }
+          }
+        },
+        "ImportCsvUserDataAcceptedResponse": {
+          "type": "object",
+          "properties": {
+            "message": {
+              "type": "string",
+              "description": "The CSV file import status message",
+              "example": "User attribute report is accepted and its getting processed"
+            },
+            "csvUserDataActivityId": {
+              "type": "string",
+              "format": "uuid",
+              "description": "The unique identifier for the import activity",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
+            }
+          }
+        },
+        "CsvValidationDetails": {
+          "type": "object",
+          "properties": {
+            "csvUserDataActivityId": {
+              "type": "string",
+              "nullable": true,
+              "description": "The unique identifier for the import activity",
+              "example": "123e4567-e89b-12d3-a456-426614174000"
+            },
+            "csvFileName": {
+              "type": "string",
+              "nullable": true,
+              "description": "The original name of the uploaded CSV file",
+              "example": "users.csv"
+            },
+            "csvFileSize": {
+              "type": "string",
+              "nullable": true,
+              "description": "The size of the uploaded CSV file",
+              "example": "1024"
+            },
+            "totalRecords": {
+              "type": "integer",
+              "nullable": true,
+              "description": "The total number of records found in the CSV file",
+              "example": 25
+            },
+            "globalError": {
+              "type": "boolean",
+              "nullable": true,
+              "description": "Displays the value <code>true</code> when a file-level error occurrs (e.g., wrong format, missing headers, etc.)",
+              "example": true
+            },
+            "errorMessage": {
+              "type": "string",
+              "nullable": true,
+              "description": "Displays the reason of the global error",
+              "example": "CSV validation failed"
+            }
+          }
+        }
+      }
+    }
+  }
+}

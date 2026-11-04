@@ -1,0 +1,481 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Changing an Azure Orchestrator Subscription",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/changing-orchestrator-subscription",
+    "node": "1479311",
+    "revision": "3249725",
+    "updated": "2026-10-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "DSPM uses the orchestrator template that is deployed on the Azure subscription to scan the data stores."
+    },
+    {
+      "text": "You can change the orchestrator subscription if the existing orchestrator subscription is being decommissioned, deleted, or if an incorrect subscription was selected while onboarding. When you change the orchestrator subscription, you must run the orchestrator template in the new subscription. DSPM validates the template deployment and updates the orchestrator status accordingly."
+    },
+    {
+      "text": "This option is available only for tenants onboarded through Zscaler network configuration mode."
+    },
+    {
+      "text": "Until the new orchestrator subscription is successfully validated, the following changes occur:"
+    },
+    {
+      "item": "The existing orchestrator is disabled.",
+      "depth": 0
+    },
+    {
+      "item": "The DSPM connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.",
+      "depth": 0
+    },
+    {
+      "item": "The data scans are stopped.",
+      "depth": 0
+    },
+    {
+      "item": "The target subscriptions move to the Needs Attention state.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Be assigned either an administrator role or any role with the Configure New Orchestrator permission in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Before redeploying the orchestrator template, you must add your system's IP address to the Azure storage account and Azure Key Vault's IP networks.",
+      "depth": 0
+    },
+    {
+      "item": "This is required when multiple users need to apply Terraform from different IP addresses.",
+      "depth": 0
+    },
+    {
+      "heading": "Changing Orchestrator Subscription",
+      "level": 1
+    },
+    {
+      "text": "To change the orchestrator subscription:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Accounts page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Accounts page, select the tenant for which you want to change the orchestrator subscription.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Manage and then select Configure New Orchestrator.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          29,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure New Orchestrator window, read the caution and then select the I understand checkbox.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          79,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure an Orchestrator subscription page:",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select a subscription on which you want to deploy the DSPM's orchestrator template.",
+      "depth": 1
+    },
+    {
+      "item": "Select Orchestrator Region: Select a region where you want to deploy the orchestrator.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Storage Account Name: Enter a unique name for the storage account. This storage account is used to store the activity logs of the target subscriptions. It is created while running the onboarding template.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The storage account name cannot exceed 16 characters.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Deploy private endpoint for secure communication checkbox to establish a private connection between DSPM and Azure resources. This restricts communication over public IP addresses.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Provide Permissions page, download the template to run it in the Microsoft Entra tenant.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Before running the template on the new orchestrator subscription, purge the previously deployed template by running the terraform destroy command.",
+      "depth": 1
+    },
+    {
+      "item": "If the resource group is manually deleted:",
+      "depth": 1
+    },
+    {
+      "item": "Import the following resources:",
+      "depth": 2
+    },
+    {
+      "item": "terraform import \"module.control_plane[\\\"region\\\"].module.encryption_key.azurerm_key_vault_key.cmk_key\"\"resourceID\"",
+      "depth": 3
+    },
+    {
+      "item": "terraform import \"module.worker_plane[\\\"region\\\"].module.encryption_key.azurerm_key_vault_key.cmk_key\"\"resourceID\"",
+      "depth": 3
+    },
+    {
+      "item": "Purge the secret key vault:",
+      "depth": 2
+    },
+    {
+      "item": "Sign in to the Azure portal and go to Key vaults.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          38,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Manage deleted vaults.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Manage deleted key vaults page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select the existing orchestrator subscription.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Select the secrets key vault check box and click Purge.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          49,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "a. Download the orchestrator template.",
+      "depth": 1
+    },
+    {
+      "item": "Click Azure Onboarding to download the template as a ZIP file. Extract the file to your local system and create a new folder to store the extracted files. The ZIP file includes multiple Terraform files that contain policies and permissions required for DSPM to connect to the Microsoft Entra tenant.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "b. Update and run the Terraform files.",
+      "depth": 1
+    },
+    {
+      "item": "Update the following downloaded files:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "backend.tf: Enter the name of the storage containers where you want to store the Terraform state files.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "terraform.tfvars: Change the random_seed value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Remember this seed value and use the same value when you deploy new templates.",
+      "depth": 3
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app in your local system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Switch to the directory containing the downloaded Terraform files.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "To connect to your Microsoft Entra tenant:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "az login --tenant <tenant ID>",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "You are directed to a web browser to authorize the Microsoft Entra tenant. Select your account to confirm the authorization.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The command output returns the subscriptions available within your Microsoft Entra tenant.",
+      "depth": 3
+    },
+    {
+      "item": "To set the subscription where you want to run the Terraform template:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "az account set --subscription <subscription ID>",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) To verify if the subscription is accurately set:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "az account show",
+      "depth": 3
+    },
+    {
+      "item": "To initialize the working directory and apply Terraform configuration:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "terraform init",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "terraform plan",
+      "depth": 3
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "terraform apply",
+      "depth": 3
+    },
+    {
+      "item": "Under Do you want to perform these actions?, enter yes and then press Enter.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Done.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "DSPM validates the template deployment every hour by checking the roles that are created and permissions granted."
+    },
+    {
+      "text": "An error message appears if there is any issue while deploying the template. Rerun the template in the root account."
+    },
+    {
+      "text": "After the template is successfully deployed, the onboarded subscriptions move to the Successfully Configured state and DSPM begins the data scan. The DSPM Connection and Configuration Status for the orchestrator are displayed as successful."
+    },
+    {
+      "text": "You can view the orchestrator details on the Overview tab."
+    }
+  ]
+}

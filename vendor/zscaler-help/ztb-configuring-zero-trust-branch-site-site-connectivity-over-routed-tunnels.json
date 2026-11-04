@@ -1,0 +1,1425 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Zero Trust Branch Site-to-Site Connectivity Over Routed Tunnels",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels",
+    "node": "1532667",
+    "revision": "3250137",
+    "updated": "2026-10-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Routed tunnels provide a secure way to connect branch locations over IP networks. Some applications, like VoIP phones, TACACS+, and Active FTP running in branches require direct source IP address visibility. Zscaler Zero Trust Branch supports remote site connectivity over Zero Trust Branch Routed Tunnels (RTs) and preserves the IP addresses required for these applications to function. The applications are deployed in a hub-and-spoke architecture, where a physical or virtual Zero Trust Branch appliance in a data center (the hub) and Zero Trust Branch appliances in the branch offices (the spokes) connect via the RTs. RTs use state cryptography to secure connections and are easy to implement."
+    },
+    {
+      "text": "Contact the Zscaler Account team for guidance on hub positioning."
+    },
+    {
+      "text": "Values from the example topology are used throughout this article for illustration purposes only."
+    },
+    {
+      "heading": "Topology",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide a diagram depicting the topology of site-to-site connectivity over RTs and a description of its components and flow."
+    },
+    {
+      "item": "Topology diagram",
+      "depth": 0
+    },
+    {
+      "item": "Topology details",
+      "depth": 0
+    },
+    {
+      "item": "The Pod30 and Pod50 sites are the spokes.",
+      "depth": 1
+    },
+    {
+      "item": "For redundancy, both spokes are connected to a pair of identical hubs (hubA and hubB). The hub appliances do not communicate with each other.",
+      "depth": 1
+    },
+    {
+      "item": "The following interfaces are available at each spoke and hub:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Spoke Interfaces",
+          ""
+        ],
+        [
+          "Interface",
+          "Connection"
+        ],
+        [
+          "s2s_overlay0",
+          "Generic Routing Encapsulation (GRE) tunnel to hubA"
+        ],
+        [
+          "s2s_overlay1",
+          "GRE tunnel to hubB"
+        ],
+        [
+          "wg_vpn_client0",
+          "RT to hubA"
+        ],
+        [
+          "wg_vpn_client1",
+          "RT to hubB"
+        ],
+        [
+          "ge2",
+          "Physical interface"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          9
+        ],
+        [
+          1,
+          1,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Hub Interfaces",
+          ""
+        ],
+        [
+          "Interface",
+          "Connection"
+        ],
+        [
+          "s2s_overlay0",
+          "GRE tunnel to Pod30 spoke"
+        ],
+        [
+          "s2s_overlay1",
+          "GRE tunnel to Pod50 spoke"
+        ],
+        [
+          "wg_client",
+          "RT to Pod50 spoke"
+        ],
+        [
+          "ge2",
+          "Physical interface"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          9
+        ],
+        [
+          1,
+          1,
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Configuration",
+      "level": 1
+    },
+    {
+      "text": "Perform the following steps to configure BGP and establish peering between the spokes and hubs:"
+    },
+    {
+      "item": "Step 1: Add Routed Tunnel Hubs",
+      "depth": 0
+    },
+    {
+      "item": "Hubs can be physical or virtual Zero Trust Branch appliances. They are typically deployed in your data center. Launch hubs using the same image as the Zero Trust Branch appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Routed tunnel hubs cannot be deployed in a public cloud.",
+      "depth": 0
+    },
+    {
+      "item": "To add a new hub:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Hubs.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Add On-Prem Hub.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add On-Prem Hub drawer:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Location: Select Add New Location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Appliance Name: Enter a name for the gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "User Reachable IP: Enter the IP address for the gateway. This is the address the spokes use to communicate with the hub. If the hub and spokes at the branch site are separated by an external network such as the internet, enter the post-NAT address of the hub seen on the internet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Make sure the IP address is entered correctly. An incorrect configuration can cause unexpected results or an end-to-end connectivity failure.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Copy and save the activation code that displays. You use this code when you activate the gateway.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Add a site.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "To review the ports that need to be open, see Open Ports on the Upstream Device.",
+      "depth": 0
+    },
+    {
+      "item": "The activation process uses the activation code and URL that you saved during the Managing Sites procedure in the Zscaler Admin Console. If you cannot find this information:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the row for the required site, click the Send Activation Link icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler supports one subinterface per WAN interface. However, Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged).",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to activate a Zero Trust Branch appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Activation Code Method",
+      "depth": 1
+    },
+    {
+      "item": "Activation URL Method",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the activation code that you saved during the Adding a Site procedure in the Zscaler Admin Console. Before you activate the appliance, you must configure it with the same parameters you configured when you created the site in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure uses these example values:",
+      "depth": 0
+    },
+    {
+      "item": "WAN interface: ge3 set for DHCP (This interface is hard-coded.)",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DNS servers: 1.1.1.1 and 8.8.8.8",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Web proxy: hub3.goairgap.com:1883",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "a. Configure the network.",
+      "depth": 1
+    },
+    {
+      "item": "b. Configure the web proxy (Required only if the Zero Trust Branch appliance is deployed behind a firewall)",
+      "depth": 1
+    },
+    {
+      "item": "c. Activate the appliance.",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the URL that you saved during the Adding a Site procedure in the Zscaler Admin Console. The URL contains the configuration data for the WAN interface and the activation code.",
+      "depth": 0
+    },
+    {
+      "item": "Connect a laptop directly to the management port on the appliance. The laptop automatically gets an IP address directly from the appliance.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Open a browser on the laptop and paste the URL that you copied when you created the site.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "After the appliance processes the configuration, it displays an Activation is completed message on the web page.",
+      "depth": 1,
+      "strong": [
+        [
+          64,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and click the site in the Site Name column. In the site details, verify that the appliance is activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ],
+        [
+          72,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "The State field value for an activated appliance is:",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Standalone for a standalone appliance",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Active for the primary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Standby for the secondary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Show image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, enter 2 (Configure Gateway) from the menu and press Enter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Configure Network) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the network configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 3 (Configure Web Proxy) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the web proxy configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 1 (Activate Gateway) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Activate Airgap Gateway) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the activation code that you saved when you created the site and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 2 (Main Menu) and press Enter. The screen shows that the appliance is activated.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Hubs to view the hubs and the activated gateways.",
+      "depth": 0,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To identify the spokes (sites):",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Note the pods in the Site Name column. In this example, Pod30 and Pod50 are the spokes that BGP advertises over the routed tunnel.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          21,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the RT from each spoke, terminating at the primary and secondary hubs.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the routed tunnels:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and select the first spoke.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click Connectivity > Routed Tunnel.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Select the primary and secondary hubs and the WAN interfaces used to reach them.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image",
+      "depth": 1
+    },
+    {
+      "item": "Enable Connect To Hub.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Changes.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Repeat these steps for the second spoke.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Spokes enable sharing over RTs at the virtual LAN (VLAN) level. These encrypted routed tunnels advertise the BGP routes.",
+      "depth": 0
+    },
+    {
+      "item": "To enable sharing over RTs for a VLAN:",
+      "depth": 1
+    },
+    {
+      "item": "To assign a VLAN for the source IP address of the DNS proxy:",
+      "depth": 1
+    },
+    {
+      "item": "To enable sharing over RTs for a static route:",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the Site Name column, click the name of the site you want to configure.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click the Routing tab, then click Static Routes.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          34,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Add route for the site. To learn more, see Managing Sites.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Enable Share Over RT.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the Site Name column, click the name of the site you want to configure.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click the VLANs tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click the Gear icon of the desired VLAN at the end of the row, and select Use for DNS Proxy.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          74,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "This ensures that DNS queries sent over the RT use the IP address of this specific VLAN as the source.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and select the first spoke.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click VLANs, click the Gear icon, then select Share on Routed Tunnel.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          23,
+          27
+        ],
+        [
+          46,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat these steps for the second spoke.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Step 2: Activate the Gateways",
+      "depth": 0
+    },
+    {
+      "item": "Step 3: View the Hubs",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Identify Spokes",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Configure the RTs for the Spokes",
+      "depth": 0
+    },
+    {
+      "item": "Step 6: Enable Sharing Over RTs",
+      "depth": 0
+    },
+    {
+      "item": "Step 7: Add a Policy-Based Routing Rule for the Spokes",
+      "depth": 0
+    },
+    {
+      "item": "Configure a policy-based routing (PBR) rule on each spoke to direct traffic over a site-to-site VPN. To learn more, see Configuring Routing Policies.",
+      "depth": 0
+    },
+    {
+      "item": "To configure a policy-based rule:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and select the first spoke.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Do one of the following:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "If you are adding a new route, click Routing > Static Routes > Add Route.",
+      "depth": 2,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          47,
+          60
+        ],
+        [
+          63,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "If you are editing an existing rule, click Routing > Static Routes, click the Gear icon at the end of the row, and then click the Edit icon.",
+      "depth": 2,
+      "strong": [
+        [
+          43,
+          50
+        ],
+        [
+          53,
+          66
+        ],
+        [
+          78,
+          82
+        ],
+        [
+          130,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Complete the Add Static Route or Edit Static Route drawer, being sure to select Share Over RT.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          13,
+          29
+        ],
+        [
+          33,
+          50
+        ],
+        [
+          80,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Repeat these steps for the second spoke, if that spoke initiates traffic.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Click Forwarding Policy to view the configured rules from the spokes (e.g., Pod30 and Pod50).",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Only spokes that initiate traffic require rules. For example, if the Pod30 spoke initiates traffic to the Pod50 spoke, but not vice versa, only Pod30 needs a rule. Response traffic is handled automatically.",
+      "depth": 0
+    },
+    {
+      "heading": "Verification",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe how to verify site-to-site connectivity over routed tunnels."
+    },
+    {
+      "text": "You run the CLI commands in these sections from the Zscaler Admin Console. To open the console, click the >_Console tab on the site details page.",
+      "strong": [
+        [
+          106,
+          115
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Verify the Hub",
+      "depth": 0
+    },
+    {
+      "item": "Run the commands in the following sections to verify the hub:",
+      "depth": 0
+    },
+    {
+      "item": "Hub status",
+      "depth": 1
+    },
+    {
+      "item": "PBR rule configuration",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Routing and Forwarding (VRF) status",
+      "depth": 1
+    },
+    {
+      "item": "BGP peering with spokes over site-to-site GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Peer uptime",
+      "depth": 1
+    },
+    {
+      "item": "Routes advertised by spokes via s2s_overlay GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Bidirectional Forwarding Detection (BFD) and BGP peering with spokes",
+      "depth": 1
+    },
+    {
+      "item": "To verify the hub, run the ipconfig command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Physical interface:",
+      "depth": 0
+    },
+    {
+      "item": "ztb-user--pod-40-hubA--pod-40-hubA:~$ifconfig ge2 ge2: flags=4161<UP, BROADCAST, RUNNING, MULTICAST> mtu 1500 ...",
+      "depth": 0,
+      "strong": [
+        [
+          66,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "GRE tunnel-facing spokes:",
+      "depth": 0
+    },
+    {
+      "item": "ztb-user--pod-40-hubA--pod-40-hubA:~$ifconfig s2s_overlay0 s2s_overlay0: flags=193<UP, RUNNING, NOARP> mtu 1256 ... ztb-user--pod-40-hubA--pod-40-hubA:~$ifconfig s2s_overlay1 s2s_overlay1: flags=193<UP, RUNNING, NOARP> mtu 1256 ...",
+      "depth": 0,
+      "strong": [
+        [
+          85,
+          86
+        ],
+        [
+          201,
+          202
+        ]
+      ]
+    },
+    {
+      "item": "RT-facing spokes:",
+      "depth": 0
+    },
+    {
+      "item": "ztb-user--pod-40-hubA--pod-40-hubA:!$ifconfig wg_client wg_client: flags=209<UP, POINTOPOINT, RUNNING, NOARP> mtu 1420 ...",
+      "depth": 0
+    },
+    {
+      "item": "To confirm that the policy-based rule is configured correctly, run the ip rule command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Table 500 manages site-to-site tunnels (s2s overlays).",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$docker exec vyos_container su - vyos sh -c 'ip rule' 1000: from all lookup [13mdev-table] 1999: from all goto 2001 2000: from all lookup [13mdev-table] unreachable 2001: from all lookup local 30000: from all lookup main suppress_prefixlength 0 30100: from all lookup 500 32765: from all lookup local 32766: from all lookup main 32767: from all lookup default",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the site-to-site BGP Virtual Routing and Forwarding (VRF) on both hubs is up, run the show vrf command for each hub from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrf' Name State MAC address Flags Interfaces —--- —---- —---------------- —------------------------ —----------------------------------- vrf-s2s up 5e:cx:2x:ex:8x:cx noarp,master,up, lower_up s2s_overlay0,s2s_overlay1,pim6reg500 user-test--pod-40-hubB--pod-40-hubB:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrf' Name State MAC address Flags Interfaces —--- —---- —---------------- —------------------------ —----------------------------------- vrf-s2s up 5x:cx:2x:ex:8x:cx noarp,master,up, lower_up s2s_overlay0,pim6reg500,s2s_overlay1",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the hubs established BGP peering with spokes over site-to-site GRE tunnels, run the ip neighbor | grep command for each hub from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$ docker exec vyos_container su - vyos sh -c 'ip neighbor | grep s2s' 100.64.219.144 dev s2s_overlay0 1laddr 100.64.174.92 PERMANENT 100.64.233.132 dev s2s_overlay0 1laddr 100.64.141.18 PERMANENT",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubB--pod-40-hubB:~$ docker exec vyos_container su - vyos sh -c 'ip neighbor | grep s2s' 100.65.216.183 dev s2S_overlay1 Iladdr 100.64.151.96 PERMANENT",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the hubs established BGP peering with the spokes and to view the peer uptime, run the show ip bgp vrf vrf-s2s summary command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show ip bgp vrf vrf-s2s summary' IPv4 Unicast Summary (VRF vrf-s2s) : BGP router identifier 100.65.195.202, local AS number 229 vrf-id 26 BGP table version 2 RIB entries 3, using 576 bytes of memory Peers 4, using 82 KiB of memory Neighbor V AS MsgRevd MsgSent TblVer InQ OutQ Up/Down State/PfxRcd PfxSnt Desc 100.64.219.144 4 219 1724 1725 2 0 0 1d04h34m 1 2 N/A 100.64.233.132 4 221 1726 1725 2 0 0 1d04h34m 1 2 N/A",
+      "depth": 0
+    },
+    {
+      "item": "To view the hub BGP routing table and the BGP routes advertised by the spokes reachable via s2s_overlay GRE tunnels, run the ip route show table 500 command for each hub from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$sudo docker exec vyos_container su - vyos sh -c '/opt/vyata/bin/vyatta-op-cmd-wrapper show ip route table 500' ... VRF default table 500: B›* 10.90.30.0/24 [20/0] via 100.64.233.132, s2s_overlay0, weight 1, 1d04h36m B>* 10.90.50.0/24 [20/0] via 100.64.219.144, s2s_overlay0, weight 1, 1d04h37m C>* 100.64.192.0/18 is directly connected, s2s_overlay0, 1004h44m C>﻿* 100.65.192.0/18 is directly connected, s2s_overlay1, 1d04h44m ... user-test--pod-40-hubB--pod-40-hubB:~$sudo docker exec vyos_container su - vyos sh -c '/opt/vyata/bin/vyatta-op-cmd-wrapper show ip route table 500' ... VRF default table 500: B›* 10.90.30.0/24 [20/0] via 100.65.216.183, s2s_overlay1, weight 1, 1d04h36m B›* 10.90.50.0/24 [20/0] via 100.65.214.20, s2s_overlay1, weight 1, 1d04h36m C>* 100.64.192.0718 1s directly connected, s2s_overlay0, 1004h44m C›* 100.65.192.0/18 is directly connected, s2s_overlay1, 1d04h44m",
+      "depth": 0
+    },
+    {
+      "item": "To view the hub's BFD and BGP peering with the spokes, run the show configuration command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "BFD detects link failure.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--pod-40-hubA--pod-40-hubA:~$sudo docker exec vyos_container su - vyos sh -c '/opt/vyata/bin/vyatta-op-cmd-wrapper show configuration' ... protocols { bfd { peer 100.64.219.144 { interval { multiplier 50 } source { interface s2s_overlay0 } vrf vrf-s2s } peer 100.64.233.132 { interval { multiplier 50 } source { interface s2s_overlay0 } vrf vrf-s2s } peer 100.64.219.144 { interval { multiplier 50 } source { interface s2s_overlay1 } vrf vrf-s2s } peer 100.64.233.132 { interval { multiplier 50 } source { interface s2s_overlay1 } vrf vrf-s2s } } } vrf { name vrf-s2s { protocols { bgp { ... neighbor 100.64.219.144 { //BGP Neighbor (Spoke) address-family { ipv4-unicast { nexthop-self { { { { bfd { { remote-as external update-source s2s_overlap0 neighbor 100.64.233.132 } //BGP Neighbor (Spoke) address-family { ipv4-unicast { nexthop-self { } } }",
+      "depth": 0
+    },
+    {
+      "item": "Run the commands in the following sections to verify the spokes:",
+      "depth": 0
+    },
+    {
+      "item": "Spoke status",
+      "depth": 1
+    },
+    {
+      "item": "PBR rule configuration",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Routing and Forwarding (VRF) status",
+      "depth": 1
+    },
+    {
+      "item": "BGP peering with spokes over site-to-site GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Peer uptime",
+      "depth": 1
+    },
+    {
+      "item": "Routes advertised by spokes via s2s_overlay GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Verify communication between the spokes",
+      "depth": 1
+    },
+    {
+      "item": "To verify the spokes, run the ifconfig command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Physical interface:",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod50--pod50-gw-st:~$ifconfig ge3.50 ge3.50: flags=4163<UP, BROADCAST, RUNNING, MULTICAST> mtu 1500 ...",
+      "depth": 0
+    },
+    {
+      "item": "GRE tunnel-facing hubs:",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod50--pod50-gw-st:~$ifconfig s2s_overlay0 s2s_overlay0: flags=193<UP,RUNNING, NOARP> mtu 1256 inet 100.64.219.144 netmask 255.255.192.0 ... user-test--Pod50--pod50-gw-st:~$ifconfig s2s_overlay1 s2s_overlayl: flags=193<UP, RUNNING, NOARP> mtu 1256 inet 100.65.214.20 netmask 255.255.192.0 ...",
+      "depth": 0
+    },
+    {
+      "item": "Routed tunnel-facing hubs:",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod50--pod50-gw-st:~$ifconfig wg_vpn_client0 wg_vpn_client0: flags=209<UP,POINTOP0INT, RUNNING, NOARP> mtu 1280 inet 100.64.174.92 netmask 255.255.255.255 destination 100.64.174.92 ... user-test--Pod50--pod50-gw-st:~$ifconfig wg_vpn_client1 wg_vpn_client1: flags=209<UP,POINTOPOINT, RUNNING, NOARP> mtu 1280 inet 100.64.154.189 netmask 255.255.255.255 destination 100.64.154.189 ...",
+      "depth": 0
+    },
+    {
+      "item": "Site-to-site VPN uses the wg_vpn_client0 and wg_vpn_client1 interfaces. The previous command output shows that site-to-site VPN is enabled.",
+      "depth": 0
+    },
+    {
+      "item": "To confirm that the policy-based rule is configured correctly, run the ip rule command for each spoke from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Table 500 manages site-to-site tunnels (s2s overlays).",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ ip rule 1000: from all lookup [13mdev-table] 1999: from all goto 2001 2000: from all lookup [13mdev-table] unreachable 2001: from all lookup local 2100: from all fwmark 0x800 lookup 500 3000: from all fwmark 0x1000 lookup 300 ...",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod50--pod50-gw-st:~$ ip rule 1000: from all lookup [13mdev-table] 1999: from all got 2001 2000: from all lookup [13mdev-table] 2001: from all lookup local 2100: from all fwmark 0x800 lookup 500 3000: from all fwmark 0x1000 lookup 300 ...",
+      "depth": 0
+    },
+    {
+      "item": "To see a list of installed rules in order and the corresponding flow-mark of each rule, run the iptables -nVL -t mangle command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ iptables -nVL -t mangle Chain PREROUTING (policy ACCEPT 253K packets, 93M bytes) pkts bytes target prot opt in out source destination 346K 120M PBR-RULES all -- * * 0.0.0.0/0 0.0.0.0/0 527K 27M CONNMARK all -- * * 0.0.0.0/0 0.0.0.0/0 ctdir ORIGINAL CONNMARK set 0x1000 ... Chain POSTROUTING (policy ACCEPT 222K packets, 134M bytes) pkts bytes target prot opt in out source destination Chain PBR-RULES (1 references) pkts bytes target prot opt in out source destination 0 0 MARK all -- * * 0.0.0.0/0 0.0.0.0/0 ctdir ORIGINAL match-set 37 src match-set 38 dst MARK set 0x800 0 0 RETURN all -- * * 0.0.0.0/0 0.0.0.0/0 mark match 0x800 Chain PBR-RULES-X (0 references) pkts bytes target prot opt in out source destination",
+      "depth": 0
+    },
+    {
+      "item": "To see what is within the source, destination, and protocols in match sets 37 and 38, run the ipset list 37 and ipset list 38 commands for each spoke from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-80-gw-st:~$ ipset list 37 Name: 37 Type: hash:net Revision: 6 Header: family inet hashsize 1024 maxelem 65536 Size in memory: 504 References: 1 Number of entries: 1 Members: 10.90.30.0/24 user-test--Pod30--pod30-gw-st:~$ ipset list 38 Name: 38 Type: hash:net Revision: 6 Header: family inet hashsize 1024 maxelem 65536 Size in memory: 504 References: 1 Number of entries: 1 Members: 10.90.50.0/24",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the site-to-site BGP VRF that was configured on each spoke is up, run the show vrf command from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrf' Name State MAC address Flags Interfaces ------- ------- ---------------- --------------------------- ------------------------------------ vrf-s2s up 5e:cx:xx:ex:xx:x8 noarp, master, up, lower_up pim6reg500,s2s_overlay0,s2s_overlay1 user-test--Pod50--pod50-gw-st:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show vrf' Name State MAC address Flags Interfaces ------- ------- ---------------- --------------------------- ------------------------------------ vrf-s2s up 5e:cx:xx:ex:xx:x8 noarp, master, up, lower_up pim6reg500,s2s_overlay0,s2s_overlay1",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the spokes established BGP peering through the primary and secondary hubs over site-to-site GRE tunnels, run the ip neighbor | grep s2s command for each spoke from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ ip neighbor | grep s2s 100.65.192.133 dev s2s_overlay1 1laddr 100.64.129.207 PERMANENT 100.64.195.202 dev s2s_overlay0 1laddr 100.64.128.68 PERMANENT user-test--Pod50--pod50-gw-st:~$ ip neighbor | grep s2s 100.65.192.133 dev s2s_overlay1 1laddr 100.64.129.207 PERMANENT 100.64.195.202 dev s2s_overlay0 1laddr 100.64.128.68 PERMANENT",
+      "depth": 0
+    },
+    {
+      "item": "To verify that the spoke established BGP peering with primary and secondary hubs and view the peer uptime, run the show ip bgp vrf vrf-s2s summary command for each spoke from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show ip bgp vrf vrf-s2s summary' IPv4 Unicast Summary (VRF vrf-s2s): BGP router identifier 100.65.216.183, Local AS number 221 vrf-id 21 BGP table version 4 RIB entries 3, using 576 bytes of memory Peers 4, using 82 KiB of memory Neighbor V AS MsgRcvd MsgSent TblVer InQ OutQ Up/Down State/PfxRcd PfxSnt Desc 100.64.195.202 4 229 135 136 4 0 0 02:08:40 1 2 N/A 100.65.192.133 4 230 138 138 4 0 0 02:09:04 1 1 N/A user-test--Pod50--pod50-gw-st:~$ sudo docker exec vyos_container su - vyos sh -c '/opt/vyatta/bin/vyatta-op-cmd-wrapper show ip bgp vrf vrf-s2s summary' ... Neighbor V AS MsgRcvd MsgSent TblVer InQ OutQ Up/Down State/PfxRcd PfxSnt Desc 100.64.195.202 4 229 128 129 2 0 0 02:01:37 1 2 N/A 100.65.192.133 4 230 128 130 2 0 0 02:01:04 1 1 N/A",
+      "depth": 0
+    },
+    {
+      "item": "To view the spoke BGP routing table and the BGP route advertised by the remote spoke reachable via the s2s_overlay0 GRE tunnel, run the ip route show table 500 command for each spoke from the Zscaler Admin Console. In the first example, the Pod30 spoke sees the route advertised by Pod50. In the second example, the Pod50 spoke sees the route advertised by Pod30.",
+      "depth": 0
+    },
+    {
+      "item": "user-test--Pod30--pod30-gw-st:~$ ip route show table 500 10.90.50.0/24 nhid 67 via 100.64.195.202 dev S2S_overlay0 proto bgp metric 20 100.64.192.0/18 dev S2S_overlayo proto kernel scope link src 100.64.233.132 local 100.64.233.132 dev s2s_overlay0 proto kernel scope host src 100.64.233.132 broadcast 127.255.255.255 dev s2s_overlay0 proto kernel scope link src 100.64.233.132 ... user-test--Pod50--pod50-gw-st:~$ ip route show table 500 10.90.30.0/24 nhid 457 via 100.64.195.202 dev s2s_over layo proto bep metric 20 100.64.192.0/18 dev s2s_overlay0 proto kernel scope link src 100.64.219.144 local 100.64.219.144 dev s2s_overlay0 proto kernel scope host src 100.64.219.144 broadcast 100.64.255.255 dev s2s_overlay0 proto kernel scope link src 100.64.219.144 ...",
+      "depth": 0
+    },
+    {
+      "item": "To verify connectivity between Pod30 and Pod50, ping the Pod30 host or an endpoint in Pod30 from an endpoint in Pod50. In this example, the ip address show command output shows the Pod30 host IP address.",
+      "depth": 0
+    },
+    {
+      "item": "admin30@pod-30-1nx-a:~$ ip address show 1: lo: <LOOPBACK, UP, LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000 link/Loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever inet6 ::1/128 scope host valid_lft forever preferred_lft forever 2: ﻿﻿﻿ens160: <BROADCAST, MULTICAST,UP, LOWER_UP> mu 1500 qdisc mq state UP group default qlen 1000 link/ether 00:0c:29:db:81:c7 brd ff:ff:ff:ff:ff:ff altname enp3s0 inet 10.90.30.2/32 brd 10.90.30.2 scope global dynamic ens160 valid_lft 57353sec preferred_lft 57353sec inet6 fe80::6310:cd9c:af3c:2c30/64 scope link noprefixroute valid_lft forever_preferred_lft forever admin50@pod-50-1nx-a:~$ ping 10.90.30.2 PING 10.90.30.2 (10.90.30.2) 56(84) bytes of data. 64 bytes from 10.90.30.2: icmp_seq=1 ttl=61 time=6.89 ms 64 bytes from 10.90.30.2: icmp_seq=2 ttl=61 time=1.38 ms ...",
+      "depth": 0
+    },
+    {
+      "item": "To verify that traffic is sent over the routed tunnel:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Data Explorer > Zero Trust Branch > Flow Logs.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          22,
+          39
+        ],
+        [
+          42,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "View the highlighted information in the following excerpts from the flow log.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "This excerpt shows the source IP and destination IP for traffic flowing from Pod30 to Pod50:",
+      "depth": 0
+    },
+    {
+      "item": "This excerpt shows the destination IP for traffic flowing from Pod30 to Pod50:",
+      "depth": 0
+    },
+    {
+      "item": "This excerpt shows the interface through which traffic is sent over the routed tunnel:",
+      "depth": 0
+    },
+    {
+      "item": "This excerpt shows the source IP for traffic flowing from Pod30 to Pod50:",
+      "depth": 0
+    },
+    {
+      "item": "Verify the Spoke",
+      "depth": 0
+    },
+    {
+      "item": "Verify Routed Tunnel Traffic Flow",
+      "depth": 0
+    }
+  ]
+}

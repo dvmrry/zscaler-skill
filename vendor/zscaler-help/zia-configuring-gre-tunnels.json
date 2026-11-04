@@ -1,0 +1,297 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring GRE Tunnels",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-gre-tunnels",
+    "node": "1399096",
+    "revision": "3247566",
+    "updated": "2026-10-08",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following diagram is an example GRE tunnel configuration."
+    },
+    {
+      "text": "To configure GRE tunnels from your corporate network to the Zscaler service:"
+    },
+    {
+      "item": "1. Review the configuration guidelines.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends configuring two separate GRE tunnels to two Public Service Edges for Internet & SaaS (ZIA) that are each located in a different data center for high availability. If the primary GRE tunnel or an intermediate connection goes down, all traffic is then rerouted through the backup GRE tunnel to the secondary Public Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that if the primary tunnel goes down, the router detects it and changes the routing table or routing instance so that the secondary tunnel is used for traffic forwarding and vice versa.",
+      "depth": 1
+    },
+    {
+      "item": "Use the GRE tunnel to forward internet traffic to the service. If supported, use policy-based routing (PBR) to ensure that only internet-bound traffic is sent through the GRE tunnel. PBR is a mechanism that enables a router to determine where to forward packets based on configured policies. When you configure a GRE tunnel, you can use PBR to ensure that only internet-bound traffic is sent through the tunnel. A policy typically includes match criteria and the action that the router takes on the traffic. Match criteria can include the source and destination IP addresses and ports, and the protocol, such as HTTP or HTTPS. The action specifies the nexthop of the packets. When a packet arrives at a router with PBR enabled, it determines if the packet matches a configured policy and then routes it accordingly. PBR enables packets to take different paths based on the match criteria.",
+      "depth": 1
+    },
+    {
+      "item": "If supported, enable GRE keepalives in the primary and secondary tunnels. When you configure a GRE tunnel to the service, enable GRE keepalives so the traffic can switch from the primary to the secondary tunnel in the event of a failure. Additionally, ensure that the settings are neither too aggressive nor too slow in detecting when the tunnel is down. If your router does not support GRE keepalives, you can configure ICMP probes instead.",
+      "depth": 1
+    },
+    {
+      "item": "For Cisco routers, you can use IPSLAs to monitor the tunnels. You can set a threshold so the traffic can switch from the primary to the secondary tunnel when the threshold is exceeded. For Juniper routers, you can use real-time performance monitoring (RPM) to monitor the VPNs.",
+      "depth": 1
+    },
+    {
+      "item": "Most routers apply the policy-based route to redirect traffic to the tunnel before they apply network address translation (NAT) to the traffic. Therefore, the internal client IP addresses of traffic routed through the tunnel are preserved. If your router performs NAT before it sends traffic through the tunnel, consider disabling NAT to allow the Zscaler service to see internal IP addresses. This enables the service to use internal IP addresses for logging and reporting. Additionally, you can configure sublocations to identify internal networks whose outbound traffic is encapsulated in the GRE tunnel. When using sublocations, the service can retrieve the IP addresses of the internal networks and apply custom policies to the traffic of the internal networks.",
+      "depth": 1
+    },
+    {
+      "item": "If your firewall has an ACL blocking inbound connections, configure a rule to allow GRE traffic (protocol 47).",
+      "depth": 1
+    },
+    {
+      "item": "2. Provision a GRE tunnel to your account.",
+      "depth": 0
+    },
+    {
+      "item": "You can provision a GRE tunnel to your account by using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Use the Zscaler Admin Console to self-provision your GRE tunnel.",
+      "depth": 1
+    },
+    {
+      "item": "Contact your Zscaler representative or Zscaler Support to provision your GRE tunnel.",
+      "depth": 1
+    },
+    {
+      "item": "Contact Zscaler Support and provide the following information so Zscaler can provision the GRE tunnels:",
+      "depth": 1
+    },
+    {
+      "item": "The public IP address of the tunnel source",
+      "depth": 2
+    },
+    {
+      "item": "The physical location of your router",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler then assigns Virtual IP (VIP) addresses for use as the source and destination addresses inside the tunnel. Zscaler assigns these addresses from a pool of non-routable address space that Zscaler manages to ensure that no two customers attempt to use the same IP addresses.",
+      "depth": 1
+    },
+    {
+      "item": "The following table provides an example of what Zscaler sends to an organization that wants to configure GRE tunnels, together with an example for each IP address:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Example",
+          "Explanation"
+        ],
+        [
+          "Tunnel Source IP: 192.0.2.2",
+          "The IP address of the tunnel source. This is provided by the customer."
+        ],
+        [
+          "Internal Range: 172.18.58.120 - 172.18.58.127",
+          "The IP address range that Zscaler assigned to the organization"
+        ],
+        [
+          "Primary Destination: 216.66.5.49",
+          "The IP address of the Public Service Edge, which is the primary tunnel destination"
+        ],
+        [
+          "Internal Router IP: 172.18.58.121/30",
+          "The VIP address of the tunnel source"
+        ],
+        [
+          "Internal Public Service Edge IP: 172.18.58.122/30",
+          "The VIP address of the tunnel destination"
+        ],
+        [
+          "Secondary Destination: 199.169.149.79",
+          "The IP address of the Public Service Edge, which is the secondary tunnel destination"
+        ],
+        [
+          "Internal Router IP: 172.18.58.125/30",
+          "The VIP address of the tunnel source"
+        ],
+        [
+          "Internal Public Service Edge IP: 172.18.58.126/30",
+          "The VIP address of the tunnel destination"
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler has Public Service Edges worldwide and selects the most appropriate Public Service Edges as destinations for your tunnels.",
+      "depth": 1
+    },
+    {
+      "item": "When Zscaler assigns the VIP addresses, the Zscaler service binds the source and destination addresses to the specified primary and secondary Public Service Edges. The Public Service Edge listens specifically for traffic from the source VIP address and addressed to its destination VIP address. When your GRE tunnel sends traffic to the Zscaler service, the Public Service Edge associates the virtual source and destination addresses with your organization.",
+      "depth": 1
+    },
+    {
+      "item": "3. Log in to the Zscaler Admin Console and add your gateway location.",
+      "depth": 0
+    },
+    {
+      "item": "After your IP addresses have been provisioned on the Zscaler service, log in to the Zscaler Admin Console and define your organization’s gateway location as follows:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          69,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Location.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Enter general information about the location:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Name: Enter a name for the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Country: Choose the country of the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "City/State/Province: Enter the name of the location's city, state, or province, if applicable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Time Zone: Choose the time zone of the location.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "When you specify the location in a policy, the service applies the policy according to the location's time zone. For example, if a Cloud App Control policy blocks posting to Facebook between 8:00 AM and 5:00 PM, and the rule is applied to locations in Spain and California, users at each location are blocked during their respective daytime hours.",
+      "depth": 2
+    },
+    {
+      "item": "For configuration information about the other fields on this page, see Configuring Locations.",
+      "depth": 2
+    },
+    {
+      "item": "Choose the IP addresses for the location:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The Static IP Addresses and GRE Tunnels drop-down menu displays the IP addresses and GRE Tunnels that you sent to Zscaler when it was provisioned for your organization.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Optionally, enable the other features on this page.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. Configure your router or firewall to allow the GRE tunnel.",
+      "depth": 0
+    },
+    {
+      "item": "For redundancy reasons, Zscaler recommends configuring multiple GRE tunnels to Zscaler. After completing the previous step, you have the following two types of addresses:",
+      "depth": 0
+    },
+    {
+      "item": "Internet-routable public IP addresses outside the GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "Internal range IP addresses (i.e., RFC1918 private IP addresses) inside the GRE tunnels",
+      "depth": 1
+    },
+    {
+      "item": "The static IP address that you assigned to your location is the public source IP address for both the GRE tunnels. Zscaler assigns a /29 subnet for the GRE tunnels. You need to split it into two /30 subnets. For the first /30 subnet, assign the first host IP address to your location and the second host IP address to the Zscaler data center. This process should be repeated with the second /30 subnet on the other GRE tunnel.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about the configuration instructions, refer to the help documentation for your router or firewall.",
+      "depth": 0
+    },
+    {
+      "item": "For sample configurations, see the following articles:",
+      "depth": 0
+    },
+    {
+      "item": "GRE Configuration Example: Cisco 881 ISR",
+      "depth": 1
+    },
+    {
+      "item": "GRE Configuration Example: Juniper SRX",
+      "depth": 1
+    },
+    {
+      "text": "Go to Data Explorer > Internet & SaaS > Tunnel Insights to see data, as well as monitor the health and status of your configured GRE tunnels. To learn more, see About Insights and About Insights Logs."
+    }
+  ]
+}

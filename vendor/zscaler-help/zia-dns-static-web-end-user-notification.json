@@ -1,0 +1,204 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "DNS Static Web End User Notification",
+  "source": {
+    "url": "https://help.zscaler.com/zia/dns-static-web-end-user-notification",
+    "node": "1529181",
+    "revision": "3239917",
+    "updated": "2026-09-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler's DNS Control policy includes a Redirect Response action that replaces the IP address of the resolved hostname in the DNS response with a preferred IP address before sending the response to the client. Organizations can use this Redirect Response action to direct users to an end user notification (EUN) page when access to a domain is blocked. This page can either be a custom EUN web page hosted at a dedicated IP address managed by the organization, or a Zscaler-hosted static EUN web page hosted at 34.215.46.88. To use the Zscaler-hosted EUN web page, you must manually configure this IP address in the Redirect Response action. This EUN page notifies users that access to the requested domain has been blocked based on your organization's policy."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The Zscaler-hosted EUN web page provides the following benefits:"
+    },
+    {
+      "item": "The Zscaler-hosted EUN web page eliminates the need for organizations to host and manage their own notification page.",
+      "depth": 0
+    },
+    {
+      "item": "This static DNS EUN web page is supported for web traffic (primarily HTTP) irrespective of whether it is sent via tunnels. In addition to being available for tunneled traffic (via GRE, IPSec tunnel, or Z-Tunnel 2.0), this DNS EUN web page is accessible to users whose web traffic is not sent through forwarding tunnels and unauthenticated users, making it well-suited for guest Wi-Fi environments and similar scenarios.",
+      "depth": 0
+    },
+    {
+      "text": "This static EUN web page is supported only with DNS Control policy using the Redirect Response action. This EUN web page is not customizable."
+    },
+    {
+      "heading": "EUN Workflow and Requirements",
+      "level": 1
+    },
+    {
+      "text": "The following illustration demonstrates packet flow in the guest Wi-Fi scenario in which DNS requests are sent to Zscaler DNS Control, while web traffic is sent directly to the internet without going through Internet & SaaS (ZIA)."
+    },
+    {
+      "text": "The packet flow would be similar when web traffic is also sent via Internet & SaaS, except that Internet & SaaS would additionally perform SSL/TLS Inspection if enabled."
+    },
+    {
+      "text": "The following are key points about the DNS EUN working mechanism, requirements, and any limitations:"
+    },
+    {
+      "item": "The DNS EUN web server (34.215.46.88/blockpage.zscaler.com) only responds to web requests and drops all other traffic (e.g., ping traffic).",
+      "depth": 0
+    },
+    {
+      "item": "The display of the DNS EUN web page is predicated upon the browser falling back to using HTTP on receiving the \"HTTP 400 Bad Request\" response from the EUN web server, and subsequently making an HTTP GET request using HTTP. If the browser does not make this HTTP GET request using HTTP, the EUN page is not displayed.",
+      "depth": 0
+    },
+    {
+      "item": "The DNS EUN web page might not be displayed for blocked domains that use HTTP Strict Transport Security (HSTS).",
+      "depth": 0
+    },
+    {
+      "item": "If the web request to this DNS EUN web server is sent via Internet & SaaS, the browser would need to trust the Zscaler Certificate Authority (CA) certificate. Alternatively, you can configure an SSL/TLS Inspection bypass policy as outlined in the Recommended Policy Settings section.",
+      "depth": 0
+    },
+    {
+      "item": "If the web request to this DNS EUN web server is sent via Internet & SaaS, ensure that security policies configured in Internet & SaaS allow such traffic.",
+      "depth": 0
+    },
+    {
+      "item": "For the DNS Control policy to be applied to DoH (DNS over HTTPS) traffic, DoH traffic must be sent using a tunnel (GRE, IPSec, or Z-Tunnel 2.0) and SSL/TLS Inspection must be enabled for that traffic. See the Recommended Policy Settings section for information on additional configurations required to ensure DoH traffic gets inspected.",
+      "depth": 0
+    },
+    {
+      "item": "In the case of a guest Wi-Fi deployment, typically, only regular DNS traffic (DNS over UDP/TCP) is sent from a known location to a GRE VIP address configured as a DNS server address, with the rest of the traffic going out directly to the internet instead of going via Internet & SaaS. In such a scenario, DoH traffic is not sent to Internet & SaaS and so the DNS Control policy is not applied to DoH traffic.",
+      "depth": 0
+    },
+    {
+      "heading": "EUN Web Server Certificate",
+      "level": 2
+    },
+    {
+      "text": "The following points highlight key information about the SSL certificate used by the EUN web server:"
+    },
+    {
+      "item": "If the web request to the DNS EUN web server is sent directly to the internet instead of going via Internet & SaaS, the certificate displayed on the client browser for the web page, blockpage.zscaler.com, would be the one issued by a well-known CA. The following image shows an example certificate issued by DigiCert Global.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If the web request to the DNS EUN web server is sent via Internet & SaaS and SSL/TLS Inspection is enabled for that web traffic, then the client browser displays a certificate for blockpage.zscaler.com that is issued by the Zscaler Intermediate Root CA (as shown in the following image). In this case, the client browser must trust the Zscaler CA certificate for the EUN page to load without certificate warnings.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Recommended Policy Settings",
+      "level": 2
+    },
+    {
+      "text": "Zscaler recommends the following policy settings to ensure that the DNS EUN works effectively:"
+    },
+    {
+      "item": "Zscaler Client Connector App Profile",
+      "depth": 0
+    },
+    {
+      "item": "It is preferable to bypass web traffic that is destined for the DNS EUN web server to directly reach the internet, instead of sending it via Internet & SaaS. For example, if you are using Zscaler Client Connector with Z-Tunnel 2.0, add the following entries in the Zscaler Client Connector App Profile:",
+      "depth": 0
+    },
+    {
+      "item": "34.215.46.88 to the IPv4 Exclusion list under App and IP Bypass > IP Bypasses.",
+      "depth": 1,
+      "strong": [
+        [
+          20,
+          34
+        ],
+        [
+          46,
+          63
+        ],
+        [
+          66,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "blockpage.zscaler.com to the VPN Gateway Bypass list under App and IP Bypass > Global Bypasses.",
+      "depth": 1,
+      "strong": [
+        [
+          29,
+          47
+        ],
+        [
+          59,
+          76
+        ],
+        [
+          79,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Similarly, if you are using a PAC file, add these entries to the PAC file to send the corresponding traffic directly to the internet.",
+      "depth": 0
+    },
+    {
+      "item": "SSL/TLS Inspection Policy",
+      "depth": 0
+    },
+    {
+      "item": "If the web request to the DNS EUN web server is sent via Internet & SaaS, add an SSL/TLS Inspection bypass policy for this web traffic. For this, create a custom URL category containing the entries:",
+      "depth": 0
+    },
+    {
+      "item": "34.215.46.88",
+      "depth": 1
+    },
+    {
+      "item": "blockpage.zscaler.com",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Then, create an SSL/TLS Inspection bypass policy for this custom URL category with rule actions set to Do Not Inspect and Bypass Other Policies.",
+      "depth": 0,
+      "strong": [
+        [
+          103,
+          117
+        ],
+        [
+          122,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Firewall Filtering Policy",
+      "depth": 0
+    },
+    {
+      "item": "If the client browser is using secure DNS or DoH, add a firewall filtering rule to block QUIC as a network service, or ensure that the Default Firewall Filtering Rule is blocking QUIC. Alternatively, you can block QUIC in the browser itself. This is because some secure DNS or DoH providers might use QUIC as the underlying transport protocol. However, Zscaler's best practice is to block QUIC. When it's blocked, QUIC has a failsafe to fall back to TCP. This enables SSL/TLS Inspection without negatively impacting user experience. To learn more, see Managing the QUIC Protocol.",
+      "depth": 0
+    }
+  ]
+}

@@ -1,0 +1,169 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Sandbox Submission API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/sandbox-submission-api",
+    "node": "1402461",
+    "revision": "3103203",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Sandbox%20Submission%20API_2.json?VersionId=65OdyfKo.TzcAAYZuWyGkU1oizJktukJ",
+    "updated": "2025-04-30",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Sandbox Submission API"
+      }
+    ],
+    "paths": {
+      "/zscsb/submit": {
+        "post": {
+          "tags": [
+            "Sandbox Submission API"
+          ],
+          "description": "<p>Submits raw or archive files (e.g., ZIP) to Sandbox for analysis. You can submit up to 100 files per day and it supports all file types that are currently supported by Sandbox. To learn more, see <a href=\"/zia/about-sandbox\" target=\"_blank\">About Sandbox</a>. By default, files are scanned by Zscaler antivirus (AV) and submitted directly to the sandbox in order to obtain a verdict. However, if a verdict already exists for the file, you can use the 'force' parameter to make the sandbox to reanalyze it.</p> <p>You must have a Sandbox policy rule configured within the ZIA Admin Portal in order to analyze files that aren't present in the default policy rule. Ensure that you have explicitly added Sandbox policy rules that include the appropriate file types within your request. If not, an 'Unknown' message is shown in the response.</p>  <p>To learn more, see <a href=\"/zia/configuring-sandbox-policy\" target=\"_blank\">Configuring the Sandbox Policy</a> and <a href=\"/zia/configuring-default-sandbox-rule\" target=\"_blank\">Configuring the Default Sandbox Rule</a>.</p><p>After files are sent for analysis, you must use GET /sandbox/report/{md5Hash} in order to retrieve the verdict. You can get the Sandbox report 10 minutes after a file is sent for analysis.</p>\n",
+          "operationId": "submitFile",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "api_token",
+              "in": "query",
+              "required": true,
+              "type": "string",
+              "description": "<p>The Sandbox API token obtained from the ZIA Admin Portal to be used for authenticating the Sandbox Submission API. To learn more, see <a href=\"/zia/about-sandbox-api-token\" target=\"_blank\">Managing Sandbox API Token</a>.</p>"
+            },
+            {
+              "name": "force",
+              "in": "query",
+              "description": "<p>Submit file to sandbox even if found malicious during AV scan and a verdict already exists.</p>",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "0",
+                "1"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SandboxSubmissionResponse"
+              }
+            }
+          }
+        }
+      },
+      "/zscsb/discan": {
+        "post": {
+          "tags": [
+            "Sandbox Submission API"
+          ],
+          "description": "<p>Submits raw or archive files (e.g., ZIP) to the Zscaler service for out-of-band file inspection to generate real-time verdicts for known and unknown files. It leverages capabilities such as Malware Prevention, Advanced Threat Prevention, Sandbox cloud effect, AI/ML-driven file analysis, and integrated third-party threat intelligence feeds to inspect files and classify them as benign or malicious instantaneously.</p><p>All file types supported by <a href=\"/zia/configuring-malware-protection-policy\" target=\"_blank\">Malware Protection</a> and <a href=\"/zia/configuring-advanced-threat-protection-policy\" target=\"_blank\">Advanced Threat Protection</a> policies can be inspected with a file size limit of up to 400 MB for AI/ML, Malware, and Advanced Threat Protection and 20 MB for Sandbox and in a large volume of files.</p><p><b>Note</b>: Dynamic file analysis is not included in out-of-band file inspection.</p>",
+          "operationId": "submitFileForScan",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "api_token",
+              "in": "query",
+              "required": true,
+              "type": "string",
+              "description": "<p>The Sandbox API token obtained from the ZIA Admin Portal to be used for authenticating the Sandbox Submission API. To learn more, see <a href=\"/zia/about-sandbox-api-token\" target=\"_blank\">Managing Sandbox API Token</a>.</p>"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/DIScanSubmissionResponse"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "SandboxSubmissionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The response message"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "The file type of the submitted file"
+          },
+          "md5": {
+            "type": "string",
+            "description": "The MD5 hash of the submitted file"
+          },
+          "sandboxSubmission": {
+            "type": "string",
+            "description": "Sandbox status of the submitted file"
+          },
+          "virusName": {
+            "type": "string",
+            "description": "The threat name associated to a malicious file"
+          },
+          "virusType": {
+            "type": "string",
+            "description": "The threat category asscociated to a malicious file"
+          }
+        },
+        "description": "Sandbox submission response information."
+      },
+      "DIScanSubmissionResponse": {
+        "type": "object",
+        "properties": {
+          "code": {
+            "type": "string",
+            "description": "The response code"
+          },
+          "message": {
+            "type": "string",
+            "description": "The response message that indicates whether the file is malicious or not"
+          },
+          "fileType": {
+            "type": "string",
+            "description": "The file type of the submitted file"
+          },
+          "md5": {
+            "type": "string",
+            "description": "The MD5 hash of the submitted file"
+          },
+          "virusName": {
+            "type": "string",
+            "description": "The threat name associated to a malicious file"
+          },
+          "virusType": {
+            "type": "string",
+            "description": "The threat category asscociated to a malicious file"
+          }
+        },
+        "description": "Information about the file inspection results"
+      }
+    }
+  }
+}

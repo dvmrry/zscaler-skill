@@ -1,0 +1,1099 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Client Forwarding Policies Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-client-forwarding-policies-using-api",
+    "node": "1484811",
+    "revision": "3175629",
+    "updated": "2026-01-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) client forwarding policy use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "To get the policySetId by policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the policyType, the value for differentiating the policy types, in the request endpoint. The supported values are:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/CLIENT_FORWARDING_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303023168\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1624647543\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1562693881\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037984006\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Bypass_Policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Bypass policies.\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"4\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/rules/policyType/CLIENT_FORWARDING_POLICY?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"3\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303023826\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1628101611\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1590609953\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303023906\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"allowall\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"5\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"4\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"INTERCEPT\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRuleName\":\"Default_Rule\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303023636\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1628101611\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1577988747\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303023906\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"user nodownload gets no apps\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"4\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"4\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"288237\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1577988747\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1577988747\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660302995458\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"288238\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1577988747\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660302995458\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"SAML\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"217246660303022796\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"nodownload\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"username_Custom entityId IDP configuration - User sso - do NOT delete\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"BYPASS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRuleName\":\"Default_Rule\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to get rules by action. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 2
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 2
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 2
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 2
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 2
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 2
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 2
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 2
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 2
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 2
+    },
+    {
+      "item": "Valid page and page size values.",
+      "depth": 1
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format action OPERATOR ruleAction. The supported ruleAction values for client forwarding policies are INTERCEPT (forward to ZPA), INTERCEPT_ACCESIBLE (only forward allowed applications), and BYPASS (bypass ZPA). The supported value for OPERATOR is EQ (i.e., equals). Only search string values that correspond to the values for valid rule actions and operators are supported. For example, the string action%20EQ%INTERCEPT is supported for the Rule Action filter, using the Equals operator, for the INTERCEPT rule action.",
+      "depth": 1,
+      "strong": [
+        [
+          506,
+          517
+        ],
+        [
+          536,
+          542
+        ]
+      ]
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/rules/policyType/CLIENT_FORWARDING_POLICY?page=1&pagesize=500&search=action%20EQ%20INTERCEPT.",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"4\", \"totalCount\":\"0\", \"list\":[ { \"id\":\"72057594037992779\", \"creationTime\":\"1669125035\", \"modifiedBy\":\"72057594037928020\", \"name\":\"Posture11\", \"ruleOrder\":\"1\", \"priority\":\"2\", \"policyType\":\"4\", \"operator\":\"AND\", \"action\":\"INTERCEPT\", \"defaultRule\":false, \"defaultRuleName\":\"Default_Rule\", \"restrictedEntity\":false }, { \"id\":\"72057594038018626\", \"creationTime\":\"1681997589\", \"modifiedBy\":\"72057594037941138\", \"name\":\"asd\", \"description\":\"ef\", \"ruleOrder\":\"2\", \"priority\":\"2\", \"policyType\":\"4\", \"operator\":\"AND\", \"action\":\"INTERCEPT\", \"defaultRule\":false, \"defaultRuleName\":\"Default_Rule\", \"restrictedEntity\":false }, { \"id\":\"72057594038032911\", \"modifiedTime\":\"1687206863\", \"creationTime\":\"1687206863\", \"modifiedBy\":\"72057594037993401\", \"name\":\"Copy of asd\", \"description\":\"ef\", \"ruleOrder\":\"3\", \"priority\":\"2\", \"policyType\":\"4\", \"operator\":\"AND\", \"action\":\"INTERCEPT\", \"defaultRule\":false, \"defaultRuleName\":\"Default_Rule\", \"restrictedEntity\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the ZPA API Portal or the Reference Guide to make your API calls, the search field string does not require any characters. For example, action%20EQ%20INTERCEPT is action EQ INTERCEPT."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Required Details for the Client Forwarding Policy",
+      "level": 2
+    },
+    {
+      "text": "The following are the required details needed for the policy criteria:"
+    },
+    {
+      "item": "Application segment. To learn more, see Configuring Application Segments Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Client types. To learn more, see Getting Details of All Client Types.",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector group. To learn more, see Obtaining Cloud Connector Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "IdP. To learn more, see Obtaining IdP Configuration Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Machine group. To learn more, see Obtaining Machine Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Platform types. To learn more, see Getting Platform Types for a Customer.",
+      "depth": 0
+    },
+    {
+      "item": "Posture profile. To learn more, see Obtaining Posture Profile Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SAML attribute. To learn more, see Obtaining SAML Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute value. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM groups. To learn more, see Obtaining SCIM Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Segment Group. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Trusted network. To learn more, see Obtaining Trusted Network Details Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Client Forwarding Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To add a new client forwarding rule for a given policy set and for a given customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/policySet/72057615512764421/rule.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Use the JSON payload and provide the policy criteria you want for creating a client forwarding rule with the specific SAML attributes as one of the criteria.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policySetId>\", \"id\": \"<ruleId>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<applicationId>\", \"<applicationId>\", \"<applicationId>\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"<segmentGroupId>\" ] } ] } ], \"name\":\"<Example Policy Rule Name>\", \"description\":\"<Example Policy Rule Description>\", \"action\":\"INTERCEPT\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"PolicyName\", \"action\":\"RE_AUTH\", \"reauthTimeout\":172800, \"reauthIdleTimeout\":600 }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"72057615512764645\", \"creationTime\":\"1612898408\", \"modifiedBy\":\"72057615512764644\", \"name\":\"Client Forwarding Policy Test\", \"description\":\"Description\", \"ruleOrder\":\"7\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"ALLOW\", \"customMsg\":\"MsgString\", \"auditMessage\":\"{\\\"policyType\\\":\\\"Access Policy\\\",\\\"name\\\":\\\"Client Forwarding Policy Test\\\",\\\"description\\\":\\\"Description\\\",\\\"action\\\":\\\"ALLOW\\\",\\\"ruleOrder\\\":\\\"7\\\",\\\"messageToUser\\\":\\\"MsgString\\\"}\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the client forwarding policy use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This is the name of the client forwarding rule",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This is the description of the client forwarding rule",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "This is for providing the rule action",
+          "Yes",
+          "Supported values: INTERCEPT (forward to ZPA) (default value), INTERCEPT_ACCESIBLE (only forward allowed applications), BYPASS (bypass ZPA)"
+        ],
+        [
+          "customMsg",
+          "This is for providing a custom message for the user",
+          "No",
+          "String"
+        ],
+        [
+          "conditions",
+          "This is for providing the set of conditions for the policy",
+          "No",
+          "Array of operands"
+        ],
+        [
+          "operands",
+          "This signifies the various policy criterias",
+          "No",
+          "Array of attributes (objectType, lhs, rhs, name)"
+        ],
+        [
+          "objectType",
+          "This is for specifying the policy criteria",
+          "No",
+          "Supported values: APP APP_GROUP SAML IDP CLIENT_TYPE TRUSTED_NETWORK POSTURE SCIM SCIM_GROUP CLOUD_CONNECTOR_GROUP TRUSTED_NETWORK is only supported for CLIENT_TYPE"
+        ],
+        [
+          "lhs",
+          "This signifies the key for the object type",
+          "No",
+          "String ID example: id"
+        ],
+        [
+          "rhs",
+          "This denotes the value for the given object type. Its value depends upon the key.",
+          "No",
+          "For APP, APP_GROUP, and IDP, the supported value is entity id For CLIENT_TYPE, the supported values are: zpn_client_type_zapp for the Zscaler Client Connector and zpn_client_type_exporter (for Clientless). For TRUSTED_NETWORK, the supported value is true."
+        ],
+        [
+          "operator",
+          "This denotes the operation type",
+          "No",
+          "Supported values: AND, OR"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "text": "For a comprehensive table of LHS and RHS values, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Getting Details for a Particular Client Forwarding Rule",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular client forwarding rule:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Client Forwarding Policy Rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764645."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764645\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1612898408\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764644\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Client Forwarding Policy Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Description\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"ALLOW\",",
+      "depth": 0
+    },
+    {
+      "item": "\"customMsg\":\"MsgString\",",
+      "depth": 0
+    },
+    {
+      "item": "\"auditMessage\":\"{\\\"policyType\\\":\\\"Access Policy\\\",\\\"name\\\":\\\"Client Forwarding Policy Test\\\",\\\"description\\\":\\\"Description\\\",\\\"action\\\":\\\"ALLOW\\\",\\\"ruleOrder\\\":\\\"7\\\",\\\"messageToUser\\\":\\\"MsgString\\\"}\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policySetId\":\"72057615512764421\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Client Forwarding Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a client forwarding rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId provided in prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the updated JSON payload from Creating a New Client Forwarding Policy Rule and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "policySetId: The ID of the client forwarding policy set captured in the prerequisite API call.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Client Forwarding Policy Rule.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764645.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policySetId>\", \"id\": \"<ruleId>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<applicationId>\", \"<applicationId>\", \"<applicationId>\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"<segmentGroupId>\" ] } ] } ], \"name\":\"<Example Policy Rule Name>\", \"description\":\"<Example Policy Rule Description>\", \"action\":\"INTERCEPT\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the client forwarding rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Rule Order",
+      "level": 1
+    },
+    {
+      "text": "To update a rule order:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following parameters in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the policy set.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "newOrder: The new order of the rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594037938994/rule/72057615512764641/reorder/4."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rule order is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "The ability to update the rule order for all rules in a policy set is also available. To learn more, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Deleting a Client Forwarding Rule",
+      "level": 1
+    },
+    {
+      "text": "To delete a client forwarding rule:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the client forwarding policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Client Forwarding Rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764645."
+    },
+    {
+      "text": "A successful response yields code 204, meaning the client forwarding rule is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Client Types",
+      "level": 1
+    },
+    {
+      "text": "To get details of all client types:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientTypes.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/clientTypes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter\": \"Web Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter_noauth\": \"Web Browser Unauthenticated\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_machine_tunnel\": \"Machine Tunnel\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_edge_connector\": \"Cloud Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zia_inspection\": \"ZIA Inspection\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp\": \"Client Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_slogger\": \"ZPA LSS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_browser_isolation\": \"Cloud Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_ip_anchoring\": \"ZIA Service Edge\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp_partner\": \"Client Connector Partner\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_branch_connector\": \"Branch Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_vdi\":\"Client Connector for VDI\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Platform Types for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To get the platform types for a customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/platform.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/platform.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"linux\":\"Linux\",",
+      "depth": 0
+    },
+    {
+      "item": "\"android\":\"Android\",",
+      "depth": 0
+    },
+    {
+      "item": "\"windows\":\"Windows\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ios\":\"iOS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"mac\":\"Mac\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

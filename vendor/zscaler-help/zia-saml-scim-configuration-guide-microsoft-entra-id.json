@@ -1,0 +1,2931 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SAML & SCIM Configuration Guide for Microsoft Entra ID",
+  "source": {
+    "url": "https://help.zscaler.com/zia/saml-scim-configuration-guide-microsoft-entra-id",
+    "node": "1400361",
+    "revision": "3251463",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide illustrates how to configure Microsoft Entra ID (formerly Azure Active Directory) as the identity provider (IdP) for the Zscaler service. To learn more about the steps in the Microsoft Entra admin center, refer to the Microsoft Entra ID documentation."
+    },
+    {
+      "text": "Zscaler and Microsoft are technology partners. To learn more about the Zscaler and Microsoft Entra ID integration, see the Zscaler and Microsoft Entra ID Passwordless Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Although you can set some configurations with a free Microsoft Entra subscription, a premium subscription is highly recommended to avoid restricted functionality."
+    },
+    {
+      "text": "Ensure that you have the following before you start configuring Microsoft Entra ID as your IdP:"
+    },
+    {
+      "item": "Premium Microsoft Entra subscription",
+      "depth": 0
+    },
+    {
+      "item": "Existing Microsoft Entra Account",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler cloud name",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Microsoft Entra ID as the IdP for the Zscaler Service",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends using Security Assertion Markup Language (SAML) single sign-on (SSO) for user authentication and System for Cross-domain Identity Management (SCIM) for user provisioning."
+    },
+    {
+      "text": "To configure SAML SSO and SCIM provisioning with Microsoft Entra ID:"
+    },
+    {
+      "item": "1. Add the Zscaler cloud application in the Microsoft Entra admin center.",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Microsoft Entra admin center.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Identity > Applications > Enterprise applications.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          58
+        ],
+        [
+          61,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click New application.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Browse Microsoft Entra Gallery page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "On the Browse Microsoft Entra Gallery page, enter zscaler internet access in the search bar, then click the Zscaler application with your cloud name. Your cloud name depends on the URL you use to log in to the Zscaler service. For example, if you log in to https://admin.zscalerbeta.net, then your cloud name is Zscaler Beta and your application name is Zscaler Internet Access ZSBeta. This guide uses the Zscaler Internet Access ZSBeta application as an example.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Microsoft Entra service displays a notification that the Zscaler cloud application was added.",
+      "depth": 1
+    },
+    {
+      "item": "2. Configure SAML SSO in the Microsoft Entra admin center.",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation for the Zscaler cloud application, click Single sign-on.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          69,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select SAML.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Basic SAML Configuration section, click Edit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          47,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Basic SAML Configuration window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Basic SAML Configuration window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Identifier (Entity ID): Enter the default identifier based on your added Zscaler cloud application. It's typically <Zscaler Cloud Name>. The <Zscaler Cloud Name> depends on the URL you use to log in to the Zscaler service. For example, if you log in to https://admin.zscalerbeta.net, then the identifier is zscalerbeta.net.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "If you have more than one organization instance on the same Zscaler cloud, you must use an org-specific entity ID. You can see the org-specific entity ID for your instance in the Zscaler Admin Console while adding or editing an identity provider.",
+      "depth": 2
+    },
+    {
+      "item": "The org-specific entity ID is formatted like the following example:",
+      "depth": 2
+    },
+    {
+      "item": "https://login.zscalerbeta.net/sfc_sso/3829920",
+      "depth": 2
+    },
+    {
+      "item": "Reply URL (Assertion Consumer Service URL): Enter the following Zscaler SSO URL:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "https://login.<Zscaler Cloud Name>:443/sfc_sso",
+      "depth": 2
+    },
+    {
+      "item": "If you enabled IPv6 support for your organization, Zscaler authentication uses IPv6-only URLs. Ensure that you add the following IPv6 SSO URLs in the Reply URL (Assertion Consumer Service URL) field in addition to the standard SSO URL:",
+      "depth": 2,
+      "strong": [
+        [
+          150,
+          192
+        ]
+      ]
+    },
+    {
+      "item": "https://login6.<Zscaler Cloud Name>.net/sfc_sso",
+      "depth": 3
+    },
+    {
+      "item": "https://logout6.<Zscaler Cloud Name>.net/sfc_sso (if applicable)",
+      "depth": 3
+    },
+    {
+      "item": "To learn more about enabling IPv6 support, see Understanding IPv6 Support.",
+      "depth": 2
+    },
+    {
+      "item": "The <Zscaler Cloud Name> depends on the URL you use to log in to the Zscaler service. For example, if you log in to https://admin.zscalerbeta.net, then the Zscaler SSO URL is https://login.zscalerbeta.net/sfc_sso.",
+      "depth": 2
+    },
+    {
+      "item": "Sign on URL: Enter the Reply URL (Assertion Consumer Service URL). In this example, it's https://login.zscalerbeta.net:443/sfc_sso.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          23,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Relay State: Leave this field blank.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Logout URL: Leave this field blank.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and exit the window.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes & Claims section, click Edit.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add a group claim.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Group Claims window:",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "If the groups you are assigning exist in Microsoft Entra ID locally:",
+      "depth": 2
+    },
+    {
+      "item": "Select Groups assigned to the application.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "For Source attribute, select Cloud-only group display names.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          29,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If the groups you are assigning are from an on-premises active directory (AD):",
+      "depth": 2
+    },
+    {
+      "item": "Select Groups assigned to the application.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "For Source attribute, select sAMAccountName.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          29,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Add new claim.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "On the Manage claim page:",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter Department (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select Attribute.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Source attribute: Enter user.department (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "When you are finished, check the Attribute & Claims section to ensure that you have configured the Department and groups attributes properly.",
+      "depth": 1,
+      "strong": [
+        [
+          33,
+          51
+        ],
+        [
+          99,
+          109
+        ],
+        [
+          114,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 1
+    },
+    {
+      "item": "In the SAML Certificates section, download Certificate (Base64). You need this certificate file when you add Microsoft Entra ID as the IdP for the Zscaler service.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          43,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the certificate file name:",
+      "depth": 1
+    },
+    {
+      "item": "Has a .pem extension (e.g., rename it to Entra.pem). The Zscaler service only accepts certificates with the .pem extension.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Contains only one dot (\".\").",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "By default, Windows hides extensions for known file types.",
+      "depth": 1
+    },
+    {
+      "item": "Change the Windows Folder Properties to View and Edit Extensions",
+      "depth": 2
+    },
+    {
+      "item": "Start Windows 10 Control Panel.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Go to Appearance & Personalization > File Explorer Options.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          37,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "When the File Explorer Options window appears, click the View tab.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          30
+        ],
+        [
+          57,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "In the Advanced settings: section, deselect Hide extensions for known file types to view extensions.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          44,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Rename the certificate to change the extension.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "In the Set up Zscaler Beta section, copy the Login URL. You need this URL when you add Microsoft Entra ID as the IdP for the Zscaler service.",
+      "depth": 1,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          45,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) for Seamless SSO, you must append the domain hint ?whr=<your organization's domain> to the end of the Login URL. The URL should be similar to the following example:",
+      "depth": 1,
+      "strong": [
+        [
+          113,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "https://login.microsoftonline.com/1ab234c5-def6-789a-bcde-0f1abc23456d/saml2?whr=zscaler.com",
+      "depth": 1
+    },
+    {
+      "item": "3. Add Microsoft Entra ID as the IdP for the Zscaler service in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Click the Identity Providers tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Add IdP.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "If you have an existing IdP configuration, the What do you want to do? window appears. Select Add another SAML IdP for a subset of users or locations and then Next.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          70
+        ],
+        [
+          94,
+          149
+        ],
+        [
+          159,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Add IdP window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "SAML Portal URL: Enter the Login URL that you copied from the Microsoft Entra admin center in Configure SAML SSO in the Microsoft Entra admin center.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          27,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login Name Attribute: Enter NameID (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IdP SAML Certificate: Upload the .pem certificate that you downloaded from the Microsoft Entra admin center in Configure SAML SSO in the Microsoft Entra admin center.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Org-Specific Entity ID: If you have more than one organization instance on the same Zscaler cloud, enable this option. For example, if you have two organization instances on the same Zscaler cloud and must authenticate both instances against the same Microsoft Entra account, you can't use the same entity ID for multiple apps in the Microsoft Entra admin center. For this situation, you must enable this setting for both instances to generate a unique organization-specific entity ID.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Vendor: Select the vendor of your IdP. In this case, it is Microsoft Entra ID.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          59,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Locations: Select the locations to map to this IdP. You can also search for a location. Any unselected locations are mapped to the default IdP. This field is set to Any for the default IdP, and you can't modify it.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          165,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Domains: Select the domains to map to this IdP. This allows the Zscaler service to display the correct IdP to authenticate an incoming user. Any unselected domains are mapped to the default IdP. For the default IdP, this field is set to Any, and you can't modify it. You must map any additional IdPs to at least one domain.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          252,
+          255
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) If you want to enable Sign SAML Request for additional security:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          33,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "After enabling Sign SAML Request:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          15,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Signature Algorithm: Zscaler recommends selecting SHA-2 (256-bit).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          50,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Request Signing SAML Certificate: Select the most recent certificate.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "SP SAML Certificate: Click Download Certificate.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          27,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Microsoft Entra admin center, go to the Single sign-on page in your previously configured Zscaler cloud application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          47,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "In the Verification certificates (optional) section, click Edit.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          43
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Verification certificates window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Require verification certificates: Enable this option.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Allow requests signed with RSA-SHA1: If you selected SHA-1 (160-bit) in the Zscaler Admin Console, enable this option.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          35
+        ],
+        [
+          53,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Upload the SP SAML Certificate you downloaded in the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          11,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Token signing certificate section, click Edit.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the SAML Signing Certificate window:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Signing Option: Select Sign SAML response and assertion.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Signing Algorithm: Select either SHA-256 or SHA-1 depending on your selection in the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          33,
+          40
+        ],
+        [
+          44,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you want to configure SAML Auto-Provisioning, in the Provisioning Options section:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          67,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Enable SAML Auto-Provisioning: Enable this option.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "User Display Name Attribute: Enter displayName (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Group Name Attribute: Enter groups (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Department Name Attribute: Enter Department (case sensitive).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends using SCIM to provision users. Skip this step if you are using SCIM provisioning.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about configuring an IdP in the Zscaler Admin Console, see Adding Identity Providers.",
+      "depth": 0
+    },
+    {
+      "item": "4. Enable SAML SSO in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Frequency, select how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select Custom, the Custom Authentication Frequency (days) field appears. In this field, specify 1 to 180 days.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ],
+        [
+          180,
+          186
+        ],
+        [
+          192,
+          230
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Type, select SAML.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "5. Configure SCIM provisioning in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Identity Providers.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the identity provider (IdP) you configured for Microsoft Entra ID. To learn more, see Add Microsoft Entra ID as the IdP for the Zscaler service in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Edit IdP window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit IdP window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Enable SAML Auto-Provisioning: Disable this option when enabling SCIM-based provisioning.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Enable SCIM Provisioning: Enable to activate SCIM-based provisioning for users on the Zscaler service. To learn more, see Understanding SCIM. SCIM provisioning isn't supported with Active Directory or OpenLDAP user repositories. If you want to migrate from directory synchronization to SCIM provisioning, enable Disable Directory Sync & Enable SCIM Provisioning on the Authentication Default Settings page. After enabling SCIM provisioning, the following fields appear:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          312,
+          361
+        ]
+      ]
+    },
+    {
+      "item": "Base URL: Copy the Base URL for the SCIM server. You need this URL when configuring your IdP for SCIM provisioning. Okta only accepts strings with the following format. In this example, it is 37146169/1605333.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "https://scim.<Zscaler cloud>/<Organization ID>/<IdP ID>/scim",
+      "depth": 3
+    },
+    {
+      "item": "The old SCIM Base URL marked as (Deprecated) will be removed in the future.",
+      "depth": 3,
+      "strong": [
+        [
+          32,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Bearer Token: Copy the bearer token. It's a unique alphanumeric string that is used by the SCIM client to make authenticated API calls to the Zscaler SCIM server. You need this token when configuring your IdP for SCIM provisioning.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Generate Token: Click to generate a new bearer token for security reasons. If you're generating a new bearer token for an existing SCIM configuration, ensure you update the token for your IdP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save to exit the window.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about configuring SCIM in the Zscaler Admin Console, see Configuring SCIM.",
+      "depth": 0
+    },
+    {
+      "item": "6. Configure SCIM provisioning in the Microsoft Entra admin center.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about SCIM provisioning in Microsoft Entra ID, refer to the Microsoft Entra ID documentation.",
+      "depth": 0
+    },
+    {
+      "item": "In the Microsoft Entra admin center, in the left-side navigation of the Zscaler cloud application, click Provisioning.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          105,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the provisioning Overview page, click Get started.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          20,
+          28
+        ],
+        [
+          41,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Provisioning page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "For Provisioning Mode, select Automatic.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          30,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Admin Credentials:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Tenant URL: Enter the Base URL you copied previously in Configure SCIM provisioning in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Secret Token: Enter the Bearer Token you copied previously in Configure SCIM provisioning in the Zscaler Admin Console.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          24,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Test Connection. Microsoft Entra ID connects to the SCIM endpoint. If the connection is successful, the Microsoft Entra service displays a notification that the credentials are authorized.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If the connection fails, error information is displayed. Resolve any errors before moving forward.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save to save your credentials.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Under Mappings:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click the groups attribute mapping link (e.g., Provision Azure Active Directory Groups). The Attribute Mapping page appears.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          93,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Attribute Mapping page, review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Verify the group attribute mappings as listed in the following table. If needed, change them by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          105,
+          109
+        ],
+        [
+          150,
+          165
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using This Attribute"
+        ],
+        [
+          "displayName",
+          "displayName",
+          "Yes"
+        ],
+        [
+          "members",
+          "members",
+          ""
+        ],
+        [
+          "externalId",
+          "objectId",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Ok to save the attribute parameters.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to save the attribute mapping changes.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Return to the Provisioning page.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          14,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Under Mappings:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click the users attribute mapping link (e.g., Provision Azure Active Directory Users). The Attribute Mapping page appears.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          91,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Attribute Mapping page, review the attributes that are synchronized from Microsoft Entra ID to your application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Verify the users attribute mappings as listed in the following table. If needed, change them by clicking Edit on an existing attribute or by clicking Add New Mapping.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          105,
+          109
+        ],
+        [
+          150,
+          165
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Attribute (Target Attribute)",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Match Objects Using This Attribute"
+        ],
+        [
+          "userName",
+          "userPrincipalName",
+          "Yes"
+        ],
+        [
+          "externalId",
+          "objectId",
+          ""
+        ],
+        [
+          "active",
+          "Switch([IsSoftDeleted], , \"False\", \"True\", \"True\", \"False\")",
+          ""
+        ],
+        [
+          "name.familyName",
+          "surname",
+          ""
+        ],
+        [
+          "name.givenName",
+          "givenName",
+          ""
+        ],
+        [
+          "displayName",
+          "displayName",
+          ""
+        ],
+        [
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:department",
+          "department",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) If you use the Workflow Automation Admin Portal, add and map additional user attributes that Workflow Automation uses.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "1. Add Additional User Attributes",
+      "depth": 3
+    },
+    {
+      "item": "The following table lists the additional user attributes to add for Workflow Automation:",
+      "depth": 3
+    },
+    {
+      "table": [
+        [
+          "Name",
+          "Type",
+          "Referenced Object Attribute"
+        ],
+        [
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:manager.value",
+          "Reference",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User"
+        ],
+        [
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber",
+          "String",
+          ""
+        ],
+        [
+          "title",
+          "String",
+          ""
+        ],
+        [
+          "emails[type eq \"work\"].value",
+          "String",
+          ""
+        ],
+        [
+          "preferredLanguage",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].formatted",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].streetAddress",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].locality",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].region",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].postalCode",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"work\"].country",
+          "String",
+          ""
+        ],
+        [
+          "addresses[type eq \"home\"].country",
+          "String",
+          ""
+        ],
+        [
+          "phoneNumbers[type eq \"work\"].value",
+          "String",
+          ""
+        ],
+        [
+          "phoneNumbers[type eq \"mobile\"].value",
+          "String",
+          ""
+        ],
+        [
+          "phoneNumbers[type eq \"fax\"].value",
+          "String",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "To add additional user attributes:",
+      "depth": 3
+    },
+    {
+      "item": "Under the existing attribute mappings that are displayed, select the Show advanced options checkbox. The page expands to display additional information.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          69,
+          82
+        ],
+        [
+          83,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click the Edit attribute list link (e.g., Edit attribute list for Zscaler). The Edit Attribute List page appears, displaying the existing user attributes. An empty row appears at the bottom of the list.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          80,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the empty row, add the information for an additional user attribute:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Add the user attributes one at a time. When you begin to enter a name in the empty row, an additional empty row appears below that row. Add all the user attributes using the information that is provided in the table above.",
+      "depth": 4
+    },
+    {
+      "item": "Name: Enter the name of the user attribute. When you begin to enter a name, an additional blank row appears below that row.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Type: From the drop-down menu, select the user attribute type. Types are Binary, Boolean, DateTime, Integer, Reference, and String. The user attributes for Workflow Automation use either String or Reference as the type.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          73,
+          79
+        ],
+        [
+          81,
+          88
+        ],
+        [
+          90,
+          98
+        ],
+        [
+          100,
+          107
+        ],
+        [
+          109,
+          118
+        ],
+        [
+          124,
+          130
+        ],
+        [
+          187,
+          193
+        ],
+        [
+          197,
+          206
+        ]
+      ]
+    },
+    {
+      "item": "Referenced Object Attribute: From the drop-down menu, select the referenced object attribute for the user attribute.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Save. A dialog window appears, asking if you are sure you want to make these changes.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Yes. The attributes are added. You can now map these user attributes.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "2. Map Additional User Attributes",
+      "depth": 3
+    },
+    {
+      "item": "The following table lists the mapping information to use when mapping the additional user attributes you previously added:",
+      "depth": 3
+    },
+    {
+      "table": [
+        [
+          "Mapping Type",
+          "Microsoft Entra Attribute (Source Attribute)",
+          "Zscaler Attribute (Target Attribute)",
+          "Match Objects Using This Attribute",
+          "Apply This Mapping"
+        ],
+        [
+          "Direct",
+          "jobTitle",
+          "title",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "mail",
+          "emails[type eq \"work\"].value",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "preferredLanguage",
+          "preferredLanguage",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "physicalDeliveryOfficeName",
+          "addresses[type eq \"work\"].formatted",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "streetAddress",
+          "addresses[type eq \"work\"].streetAddress",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "city",
+          "addresses[type eq \"work\"].locality",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "state",
+          "addresses[type eq \"work\"].region",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "postalCode",
+          "addresses[type eq \"work\"].postalCode",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "country",
+          "addresses[type eq \"work\"].country",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "extension_d46aad061f2b47f497418d1ff465699b_HomeCountry",
+          "addresses[type eq \"home\"].country",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "mobile",
+          "phoneNumbers[type eq \"work\"].value",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "mobile",
+          "phoneNumbers[type eq \"mobile\"].value",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "facsimileTelephoneNumber",
+          "phoneNumbers[type eq \"fax\"].value",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "employeeId",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:employeeNumber",
+          "No",
+          "Always"
+        ],
+        [
+          "Direct",
+          "manager",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User:manager.value",
+          "No",
+          "Always"
+        ]
+      ]
+    },
+    {
+      "item": "To map additional user attributes:",
+      "depth": 3
+    },
+    {
+      "item": "Under the existing attribute mappings that are displayed, click Add New Mapping. The Edit Attribute page appears.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          64,
+          79
+        ],
+        [
+          85,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Edit Attribute page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Add the user attribute mappings one at a time. With attribute mappings, you control how attributes are populated in a non-Microsoft SaaS application. Map all the user attributes using the information that is provided in the table above.",
+      "depth": 4
+    },
+    {
+      "item": "Mapping type: From the drop-down menu, select the mapping type. Mapping types are:",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Direct: The target attribute is populated with the value of an attribute of the linked object in Microsoft Entra ID. All the user attribute mappings for Workflow Automation use Direct for this field.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          177,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "Constant: The target attribute is populated with a specific string you specified.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Expression: The target attribute is populated based on the result of a script-like expression.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "None: The target attribute is left unmodified.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Source attribute: From the drop-down menu, select the Microsoft Entra Attribute (source attribute) for the mapping.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Target attribute: From the drop-down menu, select the Zscaler attribute (target attribute) for the mapping.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Match objects using this attribute: From the drop-down menu, select Yes or No. If you select Yes, this mapping is used to uniquely identify users between the source and target systems. All the user attribute mappings for Workflow Automation use No for this field.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          34
+        ],
+        [
+          68,
+          71
+        ],
+        [
+          75,
+          77
+        ],
+        [
+          93,
+          96
+        ],
+        [
+          245,
+          247
+        ]
+      ]
+    },
+    {
+      "item": "Apply this mapping: From the drop-down menu, select when to apply this mapping. Options are Always, Only if the attribute contains multiple values, and Only during object creation. All the user attribute mappings for Workflow Automation use Always for this field.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          92,
+          98
+        ],
+        [
+          100,
+          146
+        ],
+        [
+          152,
+          179
+        ],
+        [
+          241,
+          247
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Ok.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Save. A dialog window appears, asking if you are sure you want to make these changes.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Yes. The attribute mapping is added and is listed in the Attribute Mappings section of the Attribute Mapping page.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          63,
+          81
+        ],
+        [
+          97,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Return to the Provisioning page.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          14,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Under Settings:",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Send an email notification when a failure occurs: (Optional) Select this and provide an email to receive a notification when there is a provisioning failure.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Prevent accidental deletion: (Optional) Selecting this option allows you to set an Accidental deletion threshold. When the option is enabled, deleting a number of groups and users over the threshold requires approval from an admin.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          83,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "Scope: (Optional) Select Sync only assigned users and groups. Zscaler recommends enabling this setting. To learn more about assigning users, see Assign Users to the Zscaler Cloud Application.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          25,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For Provisioning Status, select On.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          4,
+          23
+        ],
+        [
+          32,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to start the Microsoft Entra provisioning service.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Return to the provisioning Overview page.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          27,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "On the provisioning Overview page, review the current cycle status, provisioning details, and technical information for the Microsoft Entra provisioning service.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          20,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "7. Configure the Zscaler Authentication Exemptions list in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Zscaler Authentication Exemptions list and enable users access to Microsoft Entra ID in the Zscaler Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Setting > Advanced Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          57
+        ],
+        [
+          60,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "In the Authentication Exemptions section, enter the following exceptions in Exempted URLs, and click Add Items:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          76,
+          89
+        ],
+        [
+          101,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "login.windows.net",
+      "depth": 2
+    },
+    {
+      "item": "login.microsoftonline.com",
+      "depth": 2
+    },
+    {
+      "item": ".windowsazure.com",
+      "depth": 2
+    },
+    {
+      "item": "aadcdn.msauth.net",
+      "depth": 2
+    },
+    {
+      "item": "aadcdn.msftauth.net",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "This option only applies to user traffic from known locations. For more information, see Exempting URLs and Cloud Apps from Authentication.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you are using PAC files, enter the following exceptions in the PAC file exemption list. Otherwise, the authentication fails.",
+      "depth": 0
+    },
+    {
+      "item": "if (shExpMatch(host, \"login.windows.net\") || shExpMatch(host, \"login.microsoftonline.com\") || shExpMatch(host, \"*.windowsazure.com\")) return \"DIRECT\";",
+      "depth": 0
+    },
+    {
+      "item": "8. Assign users to the Zscaler cloud application in the Microsoft Entra admin center.",
+      "depth": 0
+    },
+    {
+      "item": "For Microsoft Entra users to authenticate through the Zscaler service, you must assign Microsoft Entra users or groups to the Zscaler cloud application.",
+      "depth": 0
+    },
+    {
+      "item": "In the left-side navigation of the Zscaler cloud application, click Users and groups.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          68,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add user/group.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add Assignment window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Assignment window, under Users and groups, click None Selected.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          36,
+          52
+        ],
+        [
+          60,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Users and groups window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "In the Users and groups window, select the users or groups you want to assign to the Zscaler cloud application, and click Select.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          122,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "To ensure that Microsoft Entra ID sends group memberships to Zscaler, you must assign groups to the enterprise application.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add Assignment window, click Assign.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Testing the SAML and SCIM Configuration",
+      "level": 1
+    },
+    {
+      "text": "When your configuration is complete, you can test your work on another device."
+    },
+    {
+      "text": "Test the SAML configuration with one or both of the following methods:"
+    },
+    {
+      "item": "Test the SAML Configuration by Logging Out of the Zscaler Service",
+      "depth": 0
+    },
+    {
+      "item": "This testing method only applies if you're forwarding traffic using PAC files, Generic Routing Encapsulation (GRE) tunnels, or IPSec tunnels, and you've enabled Enforce Authentication for the location or sublocation.",
+      "depth": 0
+    },
+    {
+      "item": "On the device, browse to ip.zscaler.com.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "If you are already logged in to the Zscaler service, click Logout. Otherwise, ensure that your traffic is being forwarded to the Zscaler service.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Browse to a website. You are redirected to Microsoft Entra ID and prompted to log in.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Log in using your Microsoft Entra credentials, and you are automatically redirected to the original URL request.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to ip.zscaler.com. The status window shows the username indicating that authentication was successful.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Test the SAML Configuration with the Test URL",
+      "depth": 0
+    },
+    {
+      "item": "On the device, enter https://login.<Zscaler Cloud Name>/clstart?version=1&_domain=<Tenant Domain>&redrurl=https://mobile.<Zscaler Cloud Name>. To learn how you can find your cloud name, see Understanding Zscaler Cloud Names. The <Tenant Domain> is your organization's domain that is used to log in to the Zscaler service. For example, if you logged in to the Zscaler service with the username admin@zscaler.com, then zscaler.com is your <Tenant Domain>.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Given an organization on the zscalerbeta.net cloud with zscaler.com as the <Tenant Domain>, the completed URL would be:",
+      "depth": 1
+    },
+    {
+      "item": "https://login.zscalerbeta.net/clstart?version=1&_domain=zscaler.com&redrurl=https://mobile.zscalerbeta.net",
+      "depth": 1
+    },
+    {
+      "item": "If you are redirected to the Zscaler Admin Console, the SAML configuration is successful. You might be prompted to authenticate with your IdP.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "text": "Test the SCIM configuration by doing the following:"
+    },
+    {
+      "item": "1. Initiate a provision on demand for your application in Microsoft Entra ID.",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Microsoft Entra admin center.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Applications > Enterprise applications.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Enterprise applications page, locate the application for which you want to initiate the provision on demand.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click the application.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The Overview page for the application appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Provisioning.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The provisioning Overview page for the application appears.",
+      "depth": 1,
+      "strong": [
+        [
+          17,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Provision on demand.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about provision on demand, refer to the Microsoft Entra ID documentation.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Provision on demand page, search for a user.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "This user must have already been assigned to the cloud application. This user can be a part of the initial payload. If you select a user that is part of the initial payload, then this user is skipped over when the initial payload is provisioned because they were already provisioned on demand. To learn more, see Assign Users to the Zscaler Cloud Application.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the user for which you want to provision.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Click Provision.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The provision on demand process is initiated. After the process is completed, the Provision on demand page appears, displaying the results from the 5 steps that the provisioning service takes when provisioning a user. If a step is successful, a green check mark appears next to the step. If a step is not successful, then a red circle with an X appears next to the step.",
+      "depth": 1,
+      "strong": [
+        [
+          82,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Provision on demand page, review the results.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "If there are no failures in the steps, then the provisioning configuration for your application has been properly configured. If there are failures, fix the issues that are listed and retry the provision on demand process again. Focus on the Perform action step. To understand why the failure occurred, click the View details link located under each step.",
+      "depth": 1,
+      "strong": [
+        [
+          242,
+          256
+        ],
+        [
+          313,
+          325
+        ]
+      ]
+    },
+    {
+      "item": "For failures that you cannot fix, contact either Microsoft Entra Support or Zscaler Support for assistance.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that the user has been added to your database in the Zscaler Admin Console. In the Zscaler Admin Console, go to Administration > Internet & SaaS Authentication > Internet & SaaS Users.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          119,
+          133
+        ],
+        [
+          136,
+          166
+        ],
+        [
+          169,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "2. After provisioning successfully, in the Zscaler Admin Console, go to Administration > Internet & SaaS Authentication > Internet & SaaS Users. You should see a complete list of the users and groups added to your user database.",
+      "depth": 0,
+      "strong": [
+        [
+          72,
+          86
+        ],
+        [
+          89,
+          119
+        ],
+        [
+          122,
+          143
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "If any errors occur, see Troubleshooting SAML to troubleshoot browser settings and SAML error codes."
+    }
+  ]
+}

@@ -1,0 +1,165 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Supporting Microsoft Configuration Manager",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/supporting-microsoft-configuration-manager",
+    "node": "1484396",
+    "revision": "3226467",
+    "updated": "2026-07-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Organizations use Microsoft Configuration Manager (formerly SCCM) to install updates to devices. Configuration Manager is a client-to-server application that works on a user's local area network (LAN) or wide area network (WAN) by gathering system configuration and updating details from the Configuration Manager server. If there is an update, the Configuration Manager server directs the client to a distribution point to gather the update information and install the update. To learn more, refer to the Microsoft documentation."
+    },
+    {
+      "text": "Clients use boundary groups to identify the assigned distribution point where the client can install software. A boundary group is a group of network locations on the intranet. When a client needs to download software based on the boundary group, it contacts a server configured as a distribution point."
+    },
+    {
+      "text": "Distribution points deliver content to the clients and are used to reduce the WAN traffic, similarly to a content delivery network (CDN). For example, in a location with 100 devices, the devices have a distribution point where they receive their updates instead of pulling updates across the WAN."
+    },
+    {
+      "text": "When users are remote, the distribution server is identified as the closest to the point where the client's traffic enters the network. With a traditional VPN, the distribution point is selected based on the client IP address assigned by the VPN gateway. For Private Access (ZPA), the client is never placed on the network, which means the client never gets an IP address for the data center network. However, it is possible to support Configuration Manager deployments over Private Access."
+    },
+    {
+      "text": "Use one of the following methods for configuring Configuration Manager boundaries:"
+    },
+    {
+      "item": "Boundaries Based on Active Directory Site Names",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends using Active Directory site name for boundaries.",
+      "depth": 0
+    },
+    {
+      "item": "Active Directory sites are detected by a domain-joined device by using DNS SRV record requests. When the device receives the domain controller's IP address, it sends a Lightweight Directory Access Protocol (LDAP) ping to make sure that the domain controller belongs to the same Active Directory site as the device. The LDAP ping does not send the IP address in its header, so the domain controller relies on the source IP address of the packet. For Private Access, the IP address seen by the domain controller is the App Connector's source IP address, which needs to be added to the Active Directory site. To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "To configure Configuration Manager in Private Access:",
+      "depth": 0
+    },
+    {
+      "item": "Create an application segment to allow the resolution of SRV records. The recommended method is to use a wildcard that covers the root of your Active Directory domains. Alternative methods for SRV record resolution, which do not require a wildcard, are available. To learn more, see Configuring Access to Distributed File Servers.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the App Connector's interface IP address to the correct Active Directory site. Complete this for all App Connectors that require Configuration Manager updates.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Confirm that the Configuration Manager boundary type is set to Active Directory site.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          63,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Boundaries Based on a VPN Interface",
+      "depth": 0
+    },
+    {
+      "item": "The Configuration Manager agent on managed Windows endpoints can detect a VPN interface and obtain its assigned IP address. The agent can then report these interface details to the Configuration Manager, which uses them to determine the optimal Configuration Manager boundary and distribution point assignment.",
+      "depth": 0
+    },
+    {
+      "item": "While Private Access doesn't create a local interface or assign a unique IP address by default, it can be configured to do so without impacting Private Access operations. This configuration creates a hidden virtual interface on the Windows endpoint. The IP address used for this interface follows the same client-to-client IP bindings and can be utilized for both Configuration Manager boundaries and Private Access client-to-client communication.",
+      "depth": 0
+    },
+    {
+      "item": "Separate IP bindings must be created for each region you intend to assign to an Configuration Manager boundary and distribution point group.",
+      "depth": 0
+    },
+    {
+      "item": "When setting up an IP group for Configuration Manager, select the Send Location Hint to Client Connector option. The value entered in the Location Hint field should match the VPN Boundary name configured in Configuration Manager. To learn more, see Adding IP Ranges.",
+      "depth": 0,
+      "strong": [
+        [
+          66,
+          104
+        ],
+        [
+          138,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "To create Configuration Manager boundaries based on VPN interfaces:",
+      "depth": 0
+    },
+    {
+      "item": "Create a boundary group and set its type to VPN.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Make sure the VPN setting is set to Auto Detect.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Connection Name field, enter the exact text configured for the Location Hint in Private Access.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          70,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Complete the boundary creation process by adding the desired Configuration Manager distribution points.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "text": "The following server-to-client and peer-to-peer Configuration Manager clients and site systems are not supported:"
+    },
+    {
+      "item": "Client to Client (Wake On LAN)",
+      "depth": 0
+    },
+    {
+      "item": "Site server to Client (Wake On LAN)",
+      "depth": 0
+    },
+    {
+      "item": "Configuration Manager console to Client (Remote Assistance - Remote Desktop Protocol)",
+      "depth": 0
+    },
+    {
+      "text": "If these communication scenarios are required, use VPN for Legacy Apps. To learn more, see VPN (for Legacy Apps)."
+    }
+  ]
+}

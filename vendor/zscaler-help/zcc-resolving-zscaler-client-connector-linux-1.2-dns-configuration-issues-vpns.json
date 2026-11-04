@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Resolving Zscaler Client Connector Linux 1.2 DNS Configuration Issues for VPNs",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/resolving-zscaler-client-connector-linux-1.2-dns-configuration-issues-vpns",
+    "node": "1385861",
+    "revision": "3203960",
+    "updated": "2026-04-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Client Connector for Linux 1.2 requires changes to the DNS configuration for older third-party VPNs, like Pulse Secure and Cisco AnyConnect, in order for it to work for ZIA only mode. These changes are not required if you are using both Internet & SaaS and Private Access or if you are using modern VPN clients like Openconnect."
+    },
+    {
+      "text": "Complete the following to resolve the issue:"
+    },
+    {
+      "item": "Run command resolvectl or systemd-resolve --status to identify the physical network interface's DNS search domains. This information will be required later.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "You must complete this step prior to connecting to the VPN server."
+    },
+    {
+      "item": "Connect to the VPN server and log in.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run the ifconfig command to identify the VPN network interface name (e.g., tun0 for Pulse Secure).",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Run command cat /etc/resolv.conf to gather the VPN name server and search domain information.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Find the IP addresses for the VPN name server in the nameserver lines. Ignore the 127.0.0.53 IP address in the nameserver line.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Find the domains in the search line for the VPN domain names. Ignore the physical network interface’s search domains identified in step 1.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "text": "In the following example, the VPN nameserver IPs are 10.11.12.13 and 10.11.12.14, and the domain is corp.testco.com. They are highlighted in green."
+    },
+    {
+      "text": "$ cat /etc/resolv.conf search corp.testco.com localdomain nameserver 10.11.12.13 nameserver 10.11.12.14 nameserver 127.0.0.53"
+    },
+    {
+      "item": "Run the /opt/zscaler/scripts/config_vpn_dns.sh script with root permission using the information gathered in steps 3 and 4. Use the command format: sudo ./vpn_dns_config.sh <vpn_interface_name> <vpn_name_server> <vpn_search_domain>.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "If either <vpn_name_server> or <vpn_search_domain> have multiple entries, they should be separated by a space with quotation marks on either side of all the entries."
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "sudo ./config_vpn_dns.sh tun0 \"10.11.12.13 10.11.12.14\" corp.testco.com"
+    }
+  ]
+}

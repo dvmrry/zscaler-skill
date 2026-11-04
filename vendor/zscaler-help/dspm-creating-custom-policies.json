@@ -1,0 +1,1268 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating Custom Policies",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/creating-custom-policies",
+    "node": "1477756",
+    "revision": "3247696",
+    "updated": "2026-10-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "DSPM supports creating custom security policies to expand security coverage to your cloud infrastructure beyond the predefined security policies."
+    },
+    {
+      "text": "You can do the following:"
+    },
+    {
+      "item": "Add a new custom security policy to an existing protected cloud resource. For example, you can create a custom security policy to ensure that the Amazon S3 buckets containing sensitive data are encrypted.",
+      "depth": 0
+    },
+    {
+      "item": "Add a new custom security policy to resources that currently do not have predefined security policies. For example, you can create custom security policies to protect a new datastore in your cloud infrastructure.",
+      "depth": 0
+    },
+    {
+      "text": "To create a custom security policy:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Data Posture Policies.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "On the Policy page, click Add Policy.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          26,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Create Policy page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Create Policy page, for Select Cloud Provider, select the cloud type.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          31,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "For Primary Resource Type, select the required resource (EC2 instance, RDS instance, etc.).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Build the query by selecting the required predicates.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "View the list of predicates and operators",
+      "depth": 1
+    },
+    {
+      "item": "Primary resources are the main data stores that DSPM scans for sensitive data. You can build investigation queries and custom policies to identify what type of secondary resources and entities (users, services, roles, databases, virtual machines, etc.) have access to the primary resource and how they are associated with the primary resource. You can also query if there are vulnerabilities in the primary and secondary resources and evaluate their security posture. The investigation results enable you to evaluate and remediate the issues and ensure the resources and sensitive data are secure.",
+      "depth": 1
+    },
+    {
+      "item": "DSPM offers predicates and operators in the following categories to build highly contextual queries:",
+      "depth": 1
+    },
+    {
+      "item": "Property",
+      "depth": 2
+    },
+    {
+      "item": "Access",
+      "depth": 2
+    },
+    {
+      "item": "Relationship",
+      "depth": 2
+    },
+    {
+      "item": "Entitlement",
+      "depth": 2
+    },
+    {
+      "item": "Data",
+      "depth": 2
+    },
+    {
+      "item": "Vulnerability",
+      "depth": 2
+    },
+    {
+      "item": "Posture",
+      "depth": 2
+    },
+    {
+      "item": "The combination of predicates and operators is specific to each primary resource.",
+      "depth": 2
+    },
+    {
+      "item": "You can select multiple values when using the Like (%), Not Like !(%), iLike (i%), and Not iLike !(i%) operators.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You can use various attributes to identify what type of entities are associated with the primary resource. You can use a combination of operators and conditions to build the query.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Resource Property Predicates",
+          "Description",
+          "Operators"
+        ],
+        [
+          "Resource ID",
+          "Returns the resource ID of the primary resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ∋ : Contains"
+        ],
+        [
+          "Resource Name",
+          "The name of the resource, as defined by the cloud service provider (CSP).",
+          "= : Is ≠ : Is not ⊆ : Included In ∋ : Contains (%) : Like i% : iLike (Applicable only for Azure resources.)"
+        ],
+        [
+          "Resource Property",
+          "Search the resource metadata (JSON file) for the attributes mentioned.",
+          "= : Is True False ≠ : Is not ⊆ : Included In True False Doesn't Exist Null You can select multiple values. For example, ⊆ (Included In) [Value 1] OR [Value 2] OR [Doesn't Exist]. ⊈ : Not Included In <= : Less or equal >= : Greater or equal < : Less than > : Greater than = : On date |… : After date …| : Before date |...| : Between ∋ : Contains ∌ : Doesn't Contain [≠] : Is not (No match for all array records.) [⊈] : Not included in (No match for all array records.) ∅ : Null O : Not Null × : Doesn't exist (%) : Like !(%) : Not Like [!(%)] : Not Like (No match for all array records.) i% : iLike !(i%) : Not iLike (Applicable only for Azure resources.) And: Use this operator to select the object's multiple attributes when the resource metadata property is part of an array of multiple objects (e.g., In AWS, find Resources Where Primary Resource Type == \"EC2 Instance\", Resource Property \"EC2 Instance\".Instance.BlockDeviceMappings[*] .Ebs.Status == Enabled And .Ebs.VolumeID == ID123456789). List: Select a set of values (e.g., Regions (List) includes a list of regions that can be queried for sensitive data.)"
+        ],
+        [
+          "Tags",
+          "The tags associated with the resource. You can select multiple keys.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In (%) : Like !(%) : Not Like"
+        ],
+        [
+          "Region",
+          "The region where the resource is located.",
+          "= : Is ≠ : Is not ⊆ : Included In ∋ : Contains ∌ : Doesn't Contain !(%) : Not Like"
+        ],
+        [
+          "Account",
+          "The account in which the resource is stored.",
+          "= : Is ≠ : Is not ⊆ : Included In ∋ : Contains"
+        ],
+        [
+          "MFA required for login",
+          "Whether MFA is required for login.",
+          "True False"
+        ],
+        [
+          "Data Store",
+          "The main data store type.",
+          "= : Is"
+        ]
+      ],
+      "strong": [
+        [
+          8,
+          2,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "item": "Access predicates define the network access levels for the resource.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Access Predicates",
+          "Description",
+          "Operators"
+        ],
+        [
+          "Publicly Accessible",
+          "Returns \"true\" if the resource can be accessed from the internet.",
+          "True False"
+        ],
+        [
+          "Public Exposure Details",
+          "Returns a JSON object that contains the details of the public exposure. For example, in case of a network level exposure, the object contains the exposed ports and IP ranges.",
+          "Enter key and value"
+        ]
+      ]
+    },
+    {
+      "item": "Use the relationship predicates to identify the secondary resources that are associated with or can access the primary resource, check the security posture of the primary resource, whether the primary resource has vulnerabilities, malware, etc.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Relationship Predicates",
+          "Description",
+          "Additional Predicates",
+          "Operators/Conditions/Resource Types"
+        ],
+        [
+          "Has Package",
+          "The package installed in the resource.",
+          "Package Name Package Version",
+          ""
+        ],
+        [
+          "Has Data",
+          "Check the type of the detected data.",
+          "You can use the following predicates to identify the specific data types: Is Sensitive: Returns \"true\" if the resource contains sensitive data. DLP Engine: Describes the DLP engines. Dictionary: Describes the dictionaries. Document Type: Select the required document type. Document Category: Describes the document category. Sensitive Data Triggers: Enter the number of DLP trigger matches that the resource permits. Sensitive Data Matches: Enter the number of sensitive files/tables that the resource permits. Sensitive Data Volume: Enter the permitted file size value of the files containing sensitive information (in KB). Last Completed Scan: Returns the time stamp when the resource was last scanned successfully.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In > : Greater than ≥ : Greater or equal < : Less than ≤ : Less than or equal = On date |... Before date ...| After date |...| Between < Less than > More than"
+        ],
+        [
+          "Has Vulnerability",
+          "Check for the specific vulnerability details.",
+          "CVE ID: Returns the CVE ID as defined in the National Vulnerability Database (NVD). You can select a predefined list of vulnerabilities, allowing you to query multiple values at the same time. CVSS Score: Returns the numeric open industry standard for assessing the severity of the vulnerability. CVE Severity: Returns the CVE severity as defined in the NVD. Age of CVE: Returns the age of the vulnerability discovery as defined in the NVD. Package Name: Search for a specific package name that is affected by a vulnerability. Package Version: Search for a specific package version that is affected by a vulnerability. Fix Available: Returns \"true\" if a fix is available as defined in the NVD.",
+          ""
+        ],
+        [
+          "Has Access to",
+          "The secondary resources that can access the primary resource. You can select multiple resource types.",
+          "",
+          ""
+        ],
+        [
+          "Associated with",
+          "The relationship between this resource and another associated resource. You can select multiple resource types.",
+          "",
+          ""
+        ],
+        [
+          "Has Password",
+          "Whether the resource is password protected or not.",
+          "",
+          ""
+        ],
+        [
+          "Can be accessed by",
+          "IAM entities can be a service, user, or a role that can access the primary resource.",
+          "You can use the following additional predicates and operators to build the query with more granularity: Entity ID: Enter the entity ID. Account: Select the account that is associated with the entity. Region: Select the region where the account is located. Tags: Select the tags associated with the entity. Action over Parent Resource: Define the actions that the accessing resource can apply to the parent resource. Access Level over Parent Resource: Define the access level (Full Access, Edit, Read) that the accessing resource can apply to the parent resource. Has Access To: Relationship to another resource that can be accessed by the current resource. Via Role: The entity accesses the primary resource via a role that is assigned to another entity. For GCP resources: Has Service Account Keys: The service account keys associated with the resource. Subpredicates: Expiry: The date when the service account key expires. Created On: The date when the service account key was created. Type: Classification of key types, whether they are user-managed or system-managed. This predicate is not available for the unmanaged Azure Microsoft SQL server and unmanaged Azure PostgreSQL server. For Azure resources: Resource Type: The type of resource that can access the primary resource (e.g., Azure Virtual Machine) Service Principal Type: Internal Application Third-Party Application Microsoft Application System-Assigned Managed Identity User-Assigned Managed Identity AI Agent Identity",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In"
+        ],
+        [
+          "Has Entitlement",
+          "Relationship to all entitlements granted to the resource.",
+          "Access Level: Check the access level (Full Access, Read, Edit) of the entity. Allowed Action: Define the action that the entitlement permits. Over Resource: The primary resource has entitlement over another resource.",
+          "This predicate is shown only for the following resource types: AWS EC2 Instance Lambda Function IAM User IAM External User IAM Unmanaged User Organizations Account External Account IAM Role IAM External Role IAM Federated User Azure Virtual Machine Azure App Service User Service Principals Applications (App Registrations) Managed Identities (User Assigned or System Assigned) IAM Roles GCP Virtual Machine App Engine Users Service Accounts IAM Roles"
+        ],
+        [
+          "Has Access Keys",
+          "Whether the resource has access keys and whether it is rotated or not.",
+          "",
+          ""
+        ],
+        [
+          "Has Malware",
+          "Whether the resource contains malware. Malware is detected in AWS S3 buckets, Azure virtual machines and storage accounts, and GCP storage buckets.",
+          "Is Malware: Check if the resource contains malware. Malware Category: Check if the resource contains malware of a specific category. Malware Name: Check if the resource contains malware with a specific name. Detection Accuracy Level: Check the accuracy level to determine if this is malware.",
+          "= : Is ⊆ : Included In (%) : Like"
+        ],
+        [
+          "Has Models",
+          "Whether the AI deployment instance or resource contains the AI model or not. This predicate is available only for AI-related resource types, such as AWS Bedrock, Azure AI Foundry, and vertex AI resources.",
+          "Model Name: Search for specific models either in AI deployment instances or resources. LLM Safety Risk: Check the severity of the risk (i.e., CRITICAL, HIGH, MEDIUM, LOW) assigned to the AI model. LLM Risk Score: Check the risk score calculated for the AI model. Model Origin: Search for the organization that developed the AI model. Model Country: Search for the country where the organization that developed the AI model is located. Model Status: Check the approval state of the AI model. The following sub-predicates are available: Sanctioned: The AI model is approved for use. Unsanctioned: The AI model is not approved for use. Pending: The AI model is under review awaiting approval. LLM Risk Assessment Results: Check the risks associated with the LLM deployment.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In (%) : Like !(%) : Not Like"
+        ],
+        [
+          "Has AI Package",
+          "Whether the resource contains AI/ML package or not.",
+          "Package Name: Search for the name of the AI package. Package Publisher URL: Search for link to the package homepage where the package is published. Package Type: Search for the type of AI package. Package Language: Search for the language of the AI package. Package Version: Search for the version of the AI package. Package Has Vulnerability: Check for vulnerability in the AI package. Package Status: Check for the approval status of the AI package. The following sub-predicates are available: Sanctioned: The AI package is approved for use. Unsanctioned: The AI package is not approved for use. Pending: The AI package is under review awaiting approval. Package Last Updated: Check the date and time the AI package was last modified. Package License Type: Check the software license terms (e.g., MIT, Apache-2.0) governing the AI package. Package Access Type: Check the access level (e.g., public) of the AI package. Package Supply Chain Risk Level: Check the severity of the risk (i.e., CRITICAL, HIGH, MEDIUM, LOW) assigned to the AI package. Package Risk Score: Check the risk score calculated for the AI package. Package Risk Assessment Results: Check the risks associated with deploying the AI package.",
+          "< Less than > More than = : Is (%) : Like i% : iLike"
+        ],
+        [
+          "Has AI Model",
+          "Whether the resource contains the AI model or not.",
+          "Model Name: Search for the name of the AI model. Model Publisher URL: Search for a link to the homepage where the AI model is published. Model Platform: Search for the AI model platform (e.g., Ollama, Hugging Face) Model Path: Search for the file system path where the AI model is detected. Multi-Modal: Returns true if the AI model is multi-modal and returns false if not. Model Country: Search for the country where the organization that developed the AI model is located. Model Vendor: Search for the AI model vendor (e.g., Google, Meta). Number of Downloads: Check the number of times the model was downloaded. Model Status: Check the approval status of the AI model. The following sub-predicates are available: Sanctioned: The AI model is approved for use. Unsanctioned: The AI model is not approved for use. Pending: The AI model is under review awaiting approval. Model Last Updated: Check the date and time the AI model was last modified. Open Source ML Risk Score: Check the risk score calculated for the AI model. Open Source ML Risk Severity: Check the severity of the risk (i.e., CRITICAL, HIGH, MEDIUM, LOW) assigned to the AI model. Risk Factors Properties: Check the risks associated with deploying the AI model.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In (%) : Like !(%) : Not Like"
+        ]
+      ],
+      "strong": [
+        [
+          2,
+          3,
+          54,
+          55
+        ],
+        [
+          2,
+          3,
+          71,
+          72
+        ],
+        [
+          2,
+          3,
+          92,
+          93
+        ],
+        [
+          2,
+          3,
+          106,
+          107
+        ],
+        [
+          7,
+          3,
+          0,
+          1
+        ],
+        [
+          7,
+          3,
+          7,
+          8
+        ],
+        [
+          7,
+          3,
+          18,
+          19
+        ],
+        [
+          7,
+          3,
+          34,
+          35
+        ],
+        [
+          8,
+          3,
+          63,
+          66
+        ],
+        [
+          8,
+          3,
+          227,
+          232
+        ],
+        [
+          8,
+          3,
+          388,
+          391
+        ]
+      ]
+    },
+    {
+      "item": "Use the entitlement predicates to identify the secondary resource's access level and the type of actions it can perform on the primary resource.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Entitlement Predicates",
+          "Description",
+          "Additional Predicates",
+          "Operators"
+        ],
+        [
+          "Has Access to",
+          "Access to all entitlements granted to the resource.",
+          "Access Level: Full Access, Read, or Edit. Allowed Action: Define the action that the entitlement permits.",
+          "= : Is ≠ : Is not ⊆ : Included In (%) : Like i% : iLike (Applicable only for Azure resources.)"
+        ]
+      ]
+    },
+    {
+      "item": "Use the vulnerability predicate to check if the resource contains vulnerabilities.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Vulnerability Predicate",
+          "Description",
+          "Operator"
+        ],
+        [
+          "Is Vulnerable",
+          "Check if the resource contains packages with vulnerabilities.",
+          "True False"
+        ]
+      ]
+    },
+    {
+      "item": "Use the posture predicates to check if security policies are enabled or disabled for resources.",
+      "depth": 1
+    },
+    {
+      "item": "AWS",
+      "depth": 2
+    },
+    {
+      "item": "Azure",
+      "depth": 2
+    },
+    {
+      "item": "GCP",
+      "depth": 2
+    },
+    {
+      "item": "Snowflake",
+      "depth": 2
+    },
+    {
+      "table": [
+        [
+          "Posture",
+          "Description",
+          "Operator",
+          "Value"
+        ],
+        [
+          "Encrypted",
+          "The encryption type applied to the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "AWS Managed Keys Customer Managed Keys Encrypted Not Encrypted Platform Managed Keys"
+        ],
+        [
+          "Logging",
+          "Returns the logging state of the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "Data Logs Flow Logs Management Logs Enabled Disabled Partial"
+        ],
+        [
+          "Data Retention",
+          "The data retention policy for the resource.",
+          "= : Is ≠ : Is not",
+          "Enabled Disabled"
+        ],
+        [
+          "Backup",
+          "The data backup policy that is applied to the primary resource.",
+          "= : Is ≠ : Is not",
+          "Enabled Disabled"
+        ],
+        [
+          "Guardrails",
+          "Check if Guardrails is enabled or not for an AWS Bedrock Agent.",
+          "",
+          "Enabled Disabled"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          2,
+          0,
+          1
+        ],
+        [
+          1,
+          2,
+          7,
+          8
+        ],
+        [
+          1,
+          2,
+          18,
+          19
+        ],
+        [
+          1,
+          2,
+          34,
+          35
+        ],
+        [
+          2,
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          2,
+          7,
+          8
+        ],
+        [
+          2,
+          2,
+          18,
+          19
+        ],
+        [
+          2,
+          2,
+          34,
+          35
+        ],
+        [
+          3,
+          2,
+          0,
+          1
+        ],
+        [
+          3,
+          2,
+          7,
+          8
+        ],
+        [
+          4,
+          2,
+          0,
+          1
+        ],
+        [
+          4,
+          2,
+          7,
+          8
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Posture",
+          "Description",
+          "Operator",
+          "Value"
+        ],
+        [
+          "Encrypted",
+          "The encryption type applied to the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "Platform Managed Keys Customer Managed Keys Platform and Customer Managed Keys (managed disk only) Encrypted Not Encrypted"
+        ],
+        [
+          "Logging",
+          "Returns the logging state of the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "Enabled Disabled Unmanaged PostgreSQL Server: Partial"
+        ],
+        [
+          "Data Retention",
+          "The data retention policy for the resource.",
+          "= : Is ≠ : Is not",
+          "Enabled Disabled"
+        ],
+        [
+          "Backup",
+          "The data backup policy that is applied to the primary resource.",
+          "= : Is ≠ : Is not",
+          "Enabled Disabled"
+        ],
+        [
+          "Exposed to AI service",
+          "Returns \"true\" if the resource is exposed to an AI service, such as Azure AI Foundry.",
+          "= : Is",
+          "true false"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          2,
+          0,
+          1
+        ],
+        [
+          1,
+          2,
+          7,
+          8
+        ],
+        [
+          1,
+          2,
+          18,
+          19
+        ],
+        [
+          1,
+          2,
+          34,
+          35
+        ],
+        [
+          2,
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          2,
+          7,
+          8
+        ],
+        [
+          2,
+          2,
+          18,
+          19
+        ],
+        [
+          2,
+          2,
+          34,
+          35
+        ],
+        [
+          3,
+          2,
+          0,
+          1
+        ],
+        [
+          3,
+          2,
+          7,
+          8
+        ],
+        [
+          4,
+          2,
+          0,
+          1
+        ],
+        [
+          4,
+          2,
+          7,
+          8
+        ],
+        [
+          5,
+          2,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Posture",
+          "Description",
+          "Operator",
+          "Value"
+        ],
+        [
+          "Encrypted",
+          "The encryption type of the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "Customer Managed Keys Platform Managed Keys"
+        ],
+        [
+          "Logging",
+          "The date the resource was created in the cloud environment.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In",
+          "All logs Data Access Admin Read Data Access Read Data Access Write GCP Cloud SQL Instance: Enabled Disabled GCP Compute Instance: All logs Data Access Admin Read Data Access Read Data Access Write Ops Agent Logs"
+        ],
+        [
+          "Data Retention",
+          "The data retention policy for the resource.",
+          "= : Is",
+          "Enabled Disabled"
+        ],
+        [
+          "Backup",
+          "The data backup policy for the resource.",
+          "= : Is ≠ : Is not",
+          "Enabled Disabled"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          2,
+          0,
+          1
+        ],
+        [
+          1,
+          2,
+          7,
+          8
+        ],
+        [
+          1,
+          2,
+          18,
+          19
+        ],
+        [
+          1,
+          2,
+          34,
+          35
+        ],
+        [
+          2,
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          2,
+          7,
+          8
+        ],
+        [
+          2,
+          2,
+          18,
+          19
+        ],
+        [
+          2,
+          2,
+          34,
+          35
+        ],
+        [
+          3,
+          2,
+          0,
+          1
+        ],
+        [
+          4,
+          2,
+          0,
+          1
+        ],
+        [
+          4,
+          2,
+          7,
+          8
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Posture",
+          "Description",
+          "Operator",
+          "Value"
+        ],
+        [
+          "Data Retention",
+          "The data retention policy for the resource.",
+          "= : Is",
+          "Enabled Disabled"
+        ],
+        [
+          "Is Dormant",
+          "Check if the user has logged in over the last 90 days.",
+          "",
+          "true false"
+        ],
+        [
+          "Stale Access Keys",
+          "Check if the access keys have been rotated in the last 90 days.",
+          "= : Is",
+          "true false"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          2,
+          0,
+          1
+        ]
+      ]
+    },
+    {
+      "item": "The Has Data predicate can be used to check if the resource contains sensitive data, document types, document categories, and identify the DLP engines and dictionaries that match the content in the resource, check for the volume of sensitive data, and more.",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Predicate",
+          "Description",
+          "Operators"
+        ],
+        [
+          "Is Sensitive",
+          "Check if the resource contains sensitive data or not.",
+          "= : Is"
+        ],
+        [
+          "Dictionary",
+          "Dictionaries matching the content in the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In"
+        ],
+        [
+          "DLP Engine",
+          "DLP engines matching the content in the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In"
+        ],
+        [
+          "Document Type",
+          "The document type matches the content in the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In"
+        ],
+        [
+          "Document Category",
+          "The document category matches the content in the resource.",
+          "= : Is ≠ : Is not ⊆ : Included In ⊈ : Not Included In"
+        ],
+        [
+          "Sensitive Data Triggers",
+          "The number of DLP trigger matches.",
+          "= : Is ≠ : Is not > : Greater than ≥ : Greater or equal < : Less than ≤ : Less than or equal"
+        ],
+        [
+          "Sensitive Data Matches",
+          "The number of matched sensitive data or tables.",
+          "= : Is ≠ : Is not > : Greater than ≥ : Greater or equal < : Less than ≤ : Less than or equal"
+        ],
+        [
+          "Sensitive Data Volume",
+          "The volume of sensitive data found in the data store and the size (in KB) of the file containing sensitive data.",
+          "= : Is ≠ : Is not > : Greater than ≥ : Greater or equal < : Less than ≤ : Less than or equal"
+        ],
+        [
+          "Last Completed Scan",
+          "The date when the data store was last scanned successfully.",
+          "Select a date from the calendar"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          2,
+          0,
+          1
+        ],
+        [
+          2,
+          2,
+          7,
+          8
+        ],
+        [
+          2,
+          2,
+          18,
+          19
+        ],
+        [
+          2,
+          2,
+          34,
+          35
+        ],
+        [
+          3,
+          2,
+          0,
+          1
+        ],
+        [
+          3,
+          2,
+          7,
+          8
+        ],
+        [
+          3,
+          2,
+          18,
+          19
+        ],
+        [
+          3,
+          2,
+          34,
+          35
+        ],
+        [
+          4,
+          2,
+          0,
+          1
+        ],
+        [
+          4,
+          2,
+          7,
+          8
+        ],
+        [
+          4,
+          2,
+          18,
+          19
+        ],
+        [
+          4,
+          2,
+          34,
+          35
+        ],
+        [
+          5,
+          2,
+          0,
+          1
+        ],
+        [
+          5,
+          2,
+          7,
+          8
+        ],
+        [
+          5,
+          2,
+          18,
+          19
+        ],
+        [
+          5,
+          2,
+          34,
+          35
+        ],
+        [
+          6,
+          2,
+          0,
+          1
+        ],
+        [
+          6,
+          2,
+          7,
+          8
+        ],
+        [
+          6,
+          2,
+          18,
+          19
+        ],
+        [
+          6,
+          2,
+          35,
+          36
+        ],
+        [
+          6,
+          2,
+          56,
+          57
+        ],
+        [
+          6,
+          2,
+          70,
+          71
+        ],
+        [
+          7,
+          2,
+          0,
+          1
+        ],
+        [
+          7,
+          2,
+          7,
+          8
+        ],
+        [
+          7,
+          2,
+          18,
+          19
+        ],
+        [
+          7,
+          2,
+          35,
+          36
+        ],
+        [
+          7,
+          2,
+          56,
+          57
+        ],
+        [
+          7,
+          2,
+          70,
+          71
+        ],
+        [
+          8,
+          2,
+          0,
+          1
+        ],
+        [
+          8,
+          2,
+          7,
+          8
+        ],
+        [
+          8,
+          2,
+          18,
+          19
+        ],
+        [
+          8,
+          2,
+          35,
+          36
+        ],
+        [
+          8,
+          2,
+          56,
+          57
+        ],
+        [
+          8,
+          2,
+          70,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Test Run.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The query result is displayed.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Accept and Proceed.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "On the Remediation page, click Add Remediation Procedure.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          31,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the remediation procedure in Markdown format, then click Save.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          63,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Severity and Description page, enter the following details:",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Policy Name: The name of the security policy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Policy Description (Optional): The description of the policy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Policy Severity: Static value signaling the severity of policy failure. The value can be Critical, High, Medium, or Low.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Policy Category (Optional): Select the threat category from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "MITRE ATT&CK (Optional): Select the MITRE technique ID that must be associated with this policy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 0,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "You can now view the policy listed on the Policy page.",
+      "strong": [
+        [
+          42,
+          48
+        ]
+      ]
+    }
+  ]
+}

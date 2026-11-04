@@ -1,0 +1,792 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Defining a Browser Access Application with Different External vs. Internal Domains",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/defining-browser-access-application-different-external-vs-internal-domains",
+    "node": "1484231",
+    "revision": "3243350",
+    "updated": "2026-10-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following guide provides the methods and requirements to define a Browser Access application that utilizes different external and internal domains."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Regardless of the method used, the following prerequisites apply:"
+    },
+    {
+      "item": "Your internal fully qualified domain name (FQDN) for the application must be properly named (e.g., internalweb.example1.com), and your App Connectors must resolve to that hostname via your internal DNS.",
+      "depth": 0
+    },
+    {
+      "item": "Your desired external FQDN for the application must be properly named (e.g., externalweb.example2.com). Ideally, the internal and external FQDNs for the application should use similar names. However, the following also functions:",
+      "depth": 0
+    },
+    {
+      "item": "Split DNS, where the domain and top-level domain are the same but the hostname varies.",
+      "depth": 1
+    },
+    {
+      "item": "Separate DNS, where the domain and top-level domain differ.",
+      "depth": 1
+    },
+    {
+      "item": "You must create an SSL certificate for the external FQDN (e.g., webapp.external.example.com or *.external.example.com if you want to use a wildcard certificate). The SSL certificate must contain the following:",
+      "depth": 0
+    },
+    {
+      "item": "CN=[external FQDN]",
+      "depth": 1
+    },
+    {
+      "item": "SAN=[internal FQDN]",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see About (Web Server) Certificates and Using Wildcard Certificates for Browser Access Applications."
+    },
+    {
+      "item": "If your web server is multihomed and is expecting a Host header matching the internal FQDN, Private Access (ZPA) does not transform the external FQDN. So if your web server is configured for Host headers, you must add the external FQDN as an additional header.",
+      "depth": 0
+    },
+    {
+      "item": "Internal web servers must serve pages with objects linked as relative URLs (e.g., HREF=”/filename.ext”). Absolute URLs are not supported (e.g., HREF=”http://foo.example2.com/file.ext” or HREF=”http://172.16.1.1/file.ext”).",
+      "depth": 0
+    },
+    {
+      "item": "Internal web servers must be single tenant.",
+      "depth": 0
+    },
+    {
+      "heading": "Defining a Browser Access Application",
+      "level": 1
+    },
+    {
+      "text": "To define an application for Browser Access when it uses a different externally advertised DNS hostname than its internal hostname, you must use one of the following methods."
+    },
+    {
+      "heading": "Disabling Dynamic Server Discovery and Manually Defining the Target Servers",
+      "level": 2
+    },
+    {
+      "text": "You can disable dynamic server discovery and manually define the target servers. This method supports multiple web servers, and no external load balancing is required."
+    },
+    {
+      "text": "To configure Private Access using this method:"
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Steering > Servers.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          57
+        ],
+        [
+          60,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Server drawer:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the server. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Domain or IP Address: Enter the FQDN for the internal hostname (e.g., webapp.internal.example.com).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "If you have multiple web servers supporting the same application (e.g., webapp1, webapp2, etc.), then you must add a server in the Zscaler Admin Console for each internal FQDN.",
+      "depth": 1
+    },
+    {
+      "item": "Server Groups without DSD: Select a server group(s). Only server groups that have Dynamic Server Discovery (DSD) turned off are displayed.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Steering > Server Groups.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          57
+        ],
+        [
+          60,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Server Group drawer:",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the server group. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Dynamic Server Discovery: Select Off.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Connector Type: Select App Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "App Connector Groups: Choose the App Connector groups that can access your internal web servers.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          69
+        ],
+        [
+          72,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Define your web application for Browser Access using the external FQDN you associated to it on your internal DNS, with the proper port numbers applied.",
+      "depth": 0,
+      "number": 11
+    },
+    {
+      "item": "Under Applications, enter the external FQDN associated to the web application (e.g., webapp.external.example.com).",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select the Browser Access checkbox, then complete the following steps:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Select the proper SSL certificate from the drop-down menu. The certificate must match the external FQDN (i.e., webapp.external.example.com or *.external.example.com). To learn more, see About (Web Server) Certificates and Using Wildcard Certificates for Browser Access Applications.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select HTTPS for the protocol. By default, port 443 is applied for HTTPS. If this does not apply, be sure to change the port number to the proper one your internal web application is served on.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          48,
+          51
+        ],
+        [
+          67,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Make sure that the Use Untrusted Certificates checkbox is selected.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "If you need to define multiple web applications for Browser Access (e.g., webapp1.external.example.com, webapp2.external.example.com, etc.), click Add More and repeat steps i through iii.",
+      "depth": 1,
+      "strong": [
+        [
+          147,
+          155
+        ]
+      ]
+    },
+    {
+      "item": "Under Client Connector Access, for TCP Port Ranges, make sure that the proper port ranges are specified.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Define Applications tab, then click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Segment Group tab, then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Groups tab, for Select Server Group, choose the server group your created in step 7 from the drop-down menu, and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          30,
+          49
+        ],
+        [
+          133,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "Review your application segment configuration settings on the Review tab, and review and edit any policies as needed on the Policies tab.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Publish the CNAMEs for the FQDNs you defined in step 11a.",
+      "depth": 0,
+      "number": 12
+    },
+    {
+      "text": "Your users should now be able to access the applications you defined within the application segment, based upon the policies applied. Make sure that you add or updated your access policies accordingly for your users."
+    },
+    {
+      "heading": "Enabling Dynamic Server Discovery and Manually Defining the A Record",
+      "level": 2
+    },
+    {
+      "text": "You can enable dynamic server discovery and manually define an A record in your internal DNS for the external FQDN. This method supports only one web server, unless third-party load balancing is used to place multiple web servers behind a single IP address referenced by the A record."
+    },
+    {
+      "text": "To configure Private Access using this method:"
+    },
+    {
+      "item": "In your internal DNS, create an A record for the internal application hostname (e.g., webapp.external.example.com) that points to the IP address or load balancer virtual IP address (VIP) of the internal web server that is hosting the application.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Steering > Server Groups.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          57
+        ],
+        [
+          60,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Server Group drawer:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the server group. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Dynamic Server Discovery: Select On.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Connector Type: Select App Connector.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "App Connector Groups: Choose the App Connector groups that can access your internal web servers or load balancer VIP.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          69
+        ],
+        [
+          72,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Define your web application for Browser Access using the external FQDN you associated to it on your internal DNS, with the proper port numbers applied.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "Under Applications, enter the external FQDN associated to the web application (e.g., webapp.external.example.com).",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Select the Browser Access checkbox, then complete the following steps:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Select the proper SSL certificate from the drop-down menu. The certificate must match the external FQDN (i.e., webapp.external.example.com or *.external.example.com). To learn more, see About (Web Server) Certificates and Using Wildcard Certificates for Browser Access Applications.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select HTTPS for the protocol. By default, port 443 is applied for HTTPS. If this does not apply, be sure to change the port number to the proper one your internal web application is served on.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          48,
+          51
+        ],
+        [
+          67,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Make sure that the Use Untrusted Certificates checkbox is selected.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          19,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "If you need to define multiple web applications for Browser Access (e.g., webapp1.external.example.com, webapp2.external.example.com, etc.), click Add More and repeat steps i through iii.",
+      "depth": 1,
+      "strong": [
+        [
+          147,
+          155
+        ]
+      ]
+    },
+    {
+      "item": "Under Client Connector Access, for TCP Port Ranges, make sure that the proper port ranges are specified.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          35,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Define Applications tab, then click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Segment Group tab, then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Groups tab, for Select Server Group, choose the server group your created in step 4 above from the drop-down menu, and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          30,
+          49
+        ],
+        [
+          139,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "Review your application segment configuration settings on the Review tab, and review and edit any policies as needed on the Policies tab.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Publish the CNAMEs for the FQDNs you defined in step 8a.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "text": "Your users should now be able to access the applications you defined within the application segment, based upon the policies applied. Make sure that you add or updated your access policies accordingly for your users."
+    }
+  ]
+}

@@ -1,0 +1,1389 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "App Connector Deployment Guide for Microsoft Hyper-V",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/app-connector-deployment-guide-microsoft-hyper-v",
+    "node": "1546727",
+    "revision": "3251418",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy an App Connector on Microsoft Hyper-V, and post-deployment verification checks. For general information regarding App Connector deployment for Private Access (ZPA), see Deploying App Connectors."
+    },
+    {
+      "text": "This procedure requires a physical server with the Hyper-V manager role."
+    },
+    {
+      "item": "Step 1: Make Sure You Have Met All App Connector Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Before deploying an App Connector on any supported platform, Zscaler highly recommends reading the following information and making the necessary changes to your organization's environment, where applicable.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Specifications and Sizing Requirements",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Platform Prerequisites",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Security Guidance and Firewall Requirements",
+      "depth": 1
+    },
+    {
+      "item": "After you have met all the prerequisites, you can deploy the App Connector on a supported platform.",
+      "depth": 0
+    },
+    {
+      "item": "The following specifications are recommended by Zscaler for each App Connector:",
+      "depth": 0
+    },
+    {
+      "item": "Memory: 4 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "For Digital Experience (ZDX) deployments, Zscaler recommends App Connectors to have 8 GB of RAM. If the ZDX probes exceed a count of 2,000 at an interval of 5 minutes, further scaling should be considered. If alerts are observed that exceed a configured bandwidth of 250 Mbps on each App Connector, further scaling of 32 GB of RAM should be considered.",
+      "depth": 0
+    },
+    {
+      "item": "CPU:",
+      "depth": 1
+    },
+    {
+      "item": "2 CPU cores (Xeon E5 class) for physical machines without hyperthreading",
+      "depth": 2
+    },
+    {
+      "item": "4 CPU cores (Xeon E5 class) for virtual machines (VMs) with hyperthreading",
+      "depth": 2
+    },
+    {
+      "item": "Both Amazon Web Services (AWS) and Google Cloud Platform (GCP) require a minimum of 4 CPU cores due to hyperthreading.",
+      "depth": 3
+    },
+    {
+      "item": "To deploy an App Connector on AWS, Zscaler recommends using t3.xlarge (for non-production or low traffic App Connectors) or m5a.xlarge (for production or high traffic App Connectors).",
+      "depth": 4
+    },
+    {
+      "item": "To deploy an App Connector on GCP, Zscaler recommends using a Linux RPM on n2-standard-4 or n2-highcpu-4.",
+      "depth": 4
+    },
+    {
+      "item": "Azure VMs older than V3 require 2 CPU cores, while VMs V3 and later require 4 CPU cores due to hyperthreading.",
+      "depth": 3
+    },
+    {
+      "item": "To deploy an App Connector on Azure, Zscaler recommends using Standard_D4s_v4 or Standard_D4s_v5 or later.",
+      "depth": 4
+    },
+    {
+      "item": "To enable AppProtection using the default AppProtection profile provided by Zscaler, we recommend that your App Connectors have at least 8 CPU cores and 8 GB of memory. Ensure that your App Connectors are less than 40% for peak memory utilization and peak CPU utilization. If your CPU or memory utilization is above the suggested maximum, you need to add App Connectors to reach the maximum peak of 40% CPU and memory without AppProtection enabled. This rule also applies if you are using a smaller VM (4 CPUs, 4 GB). Your App Connector throughput might be 100 to 200 Mbps depending on App Connector sizing when using AppProtection. Monitor your App Connectors by going to the App Connector dashboard.",
+      "depth": 0
+    },
+    {
+      "item": "The AppProtection recommendations are based on a mix of web traffic, 85% GET requests, and 15% POST and payload and response sizes of 32 KB. Smaller payload and response sizes might require less App Connector resources and result in higher throughput.",
+      "depth": 0
+    },
+    {
+      "item": "For ZDX deployments, Zscaler recommends App Connectors to have 4 CPU cores.",
+      "depth": 0
+    },
+    {
+      "item": "Using the PassMark Software Pty Ltd benchmark to verify the CPU Mark score, Zscaler recommends using a minimum CPU benchmark score of 2640 when choosing a CPU processor. The Intel Advanced Encryption Standard New Instructions (AES-NI) instruction set must also be enabled on the CPU processor.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see the App Connector Deployment Guide for your platform.",
+      "depth": 0
+    },
+    {
+      "item": "Disk Space: 64 GB (thin provisioned) for all deployment platforms",
+      "depth": 1
+    },
+    {
+      "item": "Network Card: 1 NIC (minimum)",
+      "depth": 1
+    },
+    {
+      "item": "For VMware platform deployment, the default configuration to allow the host to dynamically allocate VM resources is not recommended. Configure the VM setting to reserve the following memory and CPU allocations:",
+      "depth": 0
+    },
+    {
+      "item": "Memory: 8 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "CPU: total CPU GHz (the number of cores (2 or 4 cores) multiplied by the GHz per core)",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the VMware documentation.",
+      "depth": 0
+    },
+    {
+      "item": "For Microsoft Hyper-V deployment, ensure that you have the following:",
+      "depth": 0
+    },
+    {
+      "item": "Physical server with Windows Server 2025 Standard or Datacenter Edition OS virtualization support",
+      "depth": 1
+    },
+    {
+      "item": "Intel VT-x or AMD-V hardware virtualization support",
+      "depth": 1
+    },
+    {
+      "item": "Second Level Address Translation (SLAT) support",
+      "depth": 1
+    },
+    {
+      "item": "Minimum 16 GB RAM (recommended based on VM workload requirements)",
+      "depth": 1
+    },
+    {
+      "item": "Sufficient local storage for Host OS and VM VHDX files",
+      "depth": 1
+    },
+    {
+      "item": "Using these specifications, each App Connector supports up to 500 Mbps of throughput. To learn more, see Understanding App Connector Throughput in this article. Based on Zscaler's recommendations, determine the App Connector sizing requirements for your deployment. If disk space fills up in the App Connector, Zscaler recommends archiving files and creating more log space. To learn more, see Monitoring App Connector Performance.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "After an App Connector is enrolled, an outbound TLS tunnel over port 443 is established to the Private Access (ZPA) cloud infrastructure. This communication channel provides various functionality and utilizes minimal bandwidth, which includes the following traffic:",
+      "depth": 0
+    },
+    {
+      "item": "Periodic keepalives to Public Service Edges or Private Service Edges for Private Access",
+      "depth": 1
+    },
+    {
+      "item": "Application learning",
+      "depth": 1
+    },
+    {
+      "item": "Application health reporting",
+      "depth": 1
+    },
+    {
+      "item": "App Connector software upgrades (upgrades are completed based on a weekly schedule)",
+      "depth": 1
+    },
+    {
+      "item": "You can deploy additional App Connectors at any time, using the same provisioning key to add them to the existing App Connector Group, while ensuring network and internet connectivity. App Connectors are designed to scale elastically. You can deploy additional App Connectors in the same App Connector group to increase the total throughput as required by your deployment. Zscaler recommends you have a minimum of two healthy App Connectors to always ensure an available path. To learn more, see About Deploying App Connectors and Supported Platforms for App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "After deployment, ensure that the App Connector meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "heading": "Understanding App Connector Throughput",
+      "level": 1
+    },
+    {
+      "item": "Throughput numbers are aggregate (i.e., total inbound and outbound). The following best practices apply regarding App Connector throughput sizing:",
+      "depth": 0
+    },
+    {
+      "item": "Check your existing VPN solution's average and peak throughput. Be sure to only account for user/client VPN traffic and not any site-to-site tunnel traffic.",
+      "depth": 1
+    },
+    {
+      "item": "App Connectors communicate over the provided (default) gateway, which is most likely your ISP WAN broadband connection.",
+      "depth": 1
+    },
+    {
+      "item": "Using double encryption affects throughput. However, the effect varies based on the number of applications that are enabled for double encryption.",
+      "depth": 1
+    },
+    {
+      "item": "If you have a 1 Gbps connection (aggregate) in your data center, you can use the throughput guidelines in the following table to make sure that you have enough App Connectors to support the connection and room for failover (N+1). For example, with a 1 Gbps connection, you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are. To learn more, see Understanding Double Encryption.",
+      "depth": 0
+    },
+    {
+      "item": "The following throughput guidelines apply based upon the recommended App Connector specifications:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "% of Applications with Double Encryption",
+          "Per App Connector Throughput"
+        ],
+        [
+          "0%",
+          "500 Mbps"
+        ],
+        [
+          "25%",
+          "437.5 Mbps"
+        ],
+        [
+          "50%",
+          "375 Mbps"
+        ],
+        [
+          "75%",
+          "312.5 Mbps"
+        ],
+        [
+          "100%",
+          "250 Mbps"
+        ]
+      ]
+    },
+    {
+      "item": "It is possible to increase App Connector throughput up to 1 Gbps per App Connector by running the App Connector on hardware with more memory and CPUs along with increased network link speed. If you have a 10 Gbps connection (aggregate) in your data center, and you want to increase the App Connector throughput up to 1 Gbps per App Connector, you can increase the underlying VM spec as follows:",
+      "depth": 0
+    },
+    {
+      "item": "8 vCPU cores for virtual machines or 4 CPU cores for physical machines",
+      "depth": 1
+    },
+    {
+      "item": "8 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "The exact throughput can vary and depends on other network factors such as your internal network setup, latency, and whether you have double encryption, App Protection, or ZDX enabled. Make sure that you have enough App Connectors to support the connection and room for failover (N+1).",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you have more App Connectors with lower specifications rather than fewer App Connectors with higher specifications to horizontally scale your deployment. For example, if you have fewer App Connectors with higher specifications and one fails, you could adversely affect more user application traffic or sessions than a smaller App Connector that fails.",
+      "depth": 0
+    },
+    {
+      "item": "Before you begin any procedures within the App Connector Deployment Guide for your platform, make sure that you have the following:",
+      "depth": 0
+    },
+    {
+      "item": "Intel x86_64/AMD64-based architecture",
+      "depth": 1
+    },
+    {
+      "item": "systemd",
+      "depth": 1
+    },
+    {
+      "item": "Root or sudo access to the system to configure a new package repository and install packages",
+      "depth": 1
+    },
+    {
+      "item": "DNS resolution and network access",
+      "depth": 1
+    },
+    {
+      "item": "For OAuth 2.0 enrollment, Manager software and App Connector version 25.46.3 or later",
+      "depth": 1
+    },
+    {
+      "item": "An OAuth 2.0 enrollment token obtained from a hyperscaler marketplace, virtual image, or RPM installer provided by Zscaler, or an App Connector provisioning key obtained from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The OAuth server only supports IPv4-based communication. If an App Connector only has an IPv6 address, it cannot access the OAuth server.",
+      "depth": 1
+    },
+    {
+      "item": "A static MAC address",
+      "depth": 1
+    },
+    {
+      "item": "The following table shows the recommended minimum disk space for directories:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Directory",
+          "Recommended Minimum Disk Space"
+        ],
+        [
+          "/",
+          "10 GB"
+        ],
+        [
+          "/tmp",
+          "10 GB"
+        ],
+        [
+          "/home",
+          "10 GB"
+        ],
+        [
+          "/var",
+          "5 GB"
+        ],
+        [
+          "/var/tmp",
+          "5 GB"
+        ],
+        [
+          "var/log",
+          "10 GB"
+        ],
+        [
+          "var/log/audit",
+          "10 GB"
+        ],
+        [
+          "/var/log partition",
+          "10 GB Disk Space Exceeded Limit notifications only consider the partition where the App Connector's binary file (image.bin) is located."
+        ]
+      ]
+    },
+    {
+      "item": "App Connectors can be deployed in different ways (as private cloud VMs, public cloud VMs, or OS packages), so the security features for each deployment type are slightly different.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends treating access to App Connectors as privileged, so only authorized personnel can access an App Connector's console. By limiting access, there is the added benefit of shielding inter-process communication within the App Connector from attack.",
+      "depth": 0
+    },
+    {
+      "heading": "Operating System Security",
+      "level": 1
+    },
+    {
+      "item": "The App Connector VMs distributed by Zscaler for use in private clouds are configured without any remotely accessible services running. Swap partitions are disabled on the App Connector VMs to ensure that memory growth does not have an impact on App Connector performance. For enhanced security, you must use the passwd command to change the credentials on the default admin account. To learn more, see the App Connector Deployment Guide for the platform you're using.",
+      "depth": 0
+    },
+    {
+      "item": "Private Access provides Security Technical Implementation Guide (STIG) VM images for AWS, GCP, Microsoft Azure, Nutanix, and VMware by default. To learn more, see App Connector Software by Platform. The remaining private and public cloud VM images provided by Zscaler are configured with minimal listening services to reduce the remotely exploitable attack surface. Because these are essentially unmodified operating systems (currently based on RHEL 9.x), you can patch these systems when necessary by using the standard yum OS update mechanism. Zscaler recommends that you harden the operating system, including the sshd-config file, on the VM images in accordance with your organization's security standards after initial deployment. To learn more, see Managing Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "Because vulnerabilities are regularly found in core open-source components such as DNS resolvers and the Linux Kernel, Zscaler recommends either patching or using new Zscaler-distributed VM images on a regular basis, or protecting App Connectors using firewall policies. Additionally, if you've installed the App Connector as a package, Zscaler recommends that you take similar precautions.",
+      "depth": 0
+    },
+    {
+      "item": "Some organizations choose to firewall or otherwise restrict outbound traffic to the internet from the data center. It is possible to deploy an App Connector in such an environment as long as the App Connector is able to reach all Zscaler data centers containing Public Service Edges for Private Access. For firewall configuration information for your deployment, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Firewall Requirements and Interoperability Guidelines",
+      "level": 1
+    },
+    {
+      "item": "All Zscaler data centers containing Public Service Edges for Private Access must be allowed. A partial firewall configuration can result in connectivity problems for end users. Zscaler’s policy is to provide a 90-day notice for activating additional IP CIDR ranges to provide organizations with sufficient opportunity for changing control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Because the service enforces TLS certificate pinning for both client and server certificates, all forms of inline or man-in-the-middle TLS interception or inspection must be disabled. App Connectors do not function if the TLS certificates presented by the Public Service Edges or Private Service Edges do not cryptographically verify against Zscaler-trusted public keys.",
+      "depth": 0
+    },
+    {
+      "item": "By design, certificate verification is not configurable to maintain the integrity of the service. Ensure that *.prod.zpath.net is in your SSL bypass list for traffic originating from the App Connector. This is necessary for allowing the App Connector to resolve and reach Public Service Edges or Private Service Edges. If you are using OAuth 2.0, ensure that the OAuth server FQDN zpa-oauth.private.zscaler.com is in the allowlist, and user devices are allowed to make an outbound connection to the zpa-oauth.private.zscaler.com server. If you need to allowlist additional Zscaler IP addresses, see config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "For Private Access integration with ZDX, App Connector firewall requirements must align with the respective ZDX configuration. You must configure the firewall to allow egress traffic on the TCP, UDP, and ICMP protocols. App Connectors must be able to egress traffic to port 443 for Zscaler Service Edge connections and the ports of all configured applications (i.e., ports that are configured in all application segments that are registered on the App Connector).",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Deploy the App Connector on Hyper-V",
+      "depth": 0
+    },
+    {
+      "item": "Enable Hyper-V Manager on the server:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the Hyper-V VM via Remote Desktop Protocol (RDP) using your domain admin account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Open Server Manager, click Manage in the top-right corner, and select Add Roles and Features.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          33
+        ],
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "The Add Roles and Features wizard appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Roles and Features wizard:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Installation Type page, select Role-based or feature-based installation and click Next.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          38,
+          78
+        ],
+        [
+          89,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Selection page:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Choose Select a server from the server pool.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Under Server Pool, select your local server from the server pool.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Roles page, select Hyper-V.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          33,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "The Add features that are required for Hyper-V window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add features that are required for Hyper-V window, select Include management tools (if applicable), then click Add Features. When the Server Roles page reappears, click Next when enabled.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          49
+        ],
+        [
+          65,
+          105
+        ],
+        [
+          118,
+          130
+        ],
+        [
+          141,
+          153
+        ],
+        [
+          176,
+          180
+        ]
+      ]
+    },
+    {
+      "item": "Click Next until you reach the Virtual Switches page.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          31,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Virtual Switches page, under Network adapters, select Ethernet (choose based on your network).",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          52
+        ],
+        [
+          61,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Click Next on the remaining pages until you reach the Confirmation page.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          54,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Select the Restart the destination server automatically, if required checkbox.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Click Install and complete the installation wizard. The server will automatically reboot.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "After rebooting, confirm successful installation by running the following PowerShell command on the host:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Get-WindowsFeature -Name Hyper-V",
+      "depth": 2
+    },
+    {
+      "item": "Verify that the output displays the status as Installed.",
+      "depth": 2
+    },
+    {
+      "item": "Obtain the latest image file from Zscaler. You can also use the following link to download the file: https://dist.private.zscaler.com/vms/Azure/2026.08/zpa-connector-el9-2026.08.vhdx.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Copy the VHDX image file to the Hyper-V host local disk: C:\\HyperV\\VHDs\\zpa-connector-el9-2026.08.vhdx",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Create a VM in Hyper-V Manager:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Open the Hyper-V Manager.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Right-click your server and go to New > Virtual Machine.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "The New Virtual Machine Wizard appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Before You Begin page, click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Name and Location page, select a name and folder that is suitable for your organization, then click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          115,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "The information specified in Hyper-V has no impact on the Private Access service.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Specify Generation page, select Generation 1, then click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          51
+        ],
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Assign Memory page:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Startup memory: Enter 4096 for the amount of memory to use when starting up the virtual machine.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Use Dynamic Memory for this virtual machine: Make sure this checkbox is not selected.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Configure Networking page, select the desired network connection from the Connection drop-down menu and click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          81,
+          91
+        ],
+        [
+          117,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Connect Virtual Hard Disk page, choose Use an existing virtual hard disk and select C:\\HyperV\\VHDs\\zpa-connector-el9-2026.08.vhdx. Click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          46,
+          79
+        ],
+        [
+          144,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "On the Summary page, verify your selections and click Finish.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Configure vCPUs and disable secure boot:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Right-click the VM and select Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "The Settings window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Processor, and enter 2 for the number of virtual processors.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply, and then click OK.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          28,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Right-click your virtual machine and select Action > Start.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          44,
+          50
+        ],
+        [
+          53,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "The status changes to running.",
+      "depth": 1
+    },
+    {
+      "item": "Right-click your virtual machine and select Connect.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          44,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "The VM Console (RHEL shell) window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "If you see a black screen, press any key.",
+      "depth": 1
+    },
+    {
+      "item": "Enroll the App Connector using one of the following methods:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+      "depth": 1
+    },
+    {
+      "item": "OAuth 2.0 enrollment token",
+      "depth": 2
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value, similar to the following example:",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "$ OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T",
+      "depth": 3
+    },
+    {
+      "item": "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, add the enrollment token for your software component:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "App Connector",
+      "depth": 4
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 4
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 4
+    },
+    {
+      "item": "Network Connector",
+      "depth": 4
+    },
+    {
+      "item": "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page. To learn more, see Configuring App Connectors.",
+      "depth": 2,
+      "strong": [
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Service Edge and enter the OAuth enrollment token on the Add Private Service Edge page. To learn more, see Configuring Private Service Edges.",
+      "depth": 2,
+      "strong": [
+        [
+          71,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page. To learn more, see Configuring Private Cloud Controllers.",
+      "depth": 2,
+      "strong": [
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Add a Network Connector and enter the OAuth enrollment token on the Add Network Connector page. To learn more, see Configuring Network Connectors.",
+      "depth": 2,
+      "strong": [
+        [
+          68,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "App Connector provisioning key",
+      "depth": 2
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "Stop running the zpa-connector service. If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and will look for the key again every 24 hours.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/provision_key. For example:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 3
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 3
+    },
+    {
+      "item": "echo \"<App Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 3
+    },
+    {
+      "item": "Start the zpa-connector service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "In Azure, be sure to remove the inbound access rule on port 22 within the network security group associated with the App Connector.",
+      "depth": 3
+    },
+    {
+      "item": "After the App Connector provisioning key is applied, and you have made any necessary network configuration changes, be sure to verify that the deployed App Connector is running and healthy.",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "Zscaler highly recommends updating the App Connector system software before proceeding.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Step 3: Configure the Networking for the Deployed App Connector",
+      "depth": 0
+    },
+    {
+      "item": "After you have deployed a software component on a supported platform, you can complete the following networking configurations. Software components refer to App Connectors, Private Service Edges, Private Cloud Controllers, and Network Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure a Domain Name System (DNS) Resolver, Network Time Protocol (NTP) servers, static routing, and other features from the Zscaler Admin Console. To learn more, see Editing Network Settings.",
+      "depth": 0
+    },
+    {
+      "item": "Configure DHCP IP Addressing (App Connector, Private Service Edge, or Private Cloud Controller)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Static IP Addressing (all software components)",
+      "depth": 1
+    },
+    {
+      "item": "Configure Additional Interfaces (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "Configure a Proxy Bypass (App Connector)",
+      "depth": 1
+    },
+    {
+      "item": "Configure yum to Use an HTTP Proxy Server (App Connector or Private Service Edge)",
+      "depth": 1
+    },
+    {
+      "item": "By default, virtual machine-based App Connectors, Private Service Edges, or Private Cloud Controllers are configured to use DHCP networking on their primary interface. If necessary, you can configure a static IP address for the software component.",
+      "depth": 0
+    },
+    {
+      "item": "If DHCP is not available, you can configure a static IP address on a VM-based App Connector, Private Service Edge, Private Cloud Controller, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 1
+    },
+    {
+      "item": "View the current connection profile.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Modify the connection profile using the following format: <profile name> connection.id <new connection name>. For example:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" connection.id LAN autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "Review the current connection profile.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Edit the profile using a static IP and a default gateway with the following format: <connection ID> ipv4.method manual ipv4.addresses <IP addresses> ipv4.gateway <gateway IP> ipv4.dns <DNS IP> ipv4.dns-search <domain name>. For example:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ sudo nmcli connection modify LAN ipv4.method manual ipv4.addresses 172.30.1.88/24 ipv4.gateway 172.30.1.1 ipv4.dns 172.30.1.254 ipv4.dns-search company.com",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection ID back up. For example:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ sudo nmcli connection up LAN",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the default gateway.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "$ ip route show default",
+      "depth": 0
+    },
+    {
+      "item": "Verify the DNS settings.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "$ sudo cat /etc/resolv.conf",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, additional changes can be made to interfaces by configuring new ones using nmcli connection add con-name or by renaming existing ones using nmcli connection modify.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the software component's console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "View the IP address.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "View the current connection profiles.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "Configure the interface's IP network using either a dynamic or static Ethernet configuration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For dynamic, modify the connection profile. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method auto autoconnect yes",
+      "depth": 0
+    },
+    {
+      "item": "For static, modify the connection profile and identify the IP addresses and gateway using the following format: <profile name> ipv4.method manual ipv4.addresses <address> ipv4.gateway <gateway IP>. For example:",
+      "depth": 0
+    },
+    {
+      "item": "$ sudo nmcli connection modify \"Profile 1\" ipv4.method manual ipv4.addresses 192.168.2.241/24 ipv4.gateway 192.168.2.254",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, bring the connection profile back up. For example:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "$ sudo nmcli connection up \"Profile 1\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "$ ip addr show",
+      "depth": 0
+    },
+    {
+      "item": "Verify the new connection.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "$ nmcli connection show",
+      "depth": 0
+    },
+    {
+      "item": "If you want to configure yum to communicate through an HTTP proxy server, refer to the Red Hat documentation.",
+      "depth": 0
+    },
+    {
+      "item": "If an App Connector is configured to send traffic to a proxy, you can set up a proxy bypass on it for the traffic that needs to be exempted from the proxy (i.e., traffic between the App Connector and the Public or Private Service Edges for Private Access). To use a proxy bypass for an App Connector, a proxy bypass file needs to be added to the App Connector.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the App Connector to do a proxy bypass:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a file named opt/zscaler/var/proxy-bypass. Use an editor, such as vi. For example:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "$sudo vi /opt/zscaler/var/proxy-bypass",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary bypass entries using IP addresses, subnets, domains, or domains with a prefix wildcard. For example:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "1.2.3.4 111.222.33.0/24 myexampledomain.com *.internal.local",
+      "depth": 0
+    },
+    {
+      "item": "To apply the changes, restart the App Connector using the following command:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "$ sudo systemctl restart zpa-connector",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Verify the Status of the Deployed App Connector",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the deployed App Connector is running and healthy. Also, check that it meets your sizing requirements.",
+      "depth": 0
+    }
+  ]
+}

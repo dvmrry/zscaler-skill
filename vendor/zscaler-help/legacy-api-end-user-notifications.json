@@ -1,0 +1,920 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "End User Notifications",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/end-user-notifications",
+    "node": "1514651",
+    "revision": "3214591",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/End%20User%20Notifications_6.json?VersionId=1HE_Xh5hgtbSQhYqkqmLJWSyZk6W4Z4l",
+    "updated": "2026-07-09",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "End User Notifications"
+      }
+    ],
+    "paths": {
+      "/eun": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves browser-based end user notification (EUN) configuration details. To learn more, see <a href=\"/zia/understanding-browser-based-end-user-notifications\" target=\"_blank\">Understanding Browser-Based End User Notifications</a>.",
+          "operationId": "EndUserNotificationResource_getEunDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndUserNotification"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Updates browser-based end user notification (EUN) configuration details. To learn more, see <a href=\"/zia/understanding-browser-based-end-user-notifications\" target=\"_blank\">Understanding Browser-Based End User Notifications</a>.",
+          "operationId": "EndUserNotificationResource_updateEUNDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndUserNotification"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndUserNotification"
+              }
+            }
+          }
+        }
+      },
+      "/eunTemplate/{templateType}/product/{product}": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves the list of notification templates for browser-based and Zscaler Client Connector-based notifications by policy type. To learn more, see <a href=\"/zia/about-browser-eun-template\" target=\"_blank\">About Browser EUN Template</a> and <a href=\"/zia/about-zscaler-client-connector-based-end-user-notifications\" target=\"_blank\">About Zscaler Client Connector-Based End User Notifications</a>.",
+          "operationId": "EunTemplateResource_getEunTemplatesByProduct",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "templateType",
+              "in": "path",
+              "description": "Specifies the type of notification template as Zscaler Client Connector-based or browser-based notification",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "ZCC",
+                "BROWSER"
+              ]
+            },
+            {
+              "name": "product",
+              "in": "path",
+              "description": "The policy type associated with the notification template",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "INLINE",
+                "ENDPOINT_DLP",
+                "CLOUDAPP",
+                "URL",
+                "FILE_TYPE",
+                "FIREWALL",
+                "DNS",
+                "IPS"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EunTemplate"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/eunTemplate/{templateType}/featureEnablementStatus": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves the EUN enablement status for the specified notification type",
+          "operationId": "EunTemplateResource_getFeatureEnablementStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "templateType",
+              "in": "path",
+              "description": "Specifies the type of notification template as Zscaler Client Connector-based or browser-based notification",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "ZCC",
+                "BROWSER"
+              ]
+            },
+            {
+              "name": "productType",
+              "in": "query",
+              "description": "The policy type associated with the notification template",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "INLINE",
+                "ENDPOINT_DLP",
+                "CLOUDAPP",
+                "URL",
+                "FILE_TYPE",
+                "FIREWALL",
+                "DNS",
+                "IPS"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EunTemplateFeatureEnablementStatus"
+              }
+            }
+          }
+        }
+      },
+      "/userConfirmation/product/{product}": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves the list of user confirmation notification templates by policy type. To learn more, see <a href=\"/zia/about-user-confirmation-notification-templates\" target=\"_blank\">About User Confirmation Notification Templates</a>.",
+          "operationId": "UserConfirmationResource_getUserConfirmationByProduct",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "product",
+              "in": "path",
+              "description": "The policy type associated with the notification template. User confirmation notifications are supported for Inline Web DLP and Endpoint DLP policies, so only these policy types are valid selections for this field.",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "INLINE",
+                "ENDPOINT_DLP",
+                "CLOUDAPP",
+                "URL",
+                "FILE_TYPE",
+                "FIREWALL",
+                "DNS",
+                "IPS"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/UserConfirmation"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/userConfirmation/globalDefaultTemplates": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves the global default user confirmation templates for all policy types and policy channels where applicable (e.g., Printing and Network Share channels for Endpoint DLP policy)",
+          "operationId": "UserConfirmationResource_getGlobalDefaultTemplates",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/UserConfirmation"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/userConfirmation/{templateType}/featureEnablementStatus": {
+        "get": {
+          "tags": [
+            "End User Notifications"
+          ],
+          "description": "Retrieves the notification enablement status for user confirmation notification",
+          "operationId": "UserConfirmationResource_getFeatureEnablementStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "templateType",
+              "in": "path",
+              "description": "Specifies the type of notification template. User confirmation notifications are supported using Zscaler Client Connector only, so the type is always Zscaler Client Connector for this request.",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "ZCC",
+                "BROWSER"
+              ]
+            },
+            {
+              "name": "productType",
+              "in": "query",
+              "description": "The policy type associated with the notification template. User confirmation notifications are supported for Inline Web DLP and Endpoint DLP policies, so only these policy types are valid selections for this field.",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "INLINE",
+                "ENDPOINT_DLP",
+                "CLOUDAPP",
+                "URL",
+                "FILE_TYPE",
+                "FIREWALL",
+                "DNS",
+                "IPS"
+              ]
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/UserConfirmationFeatureEnablementStatus"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "EndUserNotification": {
+        "type": "object",
+        "properties": {
+          "aupFrequency": {
+            "type": "string",
+            "description": "The frequency at which the Acceptable Use Policy (AUP) is shown to the end users",
+            "enum": [
+              "NEVER",
+              "SESSION",
+              "DAILY",
+              "WEEKLY",
+              "ONLOGIN",
+              "CUSTOM",
+              "ON_DATE",
+              "ON_WEEKDAY"
+            ]
+          },
+          "aupCustomFrequency": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The custom frequency (in days) for showing the AUP to the end users. Valid range is 1 to 180."
+          },
+          "aupDayOffset": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies which day of the week or month the AUP is shown for users when <b>aupFrequency</b> is set. Valid range is 1 to 31."
+          },
+          "aupMessage": {
+            "type": "string",
+            "description": "The acceptable use statement that is shown in the AUP"
+          },
+          "notificationType": {
+            "type": "string",
+            "description": "The type of EUN as default or custom",
+            "enum": [
+              "DEFAULT",
+              "CUSTOM"
+            ]
+          },
+          "displayReason": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether or not the reason for cautioning or blocking access to a site, file, or application is shown when the respective notification is triggered"
+          },
+          "displayCompName": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the organization's name appears in the EUN or not"
+          },
+          "displayCompLogo": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether your organization's logo appears in the EUN or not"
+          },
+          "customText": {
+            "type": "string",
+            "description": "The custom text shown in the EUN"
+          },
+          "urlCatReviewEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the URL Categorization notification is enabled or disabled"
+          },
+          "urlCatReviewSubmitToSecurityCloud": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether users' review requests for possibly misclassified URLs are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location."
+          },
+          "urlCatReviewCustomLocation": {
+            "type": "string",
+            "description": "A custom URL location where users' review requests for blocked URLs are sent"
+          },
+          "urlCatReviewText": {
+            "type": "string",
+            "description": "The message that appears in the URL Categorization notification"
+          },
+          "securityReviewEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the Security Violation notification is enabled or disabled"
+          },
+          "securityReviewSubmitToSecurityCloud": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether users' review requests for blocked URLs are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location."
+          },
+          "securityReviewCustomLocation": {
+            "type": "string",
+            "description": "A custom URL location where users' review requests for possible misclassified URLs are sent"
+          },
+          "securityReviewText": {
+            "type": "string",
+            "description": "The message that appears in the Security Violation notification"
+          },
+          "webDlpReviewEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the Web DLP Violation notification is enabled or disabled"
+          },
+          "webDlpReviewSubmitToSecurityCloud": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether users' review requests for web DLP policy violation are submitted to the Zscaler service (i.e., Security Cloud) or a custom location. A true value indicates that the request is sent to the Security cloud, whereas a false value indicates that the request is sent to the specified custom location."
+          },
+          "webDlpReviewCustomLocation": {
+            "type": "string",
+            "description": "A custom URL location where users' review requests for the web DLP policy violation are sent"
+          },
+          "webDlpReviewText": {
+            "type": "string",
+            "description": "The message that appears in the Web DLP Violation notification"
+          },
+          "redirectUrl": {
+            "type": "string",
+            "description": "The redirect URL for the external site hosting the EUN specified when the custom notification type is selected"
+          },
+          "supportEmail": {
+            "type": "string",
+            "description": "The email address for writing to IT Support"
+          },
+          "supportPhone": {
+            "type": "string",
+            "description": "The phone number for contacting IT Support"
+          },
+          "orgPolicyLink": {
+            "type": "string",
+            "description": "The URL of the organization's policy page. This field is required for the default notification type."
+          },
+          "cautionAgainAfter": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>The time interval at which the caution notification is shown when users continue browsing a restricted site.</p><p><b>Note</b>: The recommended setting for complex websites, such as Social Networking sites, is at least 5 minutes.</p>"
+          },
+          "cautionPerDomain": {
+            "type": "boolean",
+            "description": "Specifies whether to display the caution notification at a specific time interval for URLs in the Miscellaneous or Unknown category. This option is applicable when a user browses a URL or a sub-domain of a URL in the Miscellaneous or Unknown category."
+          },
+          "cautionCustomText": {
+            "type": "string",
+            "description": "The custom message that appears in the caution notification"
+          },
+          "idpProxyNotificationText": {
+            "type": "string",
+            "description": "The message that appears in the IdP Proxy notification"
+          },
+          "quarantineCustomNotificationText": {
+            "type": "string",
+            "description": "The message that appears in the quarantine notification"
+          }
+        }
+      },
+      "EunTemplate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the notification template"
+          },
+          "name": {
+            "type": "string",
+            "description": "Notification template name"
+          },
+          "channel": {
+            "type": "string",
+            "description": "Policy channel with which the notification template is associated",
+            "enum": [
+              "WEBDLP",
+              "CLOUDAPP",
+              "REMOVABLESTORAGE",
+              "PRINTING",
+              "NETWORKSHARE",
+              "PERSONALCLOUDSTORAGE",
+              "BROWSER_CLOUDAPP",
+              "BROWSER_URL",
+              "APPLICATIONFILEACCESS",
+              "CLIPBOARD",
+              "BROWSER_FILE_TYPE",
+              "FIREWALL",
+              "DNS",
+              "IPS"
+            ]
+          },
+          "product": {
+            "type": "string",
+            "description": "Policy type with which the notification template is associated",
+            "enum": [
+              "INLINE",
+              "ENDPOINT_DLP",
+              "CLOUDAPP",
+              "URL",
+              "FILE_TYPE",
+              "FIREWALL",
+              "DNS",
+              "IPS"
+            ]
+          },
+          "type": {
+            "type": "string",
+            "description": "Notification template type",
+            "enum": [
+              "ZCC",
+              "BROWSER"
+            ]
+          },
+          "recommendedCloudApp": {
+            "description": "The cloud application recommended by your organization as an alternative to the cloud application that triggered the rule in the notification. This field is applicable only when the Cloud App Control channel is selected for the notification template.",
+            "$ref": "#/definitions/PolicyWebApplication"
+          },
+          "languageTemplates": {
+            "type": "array",
+            "description": "The list of language-specific templates containing notification messages for each action triggering notifications",
+            "items": {
+              "$ref": "#/definitions/EunLanguageTemplate"
+            }
+          },
+          "notificationDetails": {
+            "type": "array",
+            "description": "Additional information to be displayed in the notifications. The values can vary depending on the channel selected for the notification template.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "FILENAME",
+                "DESTINATION",
+                "RULENAME",
+                "APP_ACTIVITY",
+                "URL_CATEGORY",
+                "UPLOAD_URL",
+                "DLP_ENGINES",
+                "APP_CATEGORY",
+                "RECOMMENDED_APP",
+                "FILE_TYPE",
+                "FILE_SIZE",
+                "NETWORK_SERVICE",
+                "NETWORK_APPLICATION",
+                "APPLICATION_SERVICE_GROUP",
+                "CLIENT_SOURCE_IP",
+                "SERVER_DESTINATION_IP",
+                "SERVER_DESTINATION_PORT",
+                "SERVER_DESTINATION_PROTOCOL",
+                "REQUEST_CATEGORY",
+                "RESPONSE_CATEGORY",
+                "REQUESTED_DOMAIN",
+                "RESOLVED_IP",
+                "DNS_TUNNEL",
+                "SERVER_IP",
+                "PROTOCOL",
+                "RESOLVED_IP_BASED_COUNTRY",
+                "THREAT_CATEGORY",
+                "THREAT_NAME",
+                "THREAT_SEVERITY",
+                "THREAT_SCORE",
+                "DESTINATION_COUNTRY"
+              ]
+            }
+          },
+          "cautionInterval": {
+            "type": "string",
+            "description": "Specifies the time interval in which the Caution notification triggered using this notification template must be displayed to a user (i.e., how often the Caution notification is displayed when a user is browsing a restricted site). If this value is not set, the caution interval configured in the global EUN settings is used.",
+            "enum": [
+              "VAL_0_SEC",
+              "VAL_30_SEC",
+              "VAL_60_SEC",
+              "VAL_300_SEC",
+              "VAL_900_SEC",
+              "VAL_3600_SEC",
+              "VAL_21600_SEC",
+              "VAL_28800_SEC",
+              "VAL_43200_SEC",
+              "VAL_86400_SEC",
+              "VAL_172800_SEC",
+              "VAL_259200_SEC",
+              "VAL_345600_SEC",
+              "VAL_432000_SEC",
+              "VAL_518400_SEC",
+              "VAL_604800_SEC"
+            ]
+          },
+          "default": {
+            "type": "boolean",
+            "description": "A true value indicates that this is a default notification template, whereas a false value indicates that it is a custom template."
+          }
+        },
+        "description": "EUN template configuration details, including notification messages and other settings, for different policy types and channels."
+      },
+      "EunTemplateFeatureEnablementStatus": {
+        "type": "object",
+        "description": "Information about EUN enablement for supported policies",
+        "properties": {
+          "inlineDlpStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the Inline Web DLP policy. A partially enabled status indicates that admins can associate EUN templates with Inline Web DLP policy rules but cannot add custom templates.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "eptDlpStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the Endpoint DLP policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "cloudAppStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the Cloud App Control policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "urlFilteringStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the URL Filtering policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "dnsRuleStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the DNS Control policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "firewallFilteringStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the Firewall Filtering policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "ipsControlStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the IPS Control policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          },
+          "fileTypeFilteringStatus": {
+            "type": "object",
+            "description": "Indicates whether EUN is enabled or not for the File Type Control policy. A partially enabled status is not applicable for this policy.",
+            "additionalProperties": {
+              "type": "string",
+              "enum": [
+                "ENABLED",
+                "DISABLED",
+                "PARTIALLY_ENABLED"
+              ]
+            }
+          }
+        }
+      },
+      "UserConfirmation": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the user confirmation template"
+          },
+          "name": {
+            "type": "string",
+            "description": "User confirmation template name"
+          },
+          "channel": {
+            "type": "string",
+            "description": "Channel associated with the user confirmation template",
+            "enum": [
+              "WEBDLP",
+              "CLOUDAPP",
+              "REMOVABLESTORAGE",
+              "PRINTING",
+              "NETWORKSHARE",
+              "PERSONALCLOUDSTORAGE",
+              "BROWSER_CLOUDAPP",
+              "BROWSER_URL",
+              "APPLICATIONFILEACCESS",
+              "CLIPBOARD",
+              "BROWSER_FILE_TYPE",
+              "FIREWALL",
+              "DNS",
+              "IPS"
+            ]
+          },
+          "product": {
+            "type": "string",
+            "description": "Policy type associated with the user confirmation template",
+            "enum": [
+              "INLINE",
+              "ENDPOINT_DLP",
+              "CLOUDAPP",
+              "URL",
+              "FILE_TYPE",
+              "FIREWALL",
+              "DNS",
+              "IPS"
+            ]
+          },
+          "languageTemplates": {
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/UserConfirmationLanguageTemplate"
+            }
+          },
+          "default": {
+            "type": "boolean",
+            "description": "Indicates whether the notification template is predefined by the system"
+          }
+        },
+        "description": "User confirmation template configuration details"
+      },
+      "UserConfirmationFeatureEnablementStatus": {
+        "type": "object",
+        "description": "Information about user confirmation notification enablement for supported policies",
+        "properties": {
+          "inlineDlpConfirmStatus": {
+            "type": "string",
+            "description": "Indicates whether the user confirmation notification is enabled for the Inline Web DLP policy. A partially enabled status is not applicable for this policy EUN",
+            "enum": [
+              "ENABLED",
+              "DISABLED",
+              "PARTIALLY_ENABLED"
+            ]
+          },
+          "endpointDlpConfirmStatus": {
+            "type": "string",
+            "description": "Indicates whether EUN is enabled or not for the Endpoint DLP policy. A partially enabled status is not applicable for this policy EUN.",
+            "enum": [
+              "ENABLED",
+              "DISABLED",
+              "PARTIALLY_ENABLED"
+            ]
+          }
+        }
+      },
+      "PolicyWebApplication": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "webApplicationClass": {
+            "type": "string",
+            "description": "<p>The cloud application class selected from the available options</p>",
+            "enum": [
+              "ANY",
+              "NONE",
+              "WEB_MAIL",
+              "SOCIAL_NETWORKING",
+              "STREAMING",
+              "P2P",
+              "INSTANT_MESSAGING",
+              "WEB_SEARCH",
+              "GENERAL_BROWSING",
+              "ADMINISTRATION",
+              "ENTERPRISE_COLLABORATION",
+              "BUSINESS_PRODUCTIVITY",
+              "SALES_AND_MARKETING",
+              "SYSTEM_AND_DEVELOPMENT",
+              "CONSUMER",
+              "FILE_SHARE",
+              "HOSTING_PROVIDER",
+              "IT_SERVICES",
+              "DNS_OVER_HTTPS",
+              "HUMAN_RESOURCES",
+              "LEGAL",
+              "HEALTH_CARE",
+              "FINANCE",
+              "CUSTOM_CAPP",
+              "AI_ML"
+            ]
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "misc": {
+            "type": "boolean"
+          },
+          "appNotReady": {
+            "type": "boolean"
+          },
+          "underMigration": {
+            "type": "boolean"
+          },
+          "appCatModified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "EunLanguageTemplate": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Specifies the language of the notification message",
+            "enum": [
+              "ENGLISH",
+              "SPANISH",
+              "GERMAN",
+              "FRENCH",
+              "JAPANESE",
+              "CHINESE"
+            ]
+          },
+          "allowMessage": {
+            "type": "string",
+            "description": "Notification message that appears when the Allow action is triggered for a policy rule."
+          },
+          "blockMessage": {
+            "type": "string",
+            "description": "Notification message that appears when the Block action is triggered for a policy rule."
+          },
+          "encryptMessage": {
+            "type": "string",
+            "description": "Notification message that appears when the Protect action is triggered for a policy rule."
+          },
+          "readonlyMessage": {
+            "type": "string"
+          },
+          "cautionMessage": {
+            "type": "string",
+            "description": "Notification message that appears when the Caution action is triggered for a policy rule."
+          },
+          "redirectResponseMessage": {
+            "type": "string",
+            "description": "Notification message that appears when the Redirect Response action is triggered for a policy rule."
+          },
+          "default": {
+            "type": "boolean",
+            "description": "Indicates whether the notification message uses the default or a custom text"
+          }
+        }
+      },
+      "UserConfirmationLanguageTemplate": {
+        "type": "object",
+        "properties": {
+          "language": {
+            "type": "string",
+            "description": "Specifies the language of the notification message",
+            "enum": [
+              "ENGLISH",
+              "SPANISH",
+              "GERMAN",
+              "FRENCH",
+              "JAPANESE",
+              "CHINESE"
+            ]
+          },
+          "message": {
+            "type": "string",
+            "description": "Predefined or customized notification message in the selected language"
+          },
+          "default": {
+            "type": "boolean",
+            "description": "Indicates whether the notification message uses the default or a custom text"
+          }
+        }
+      }
+    }
+  }
+}

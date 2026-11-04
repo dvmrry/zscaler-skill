@@ -1,0 +1,467 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Tag Groups Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-tag-groups-using-api",
+    "node": "1541728",
+    "revision": "3226008",
+    "updated": "2026-08-04",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring ZPA tag groups using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Adding a Tag Group",
+      "level": 1
+    },
+    {
+      "text": "To add a new tag group for the specified customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tagGroup?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/tagGroup?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the tag group. The string value must match the default name pattern.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].namespace.id: The unique identifier of the namespace for the tag. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].tagKey.id: The unique identifier of the key for the tag. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].tagValue.id: The unique identifier of the tag value. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].origin: The origin of the tag. The supported enums are CUSTOM or PREDEFINED. This field is not required.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<tag group name>\", \"description\": \"<tag group description>\", \"tags\": [ { \"namespace\": { \"id\": \"<namespace ID>\", \"name\": \"<namespace name>\" }, \"tagKey\": { \"id\": \"<key ID>\", \"name\": \"<key name>\" }, \"tagValue\": { \"id\": \"<value ID>\", \"name\": \"<value name>\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"Prod Access\", \"description\": \"Tags used for production access\", \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\", \"name\": \"Environment\" }, \"tagKey\": { \"id\": \"145260601092866401\", \"name\": \"Region\" }, \"tagValue\": { \"id\": \"145260601092866402\", \"name\": \"us-east-1\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866500\", \"modifiedTime\": \"1705617400\", \"creationTime\": \"1705617400\", \"modifiedBy\": \"145260601092866482\", \"name\": \"Prod Access\", \"description\": \"Tags used for production access\", \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\", \"name\": \"Environment\", \"enabled\": true }, \"tagKey\": { \"id\": \"145260601092866401\", \"name\": \"Region\", \"enabled\": true }, \"tagValue\": { \"id\": \"145260601092866402\", \"name\": \"us-east-1\" }, \"origin\": \"CUSTOM\" } ], \"microtenantId\": \"145260601092866314\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Tag Groups",
+      "level": 1
+    },
+    {
+      "text": "To get details of all tag groups for the specified customer based on the given filter, sort, and pagination criteria:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/search?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/tagGroup/saerch?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "sortBy.sortName: Denotes the optional field name to sort by. The supported value is a string (e.g., name).",
+      "depth": 1
+    },
+    {
+      "item": "sortBy.sortOrder: Denotes the optional field for sort direction, and sorts by ascending (ASC) or descending (DESC) order. The supported value is a string.",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.operator: Denotes the optional field for the logical operator that combines filter groups. The supported value is an enum (i.e., AND or OR).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].operator: Denotes the optional field for the logical operator that combines filters in the group. The supported value is an enum (i.e., AND or OR).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].filterName: Denotes the optional field for the field name to filter. The supported value is a string (e.g., name).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].operator: Denotes the optional field for the comparison operator. The supported values are a string (i.e., EQ and LIKE). The value EQ denotes the equals operator, and the value LIKE denotes the contains operator.",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].value: Denotes the optional field for the value to compare against. The supported value is a string (e.g., env).",
+      "depth": 1
+    },
+    {
+      "item": "pageBy.page: Specifies the page number. The supported value is an integer (e.g., 1). The default value is 1.",
+      "depth": 1
+    },
+    {
+      "item": "pageBy.pageSize: Specifies the page size. The supported value is an integer (e.g., 20). If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"sortBy\": { \"sortName\": \"<sortName>\", \"sortOrder\": \"<sortOrder>\" }, \"filterBy\": { \"operator\": \"<operator>\", \"filterGroups\": [ { \"operator\": \"<operator>\", \"filters\": [ { \"filterName\": \"<filterName>\", \"operator\": \"<operator>\", \"value\": \"<value>\" } ] } ] }, \"pageBy\": { \"page\": \"<page>\", \"pageSize\": \"<pageSize>\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"145260601092866500\", \"name\": \"Prod Access\", \"description\": \"Tags used for production access\", \"microtenantId\": \"145260601092866314\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"145260601092866401\", \"name\": \"Region\", \"enabled\": true, \"origin\": \"CUSTOM\", \"type\": \"STATIC\", \"namespaceId\": \"145260601092866400\", \"tagValues\": [ { \"id\": \"145260601092866402\", \"name\": \"us-east-1\" } ], \"scopeId\": \"145260601092866314\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Tag Group",
+      "level": 1
+    },
+    {
+      "text": "To get the details of a tag group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "tagGroupId: The unique identifier of the tag group. To learn more, see Getting Details of All Tag Groups.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/tagGroup/145260601092866500?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866500\", \"modifiedTime\": \"1705617400\", \"creationTime\": \"1705617400\", \"modifiedBy\": \"145260601092866482\", \"name\": \"Prod Access\", \"description\": \"Tags used for production access\", \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\", \"name\": \"Environment\", \"enabled\": true }, \"tagKey\": { \"id\": \"145260601092866401\", \"name\": \"Region\", \"enabled\": true }, \"tagValue\": { \"id\": \"145260601092866402\", \"name\": \"us-east-1\" }, \"origin\": \"CUSTOM\" } ], \"microtenantId\": \"145260601092866314\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Tag Group",
+      "level": 1
+    },
+    {
+      "text": "To update a tag group for the specified ID:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "tagGroupId: The unique identifier of the tag group. To learn more, see Getting Details of All Tag Groups.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/tagGroup/145260601092866500?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following fields you want to update for the namespace:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the tag group.",
+      "depth": 1
+    },
+    {
+      "item": "description: The description of the tag group.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].namespace.id: The unique identifier of the namespace for the tag. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].tagKey.id: The unique identifier of the key for the tag. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].tagValue.id: The unique identifier of the tag value. The integer is required and must be passed per item.",
+      "depth": 1
+    },
+    {
+      "item": "tags[].origin: The origin of the tag. The supported enums are CUSTOM or PREDEFINED. This field is not required.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<tag group name>\", \"description\": \"<description>\", \"tags\": [ { \"namespace\": { \"id\": \"<namespace ID>\" }, \"tagKey\": { \"id\": \"<tag key ID>\" }, \"tagValue\": { \"id\": \"<tag value ID>\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"Prod Access\", \"description\": \"Updated tag group\", \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\" }, \"tagKey\": { \"id\": \"145260601092866401\" }, \"tagValue\": { \"id\": \"145260601092866403\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Tag Group",
+      "level": 1
+    },
+    {
+      "text": "To delete a tag group for the specified ID:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/tagGroup/{tagGroupId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "tagGroupId: The unique identifier of the tag group. To learn more, see Getting Details of All Tag Groups.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/tagGroup/145260601092866500?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes available fields you can use for the tag key API use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The ZPA tenant ID of the customer.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "description",
+          "The description of the key.",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Specifies if the key is enabled (true) or disabled (false).",
+          "No",
+          "Boolean"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "tags",
+          "The array of tag values that belong to the tag group (i.e., the TagValueSummary items).",
+          "No",
+          "Array"
+        ],
+        [
+          "tags[].namespace.id",
+          "The unique identifier of the namespace for the tag. The integer is required and must be passed per item.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "tags[].tagKey.id",
+          "The unique identifier of the key for the tag. The integer is required and must be passed per item.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "tags[].tagValue.id",
+          "The unique identifier of the tag value. The integer is required and must be passed per item.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "tags[].origin",
+          "The origin of the tag. The supported enums are CUSTOM or PREDEFINED. This field is not required.",
+          "No",
+          "Enum Supported values: CUSTOM: The custom tag. PREDEFINED: The predefined tag."
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,400 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Findings",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/findings",
+    "node": "1532902",
+    "revision": "3149739",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Findings_0.json?VersionId=PvoNZXK2AlwlVDco_Mz5a1hdDI1qzwMM",
+    "updated": "2025-11-06",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "description": "API Reference Guide for the Zscaler EASM API",
+      "title": "Zscaler External Attack Surface Management (EASM) Public API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/easm-ui/v1",
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "tags": [
+      {
+        "name": "Findings"
+      }
+    ],
+    "paths": {
+      "/organizations/:orgId/findings": {
+        "get": {
+          "tags": [
+            "Findings"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "summary": "Retrieves the list of findings identified and tracked for an organization's internet-facing assets scanned by EASM",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/findings.GetFindingsResponse"
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/organizations/:orgId/findings/:findingId/details": {
+        "get": {
+          "tags": [
+            "Findings"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves details for a finding based on the specified ID",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/findings.GetFindingDetailsResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/organizations/:orgId/findings/:findingId/evidence": {
+        "get": {
+          "tags": [
+            "Findings"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves scan evidence details for a finding based on the specified ID. This is a subset of the scan output obtained for the associated asset that can be attributed to the finding.",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/findings.GetScanOutputResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/organizations/:orgId/findings/:findingId/scan-output": {
+        "get": {
+          "tags": [
+            "Findings"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves the complete scan output for a finding based on the specified ID",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/findings.GetScanOutputResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "findings.GetFindingsResponse": {
+        "type": "object",
+        "description": "Information about findings",
+        "properties": {
+          "results": {
+            "type": "array",
+            "description": "The list of findings detected for an organization",
+            "items": {
+              "$ref": "#/definitions/bitbucket_corp_zscaler_com_easm_easm-ui_internal_controllers_publicApi_findings.Finding"
+            }
+          },
+          "total_results": {
+            "type": "integer",
+            "description": "The total number of findings in the response"
+          }
+        }
+      },
+      "findings.GetFindingDetailsResponse": {
+        "description": "Information about findings",
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "The finding's classification such as Exposure, Vulnerability, or Misconfiguration."
+          },
+          "cisa_likelihood": {
+            "type": "string",
+            "description": "Indicates whether a vulnerability is listed in the <a href=\"https://www.cisa.gov/known-exploited-vulnerabilities-catalog\" target=\"_blank\">Known Exploited Vulnerabilities (KEV) catalog, if applicable.</a>"
+          },
+          "country": {
+            "type": "string",
+            "description": "The geographical location of the asset to which the finding is associated"
+          },
+          "description": {
+            "type": "string",
+            "description": "A detailed description of the finding gathered from open-source intelligence, such as the <a href=\"https://nvd.nist.gov/\" target=\"_blank\">National Vulnerability Database (NVD)</a>, and Zscaler's research team."
+          },
+          "epss_likelihood": {
+            "type": "string",
+            "description": "The Exploit Prediction Scoring System (EPSS) likelihood indicates the probability of a vulnerability being exploited in the wild, if applicable."
+          },
+          "first_seen": {
+            "type": "string",
+            "description": "The timestamp when the finding was first detected in the associated asset"
+          },
+          "id": {
+            "type": "string",
+            "description": "Finding ID"
+          },
+          "impacted_asset_id": {
+            "type": "string",
+            "description": "The ID of the asset to which the finding is associated"
+          },
+          "impacted_asset_name": {
+            "type": "string",
+            "description": "The name of the asset to which the finding is associated"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if the asset was not detected in a scan for over 30 days and is therefore marked as stale"
+          },
+          "last_seen": {
+            "type": "string",
+            "description": "The timestamp when the finding was last detected during scanning"
+          },
+          "name": {
+            "type": "string",
+            "description": "Finding name"
+          },
+          "profile_id": {
+            "type": "string",
+            "description": "ID of the Discovery Profile through which this finding was detected"
+          },
+          "risk_level": {
+            "type": "string",
+            "description": "The risk level assigned to the finding ranging from Low, Medium, High, and Critical."
+          },
+          "risk_score": {
+            "type": "string",
+            "description": "A risk score computed for the finding ranging from 1 to 100"
+          },
+          "scan_type": {
+            "type": "string",
+            "description": "The scanning service that was used to uncover the risk, such as Web, Network, Certificate, and DNS scans."
+          },
+          "severity_score": {
+            "type": "number",
+            "description": "The Common Vulnerability Scoring System (CVSS) score that indicates the qualitative measure of severity of a vulnerability using a numerical value ranging from 1 to 10, if applicable."
+          },
+          "status": {
+            "type": "string",
+            "description": "Indicates the finding's current status in its workflow tracked from discovery to closure"
+          },
+          "type": {
+            "type": "string",
+            "description": "The finding's type which is a sub-classification within the assigned <code>category</code>"
+          }
+        }
+      },
+      "findings.GetScanOutputResponse": {
+        "type": "object",
+        "properties": {
+          "content": {
+            "type": "string",
+            "description": "The scan output information"
+          },
+          "source_type": {
+            "type": "string",
+            "description": "The scanning service used to detect the risk, such as Web, Network, Certificate, or DNS scans."
+          }
+        }
+      },
+      "bitbucket_corp_zscaler_com_easm_easm-ui_internal_controllers_publicApi_findings.Finding": {
+        "description": "Information about findings",
+        "type": "object",
+        "properties": {
+          "category": {
+            "type": "string",
+            "description": "The finding's classification such as Exposure, Vulnerability, or Misconfiguration."
+          },
+          "cisa_likelihood": {
+            "type": "string",
+            "description": "Indicates whether a vulnerability is listed in the <a href=\"https://www.cisa.gov/known-exploited-vulnerabilities-catalog\" target=\"_blank\">Known Exploited Vulnerabilities (KEV) catalog, if applicable.</a>"
+          },
+          "country": {
+            "type": "string",
+            "description": "The geographical location of the asset to which the finding is associated"
+          },
+          "description": {
+            "type": "string",
+            "description": "A detailed description of the finding gathered from open-source intelligence, such as the <a href=\"https://nvd.nist.gov/\" target=\"_blank\">National Vulnerability Database (NVD)</a>, and Zscaler's research team."
+          },
+          "epss_likelihood": {
+            "type": "string",
+            "description": "The Exploit Prediction Scoring System (EPSS) likelihood indicates the probability of a vulnerability being exploited in the wild, if applicable."
+          },
+          "first_seen": {
+            "type": "string",
+            "description": "The timestamp when the finding was first detected in the associated asset"
+          },
+          "id": {
+            "type": "string",
+            "description": "Finding ID"
+          },
+          "impacted_asset_id": {
+            "type": "string",
+            "description": "The ID of the asset to which the finding is associated"
+          },
+          "impacted_asset_name": {
+            "type": "string",
+            "description": "The name of the asset to which the finding is associated"
+          },
+          "is_stale": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if the asset was not detected in a scan for over 30 days and is therefore marked as stale"
+          },
+          "last_seen": {
+            "type": "string",
+            "description": "The timestamp when the finding was last detected during scanning"
+          },
+          "name": {
+            "type": "string",
+            "description": "Finding name"
+          },
+          "profile_id": {
+            "type": "string",
+            "description": "ID of the Discovery Profile through which this finding was detected"
+          },
+          "risk_level": {
+            "type": "string",
+            "description": "The risk level assigned to the finding ranging from Low, Medium, High, and Critical."
+          },
+          "risk_score": {
+            "type": "string",
+            "description": "A risk score computed for the finding ranging from 1 to 100"
+          },
+          "scan_type": {
+            "type": "string",
+            "description": "The scanning service that was used to uncover the risk, such as Web, Network, Certificate, and DNS scans."
+          },
+          "severity_score": {
+            "type": "number",
+            "description": "The Common Vulnerability Scoring System (CVSS) score that indicates the qualitative measure of severity of a vulnerability using a numerical value ranging from 1 to 10, if applicable."
+          },
+          "status": {
+            "type": "string",
+            "description": "Indicates the finding's current status in its workflow tracked from discovery to closure"
+          },
+          "type": {
+            "type": "string",
+            "description": "The finding's type which is a sub-classification within the assigned <code>category</code>"
+          }
+        }
+      }
+    }
+  }
+}

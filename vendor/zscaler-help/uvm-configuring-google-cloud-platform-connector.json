@@ -1,0 +1,573 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Google Cloud Platform Connector",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-google-cloud-platform-connector",
+    "node": "1541016",
+    "revision": "3213570",
+    "updated": "2026-06-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Google Cloud Platform (GCP) is Google's cloud services platform for running and managing applications and infrastructure. GCP provides services that maintain a centralized inventory of cloud resource metadata (Cloud Asset Inventory), aggregate and prioritize security findings such as misconfigurations (Security Command Center), and analyze container images and artifacts for metadata and vulnerabilities (Container Analysis/Artifact Analysis)."
+    },
+    {
+      "text": "There are three GCP streams. Select those that are based on your GCP feature plan and use cases:"
+    },
+    {
+      "item": "Google Cloud Platform Assets: Retrieves an inventory of GCP assets and cloud resource metadata, including projects, compute instances, storage buckets, Kubernetes clusters, resource type, resource name or ID, project, and location. Supported assets include:",
+      "depth": 0
+    },
+    {
+      "item": "storage.googleapis.com/Bucket",
+      "depth": 1
+    },
+    {
+      "item": "artifactregistry.googleapis.com/Repository",
+      "depth": 1
+    },
+    {
+      "item": "artifactregistry.googleapis.com/DockerImage",
+      "depth": 1
+    },
+    {
+      "item": "compute.googleapis.com/Instance",
+      "depth": 1
+    },
+    {
+      "item": "container.googleapis.com/Cluster",
+      "depth": 1
+    },
+    {
+      "item": "Google Cloud Platform Misconfigurations: Retrieves findings related to misconfigurations and compliance risks in your GCP environment, including severity, affected resource, finding state, and recommendation when available.",
+      "depth": 0
+    },
+    {
+      "item": "Google Cloud Platform Vulnerabilities: Retrieves vulnerability occurrences for resources, including vulnerabilities identified in container images and related artifacts, with vulnerability ID such as a CVE, severity, affected package, and image identifier.",
+      "depth": 0
+    },
+    {
+      "text": "The GCP connector is in limited availability. To learn more, contact Zscaler Support."
+    },
+    {
+      "text": "For the Google Sheets stream, see Configuring the Google Sheets Connector."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure the GCP connector, you need the source authentication configuration. The following parameters are required:"
+    },
+    {
+      "item": "Enable the required APIs.",
+      "depth": 0
+    },
+    {
+      "item": "To allow the Zscaler Security Operations (SecOps) platform to access your Google Cloud assets via API, ensure that the Cloud Asset API is enabled.",
+      "depth": 0
+    },
+    {
+      "item": "To enable the API in your project:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Google Cloud console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "From the left-side navigation, go to APIs & Services > Library.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          52
+        ],
+        [
+          55,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Search for APIs and Services search box, enter the relevant API, then select it:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "For Google Cloud Platform Assets: Enable Cloud Asset API.",
+      "depth": 2,
+      "strong": [
+        [
+          41,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "For Google Cloud Platform Misconfigurations: Enable Security Command Center API.",
+      "depth": 2,
+      "strong": [
+        [
+          52,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "For Google Cloud Platform Vulnerabilities: Enable Container Analysis API.",
+      "depth": 2,
+      "strong": [
+        [
+          50,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Retrieve the service account JSON key.",
+      "depth": 0
+    },
+    {
+      "item": "To create the service account and generate the JSON key:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Google Cloud console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "From the project drop-down menu, select your project.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "From the left-side navigation, select IAM & Admin > Service Accounts.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          49
+        ],
+        [
+          52,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Service accounts page, click Create service account.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create service account page, configure the following:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Create service account tab:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Service account name: Enter a name for the service account.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Service account ID: An account ID is automatically generated based on the service account name. You can keep the generated ID or edit it.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Service account description: Enter a description for the service account.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Create and continue.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Permissions (optional) tab, do one of the following:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Assign the service account the Viewer role from the Basic category.",
+      "depth": 3,
+      "strong": [
+        [
+          31,
+          37
+        ],
+        [
+          52,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Assign the specific roles for the streams you plan to configure:",
+      "depth": 3
+    },
+    {
+      "item": "For the Google Cloud Platform Assets stream: Assign the Cloud Asset Viewer role, or a custom role that includes cloudasset.assets.listResource.",
+      "depth": 4,
+      "strong": [
+        [
+          56,
+          74
+        ],
+        [
+          112,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "For the Google Cloud Platform Misconfigurations stream: Assign a role that includes securitycenter.findings.list (e.g., Security Center Admin Viewer or Security Center Findings Viewer).",
+      "depth": 4,
+      "strong": [
+        [
+          84,
+          112
+        ],
+        [
+          120,
+          148
+        ],
+        [
+          152,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "For the Google Cloud Platform Vulnerabilities stream: Assign the Container Analysis Occurrences Viewer role, or a custom role that includes containeranalysis.occurrences.list.",
+      "depth": 4,
+      "strong": [
+        [
+          65,
+          102
+        ],
+        [
+          140,
+          174
+        ]
+      ]
+    },
+    {
+      "item": "For the most comprehensive setup, Zscaler recommends assigning either the Viewer role, or all three stream-specific roles. This ensures that the connector's internal health checks and connection validation succeed, even if you only plan to enable a subset of the available data streams.",
+      "depth": 4,
+      "strong": [
+        [
+          74,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Principals with access (optional) tab, grant access to users or groups, then click Done.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          40
+        ],
+        [
+          90,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "On the Service accounts page, select the service account you created.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Keys tab, from the Add Key drop-down menu, select Create new key.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          26,
+          33
+        ],
+        [
+          57,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Select JSON and click Create.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "A JSON file is downloaded.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the Google Cloud documentation.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Connector",
+      "level": 1
+    },
+    {
+      "text": "To create the GCP data source in the SecOps platform:"
+    },
+    {
+      "item": "Go to Configure > Sources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the connector tile from the available data sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Retrieval Filters and Specifications",
+      "level": 2
+    },
+    {
+      "text": "After you create the GCP data source, enter the following information in the source setup Retrieval section:"
+    },
+    {
+      "item": "Authentication",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the Authentication section, click Create New.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Google Cloud Platform Authentication window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "In the Google Cloud Platform Authentication window, enter the information from the Prerequisites section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Authentications and Managing Authentications.",
+      "depth": 0
+    },
+    {
+      "item": "Pull data only for service account project (Optional)",
+      "depth": 0
+    },
+    {
+      "item": "Select this checkbox to restrict the connector's scope to the specific Google Cloud project where the service account resides. Use this if your service account has inherited permissions from an organization or folder level, but you want to limit data ingestion and permission validation to this single project only. Leaving this unselected allows the connector to discover and ingest data from all projects across your GCP hierarchy that the service account has access to.",
+      "depth": 0
+    },
+    {
+      "item": "Filter project with sys prefix (Optional)",
+      "depth": 0
+    },
+    {
+      "item": "Select this checkbox to exclude Google-managed system projects, which are automatically created for services like cloud functions and typically have IDs starting with sys-. This filter ensures that your security findings and asset inventory focus exclusively on your active user-managed infrastructure, which reduces noise and optimizes ingestion performance by ignoring background system resources.",
+      "depth": 0
+    },
+    {
+      "item": "Admin Email to Impersonate",
+      "depth": 0
+    },
+    {
+      "item": "Leave this field empty, as the GCP connector does not require an admin email to impersonate for authentication.",
+      "depth": 0
+    },
+    {
+      "text": "For complete configuration instructions, see Creating Data Sources."
+    }
+  ]
+}

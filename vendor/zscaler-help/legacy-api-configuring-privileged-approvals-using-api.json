@@ -1,0 +1,663 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Privileged Approvals Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-privileged-approvals-using-api",
+    "node": "1485926",
+    "revision": "3160729",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) privileged approvals using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before creating a new privileged approval, you must get the ID of the application segments you want to include in the privileged approval. To learn more, see Configuring Application Segments Using API."
+    },
+    {
+      "heading": "Creating a New Privileged Approval",
+      "level": 1
+    },
+    {
+      "text": "To create a new privileged approval:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailIds: The user's email address that you are assigning the privileged approval to. You can assign only one email address to the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The ID of the application segment you want to include in the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The start and end times and dates for time bound access.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ { \"applications\": [ { \"id\": 0 } ], \"emailIds\": [ \"string\" ], \"endTime\": 0, \"startTime\": 0, \"workingHours\": { \"days\": [ \"string\" ], \"endTime\": \"string\", \"endTimeCron\": \"string\", \"startTime\": \"string\", \"startTimeCron\": \"string\", \"timeZone\": \"string\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"email\": \"email@safemarch.com\", \"startDate\": \"May 18, 2023\", \"startTimeHours\": \"17\", \"startTimeMins\": \"05\", \"startTimeSeconds\": \"27\", \"endDate\": \"Jun 01, 2023\", \"endTimeHours\": \"17\", \"endTimeMins\": \"05\", \"endTimeSeconds\": \"27\", \"enableWorkingHours\": true, \"startTime\": 1684409727, \"endTime\": 1685619327, \"applications\": [ { \"id\": \"145256180497776992\" } ], \"currentTime\": 1684409826, \"minAllowedStartTime\": 1684406226, \"workingHours\": { \"days\": [ \"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\" ], \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"timeZone\": \"Asia/Calcutta\", \"startTimeCron\": \"0 30 3 ? * MON,TUE,WED,THU,FRI\", \"endTimeCron\": \"0 30 11 ? * MON,TUE,WED,THU,FRI\" }, \"emailIds\": [ \"email@safemarch.com\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"137629\", \"creationTime\": \"1684409827\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1684409727\", \"endTime\": \"1685619327\", \"workingHours\": { \"startTimeCron\": \"0 30 3 ? * MON,TUE,WED,THU,FRI\", \"endTimeCron\": \"0 30 11 ? * MON,TUE,WED,THU,FRI\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"days\": [ \"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\" ], \"timeZone\": \"Asia/Calcutta\" }, \"emailIds\": [ \"email@safemarch.com\" ], \"applications\": [ { \"id\": \"145256180497776992\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false, \"adpEnabled\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Microtenant Support",
+      "level": 2
+    },
+    {
+      "text": "To create a new privileged approval within a Microtenant:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailIds: The user's email address that you are assigning the privileged approval to. You can assign only one email address to the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The ID of the application segment you want to include in the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The start and end times and dates for time bound access.",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ { \"applications\": [ { \"id\": 0 } ], \"emailIds\": [ \"string\" ], \"endTime\": 0, \"startTime\": 0, \"workingHours\": { \"days\": [ \"string\" ], \"endTime\": \"string\", \"endTimeCron\": \"string\", \"startTime\": \"string\", \"startTimeCron\": \"string\", \"timeZone\": \"string\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View the example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"email\": \"example@safemarch.com\", \"startDate\": \"May 18, 2023\", \"startTimeHours\": \"17\", \"startTimeMins\": \"05\", \"startTimeSeconds\": \"27\", \"endDate\": \"Jun 01, 2023\", \"endTimeHours\": \"17\", \"endTimeMins\": \"05\", \"endTimeSeconds\": \"27\", \"enableWorkingHours\": true, \"startTime\": 1684409727, \"endTime\": 1685619327, \"applications\": [ { \"id\": \"145256180497776992\" } ], \"currentTime\": 1684409826, \"minAllowedStartTime\": 1684406226, \"workingHours\": { \"days\": [ \"MON\", \"TUE\", \"WED\", \"THU\", \"FRI\" ], \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"timeZone\": \"Asia/Calcutta\", \"startTimeCron\": \"0 30 3 ? * MON,TUE,WED,THU,FRI\", \"endTimeCron\": \"0 30 11 ? * MON,TUE,WED,THU,FRI\" }, \"emailIds\": [ \"example@safemarch.com\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"137629\", \"creationTime\": \"1684409827\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1684409727\", \"endTime\": \"1685619327\", \"microtenantId\": \"145260601092866314\", \"workingHours\": { \"startTimeCron\": \"0 30 3 ? * MON,TUE,WED,THU,FRI\", \"endTimeCron\": \"0 30 11 ? * MON,TUE,WED,THU,FRI\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"days\": [ \"MON\", \"TUE\", \"WED\", What is \"THU\", \"FRI\" ], \"timeZone\": \"Asia/Calcutta\" }, \"emailIds\": [ \"example@safemarch.com\" ], \"applications\": [ { \"id\": \"145256180497776992\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false, \"adpEnabled\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Privileged Approvals",
+      "level": 1
+    },
+    {
+      "text": "To get details of all privileged approvals:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/approval."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"5638\", \"creationTime\": \"1661437691\", \"modifiedBy\": \"72057594038052745\", \"startTime\": \"1667572066\", \"endTime\": \"1691159266\", \"status\": \"ACTIVE\", \"emailIds\": [ \"test@test.com\" ], \"applications\": [ { \"id\": \"72057594038061005\", \"modifiedTime\": \"1674451351\", \"creationTime\": \"1637668324\", \"modifiedBy\": \"72057594038620086\", \"name\": \"ammo4\", \"domainName\": \"deomain4.com\", \"domainNames\": [ \"deomain4.com\" ], \"description\": \"description text\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"443\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"bypassOnReauth\": false, \"inspectTrafficWithZia\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": true, \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"443\", \"to\": \"443\" } ] } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval?page=1&pagesize=20&sortBy=status&sortdir=ASC.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid page and page size values.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval?page=1&pagesize=20&sortBy=status&sortdir=ASC."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"26\", \"modifiedTime\": \"1664801234\", \"creationTime\": \"1661859900\", \"modifiedBy\": \"72057594038073668\", \"startTime\": \"1661859881\", \"endTime\": \"1686915881\", \"workingHours\": { \"startTimeCron\": \"0 0 7 ? * MON,TUE\", \"endTimeCron\": \"0 0 15 ? * MON,TUE\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"days\": [ \"MON\", \"TUE\" ], \"timeZone\": \"Europe/Berlin\" }, \"status\": \"ACTIVE\", \"emailIds\": [ \"df@dsf1.com\" ], \"applications\": [ { \"id\": \"289370814522851438\", \"modifiedTime\": \"1661233018\", \"creationTime\": \"1637367216\", \"modifiedBy\": \"72057594038050500\", \"name\": \"exampleUser-pra-22\", \"domainName\": \"192.168.65.2\", \"domainNames\": [ \"192.168.65.2\" ], \"enabled\": true, \"passiveHealthEnabled\": false, \"tcpPortRanges\": [ \"22\", \"22\", \"443\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"22\", \"to\": \"22\" }, { \"from\": \"443\", \"to\": \"443\" } ] } ] }, { \"id\": \"50\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1673622881\", \"endTime\": \"1673709281\", \"status\": \"FUTURE\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\", \"modifiedTime\": \"1666272390\", \"creationTime\": \"1636122923\", \"modifiedBy\": \"72057594038050500\", \"name\": \"apipratest.com\", \"domainName\": \"apitest7.com\", \"domainNames\": [ \"apitest7.com\" ], \"description\": \"new app segment\", \"defaultIdleTimeout\": \"0\", \"defaultMaxAge\": \"0\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"440\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"440\", \"to\": \"443\" } ] } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To get details of all privileged approvals within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval?microtenantId=145260601092866314."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"26\", \"modifiedTime\": \"1664801234\", \"creationTime\": \"1661859900\", \"modifiedBy\": \"72057594038073668\", \"startTime\": \"1661859881\", \"endTime\": \"1686915881\", \"microtenantId\": \"145260601092866314\", \"workingHours\": { \"startTimeCron\": \"0 0 7 ? * MON,TUE\", \"endTimeCron\": \"0 0 15 ? * MON,TUE\", \"startTime\": \"09:00\", \"endTime\": \"17:00\", \"days\": [ \"MON\", \"TUE\" ], \"timeZone\": \"Europe/Berlin\" }, \"status\": \"ACTIVE\", \"emailIds\": [ \"df@dsf1.com\" ], \"applications\": [ { \"id\": \"289370814522851438\", \"modifiedTime\": \"1661233018\", \"creationTime\": \"1637367216\", \"modifiedBy\": \"72057594038050500\", \"name\": \"exampleUser-pra-22\", \"domainName\": \"192.168.65.2\", \"microtenantId\": \"145260601092866314\", \"domainNames\": [ \"192.168.65.2\" ], \"enabled\": true, \"passiveHealthEnabled\": false, \"tcpPortRanges\": [ \"22\", \"22\", \"443\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"22\", \"to\": \"22\" }, { \"from\": \"443\", \"to\": \"443\" } ] } ] }, { \"id\": \"50\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1673622881\", \"endTime\": \"1673709281\", \"status\": \"FUTURE\", \"microtenantId\": \"145260601092866314\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\", \"modifiedTime\": \"1666272390\", \"creationTime\": \"1636122923\", \"modifiedBy\": \"72057594038050500\", \"name\": \"apipratest.com\", \"domainName\": \"apitest7.com\", \"microtenantId\": \"145260601092866314\", \"domainNames\": [ \"apitest7.com\" ], \"description\": \"new app segment\", \"defaultIdleTimeout\": \"0\", \"defaultMaxAge\": \"0\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"440\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"440\", \"to\": \"443\" } ] } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Particular Privileged Approval",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular privileged approval:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the privileged approval.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/50."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"50\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1673622881\", \"endTime\": \"1673709281\", \"status\": \"FUTURE\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\", \"modifiedTime\": \"1666272390\", \"creationTime\": \"1636122923\", \"modifiedBy\": \"72057594038050500\", \"name\": \"apipratest.com\", \"domainName\": \"apitest7.com\", \"domainNames\": [ \"apitest7.com\" ], \"description\": \"new app segment\", \"defaultIdleTimeout\": \"0\", \"defaultMaxAge\": \"0\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"440\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"440\", \"to\": \"443\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports Microtenants. To get details for a particular privileged approval within a Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/50?microtenantId=145260601092866314."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"50\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": \"1673622881\", \"endTime\": \"1673709281\", \"status\": \"FUTURE\", \"microtenantId\": \"145260601092866314\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\", \"modifiedTime\": \"1666272390\", \"creationTime\": \"1636122923\", \"modifiedBy\": \"72057594038050500\", \"microtenantId\": \"145260601092866314\", \"name\": \"apipratest.com\", \"domainName\": \"apitest7.com\", \"domainNames\": [ \"apitest7.com\" ], \"description\": \"new app segment\", \"defaultIdleTimeout\": \"0\", \"defaultMaxAge\": \"0\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"440\", \"443\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"tcpKeepAlive\": \"0\", \"selectConnectorCloseToApp\": false, \"tcpPortRange\": [ { \"from\": \"440\", \"to\": \"443\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Privileged Approval",
+      "level": 1
+    },
+    {
+      "text": "To update a privileged approval:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the privileged approval.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/50."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailIds: The user's email address that you are assigning the privileged approval to. You can assign only one email address to the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The ID of the application segment you want to include in the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The start and end times and dates for time bound access.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ { \"applications\": [ { \"id\": 0 } ], \"emailIds\": [ \"string\" ], \"endTime\": 0, \"startTime\": 0, \"workingHours\": { \"days\": [ \"string\" ], \"endTime\": \"string\", \"endTimeCron\": \"string\", \"startTime\": \"string\", \"startTimeCron\": \"string\", \"timeZone\": \"string\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"50\", \"objectType\": \"JITApprovals\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": 1673622881, \"endTime\": 1673709281, \"status\": \"FUTURE\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\" } ], \"hideInfoTooltip\": true, \"restrictedEntity\": false, \"email\": \"test@zscaler.com\", \"startDate\": \"Jan 13, 2023\", \"startTimeHours\": \"20\", \"startTimeMins\": \"44\", \"startTimeSeconds\": \"41\", \"endDate\": \"Jan 14, 2023\", \"endTimeHours\": \"20\", \"endTimeMins\": \"44\", \"endTimeSeconds\": \"41\", \"enableWorkingHours\": false, \"currentTime\": 1673539671, \"minAllowedStartTime\": 1673536071 }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged approval was updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports updating a privileged approval within a Microtenant. To update a privileged approval within a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/50?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "emailIds: The user's email address that you are assigning the privileged approval to. You can assign only one email address to the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The ID of the application segment you want to include in the privileged approval.",
+      "depth": 0
+    },
+    {
+      "item": "The start and end times and dates for time bound access.",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ { \"applications\": [ { \"id\": 0 } ], \"emailIds\": [ \"string\" ], \"endTime\": 0, \"startTime\": 0, \"workingHours\": { \"days\": [ \"string\" ], \"endTime\": \"string\", \"endTimeCron\": \"string\", \"startTime\": \"string\", \"startTimeCron\": \"string\", \"timeZone\": \"string\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"50\", \"objectType\": \"JITApprovals\", \"creationTime\": \"1673536589\", \"modifiedBy\": \"72057594038624153\", \"startTime\": 1673622881, \"endTime\": 1673709281, \"status\": \"FUTURE\", \"microtenantId\": \"145260601092866314\", \"emailIds\": [ \"test@zscaler.com\" ], \"applications\": [ { \"id\": \"289370814522851383\" } ], \"hideInfoTooltip\": true, \"restrictedEntity\": false, \"email\": \"test@zscaler.com\", \"startDate\": \"Jan 13, 2023\", \"startTimeHours\": \"20\", \"startTimeMins\": \"44\", \"startTimeSeconds\": \"41\", \"endDate\": \"Jan 14, 2023\", \"endTimeHours\": \"20\", \"endTimeMins\": \"44\", \"endTimeSeconds\": \"41\", \"enableWorkingHours\": false, \"currentTime\": 1673539671, \"minAllowedStartTime\": 1673536071 }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged approval was updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Privileged Approval",
+      "level": 1
+    },
+    {
+      "text": "To delete a privileged approval:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the privileged approval.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/289370814522851328/approval/50."
+    },
+    {
+      "text": "A successful response returns code 204 No Content, meaning the privileged approval was deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API also supports Microtenants. To delete a privileged approval within a Microtenant:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/50?microtenantId=145260601092866314."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged approval was deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting All Expired Privileged Approvals",
+      "level": 1
+    },
+    {
+      "text": "To delete all expired privileged approvals:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the Privileged Approval Controller: /mgmtconfig/v1/admin/customers/{customerId}/approval/expired.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/approval/expired."
+    },
+    {
+      "text": "A successful response returns code 204. meaning the privileged approvals are deleted. If no records are found, code 200 OK is returned. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "HTTP 200 OK \"No records found\"",
+      "depth": 0
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the privileged approval use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The ZPA tenant ID of the customer",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer"
+        ],
+        [
+          "pageSize",
+          "Specifies the page size",
+          "No",
+          "Integer"
+        ],
+        [
+          "search",
+          "Indicates the search string used to support search by features or fields",
+          "No",
+          "String"
+        ],
+        [
+          "sortBy",
+          "Indicates the parameter to sort by",
+          "No",
+          "String"
+        ],
+        [
+          "sortdir",
+          "Specifies the sort direction (i.e., ascending or descending order)",
+          "No",
+          "Enum Supported values: ASC: Ascending DSC: Descending"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    }
+  ]
+}

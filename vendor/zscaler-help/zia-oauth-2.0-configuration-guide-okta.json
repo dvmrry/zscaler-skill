@@ -1,0 +1,1075 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "OAuth 2.0 Configuration Guide for Okta",
+  "source": {
+    "url": "https://help.zscaler.com/zia/oauth-2.0-configuration-guide-okta",
+    "node": "1417501",
+    "revision": "3247420",
+    "updated": "2026-09-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following guide explains how you can configure OAuth 2.0 authorization for the cloud service API using Okta."
+    },
+    {
+      "text": "Zscaler and Okta are technology partners. To learn more about the Zscaler and Okta integration, see the Zscaler and Okta Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that the following prerequisites are met before you start configuring Okta as your OAuth 2.0 authentication service:"
+    },
+    {
+      "item": "You have an Okta subscription for your organization.",
+      "depth": 0
+    },
+    {
+      "item": "You have an application (i.e., API Client) that needs to send API requests to the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "You have configured the necessary API Roles in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Okta",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps to set up OAuth 2.0 authorization using Okta:"
+    },
+    {
+      "item": "1. Register your application.",
+      "depth": 0
+    },
+    {
+      "item": "You need to register your application (i.e., API client) with Okta by creating an app integration from the Okta Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To register your application:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click Create App Integration.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Create a new app integration window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a new app integration window, select API Services as the sign-in method, and click Next.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          51,
+          63
+        ],
+        [
+          97,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Provide a name for the app integration.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After your application is registered, the app integration page appears with the General and Okta API Scopes tabs. The General tab of your app integration displays the generated Client ID and Client Secret values that are necessary to implement your authorization flow. The client application must have its client ID and client secret values stored securely.",
+      "depth": 1
+    },
+    {
+      "item": "On the General tab, under the General Settings section, ensure that the Require Demonstrating Proof of Possession (DPoP) header in token requests option is disabled for the Proof of possession field.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          30,
+          46
+        ],
+        [
+          72,
+          145
+        ],
+        [
+          173,
+          192
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Create an authorization server.",
+      "depth": 0
+    },
+    {
+      "item": "You need to create a custom authorization server and define your OAuth 2.0 scope, claims, and access policies within the authorization server, as applicable.",
+      "depth": 0
+    },
+    {
+      "item": "To create a custom authorization server:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add Authorization Server.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add Authorization Server window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Authorization Server window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for your authorization server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Audience: (Optional) Enter the audience value for the authorization server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for your authorization server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the configuration is saved, the authorization server's Settings tab displays the information that you provided and additional details, such as Metadata URI, Signing Key Rotation, Last Key Rotation, etc.",
+      "depth": 0,
+      "strong": [
+        [
+          149,
+          161
+        ],
+        [
+          163,
+          183
+        ],
+        [
+          185,
+          202
+        ]
+      ]
+    },
+    {
+      "item": "If you need to modify any of the information, such as Issuer or Signing Key Rotation, click Edit.",
+      "depth": 0,
+      "strong": [
+        [
+          54,
+          60
+        ],
+        [
+          64,
+          84
+        ],
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You need the Metadata URI to retrieve the token endpoint and the JWKS endpoint that are necessary for implementing the authorization flow.",
+      "depth": 0
+    },
+    {
+      "heading": "Configure Scopes",
+      "level": 2
+    },
+    {
+      "item": "For the Client Credentials flow of OAuth 2.0 authorization, Okta requires that you create custom scopes to define the access privileges required for authorization.",
+      "depth": 0
+    },
+    {
+      "item": "To create a custom scope:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Authorization Servers tab, select the name of the required authorization server.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The authorization server's Settings tab appears.",
+      "depth": 1,
+      "strong": [
+        [
+          27,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Select the Scopes tab.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add Scope.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add Scope window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Scope window, configure only the following fields that are applicable to the Client Credentials flow:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of the scope in the format supported by the Zscaler service, <Zscaler Cloud Name>::<Org ID>::<API Role>, where:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "<Zscaler Cloud Name> represents the name of the cloud on which your organization is provisioned.",
+      "depth": 3
+    },
+    {
+      "item": "<Org ID> represents your organization ID obtained from the Company Profile page within the Zscaler Admin Console.",
+      "depth": 3
+    },
+    {
+      "item": "<API Role> represents the name of API Roles configured on the Role Management page within the Zscaler Admin Console.",
+      "depth": 3
+    },
+    {
+      "item": "For example, zscalerbeta.net::272378::sampleRole.",
+      "depth": 2
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the scope.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Default scope: (Optional) Select Set as a default scope to allow Okta to authorize clients that omit the scope parameter in the authorization request. Okta returns all of the default scopes permitted in the access token by the access policy rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          33,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends that you do not select this option if you have multiple clients accessing the cloud service API using different scopes.",
+      "depth": 2
+    },
+    {
+      "item": "Metadata: (Optional) Select Include in public metadata to allow the scope to be publicly discoverable.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          28,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Create Access Policies and Policy Rules",
+      "level": 2
+    },
+    {
+      "item": "Access policies allow you to define rules for client applications that are requesting access tokens from your authorization server. The rules within an access policy assign an expiration time to an access token based on the grant type, scope, and various other parameters in the access token request.",
+      "depth": 0
+    },
+    {
+      "item": "Access policies and rules within each policy are evaluated in priority order (i.e., order of listing), which is automatically assigned on rule and policy creation. You can change the priority of individual policies and rules by reordering them using drag and drop.",
+      "depth": 0
+    },
+    {
+      "item": "To create an access policy for an authorization server:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Authorization Servers tab, select the name of the authorization server for which you want to add an access policy.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Access Policies.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The authorization server's Access Policies tab appears.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Access Policies tab, click Add Policy.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add Policy window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Policy window:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the access policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the access policy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Assign to: Choose from the following options:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "All Clients: The policy is assigned to all configured client applications.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The following clients: The policy is assigned to the client applications that you specify within this field. To specify client applications, enter the name of a client application and select the application when it appears.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "This field auto-completes the name of your client applications as you type.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create Policy.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "To create a rule within an access policy:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Authorization Servers tab, select the name of the authorization server for which you want to add access policy rules.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Access Policies.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The authorization server's Access Policies tab appears.",
+      "depth": 1,
+      "strong": [
+        [
+          27,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Access Policies tab, select the name of an access policy, and then select Add Rule.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Add Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Rule window, configure only the following settings that are applicable to the Client Credentials flow:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "IF Grant type is: Select the Client Credentials grant type.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "AND Scopes requested: Select one or more scopes that need to be covered by this rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "THEN Use this inline hook: Select an inline hook, as required.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "AND Access token lifetime is: Select the length of time in Minutes, Hours, or Days before an access token expires.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          59,
+          66
+        ],
+        [
+          68,
+          73
+        ],
+        [
+          78,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "The first policy and rule that matches the client's request is applied, and no further rule or policy evaluation takes place. If a client matches no policies, then the authentication attempt fails.",
+      "depth": 0
+    },
+    {
+      "heading": "Test your Authorization Server Configuration",
+      "level": 2
+    },
+    {
+      "item": "You can verify that the authorization server is configured correctly by previewing the access token and validating the configured details.",
+      "depth": 0
+    },
+    {
+      "item": "To test your authorization server configuration:",
+      "depth": 0
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Authorization Servers tab, select the name of the authorization server that you need to verify.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the authorization server page, select Token Preview.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          41,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the following properties for your access request:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "OAuth/OIDC client: Select your client application from the drop-down menu. To specify a client application, enter the name of the client application and select the application when it appears. This field auto-completes the name of your client applications as you type.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Grant type: Select Client Credentials from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          19,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Scopes: Select one or more custom scopes created for your authorization server. To specify custom scopes, enter the name of a scope and select the scope when it appears. This field auto-completes the name of your custom scopes as you type.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Click Preview Token.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If the authorization server is configured properly, a token preview is generated with the configured information. Otherwise, an error is displayed, and you need to review your authorization server configurations.",
+      "depth": 0
+    },
+    {
+      "item": "3. Request an access token.",
+      "depth": 0
+    },
+    {
+      "item": "After registering the client application and configuring your authorization server, you can implement the authorization flow between your client and authorization server. To do this, you need the following information from the Okta Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "Client ID: A unique identifier issued to the client application during registration with the authorization server. This value can be obtained from the General tab of your app integration page in the Okta Admin Console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: A secret string used by the client application for authenticating with the authorization server. This value can be obtained from the General tab of your app integration page in the Okta Admin Console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Scope: Custom scopes configured for your custom authorization server to define the permissions required by the client application to access the cloud service API. Custom scopes can be obtained from within the Scopes tab of the authorization server you created.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint: The endpoint exposed by the authorization server to allow the client application to request an access token. The token endpoint can be retrieved from the Metadata URI displayed on the Settings tab of the authorization server you created.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "With this information, you can set up the client to send an authorization request to the token endpoint via an HTTP POST request. This request must contain the client ID and the client secret presented in the authorization header of the request using HTTP basic authentication. The request Body must contain the following parameters:",
+      "depth": 0
+    },
+    {
+      "item": "grant_type as client_credentials, indicating that the Client Credentials grant type is used.",
+      "depth": 1
+    },
+    {
+      "item": "scope must be at least one custom scope created for your authorization server.",
+      "depth": 1
+    },
+    {
+      "item": "Example POST request to the token endpoint:",
+      "depth": 0
+    },
+    {
+      "item": "POST /oauth2/default/v1/token HTTP/1.1 Host: https://${yourOktaDomain} Authorization: Basic xxxxxxx Content-Type: application/x-www-form-urlencoded { \"grant_type\": \"client_credentials\", \"scope\": \"zscalerbeta.net::272378::sampleRole\" }",
+      "depth": 0
+    },
+    {
+      "item": "If the credentials passed in the request are valid, the application receives an access token in a JSON structure, as follows:",
+      "depth": 0
+    },
+    {
+      "item": "{ \"access_token\": \"xxxxxxx\", \"token_type\": \"Bearer\", \"expires_in\": 1663909495, \"scope\": \"zscalerbeta.net::272378::sampleRole\" }",
+      "depth": 0
+    },
+    {
+      "item": "The client ID and the secret must be placed in the HTTP Authorization header and cannot be included in the request body.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about the configuration steps, refer to the Okta documentation.",
+      "depth": 0
+    }
+  ]
+}

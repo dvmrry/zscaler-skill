@@ -1,0 +1,649 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IPSec VPN Configuration Guide for FortiGate Firewall",
+  "source": {
+    "url": "https://help.zscaler.com/zia/ipsec-vpn-configuration-guide-fortigate-firewall",
+    "node": "1399111",
+    "revision": "3249919",
+    "updated": "2026-10-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article uses only sample IP addresses in the configuration steps and screenshots. For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+    },
+    {
+      "text": "This article illustrates how to configure two IPSec VPN tunnels from a FortiGate firewall to two Public Service Edges for Internet & SaaS (ZIA): a primary tunnel from the FortiGate firewall to a Public Service Edge in one data center and a backup tunnel from the same firewall to a Public Service Edge in another data center. In this example, the peers are using a pre-shared key for authentication. DPD is enabled, so the firewall can detect if one VPN goes offline and move the internet-bound traffic to the backup VPN."
+    },
+    {
+      "text": "This article uses private IP addresses because it was tested in a lab environment."
+    },
+    {
+      "text": "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address. If your organization wants to forward more than 400 Mbps of traffic, Zscaler recommends using one of the following configurations:"
+    },
+    {
+      "item": "Configure multiple IPSec tunnels with different public source IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
+      "depth": 0
+    },
+    {
+      "text": "For example, if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you start configuring the Zscaler service and the firewall, ensure that you send Zscaler the following information:"
+    },
+    {
+      "item": "The IP address of the tunnel interface on the firewall",
+      "depth": 0
+    },
+    {
+      "item": "IP addresses of the Public Service Edges",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in the Zscaler Admin Console",
+      "level": 1
+    },
+    {
+      "text": "In this configuration example, the peers are using an FQDN and a pre-shared key (PSK) for authentication."
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Add the VPN Credential",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "You need the FQDN and PSK to link the VPN credentials to a location and create the IKE gateways.",
+      "depth": 0
+    },
+    {
+      "item": "Link the VPN Credentials to a Location",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in FortiOS",
+      "level": 1
+    },
+    {
+      "text": "This article only covers the configuration details of IPSec VPN tunnels between the FortiOS and the Public Service Edges. For any other specific information about FortiOS, refer to the Fortinet documentation."
+    },
+    {
+      "text": "This section describes how to configure two IPSec VPN tunnel interfaces on a FortiGate 300E firewall running version v6.0.2. Refer to the Fortinet documentation for additional information about the user interface."
+    },
+    {
+      "text": "The following figure shows the lab setup:"
+    },
+    {
+      "text": "The corporate office sends its traffic through the internal interface in the internal network. It sends traffic destined for any external network through the external interface, wan1."
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels on a FortiGate firewall:"
+    },
+    {
+      "text": "Zscaler does not support Extended Sequence Number (ESN) based proposals during IPSec tunnel negotiation."
+    },
+    {
+      "item": "1. Configure the VPN Parameters",
+      "depth": 0
+    },
+    {
+      "item": "Define the VPN parameters for the primary and backup VPN tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "Go to VPN > IPsec Tunnels.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the VPN Setup tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VPN tunnel. In this example, it's Zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          68,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Template Type: Select Custom.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the New VPN Tunnel tab:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Under the Network section:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Choose IPv4.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Remote Gateway: Select Static IP Address.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "IP Address: Enter your IP address.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Interface: Select an interface based on your requirements.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "NAT Traversal: Choose Enable.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Keepalive Frequency: Enter 10.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Dead Peer Detection: Select On Demand.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under the Authentication section:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Method: Select Pre-shared Key.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Pre-shared Key: Enter the Pre-shared Key value.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "IKE Version: Select 2.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Accept Types: Select Any Peer ID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Phase 1 proposal and Phase 2 selectors sections, configure the parameters for the primary tunnel as shown in the following image:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          27,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption.",
+      "depth": 2
+    },
+    {
+      "item": "Repeat this procedure for the backup tunnel.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "After configuring both tunnels, you can go to VPN > IPsec > Tunnels to view them.",
+      "depth": 0,
+      "strong": [
+        [
+          46,
+          49
+        ],
+        [
+          52,
+          57
+        ],
+        [
+          60,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "2. Define the IPv4 Policies",
+      "depth": 0
+    },
+    {
+      "item": "Define the IPv4 policies to allow access to the newly configured tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Policy & Objects > IPv4 Policy.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          25,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Create New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Create a new policy rule to allow the Zscaler primary tunnel access to the Fortigate external interface (wan1). In this example, we are forwarding all traffic to the service.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you want to forward only HTTP and HTTPS traffic to the Zscaler service, select them in the Service field.",
+      "depth": 1,
+      "strong": [
+        [
+          94,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Create a new policy rule to allow internal network access to the Zscaler primary tunnel.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat this procedure to configure similar policy rules for the backup tunnel.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "After all four policies are defined, you can go to Policy & Objects > IPv4 Policy to view them.",
+      "depth": 0,
+      "strong": [
+        [
+          51,
+          67
+        ],
+        [
+          70,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "3. Establish the Static Routes",
+      "depth": 0
+    },
+    {
+      "item": "Establish static routes for the primary and backup tunnels and configure them with the same priority and distance as the default route.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Network > Static Routes.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Create New.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Define the primary tunnel route as shown in the following image. Ensure that this tunnel gets an equal distance and a larger priority value than the default route. A tunnel with a larger priority value has a lower priority. The PBR overrides that priority setting. Since there are two tunnels, the primary tunnel priority value must have a lower priority than the secondary tunnel.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Define the secondary tunnel route as shown in the following figure:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After establishing the static routes, you can go to Monitor > Routing Monitor and verify the routing table.",
+      "depth": 0,
+      "strong": [
+        [
+          52,
+          59
+        ],
+        [
+          62,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "4. Define the Policy Routes",
+      "depth": 0
+    },
+    {
+      "item": "Define a policy route for each tunnel. In this example, we are forwarding all traffic to Zscaler.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Network > Policy Routes.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Define the primary tunnel as shown in the following image:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to forward only HTTP and HTTPS traffic to the Zscaler service:",
+      "depth": 0
+    },
+    {
+      "item": "Select port 80 as the destination port and define rules for the primary and secondary tunnels.",
+      "depth": 1
+    },
+    {
+      "item": "Define similar rules that specify port 443 as the destination port.",
+      "depth": 1
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "From the navigation menu, you can go to Data Explorer > Internet & SaaS > Tunnel Insights to see data as well as monitor the health and status of your configured IPSec VPN tunnels. To learn more, see About Insights and About Insights Logs."
+    },
+    {
+      "text": "In FortiOS, go to VPN > Monitor > IPsec Monitor to verify the status and that traffic is flowing through the primary tunnel.",
+      "strong": [
+        [
+          18,
+          21
+        ],
+        [
+          24,
+          31
+        ],
+        [
+          34,
+          47
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The network processor (NP) of some Fortinet devices doesn’t support offloading VPN phase one traffic, resulting in an unacceptable drop in VPN tunnel performance. To learn more, refer to How to disable offloading IPVPN ESP packets to NP per Phase 1."
+    },
+    {
+      "text": "For more troubleshooting information on FortiOS, refer to the Fortinet FortiOS Handbook."
+    }
+  ]
+}

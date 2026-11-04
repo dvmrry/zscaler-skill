@@ -1,0 +1,2729 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Synchronizing User Data with an Active Directory or OpenLDAP",
+  "source": {
+    "url": "https://help.zscaler.com/zia/synchronizing-user-data-active-directory-openldap",
+    "node": "1399611",
+    "revision": "3249896",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article illustrates how to configure the Zscaler service to synchronize user information with a directory server, either Active Directory (AD) or OpenLDAP."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "For your directory servers and firewall, ensure the following:"
+    },
+    {
+      "item": "On your directory server, grant the Zscaler service read-only access on a specific port. Zscaler provides the IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the directory server to allow the service to connect to the appropriate ports when the service performs an LDAP Bind.",
+      "depth": 0
+    },
+    {
+      "text": "Before you configure the Zscaler service, ensure the following:"
+    },
+    {
+      "item": "Add all your email domains to your Zscaler account. The service synchronizes data only from the configured domains.",
+      "depth": 0
+    },
+    {
+      "item": "To view the domains, from the navigation menu, go to Administration > Administration > Organization.",
+      "depth": 0,
+      "strong": [
+        [
+          53,
+          67
+        ],
+        [
+          70,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "Know the IP address/hostname of your directory server.",
+      "depth": 0
+    },
+    {
+      "item": "Know the Distinguished Name (DN) of a user with permission to bind to (or query) the directory server. The account doesn't require privileged access.",
+      "depth": 0
+    },
+    {
+      "item": "Know the groups you want to synchronize.",
+      "depth": 0
+    },
+    {
+      "item": "Know the location of the user and group objects in your directory structure.",
+      "depth": 0
+    },
+    {
+      "text": "If you are synchronizing data from an AD server, review these guidelines:"
+    },
+    {
+      "item": "The Zscaler service can synchronize user information from one forest in an organization. If your organization has multiple forests, you can set up an AD proxy. Otherwise, Zscaler recommends integrating with SAML.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service can synchronize data from multiple domains, as long as they are all registered with Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service doesn't support nested groups. You must manually identify specific group names within each nested group and add them to the Group filter.",
+      "depth": 0
+    },
+    {
+      "heading": "Synchronizing User Data with an Active Directory or OpenLDAP",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to synchronize user data with an Active Directory or OpenLDAP:"
+    },
+    {
+      "item": "1. Define the synchronization settings of the AD or LDAP server.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler strongly recommends that you use the Authentication Wizard to define your synchronization settings rather than using the Advanced Configuration, because the wizard walks you through synchronizing user data from an enterprise directory server to the Zscaler service.",
+      "depth": 0,
+      "strong": [
+        [
+          45,
+          66
+        ],
+        [
+          129,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "To define the synchronization settings of the directory server:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Select the Default Settings tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "For User Repository Type, choose Active Directory or OpenLDAP.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          24
+        ],
+        [
+          33,
+          49
+        ],
+        [
+          53,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Select one of the following synchronization options and configure accordingly:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Authentication Wizard",
+      "depth": 1
+    },
+    {
+      "item": "The Authentication Wizard validates your entries and allows you to check the data before it's synchronized to the Zscaler service. After you complete the wizard, the parameters are stored and displayed on this tab. You can configure the service to automatically synchronize user data from the directory server daily, weekly, or monthly. If the directory server is unavailable at the scheduled time, the service tries to synchronize at the next scheduled time.",
+      "depth": 1
+    },
+    {
+      "item": "You can click View Setup Log anytime to review the settings you defined in the preceding steps as well as any errors or warnings.",
+      "depth": 1,
+      "strong": [
+        [
+          14,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Follow the Authentication Wizard:",
+      "depth": 1
+    },
+    {
+      "item": "Primary Directory Server",
+      "depth": 2
+    },
+    {
+      "item": "Define the authentication agent and settings for the directory server. The Zscaler service can synchronize data for up to two sets of users. For example, it can synchronize data from two directory servers (e.g., one in Europe and another one in the US) if they have different user, group, and department information. Configure the service to synchronize from a secondary directory server only if it doesn't have duplicate user or group information. Don't set up a secondary server for redundancy.",
+      "depth": 2
+    },
+    {
+      "item": "Define the following Directory Server settings, and click Next:",
+      "depth": 2,
+      "strong": [
+        [
+          21,
+          37
+        ],
+        [
+          58,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Secondary Configuration: Enable to synchronize with two directory servers that have different sets of user data. Don't enable this option to synchronize the service with two servers that have duplicate information.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Primary Directory Name: Enter a name for the primary directory server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent Hosting: Choose one of the following agents:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Enterprise: Choose if your organization installed a Zscaler Authentication Bridge (ZAB). The following field appears:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent URL: Enter the URL or IP address of the ZAB. Use one of the following formats:",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "https://<ZAB IP Address> (e.g., https://192.0.2.20)",
+      "depth": 6
+    },
+    {
+      "item": "https://<ZAB Hostname> (e.g., https://zab.safemarch.com)",
+      "depth": 6
+    },
+    {
+      "item": "Cloud: Choose if the central authority (CA) queries your directory server directly.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Directory Server Address: Enter the IP address of the directory server. You also can enter an FQDN that points to the IP addresses of multiple directory servers to provide fault tolerance and resiliency against server failures. If you enter an FQDN and the DNS resolution returns multiple IP addresses, the Zscaler service automatically ignores the servers that are inactive or unavailable and synchronizes with the server that is active or available.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Directory Type: Choose one of the following directory types.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Apple OpenDirectory",
+      "depth": 4
+    },
+    {
+      "item": "IBM Domino",
+      "depth": 4
+    },
+    {
+      "item": "Microsoft Active Directory",
+      "depth": 4
+    },
+    {
+      "item": "Microsoft Active Directory with Exchange",
+      "depth": 4
+    },
+    {
+      "item": "Novell eDirectory",
+      "depth": 4
+    },
+    {
+      "item": "OpenLDAP",
+      "depth": 4
+    },
+    {
+      "item": "Port: Enter the port to which the Zscaler service connects when it synchronizes data. The following are the default ports:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3268: Use to connect to the Global Catalog of an AD server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3269: Use to connect to a Global Catalog AD server over a secure connection using SSL/TLS.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "389: Use to connect to an LDAP server. AD default port for listening.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "636: Use to connect to an LDAP server over a secure connection using SSL/TLS.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your organization is synchronizing multiple domains from an AD server, select either port 3268 (non-secure) or 3269 (secure) so the Zscaler service can access the Global Catalog. The Global Catalog contains all domain objects in an AD forest. If your organization uses custom ports, specify them accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Secure LDAP: Enable Secure LDAP to ensure that all data exchanged between the Zscaler Authentication Bridge (ZAB) and your directory server is encrypted.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends enabling this option to secure LDAP communications between the Zscaler service and your directory server.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication",
+      "depth": 2
+    },
+    {
+      "item": "When a client, such as the Zscaler service, connects to a directory server, the server performs a Bind operation where it authenticates the client. If the operation is successful, the client is allowed to access the server. The directory server can require the client to enter a Distinguished Name (DN) and password, or it can allow the client to perform the query anonymously, without requiring credentials. In this step, specify whether the directory server allows anonymous access. If it doesn't, enter the DN and password required to access the server.",
+      "depth": 2
+    },
+    {
+      "item": "Define the following ​​​​​Authentication settings for the directory server, and click Next:",
+      "depth": 2,
+      "strong": [
+        [
+          26,
+          40
+        ],
+        [
+          86,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Use Anonymous Authentication: Enable if the directory server allows anonymous access. Ensure that this option is also enabled on your directory server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bind DN: Enter the DN of an administrator account that has permission to query the directory server. Use one of the following formats:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "domain\\user (e.g., zscaler\\admin)",
+      "depth": 4
+    },
+    {
+      "item": "LDAP syntax (e.g., cn=admin,cn=users,dc=zscaler,dc=net)",
+      "depth": 4
+    },
+    {
+      "item": "Bind Password: Enter the password of the administrator account entered above.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Detected Settings",
+      "depth": 2
+    },
+    {
+      "item": "If the Zscaler service successfully connects to the directory server, the wizard automatically populates the Base DN field. The base DN specifies the location or branch of the directory where the Zscaler service begins searching for users, groups, and departments. The service only retrieves objects from the branch that is specified in the Base DN field.",
+      "depth": 2,
+      "strong": [
+        [
+          109,
+          116
+        ],
+        [
+          341,
+          348
+        ]
+      ]
+    },
+    {
+      "item": "Define the following Detected Settings, and click Next:",
+      "depth": 2,
+      "strong": [
+        [
+          21,
+          38
+        ],
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Base DN: The default option contains the DN of the top of the tree (e.g., dc=example,dc=com). Depending on your directory structure, this might return more results than desired. However, providing a more narrow starting search point on the tree might exclude some desired users and groups. Zscaler recommends you examine your directory structure, locate the branch with your desired users and groups, and then enter the base DN. To start the search from another location in the directory, choose it from the drop-down menu or enter its DN.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Pagination: Choose one of the following pagination settings:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Auto (Recommended): The Zscaler service detects if your directory server supports pagination. If it does, it pages results that exceed 1,000 items. If it doesn't, it returns the first 1,000 items only.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: The directory server pages the results that exceed 1,000 items.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Disabled: The directory server returns the first 1,000 items only.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Lookup & Attributes",
+      "depth": 2
+    },
+    {
+      "item": "Specify which attributes represent the required user information. You can define filters to narrow down the results. Zscaler strongly recommends that you use an LDAP browser, such as Apache Studio Directory or Softerra, to view several actual users and confirm which attributes are being used to identify the user name, email address, department, and group information. If you are synchronizing information from an LDAP server and your organization uses custom LDAP attributes, consult your LDAP administrator to determine which attributes to use.",
+      "depth": 2
+    },
+    {
+      "item": "To define the Lookup & Attributes:",
+      "depth": 2,
+      "strong": [
+        [
+          14,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Lookup Parameters section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Lookup Parameters: Choose one of the following lookup methods and enter the required information in the next field. Ensure that the information exists in the directory.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Auto: Look up the user by an email address, Windows login domain name, DN (e.g., dc=example,dc=com), or LDAP attribute (e.g., objectClass=User). This is the easiest and recommended method.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Email: Look up the user by the email address.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "LDAP Attribute: Look up the user by an LDAP attribute (e.g., objectClass=User).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "LDAP DN: Look up the user by the DN (e.g., dc=example,dc=com).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Windows Domain Login: Look up the user by the Windows login domain name.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Lookup User Entry: Enter the user information based on your chosen lookup parameter method, and click Look Up User. The Zscaler service queries the directory server for the user entry and attributes.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          102,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Lookup Results: Displays the user's or group's attributes that were retrieved from the directory server. You can use this information to configure the following attributes.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the Attribute Fields section, specify the names of the attributes that represent the user's email address, full name, group, and department, and also define filters. The Zscaler service provides granular filters so you can synchronize only the relevant users, groups, and departments.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "User Login: Enter or choose the attribute representing the login name that users enter to log in and authenticate to the Zscaler service. This attribute is used to verify the login name that a user enters when authenticating to the service. Following are some guidelines for the login name:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "It must be in the form of an email address, though it doesn't have to be a valid email address.",
+      "depth": 4
+    },
+    {
+      "item": "It must be unique, and the domain name must belong to the organization.",
+      "depth": 4
+    },
+    {
+      "item": "If the value is not an email address, the service creates an email address by appending the domain name to it if your organization has registered a single domain on the service. If your organization has registered multiple domains and the value is not an email address, the synchronization fails.",
+      "depth": 4
+    },
+    {
+      "item": "Zscaler recommends you use userPrincipalName, regardless of the number of domains hosted by the Zscaler service. Use sAMAccountName only if you have one domain hosted by the Zscaler service. Otherwise, you can use proxyAddresses, userPrincipalName, or mail.",
+      "depth": 4
+    },
+    {
+      "item": "Group Base DN: (OpenLDAP only) Displays the base DN you provided to query the group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "User Full Name: Enter or choose the attribute that represents user full names (e.g., cn or displayName). The Zscaler service displays the value in this attribute in the Who dialog that appears when administrators create policies.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          169,
+          172
+        ]
+      ]
+    },
+    {
+      "item": "Group Membership: (Active Directory only) Enter or choose the attribute that represents which groups the user belongs to (e.g., memberOf). You can use groups to apply policies.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Group Search Filter: Use this filter to narrow down the group objects that the Zscaler service returns after the synchronization. You can enter or choose a filter string to locate only the groups you want to apply policies to. The service synchronizes up to 16 groups per user. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing group data with the directory server. Following are some guidelines:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "To import only one group, use the following filter:",
+      "depth": 4
+    },
+    {
+      "item": "(&(objectclass=group)(cn=<Group Name>*))",
+      "depth": 2
+    },
+    {
+      "item": "To import multiple groups, use the following filter:",
+      "depth": 3
+    },
+    {
+      "item": "(&(objectclass=group)(|(cn=<Group Name 1>*)(cn=<Group Name 2>*)))",
+      "depth": 2
+    },
+    {
+      "item": "Following is an example of a filter that imports three groups called vips, standard users, and advanced users:",
+      "depth": 2
+    },
+    {
+      "item": "(&(objectClass=group)(|(cn=vips*)(cn=standard users*)(cn=advanced users*)))",
+      "depth": 2
+    },
+    {
+      "item": "Following is an example of a filter that imports all groups that begin with Zscaler:",
+      "depth": 2
+    },
+    {
+      "item": "(&(objectClass=group)(cn=zscaler*))",
+      "depth": 2
+    },
+    {
+      "item": "Replace <Group Name>,<Group Name 1>, and <Group Name 2> with the actual group name in the directory server. The asterisk (*) is required, so the filter automatically completes the Common Name (cn) value. The pipe character (|) means that at least one criteria must match. The ampersand (&) means that all criteria must be true.",
+      "depth": 2,
+      "strong": [
+        [
+          224,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "User Search Filter: Use this filter to narrow down the user objects that the Zscaler service returns after synchronization. You can enter or choose a filter string to locate specific users, such as users who belong to a specific group. For example, choose objectClass=person to narrow down the data to persons and not computers. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing user data with the directory server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          256,
+          274
+        ]
+      ]
+    },
+    {
+      "item": "Group Name: Enter or choose the attribute that represents group names (e.g., cn).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Department Membership: This attribute is used to populate the Department field in the reports produced by the Zscaler service. You can specify any attribute that identifies the information that should appear in the Department field. For example, you can use department or ou.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          62,
+          72
+        ],
+        [
+          215,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "User Membership: (OpenLDAP only) Enter or choose the attribute in the group entry that defines the members. For example, if the member entry is cn=johndoe,cn=Users,dc=example,dc=com, then the user membership attribute is UniqueMember.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "User Attribute: (OpenLDAP only) Enter or choose the user attribute that's part of the user membership attribute to uniquely identify the users in the group. For example, if the member entry is cn=johndoe,cn=Users,dc=example,dc=com, then the user attribute is dn.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Enable Password Change Sync: (Active Directory only) Enable to scan the AD for password changes. If you enable this setting, the following digest authentication fields appear:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable User Deactivation Checks: Enable to detect if a user account is deactivated on the AD. If you enable this setting, the following field appears:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Active Directory Poll Frequency (Seconds): Enter the frequency in seconds to poll the AD. You can't modify this field for the secondary directory server. The Zscaler service uses the same frequency you entered for the primary directory server.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Password Last Set Attribute: Enter the attribute that represents the password last-changed time stamp (e.g., pwdLastSet).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "User Deactivation Attribute: Enter the attribute that represents user deactivation (e.g., (userAccountControl:1.2.345.678901.2.3.456:=1)).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image for Active Directory.",
+      "depth": 2
+    },
+    {
+      "item": "See image for OpenLDAP.",
+      "depth": 2
+    },
+    {
+      "item": "Secondary Directory Server (Optional)",
+      "depth": 2
+    },
+    {
+      "item": "This step appears only if you enabled Secondary Configuration in Primary Directory Server. If you're only configuring one directory server, skip this step.",
+      "depth": 2,
+      "strong": [
+        [
+          38,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "To define the secondary Directory Server settings:",
+      "depth": 2,
+      "strong": [
+        [
+          24,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "In Directory Server:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          3,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Secondary Directory Name: Enter a name for the secondary directory server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Directory Server Address: Enter the IP address of the secondary directory server. You also can enter an FQDN that points to the IP addresses of multiple directory servers to provide fault tolerance and resiliency against server failures. If you enter an FQDN and the DNS resolution returns multiple IP addresses, the Zscaler service automatically ignores the servers that are inactive or unavailable and synchronizes with the server that is active or available.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Port: Enter the port to which the Zscaler service connects when it synchronizes data. The following are the default values:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3268: Use to connect to the Global Catalog of an AD server.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3269: Use to connect to a Global Catalog AD server over a secure connection using SSL/TLS.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "389: Use to connect to an LDAP server. AD default port for listening.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "636: Use to connect to an LDAP server over a secure connection using SSL/TLS.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your organization is synchronizing multiple domains from an AD server, select either port 3268 (non-secure) or 3269 (secure) so the Zscaler service can access the Global Catalog. The Global Catalog contains all domain objects in an AD forest. If your organization uses custom ports, specify them accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Secure LDAP: Enable Secure LDAP to ensure that all data exchanged between the Zscaler Authentication Bridge (ZAB) and your directory server is encrypted.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends enabling this option to secure LDAP communications between the Zscaler service and your directory server.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the following steps in the wizard for the secondary directory server:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Authentication",
+      "depth": 4
+    },
+    {
+      "item": "Detected Settings",
+      "depth": 4
+    },
+    {
+      "item": "Lookup & Attributes",
+      "depth": 4
+    },
+    {
+      "item": "Synchronization",
+      "depth": 2
+    },
+    {
+      "item": "In Synchronization, click Start Synchronization to start synchronizing the Zscaler service with the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          18
+        ],
+        [
+          26,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The wizard displays the synchronization status and results. After synchronization, you can click the numbers in the Added, Modified, and Removed columns to view and search through the entries discovered and verify whether the users, groups, and departments were synchronized correctly. When you're done, click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          116,
+          121
+        ],
+        [
+          123,
+          131
+        ],
+        [
+          137,
+          144
+        ],
+        [
+          310,
+          314
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Parameters",
+      "depth": 2
+    },
+    {
+      "item": "To define the Authentication Parameters:",
+      "depth": 2,
+      "strong": [
+        [
+          14,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "In the Primary Authentication Parameters section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "User Authentication Filter: Enter or choose a filter to search the primary directory server and find the user's DN when the user authenticates to the Zscaler service. Unlike the User Search Filter and Group Search Filter, the service only uses this filter when it authenticates a user, not when it synchronizes users from the directory server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          178,
+          196
+        ],
+        [
+          201,
+          220
+        ]
+      ]
+    },
+    {
+      "item": "For example, if you use (objectClass=User), the service searches for(&(objectClass=user)(userPrincipalName=example@safemarch.com)). userPrincipalName is the primary attribute being synchronized. In this scenario, the service receives only one response, which is the user who is authenticating.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler also supports an advanced filter option where the filter can be parameterized, such as (&(objectClass=user)(sAMAccountName=${USER})). In this scenario, the search issued is (&(objectClass=user)(sAMAccountName=john)).",
+      "depth": 2
+    },
+    {
+      "item": "Test User Login: Enter a test user's login ID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Test User Password: Enter a test user's password.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Check Authentication: Click to verify the user's credentials, and ensure that the retrieved attributes are correct.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Secondary Authentication Parameters section, in User Authentication Filter, enter or choose a filter to search the secondary directory server and find the user's DN when the user authenticates to the Zscaler service. This field section appears only if you enabled Secondary Configuration in Primary Directory Server.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          55,
+          81
+        ],
+        [
+          271,
+          294
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Review",
+      "depth": 2
+    },
+    {
+      "item": "In Review, click Finish to save the configuration and synchronized data, or exit the window to discard changes.",
+      "depth": 2,
+      "strong": [
+        [
+          3,
+          9
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "If you click Finish, the existing user authentication configuration is overwritten with the new configuration.",
+      "depth": 2,
+      "strong": [
+        [
+          13,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Advanced Configuration (Active Directory)",
+      "depth": 1
+    },
+    {
+      "item": "In the Edit Active Directory window, in the Global Configuration section:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          44,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Synchronization Frequency: Choose how often you want the Zscaler service to synchronize user information.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Manual: Synchronize only when you click Sync Now.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Daily: Synchronize every 24 hours at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Monthly: Synchronize on the first day of every month at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Weekly: Synchronize every Sunday at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Enable Second Directory: Enable to synchronize with two directory servers that have different sets of user data. Don't enable this option to synchronize the service with two servers that have duplicate information. If you enable this option, The Directory #1 and Directory #2 tabs appear.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          246,
+          258
+        ],
+        [
+          263,
+          275
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent Hosting: Choose one of the following agents.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In-The-Cloud: Choose if the central authority (CA) queries your directory server directly.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Enterprise-Hosted: Choose if your organization installed a Zscaler Authentication Bridge (ZAB). The following option appears:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent URL: Enter the URL or IP address of the ZAB. Use one of the following formats:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          21,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "https://<ZAB IP Address> (e.g., https://192.0.2.20)",
+      "depth": 5
+    },
+    {
+      "item": "https://<ZAB Hostname> (e.g., https://zab.safemarch.com)",
+      "depth": 5
+    },
+    {
+      "item": "In the Directory Server Details section:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "If you enabled Enable Second Directory, you see two directory tabs: Directory #1 and Directory #2.",
+      "depth": 1,
+      "strong": [
+        [
+          15,
+          38
+        ],
+        [
+          68,
+          80
+        ],
+        [
+          85,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Directory Name: Enter a name for the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Server Address: Enter the IP address of the directory server. You also can enter an FQDN that points to the IP addresses of multiple directory servers to provide fault tolerance and resiliency against server failures. If you enter an FQDN and the DNS resolution returns multiple IP addresses, the Zscaler service automatically ignores the servers that are inactive or unavailable and synchronizes with the server that is active or available.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Secure Access: Enable SSL/TLS Inspection for the LDAP communications. Ensure that you installed an SSL/TLS certificate on your directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends enabling this option to secure LDAP communications between the Zscaler service and your directory server.",
+      "depth": 1
+    },
+    {
+      "item": "Port: Enter the port to which the Zscaler service connects when it synchronizes data. The following are the default ports:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3268: Use to connect to the Global Catalog of an AD server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3269: Use to connect to a Global Catalog AD server over a secure connection using SSL/TLS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "389: Use to connect to an LDAP server. AD default port for listening.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "636: Use to connect to an LDAP server over a secure connection using SSL/TLS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your organization is synchronizing multiple domains from an AD server, select either port 3268 (non-secure) or 3269 (secure) so the Zscaler service can access the Global Catalog. The Global Catalog contains all domain objects in an AD forest. If your organization uses custom ports, specify them accordingly.",
+      "depth": 1
+    },
+    {
+      "item": "In the Connection Parameters section:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Base DN: Enter the DN of the top of the tree (e.g., dc=example,dc=com). Depending on your directory structure, this might return more results than desired. However, providing a more narrow starting search point on the tree might exclude some desired users and groups. Zscaler recommends you examine your directory structure, locate the branch with your desired users and groups, and then enter the base DN. To start the search from another location in the directory, enter its DN.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Pagination: Choose one of the following pagination options:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Auto (Recommended): The Zscaler service detects if your directory server supports pagination. If it does, it pages results that exceed 1,000 items. If it doesn't, it returns the first 1,000 items only.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: The directory server pages results that exceed 1,000 items.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Disabled: The directory server returns the first 1,000 items only.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Anonymous Authentication: Enable if the directory server allows anonymous access. Ensure that this option is also enabled on your directory server. The following fields appear:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Bind DN: Enter the DN of an administrator account that has permission to query the directory server. Use one of the following formats:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "domain\\user (e.g., zscaler\\admin)",
+      "depth": 4
+    },
+    {
+      "item": "LDAP syntax (e.g., cn=admin,cn=users,dc=zscaler,dc=net)",
+      "depth": 4
+    },
+    {
+      "item": "Bind Password: Enter the password of the administrator account entered above.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Attribute Fields section:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Login Attribute: Enter the attribute representing the login name that users enter to log in and authenticate to the Zscaler service. This attribute is used to verify the login name that a user enters when authenticating to the service. Following are some guidelines for the login name:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "It must be in the form of an email address, though it doesn't have to be a valid email address.",
+      "depth": 3
+    },
+    {
+      "item": "It must be unique, and the domain name must belong to the organization.",
+      "depth": 3
+    },
+    {
+      "item": "If the value isn't an email address, the service creates an email address by appending the domain name to it if your organization has registered a single domain on the service. If your organization has registered multiple domains and the value isn't an email address, the synchronization fails.",
+      "depth": 3
+    },
+    {
+      "item": "Zscaler recommends you use userPrincipalName, regardless of the number of domains hosted by the Zscaler service. Use sAMAccountName only if you have one domain hosted by the Zscaler service. Otherwise, you can use proxyAddresses, userPrincipalName, or mail.",
+      "depth": 3
+    },
+    {
+      "item": "User Display Name Attribute: Enter the attribute that represents user full names (e.g., cn or displayName). The Zscaler service displays the value in this attribute in the Who dialog that appears when administrators create policies.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          172,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "Group Membership Attribute: Enter the attribute that represents which groups the user belongs to (e.g., memberOf). You can use groups to apply policies.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Group Attribute Name: Enter the attribute that represents group names (e.g., cn).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Department Name Attribute: This attribute is used to populate the Department field in the reports produced by the Zscaler service. You can enter any attribute that identifies the information that should appear in the Department field. For example, you can use department or ou.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          66,
+          76
+        ],
+        [
+          217,
+          227
+        ]
+      ]
+    },
+    {
+      "item": "In the Digest Authentication section:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Enable Password Change Sync: Enable to scan the Active Directory for password changes. If you enable this setting, the following fields appear:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable User Deactivation Checks: Enable to detect if a user account is deactivated on the AD. If you enable this setting, the following field appears:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Active Directory Poll Frequency (Seconds): Enter the frequency in seconds to poll the AD. You can't modify this field for the secondary directory server. The Zscaler service uses the same frequency you entered for the primary directory server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Password Last Set Attribute: Enter the attribute that represents the password last-changed time stamp (e.g., pwdLastSet).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "User Deactivation Attribute: Enter the attribute that represents user deactivation (e.g., (userAccountControl:1.2.345.678901.2.3.456:=1)).",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Search section:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Group Search Filter: Use this filter to narrow down the group objects that the Zscaler service returns after the synchronization. You can enter a filter string to locate only the groups you want to apply policies to. The service synchronizes up to 16 groups per user. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing group data with the directory server. Following are some guidelines:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "To import only one group, use the following filter:",
+      "depth": 3
+    },
+    {
+      "item": "(&(objectclass=group)(cn=<Group Name>*))",
+      "depth": 1
+    },
+    {
+      "item": "To import multiple groups, use the following filter:",
+      "depth": 2
+    },
+    {
+      "item": "(&(objectclass=group)(|(cn=<Group Name 1>*)(cn=<Group Name 2>*)))",
+      "depth": 1
+    },
+    {
+      "item": "Following is an example of a filter that imports three groups called vips, standard users, and advanced users:",
+      "depth": 1
+    },
+    {
+      "item": "(&(objectClass=group)(|(cn=vips*)(cn=standard users*)(cn=advanced users*)))",
+      "depth": 1
+    },
+    {
+      "item": "Following is an example of a filter that imports all groups that begin with Zscaler:",
+      "depth": 1
+    },
+    {
+      "item": "(&(objectClass=group)(cn=zscaler*))",
+      "depth": 1
+    },
+    {
+      "item": "Replace <Group Name>,<Group Name 1>, and <Group Name 2> with the actual group name in the directory server. The asterisk (*) is required, so the filter automatically completes the Common Name (cn) value. The pipe character (|) means that at least one criteria must match. The ampersand (&) means that all criteria must be true.",
+      "depth": 1,
+      "strong": [
+        [
+          224,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "User Search Filter: Use this filter to narrow down the user objects that the Zscaler service returns after synchronization. You can enter a filter string to locate specific users, such as users who belong to a specific group. For example, enter objectClass=person to narrow down the data to persons and not computers. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing user data with the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Advanced Search Filter: Enable this if you want to use a separate search filter for the authentication process (e.g., a search filter that searches using non-email format attributes). If disabled, the Zscaler service uses the User Search Filter for synchronizing and authenticating users.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          226,
+          244
+        ]
+      ]
+    },
+    {
+      "item": "Search Filter: Enter a filter to search the directory server and find the user's DN when the user authenticates to the Zscaler service. Unlike the User Search Filter and Group Search Filter, the service only uses this filter when it authenticates a user, not when it synchronizes users from the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          147,
+          165
+        ],
+        [
+          170,
+          189
+        ]
+      ]
+    },
+    {
+      "item": "For example, if you enter (objectClass=User), the service searches for(&(objectClass=user)(userPrincipalName=example@safemarch.com)). userPrincipalName is the primary attribute being synchronized. In this scenario, the service receives only one response, which is the user who is authenticating.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler also supports an advanced filter option where the filter can be parameterized, such as (&(objectClass=user)(sAMAccountName=${USER})). In this scenario, the search issued is (&(objectClass=user)(sAMAccountName=john)).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Advanced Configuration (OpenLDAP)",
+      "depth": 1
+    },
+    {
+      "item": "In the Edit LDAP window, in the Global Configuration section:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          32,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Synchronization Frequency: Choose how often you want the Zscaler service to synchronize user information.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Manual: Synchronize only when you click Sync Now.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Daily: Synchronize every 24 hours at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Monthly: Synchronize on the first day of every month at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Weekly: Synchronize every Sunday at midnight in your organization's time zone.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Enable Second Directory: Enable to synchronize with two directory servers that have different sets of user data. Don't enable this option to synchronize the service with two servers that have duplicate information. If you enable this option, The Directory #1 and Directory #2 tabs appear below.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          246,
+          258
+        ],
+        [
+          263,
+          275
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent Hosting: Choose one of the following agents.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In-The-Cloud: Choose if the central authority (CA) queries your directory server directly.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Enterprise-Hosted: Choose if your organization installed a Zscaler Authentication Bridge (ZAB). The following option appears:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent URL: Enter the URL or IP address of the ZAB. Use one of the following formats:",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          21,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "https://<ZAB IP Address> (e.g., https://192.0.2.20)",
+      "depth": 5
+    },
+    {
+      "item": "https://<ZAB Hostname> (e.g., https://zab.safemarch.com)",
+      "depth": 5
+    },
+    {
+      "item": "In the Directory Server Details section:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "If you enabled Enable Second Directory, you see two directory tabs: Directory #1 and Directory #2.",
+      "depth": 1,
+      "strong": [
+        [
+          15,
+          38
+        ],
+        [
+          68,
+          80
+        ],
+        [
+          85,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Directory Name: Enter a name for the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Server Address: Enter the IP address of the directory server. You also can enter an FQDN that points to the IP addresses of multiple directory servers to provide fault tolerance and resiliency against server failures. If you enter an FQDN and the DNS resolution returns multiple IP addresses, the Zscaler service automatically ignores the servers that are inactive or unavailable and synchronizes with the server that is active or available.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Secure Access: Enable SSL/TLS Inspection for the LDAP communications. Ensure that you installed an SSL/TLS certificate on your directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler strongly recommends enabling this option to secure LDAP communications between the Zscaler service and your directory server.",
+      "depth": 1
+    },
+    {
+      "item": "Port: Enter the port to which the Zscaler service connects when it synchronizes data. The following are the default ports:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3268: Use to connect to the Global Catalog of an AD server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "3269: Use to connect to a Global Catalog AD server over a secure connection using SSL/TLS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "389: Use to connect to an LDAP server. AD default port for listening.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "636: Use to connect to an LDAP server over a secure connection using SSL/TLS.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "If your organization is synchronizing multiple domains from an AD server, select either port 3268 (non-secure) or 3269 (secure) so the Zscaler service can access the Global Catalog. The Global Catalog contains all domain objects in an AD forest. If your organization uses custom ports, specify them accordingly.",
+      "depth": 1
+    },
+    {
+      "item": "In the Connection Parameters section:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Advanced Base DN: Enable if the users and groups you want to synchronize are in separate branches of your directory structure. The following fields appear:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "User Base DN: Enter the DN of the top of the tree (e.g., dc=example,dc=com). Depending on your directory structure, this might return more results than desired. However, providing a more narrow starting search point on the tree might exclude some desired users and groups. Zscaler recommends you examine your directory structure, locate the branch with your desired users and groups, and then enter the base DN. To start the search from another location in the directory, choose it from the drop-down menu or enter its DN.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Group Base DN: Enter the DN of the branch or location where the group objects are located.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Base DN: (Appears if Advanced Base DN is disabled.) Enter the DN of the top of the tree (e.g., dc=example,dc=com). Depending on your directory structure, this might return more results than desired. However, providing a more narrow starting search point on the tree might exclude some desired users and groups. Zscaler recommends you examine your directory structure, locate the branch with your desired users and groups, and then enter the base DN. To start the search from another location in the directory, enter its DN.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          21,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Pagination: Choose one of the following pagination settings:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Auto (Recommended): The Zscaler service detects if your directory server supports pagination. If it does, it pages results that exceed 1,000 items. If it doesn't, it returns the first 1,000 items only.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: The directory server pages results that exceed 1,000 items.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Disabled: The directory server returns the first 1,000 items only.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Anonymous Authentication: Enable if the directory server allows anonymous access. Ensure that this option is also enabled on your directory server. The following fields appear:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Bind DN: Enter the DN of an administrator account that has permission to query the directory server. Use one of the following formats:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "domain\\user (e.g., zscaler\\admin)",
+      "depth": 4
+    },
+    {
+      "item": "LDAP syntax (e.g., cn=admin,cn=users,dc=zscaler,dc=net)",
+      "depth": 4
+    },
+    {
+      "item": "Bind Password: Enter the password of the administrator account entered above.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Attribute Fields section:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Login Attribute: Enter the attribute representing the login name that users enter to log in and authenticate to the Zscaler service. This attribute is used to verify the login name that a user enters when authenticating to the service. Following are some guidelines for the login name:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "It must be in the form of an email address, though it doesn't have to be a valid email address.",
+      "depth": 3
+    },
+    {
+      "item": "It must be unique, and the domain name must belong to the organization.",
+      "depth": 3
+    },
+    {
+      "item": "If the value is not an email address, the service creates an email address by appending the domain name to it if your organization has registered a single domain on the service. If your organization has registered multiple domains and the value isn't an email address, the synchronization fails.",
+      "depth": 3
+    },
+    {
+      "item": "Zscaler recommends you use userPrincipalName, regardless of the number of domains hosted by the Zscaler service. Use sAMAccountName only if you have one domain hosted by the Zscaler service. Otherwise, you can use proxyAddresses, userPrincipalName, or mail.",
+      "depth": 3
+    },
+    {
+      "item": "User Display Name Attribute: Enter the attribute that represents user full names (e.g., cn or displayName). The Zscaler service displays the value in this attribute in the Who dialog that appears when administrators create policies.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          172,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "Member in Group: Enter the attribute that represents which groups the user belongs to (e.g., memberOf). You can use groups to apply policies.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "User in Member: Enter the user attribute that's part of the user membership attribute to uniquely identify the users in the group. For example, if the member entry is cn=johndoe,cn=Users,dc=example,dc=com, then the user attribute is dn.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Group Attribute Name: Enter the attribute that represents group names (e.g., cn).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Department Name Attribute: This attribute is used to populate the Department field in the reports produced by the Zscaler service. You can enter any attribute that identifies the information that should appear in the Department field. For example, you can use department or ou.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          66,
+          76
+        ],
+        [
+          217,
+          227
+        ]
+      ]
+    },
+    {
+      "item": "In the Search section:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Group Search Filter: Use this filter to narrow down the group objects that the Zscaler service returns after the synchronization. You can enter a filter string to locate only the groups you want to apply policies to. The service synchronizes up to 16 groups per user. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing group data with the directory server. Following are some guidelines:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "To import only one group, use the following filter:",
+      "depth": 3
+    },
+    {
+      "item": "(&(objectclass=group)(cn=<Group Name>*))",
+      "depth": 1
+    },
+    {
+      "item": "To import multiple groups, use the following filter:",
+      "depth": 2
+    },
+    {
+      "item": "(&(objectclass=group)(|(cn=<Group Name 1>*)(cn=<Group Name 2>*)))",
+      "depth": 1
+    },
+    {
+      "item": "Following is an example of a filter that imports three groups called vips, standard users, and advanced users:",
+      "depth": 1
+    },
+    {
+      "item": "(&(objectClass=group)(|(cn=vips*)(cn=standard users*)(cn=advanced users*)))",
+      "depth": 1
+    },
+    {
+      "item": "Following is an example of a filter that imports all groups that begin with Zscaler:",
+      "depth": 1
+    },
+    {
+      "item": "(&(objectClass=group)(cn=zscaler*))",
+      "depth": 1
+    },
+    {
+      "item": "Replace <Group Name>,<Group Name 1>, and <Group Name 2> with the actual group name in the directory server. The asterisk (*) is required, so the filter automatically completes the Common Name (cn) value. The pipe character (|) means that at least one criteria must match. The ampersand (&) means that all criteria must be true.",
+      "depth": 1,
+      "strong": [
+        [
+          224,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "User Search Filter: Use this filter to narrow down the user objects that the Zscaler service returns after synchronization. You can enter a filter string to locate specific users, such as users who belong to a specific group. For example, enter objectClass=person to narrow down the data to persons and not computers. Zscaler recommends you use an LDAP browser to query filters prior to synchronizing user data with the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Advanced Search Filter: Enable this if you want to use a separate search filter for the authentication process (e.g., a search filter that searches using non-email format attributes). If disabled, the Zscaler service uses the User Search Filter for synchronizing and authenticating users.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          226,
+          244
+        ]
+      ]
+    },
+    {
+      "item": "Search Filter: Enter a filter to search the directory server and find the user's DN when the user authenticates to the Zscaler service. Unlike the User Search Filter and Group Search Filter, the service only uses this filter when it authenticates a user, not when it synchronizes users from the directory server.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          147,
+          165
+        ],
+        [
+          170,
+          189
+        ]
+      ]
+    },
+    {
+      "item": "For example, if you enter (objectClass=User), the service searches for(&(objectClass=user)(userPrincipalName=example@safemarch.com)). userPrincipalName is the primary attribute being synchronized. In this scenario, the service receives only one response, which is the user who is authenticating.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler also supports an advanced filter option where the filter can be parameterized, such as (&(objectClass=user)(sAMAccountName=${USER})). In this scenario, the search issued is (&(objectClass=user)(sAMAccountName=john)).",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Ensure Disable Directory Sync & Enable SCIM Provisioning is disabled.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "For Authentication Frequency, choose how often users are required to authenticate to the Zscaler service. If you select Custom, specify 1 to 180 days.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          28
+        ],
+        [
+          120,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "2. Enforce authentication for the location.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          49
+        ],
+        [
+          52,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the location you are enabling authentication for.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Location window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Location window, enable Enforce Authentication. To learn more, see Configuring Locations.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          36,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. (Optional) Enable Digest Authentication for the location.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          49
+        ],
+        [
+          52,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the location you are enabling digest authentication for.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Location window appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Location window, enable Enable Digest Authentication. To learn more, see Configuring Locations.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          36,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can also exempt URL categories, URLs, or cloud apps from digest authentication. To learn more, see About Advanced Settings.",
+      "depth": 0
+    },
+    {
+      "item": "4. Configure the authentication method.",
+      "depth": 0
+    },
+    {
+      "item": "The default authentication method for synchronized users is LDAP Bind. If you want to use another method, you can configure one of the following:",
+      "depth": 0
+    },
+    {
+      "item": "SAML",
+      "depth": 1
+    },
+    {
+      "item": "One-Time Token or One-Time Link",
+      "depth": 1
+    },
+    {
+      "item": "If you use a one-time token or one-time link to authenticate users whose information was synchronized from a directory server, the passwords are stored in the Zscaler database and not in the directory server.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot AD and LDAP synchronization errors, see Troubleshooting AD & LDAP Synchronization Errors."
+    }
+  ]
+}

@@ -1,0 +1,134 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deleting Cloud & Branch Connectors Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/deleting-cloud-branch-connectors-using-api",
+    "node": "1447461",
+    "revision": "3160747",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To delete Cloud and Branch Connectors using the Cloud & Branch Connector API, use the Cloud or Branch Connector group ID and the virtual machine (VM) ID of the Cloud or Branch Connector you want to delete."
+    },
+    {
+      "text": "Zscaler recommends that you shut down appliances before you delete them with the API. You can then verify that no mistakes were made when executing API calls (e.g., inadvertently deleting the wrong appliance). If you make a mistake, you can power the appliance back on and allow it to reregister. Once you’ve verified that the correct appliance has been deleted, you can remove the appliance from the cloud provider or hypervisor dashboard to complete the task."
+    },
+    {
+      "item": "For Cloud Connectors: shutdown the Cloud Connector appliance in the AWS/Azure portal. When the appliance has been successfully deleted via the API, you can remove it from the AWS/Azure portal.",
+      "depth": 0
+    },
+    {
+      "item": "For Branch Connectors: shutdown the Branch Connector appliance from the hypervisor dashboard (e.g., ESXi, KVM, etc.). When the appliance has been successfully deleted via the API, you can remove it from the hypervisor portal.",
+      "depth": 0
+    },
+    {
+      "heading": "Getting a List of Cloud & Branch Connector Groups",
+      "level": 1
+    },
+    {
+      "text": "To get a list of Cloud & Branch Connector groups, send a GET request to /ecgroup. You can use the following optional parameters:"
+    },
+    {
+      "item": "page: Specify a page offset.",
+      "depth": 0
+    },
+    {
+      "item": "pageSize: Specify the page length, up to a limit of 1000.",
+      "depth": 0
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "item": "Getting a List of Cloud & Branch Connector Groups (Python 3.x)",
+      "depth": 0
+    },
+    {
+      "item": "# Import Required Modules import time, requests, json, urllib3, getpass # Variables cloudName = input(\"Cloud Name (e.g., zscloud.net): \") username = input(\"Username: \") password = getpass.getpass(\"Password: \") apiKey = input(\"APIKey: \") # Construct base URL base_url = \"https://connector.\" + cloudName + \"/api/v1/\" # Obfuscate API Key def obfuscateApiKey (apiKey): seed = apiKey now = int(time.time() * 1000) n = str(now)[-6:] r = str(int(n) >> 1).zfill(6) key = \"\" for i in range(0, len(str(n)), 1): key += seed[int(str(n)[i])] for j in range(0, len(str(r)), 1): key += seed[int(str(r)[j])+2] return key headers = {'Content-Type':'application/json'} urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # Create Session def createSession(username, password, apiKey): auth_url = base_url + 'auth' now = int(time.time() * 1000) payload = {'apiKey':obfuscateApiKey(apiKey), 'username':username, 'password':password, 'timestamp':now } s = requests.Session() # Added verify=False to bypass ZCC certificate otherwise call may fail with unable to verify SSL cert for certain cloud r = s.post(auth_url,data=json.dumps(payload),headers=headers, verify=False) return s # Get Cloud & Branch Connector groups def getConnectorGroup(s): ccgroup_url = base_url + 'ecgroup' list_of_ccgroups = s.get(ccgroup_url, headers=headers) return list_of_ccgroups.json() f = createSession(username, password, apiKey) # Print Connector Groups print(getConnectorGroup(f))",
+      "depth": 0
+    },
+    {
+      "heading": "Getting Details of a Specific Cloud or Branch Connector Group",
+      "level": 1
+    },
+    {
+      "text": "To get information about a specific Cloud or Branch Connector group, send a GET request to /ecgroup/{id}, specifying the group ID (id) and optionally using the following parameters:"
+    },
+    {
+      "item": "page: Specify a page offset.",
+      "depth": 0
+    },
+    {
+      "item": "pageSize: Specify the page length, up to a limit of 1000.",
+      "depth": 0
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "item": "Getting Details of a Specific Cloud or Branch Connector Group (Python 3.x)",
+      "depth": 0
+    },
+    {
+      "item": "# Import Required Modules import time, requests, json, urllib3, getpass # Variables cloudName = input(\"Cloud Name (e.g., zscloud.net): \") username = input(\"Username: \") password = getpass.getpass(\"Password: \") apiKey = input(\"APIKey: \") ccGroupID = input(\"Enter the Cloud or Branch Connector Group ID: \") # Construct base URL base_url = \"https://connector.\" + cloudName + \"/api/v1/\" # Obfuscate API Key def obfuscateApiKey (apiKey): seed = apiKey now = int(time.time() * 1000) n = str(now)[-6:] r = str(int(n) >> 1).zfill(6) key = \"\" for i in range(0, len(str(n)), 1): key += seed[int(str(n)[i])] for j in range(0, len(str(r)), 1): key += seed[int(str(r)[j])+2] return key headers = {'Content-Type':'application/json'} urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # Create Session def createSession(username, password, apiKey): auth_url = base_url + 'auth' now = int(time.time() * 1000) payload = {'apiKey':obfuscateApiKey(apiKey), 'username':username, 'password':password, 'timestamp':now } s = requests.Session() # Added verify=False to bypass ZCC certificate otherwise call may fail with unable to verify SSL cert for certain cloud r = s.post(auth_url,data=json.dumps(payload),headers=headers, verify=False) return s # Get Cloud & Branch Connector group def getConnectorGroup(s): ccgroup_url = base_url + 'ecgroup/' + ccGroupID list_of_ccgroups = s.get(ccgroup_url, headers=headers) return list_of_ccgroups.json() f = createSession(username, password, apiKey) # Print Connector Groups print(getConnectorGroup(f))",
+      "depth": 0
+    },
+    {
+      "heading": "Getting Details of a Specific VM",
+      "level": 1
+    },
+    {
+      "text": "To get information about a specific VM in a Cloud or Branch Connector group, send a GET request to /ecgroup/{id}/vm/{vmid}, specifying the group ID (id) and VM ID (vmid)."
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "item": "Getting Details of a Specific VM (Python 3.x)",
+      "depth": 0
+    },
+    {
+      "item": "# Import Required Modules import time, requests, json, urllib3, getpass # Variables cloudName = input(\"Cloud Name (e.g., zscloud.net): \") username = input(\"Username: \") password = getpass.getpass(\"Password: \") apiKey = input(\"APIKey: \") ccGroupID = input(\"Enter the Cloud or Branch Connector Group ID: \") vmID = input(\"Enter the VM ID of the Cloud or Branch Connector within the Group ID specified previously: \") # Construct base URL base_url = \"https://connector.\" + cloudName + \"/api/v1/\" # Obfuscate API Key def obfuscateApiKey (apiKey): seed = apiKey now = int(time.time() * 1000) n = str(now)[-6:] r = str(int(n) >> 1).zfill(6) key = \"\" for i in range(0, len(str(n)), 1): key += seed[int(str(n)[i])] for j in range(0, len(str(r)), 1): key += seed[int(str(r)[j])+2] return key headers = {'Content-Type':'application/json'} urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # Create Session def createSession(username, password, apiKey): auth_url = base_url + 'auth' now = int(time.time() * 1000) payload = {'apiKey':obfuscateApiKey(apiKey), 'username':username, 'password':password, 'timestamp':now } s = requests.Session() # Added verify=False to bypass ZCC certificate otherwise call may fail with unable to verify SSL cert for certain cloud r = s.post(auth_url,data=json.dumps(payload),headers=headers, verify=False) return s # Get Cloud or Branch Connector group and VM def getConnectorGroup(s): ccgroup_url = base_url + 'ecgroup/' + ccGroupID + '/vm/' + vmID list_of_ccgroups = s.get(ccgroup_url, headers=headers) return list_of_ccgroups.json() f = createSession(username, password, apiKey) # Print Connector Groups print(getConnectorGroup(f))",
+      "depth": 0
+    },
+    {
+      "heading": "Deleting a Specific VM",
+      "level": 1
+    },
+    {
+      "text": "To delete a specific VM:"
+    },
+    {
+      "item": "Send a DELETE request to /ecgroup/{id}/vm/{vmid}, specifying the group ID (id) and VM ID (vmid).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Activate the changes to your configuration by sending a PUT request to /ecAdminActivateStatus/activate.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "item": "Deleting a Specific VM (Python 3.x)",
+      "depth": 0
+    },
+    {
+      "item": "# Import Required Modules import time, requests, json, urllib3, getpass # Variables cloudName = input(\"Cloud Name (e.g., zscloud.net): \") username = input(\"Username: \") password = getpass.getpass(\"Password: \") apiKey = input(\"APIKey: \") ccGroupID = input(\"Enter the Cloud or Branch Connector Group ID: \") vmID = input(\"Enter the VM ID of the Cloud or Branch Connector within the Group ID specified previously: \") # Construct base URL base_url = \"https://connector.\" + cloudName + \"/api/v1/\" # Obfuscate API Key def obfuscateApiKey (apiKey): seed = apiKey now = int(time.time() * 1000) n = str(now)[-6:] r = str(int(n) >> 1).zfill(6) key = \"\" for i in range(0, len(str(n)), 1): key += seed[int(str(n)[i])] for j in range(0, len(str(r)), 1): key += seed[int(str(r)[j])+2] return key headers = {'Content-Type':'application/json'} urllib3.disable_warnings(urllib3.exceptions.InsecureRequestWarning) # Create Session def createSession(username, password, apiKey): auth_url = base_url + 'auth' now = int(time.time() * 1000) payload = {'apiKey':obfuscateApiKey(apiKey), 'username':username, 'password':password, 'timestamp':now } s = requests.Session() # Added verify=False to bypass ZCC certificate otherwise call may fail with unable to verify SSL cert for certain cloud r = s.post(auth_url,data=json.dumps(payload),headers=headers, verify=False) return s # Delete Cloud or Branch Connector VM def deleteConnector(s): ccgroup_url = base_url + 'ecgroup/' + ccGroupID + '/vm/' + vmID list_of_ccgroups = s.delete(ccgroup_url, headers=headers) return list_of_ccgroups.json() # Activate Changes def activateChanges(s): activation_url = base_url + 'ecAdminActivateStatus/activate' activation_status = s.put(activation_url, headers=headers) return activation_status f = createSession(username, password, apiKey) delete_result = deleteConnector(f) # Display deletion status print(\"\\nDeletion Status:\") print(delete_result) # Display activation status print(\"\\nActivation Status:\") print(activateChanges(f).text)",
+      "depth": 0
+    },
+    {
+      "heading": "Verifying the Deletion of a Specific VM",
+      "level": 1
+    },
+    {
+      "text": "To verify the deletion of a specific VM, send a GET request to /ecgroup/{id}/vm/{vmid}, specifying the group ID (id) and VM ID (vmid) of the deleted VM. If the deletion was successful, this request returns a 404 Not Found status."
+    }
+  ]
+}

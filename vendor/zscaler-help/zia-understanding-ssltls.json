@@ -1,0 +1,140 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding SSL/TLS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-ssltls",
+    "node": "1399176",
+    "revision": "3188909",
+    "updated": "2026-03-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Secure Sockets Layer (SSL)/Transport Layer Security (TLS) is a client-server protocol that creates a secure channel over the internet. SSL/TLS is used to validate the identity of the destination server and (optionally) the client and to encrypt information sent across the internet between the client and server."
+    },
+    {
+      "text": "When a client, such as a browser, first sends an HTTPS request to a web server, it starts a series of message exchanges called the SSL/TLS handshake. During the SSL/TLS handshake:"
+    },
+    {
+      "item": "The server sends its digital certificate to the client to authenticate itself.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The client and server agree on the SSL/TLS protocol version and algorithms to use.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The client and server generate the symmetric keys they will use to encrypt their messages.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The following is an illustration of the SSL/TLS handshake showing typical TLS 1.2 and TLS 1.3 message flow."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "After the SSL/TLS handshake is successfully completed, the browser and web server continue with the standard HTTP communications in a secure manner."
+    },
+    {
+      "item": "The client sends its HTTPS request in the Client Hello. The entire HTTPS message is encrypted, including the headers and the request/response load. The actual hostname and domain name being accessed are not visible. How the Zscaler service determines the destination host name depends on whether it is operating in transparent mode or explicit mode.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The server responds with its Hello message and its certificate. (A certificate is an electronic form that verifies the identity and public key of the subject of the certificate.) SSL/TLS uses the Public Key Infrastructure (PKI) to ensure the trustworthiness of the certificates.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The client and server continue with the SSL/TLS negotiation.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "After the SSL/TLS tunnel is established, the application data is sent securely through the tunnel.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "The following packet capture shows the SSL/TLS packets as they are exchanged between the browser, which is the client, and the web server."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Public Key Infrastructure (PKI)",
+      "level": 1
+    },
+    {
+      "text": "SSL/TLS uses Public Key Infrastructure (PKI) to ensure the trustworthiness of the certificates. PKI uses a trusted third party, called a certificate authority (CA) to guarantee the identity of an entity. When a CA verifies an entity’s identity, it uses an algorithm, such as RSA, to generate a public and private key. It gives the private key to the requesting entity, and the public key is made available to the public. To authenticate itself to another party, the entity uses its private key to encrypt its certificate and the other party uses the corresponding public key to decrypt it."
+    },
+    {
+      "text": "A CA issues certificates in a tree structure, with the root certificate as the top-most certificate. The CA signs the root certificate, which is considered trustworthy in many software applications, such as web browsers. Web browsers have the root certificates of many CAs."
+    },
+    {
+      "text": "A root certificate can sign and designate a certificate as an intermediate CA certificate, which can sign and designate other certificates as intermediate certificates as well. A certificate chain refers to the list of certificates that complete the chain of trust, from the trusted root CA certificate to any intermediate certificates and the certificate of an entity. The following image is an example of a certificate chain:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The certificate of mail.google.com was signed by Google Internet Authority G2."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The certificate of Google Internet Authority G2 was signed by GeoTrust Global CA."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The certificate of GeoTrust Global was signed by Equifax Secure Certificate Authority."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The certificate of GeoTrust Global CA and Equifax Secure Certificate Authority are in the certificate store of the browser."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Public Key Pinning (PKP)",
+      "level": 2
+    },
+    {
+      "text": "Public Key Pinning (PKP), also known as certificate pinning, is the process of associating a host with its expected public key. This is typically seen only if a web service (or Web Application) provider owns both the server-side code and the client-side code. To learn more, see Public Key Pinning (PKP) and Zscaler."
+    },
+    {
+      "heading": "Perfect Forward Secrecy (PFS)",
+      "level": 1
+    },
+    {
+      "text": "Perfect Forward Secrecy (PFS) is a feature of secure communication protocols that prevents compromised session keys."
+    },
+    {
+      "text": "In the commonly used RSA key exchange, SSL/TLS sessions between the client and web server are encrypted with the public key and decrypted with the private key. If attackers access the server's private key, they can uncover the session keys and decrypt all your conversations from past and future sessions."
+    },
+    {
+      "text": "In contrast, PFS uses either the standard Diffie-Hellman ephemeral key exchange (DHE) or the Elliptic Curve Diffie-Hellman ephemeral key exchange (ECDHE). DHE uses public-key cryptography, which generates keys with modular arithmetic. In DHE, there isn't a link between the server's private key and session key, so the confidentiality of session keys aren't dependent on the private keys. If attackers access the server's private key, they are unable to uncover the session key and decrypt the conversation. Furthermore, the server generates different session keys for each conversation with the client. If attackers compromise the session key, they are only able to decrypt the conversation for that particular session. To decrypt all conversations, they must compromise the session keys for every session."
+    },
+    {
+      "text": "ECDHE is like DHE but uses elliptic-curve cryptography. Elliptic-curve cryptography generates keys using algebraic curves. It is significantly faster than DHE and provides better performance. Elliptic-curve cryptography achieves equivalent security as RSA with smaller keys."
+    },
+    {
+      "text": "For a list of the supported DHE and ECDHE cipher suites, see Zscaler SSL/TLS Support."
+    },
+    {
+      "text": "To learn more about how the Zscaler service can protect your organization from the potential misuse of SSL/TLS by attackers for malicious activity, see Understanding SSL/TLS Inspection."
+    }
+  ]
+}

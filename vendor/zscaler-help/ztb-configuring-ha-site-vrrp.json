@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring a High Availability Site with Virtual Router Redundancy Protocol",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/configuring-ha-site-vrrp",
+    "node": "1529555",
+    "revision": "3251815",
+    "updated": "2026-11-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To ensure that mission-critical systems in a network remain resilient to failures, you can configure Zero Trust Branch with a dedicated high availability (HA) link that uses Virtual Router Redundancy Protocol (VRRP). VRRP allows multiple Zero Trust Branch appliances to share a virtual IP address, minimizing downtime and enhancing overall reliability and security."
+    },
+    {
+      "text": "Prior to release 7.8, Zero Trust Branch used a WAN link to run VRRP, which is less reliable due to the potential for latency, jitter, packet loss, and unpredictable failover behavior due to WAN performance."
+    },
+    {
+      "text": "Beginning with release 7.8, Zero Trust Branch introduced a dedicated HA link. This ensures that VRRP is independent of WAN issues, leading to faster and more reliable failovers, and also ensures that state synchronization and failover signaling occur within a controlled, secure environment, reducing attack surfaces."
+    },
+    {
+      "heading": "VRRP Authentication",
+      "level": 1
+    },
+    {
+      "text": "VRRP authentication is a recommended security best practice, as it provides critical safeguards against misconfiguration and unauthorized disruptions, and ensures the integrity and security of the VRRP environment. Without configured authentication, any appliance within the same broadcast domain could send VRRP advertisements with a higher priority and take over as the master router, creating potential network instability. A misconfigured appliance with an identical VRRP ID could unintentionally disrupt an active VRRP group. Authentication adds a layer of protection by preventing such appliances from being recognized and accepted as part of the VRRP group."
+    },
+    {
+      "text": "It is recommended to configure VRRP authentication with a password length of 6 characters or fewer because there are known issues when handling longer passwords with VRRP. The password must be a secure combination containing only printable ASCII characters (A–Z, a–z, 0–9). Additionally, when you are updating the password on an existing site, perform this task during a scheduled maintenance window, as this change could potentially trigger a VRRP switchover, which might briefly impact the availability of network services. Planning for this activity during a controlled time frame minimizes operational risks."
+    },
+    {
+      "heading": "Configuring an HA Site with VRRP",
+      "level": 1
+    },
+    {
+      "text": "To configure an HA site:"
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "In the Site Name column, click the name of the site that you want to enable for HA.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the site details page, click the High-Availability tab, and configure the following:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "VRRP Group ID: A unique numerical identifier (between 1 and 255) that groups routers together for redundancy purposes. Zero Trust Branch automatically fills in this value.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Preempt: Enable this option to turn on interface tracking with a default weight of 10.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "VRRP interface for <appliance 1>: Select the interface to use for VRRP for the primary appliance.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          19,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "VRRP interface for <appliance 2>: Select the interface to use for VRRP for the secondary appliance.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          19,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Track Interface for <appliance 1>: Select the interface to be tracked for the primary appliance. If this interface goes down, the secondary appliance becomes the primary.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Track Interface for <appliance 2>: Select the interface to be tracked for the secondary appliance.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Advanced Track Options: Modify interface tracking by selecting different options from the drop-down menu. This option is shown only when the Preempt option is enabled, and it is supported only for Zero Trust Branch appliances running version 8.3.0 or later.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          141,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "Password: (Optional) Enter a password to encrypt this VRRP configuration (maximum of 8 alphabetic characters).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Advertisement Interval: The interval, in seconds, for the primary appliance to send VRRP advertisements to the secondary appliance. The default value is 1. If the secondary appliance misses three advertisements from the primary, it becomes the new primary.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter the rank (between 1 and 255) for this Zero Trust Branch site to determine which is the primary in the VRRP group. The Zero Trust Branch site with the highest number (e.g., 255 is higher than 254) has priority.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save to save the VRRP configuration for this site.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

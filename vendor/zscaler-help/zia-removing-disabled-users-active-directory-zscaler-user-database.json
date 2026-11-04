@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Removing Disabled Users in the Active Directory from the Zscaler User Database",
+  "source": {
+    "url": "https://help.zscaler.com/zia/removing-disabled-users-active-directory-zscaler-user-database",
+    "node": "1399621",
+    "revision": "3249895",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When users are marked disabled in the Active Directory (AD) server, they are still returned by the AD server when you use the following filters to synchronize users from the Active Directory server:"
+    },
+    {
+      "item": "User Search Filter",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "(objectClass=person)"
+    },
+    {
+      "item": "Search Filter",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "(objectClass=User)"
+    },
+    {
+      "text": "As a result, users who were disabled in the AD aren't deleted from the Zscaler user database. Their cookies remain valid, allowing them to use the Zscaler service to browse the internet."
+    },
+    {
+      "heading": "Removing Disabled Users in the Active Directory",
+      "level": 1
+    },
+    {
+      "text": "To make sure disabled users cannot browse through the Zscaler service, you need to specify a special LDAP search filter in the User Search Filter and Search Filter fields. This LDAP search filter instructs the AD to return all objects except those that have been disabled.",
+      "strong": [
+        [
+          127,
+          145
+        ],
+        [
+          150,
+          163
+        ]
+      ]
+    },
+    {
+      "text": "To modify these filters and remove disabled users from the AD:"
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Select the Default Settings tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Under User Repository Type, click Advanced Configuration.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          26
+        ],
+        [
+          34,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Add the following value to both the User Search Filter and Search Filter fields:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          36,
+          54
+        ],
+        [
+          59,
+          72
+        ]
+      ]
+    },
+    {
+      "text": "(!(UserAccountControl:1.2.840.113556.1.4.803:=2))"
+    },
+    {
+      "text": "The following is an example:"
+    },
+    {
+      "text": "(&(objectClass=User)(!(UserAccountControl:1.2.840.113556.1.4.803:=2)))"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

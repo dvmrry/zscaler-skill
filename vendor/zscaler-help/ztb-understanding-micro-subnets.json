@@ -1,0 +1,112 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Micro-Subnets",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-micro-subnets",
+    "node": "1538698",
+    "revision": "3239282",
+    "updated": "2026-09-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch delivers true zero trust microsegmentation by assigning a /32 subnet mask to each endpoint, creating a \"network of one\" that isolates devices, blocks direct endpoint-to-endpoint communication, and reduces attack surfaces."
+    },
+    {
+      "text": "Some Purdue Level 2 and below endpoints require direct L2 connectivity (e.g., PLC controller to PLC controller). Certain legacy endpoints do not support /32 subnet masks or struggle to operate within \"network of one\" subnets. For these cases, Zero Trust Branch identifies and whitelists such endpoints in a special group called Airgap+, and continuously monitors those endpoints. Strict policies govern their interaction with endpoints isolated in the \"network of one.\""
+    },
+    {
+      "text": "Building on this, Airgap+ uses the Zero Trust Branch appliance to create micro-subnets that are highly granular subnetworks with small IP address ranges (e.g., /27 to /30). Devices within a micro-subnet communicate directly, while traffic crossing micro-subnet boundaries is inspected and controlled by policies enforced at the Zero Trust Branch appliance. This approach enhances security granularity, visibility, and control, enabling stronger east-west segmentation and minimizing lateral movement risks in complex environments."
+    },
+    {
+      "heading": "Key Features",
+      "level": 1
+    },
+    {
+      "text": "The following are some of the key capabilities of micro-subnets:"
+    },
+    {
+      "item": "Granular Micro-Subnets: Supports subnet masks /27 through /30, ensuring granular logical segmentation. The micro-subnet has three reserved IP addresses. For example, a /29 subnet creates a segment of 8 IP addresses. Out of these 8 IP addresses, the first IP address is reserved for the network address, the second is reserved for the gateway, and the last is reserved for the broadcast address, leaving 5 IP addresses for endpoints. This level of segmentation intelligence is built into the Zero Trust Branch DHCP server. Airgap+ is supported only in DHCP server mode.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Direct Intra-Micro-Subnet Communication: Devices within the same micro-subnet interact without routing overhead.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Forced Policy Enforcement across Boundaries: Any micro-subnet-to-micro-subnet or external traffic is always routed through the appliance.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Zero Trust Branch DHCP Server: Airgap+ uses the Zero Trust Branch DHCP server, as the micro-subnet allocation must be known to the server.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "heading": "Topology",
+      "level": 1
+    },
+    {
+      "text": "The following diagram depicts the topology of a micro-subnet:"
+    },
+    {
+      "table": [
+        [
+          "Device",
+          "MAC Address",
+          "IP Address",
+          "IP Address Allocation"
+        ],
+        [
+          "vlan10-dev1",
+          "bc:24:11:a1:24:fd",
+          "10.90.10.3/32",
+          "Airgap"
+        ],
+        [
+          "vlan10-dev2",
+          "bc:24:11:21:fd:b4",
+          "10.90.10.5/32",
+          "Airgap"
+        ],
+        [
+          "vlan10-dev3",
+          "bc:24:11:11:d2:53",
+          "10.90.10.10/29",
+          "Airgap+"
+        ],
+        [
+          "vlan10-dev4",
+          "bc:24:11:8b:d2:85",
+          "10.90.10.11/29",
+          "Airgap+"
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,1353 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Users",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/users",
+    "node": "1529240",
+    "revision": "3211057",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/ZIdentity%20Service%20Users_8.json?VersionId=G78Su.QFiyBMTD8fAixs_kaZAA3Gkc66",
+    "updated": "2026-06-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication Service APIs",
+      "version": "v1"
+    },
+    "servers": [
+      {
+        "url": "https://api.zsapi.net/ziam/admin/api/v1",
+        "description": "Authentication Service Endpoint",
+        "variables": {}
+      }
+    ],
+    "tags": [
+      {
+        "name": "Users"
+      }
+    ],
+    "paths": {
+      "/users": {
+        "get": {
+          "description": "Retrieves a list of users with optional query parameters for pagination and filtering.\n\n To learn more, see <a href=\"/zidentity/about-users\">About Users</a>.",
+          "operationId": "UsersOps_list",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.loginname"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.loginnamelike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.displaynamelike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.primaryemaillike"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.domainname"
+            },
+            {
+              "$ref": "#/components/parameters/UsersQueryParameter.idpname"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a paginated list of users are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The total number of users available."
+                        },
+                        "pageOffset": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed."
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The number of records included in a single response page."
+                        },
+                        "next_link": {
+                          "type": "string",
+                          "description": "URL link to the next page of users records, if available. Helps to navigate through paginated results."
+                        },
+                        "prev_link": {
+                          "type": "string",
+                          "description": "URL link to the previous page of users records, if available."
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/UserProfilePubRespDto"
+                          },
+                          "description": "List of users and the details of each individual users."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "post": {
+          "description": "Creates a new user using the provided details.",
+          "operationId": "UsersOps_add",
+          "parameters": [],
+          "responses": {
+            "202": {
+              "description": "The request has been accepted for processing, but processing has not yet completed.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserProfilePubRespDto"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "loginName",
+                    "displayName",
+                    "primaryEmail",
+                    "status"
+                  ],
+                  "properties": {
+                    "loginName": {
+                      "description": "Unique login name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "displayName": {
+                      "description": "Display name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "firstName": {
+                      "description": "First name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "lastName": {
+                      "description": "Last name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "primaryEmail": {
+                      "description": "Primary email address of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "secondaryEmail": {
+                      "description": "Secondary email address of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "department": {
+                      "$ref": "#/components/schemas/RefPubReqDto"
+                    },
+                    "status": {
+                      "description": "Whether the API user needs to be active <code>true</code> or disabled <code>false</code>.",
+                      "type": "boolean"
+                    },
+                    "customAttrsInfo": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Additional custom attributes information."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users:bulkdelete": {
+        "post": {
+          "description": "Deletes multiple users in a single request.<p><strong>Note:</strong> A maximum of 1,000 users can be deleted in a single API request. After deletion, the users cannot be recovered.</p>",
+          "operationId": "UsersOps_bulkDelete",
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the users have been deleted.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "String confirmation returned after successful deletion.",
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request contains invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard validation error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Standard authentication error payload.",
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "requestBody": {
+            "description": "JSON array of user reference objects to be deleted.",
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Array of references to users targeted for deletion.",
+                  "type": "array",
+                  "items": {
+                    "description": "Reference object identifying a user to delete.",
+                    "$ref": "#/components/schemas/RefPubReqDto"
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}": {
+        "put": {
+          "description": "Updates the details of an existing user based on the provided user <code>ID</code>.",
+          "operationId": "UsersOps_update",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the user that needs to be updated.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the user details are updated.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserProfilePubRespDto"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Unexpected server issue occurred while processing the request.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.InternalServerError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "type": "object",
+                  "required": [
+                    "loginName",
+                    "displayName",
+                    "primaryEmail",
+                    "status"
+                  ],
+                  "properties": {
+                    "loginName": {
+                      "description": "Unique login name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "displayName": {
+                      "description": "Display name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "firstName": {
+                      "description": "First name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "lastName": {
+                      "description": "Last name of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "primaryEmail": {
+                      "description": "Primary email address of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "secondaryEmail": {
+                      "description": "Secondary email address of the user.",
+                      "type": "string",
+                      "maxLength": 255
+                    },
+                    "department": {
+                      "$ref": "#/components/schemas/RefPubReqDto"
+                    },
+                    "status": {
+                      "description": "Whether the API user needs to be active <code>true</code> or disabled <code>false</code>.",
+                      "type": "boolean"
+                    },
+                    "customAttrsInfo": {
+                      "type": "object",
+                      "additionalProperties": {
+                        "type": "string"
+                      },
+                      "description": "Additional custom attributes information."
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "delete": {
+          "description": "Deletes an existing user from the system by the provided user <code>ID</code>.",
+          "operationId": "UsersOps_remove",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the user to be deleted.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "The user was successfully deleted.\n\nNo content is returned in the response, but headers may be useful for validation purposes."
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        },
+        "get": {
+          "description": "Retrieves detailed information about a specific user using the provided user <code>ID</code>.",
+          "operationId": "UsersOps_get",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the user to retrieve.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the user details are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/UserProfilePubRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}/admin-entitlements": {
+        "get": {
+          "description": "Retrieves the administrative entitlements for a specific user by their user <code>ID</code>.",
+          "operationId": "UsersOps_getUserAdminEntitlements",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the individual whose admin entitlements are being retrieved.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and returns a list of administrative entitlement objects.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/AdminEntitlementsPubRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}/groups": {
+        "get": {
+          "description": "Retrieves a paginated list of groups associated with a specific user <code>ID</code>.",
+          "operationId": "UsersOps_getUserGroups",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the individual whose groups details are to be retrieved.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and returns a paginated list of groups for the specified user.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The total number of records available."
+                        },
+                        "pageOffset": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed."
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The number of records included in a single response page."
+                        },
+                        "next_link": {
+                          "type": "string",
+                          "description": "URL link to the next page of the records, if available. Helps to navigate through paginated results."
+                        },
+                        "prev_link": {
+                          "type": "string",
+                          "description": "URL link to the previous page of the records, if available."
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/GroupProfilePubRespDto"
+                          },
+                          "description": "List of objects and the details of each records."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}/service-entitlements": {
+        "get": {
+          "description": "Retrieves service entitlements for a specified user <code>ID</code>.",
+          "operationId": "UsersOps_getUserServiceEntitlements",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the individual for whom the service entitlements are to be retrieved.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and returns the service entitlements for the user.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ServiceEntitlementsPubRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/users/{id}:resetpassword": {
+        "post": {
+          "description": "Initiates a password reset for a specific user <code>ID</code>",
+          "operationId": "UsersOps_resetPassword",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the user for whom the password is to be reset.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The password reset request has been initiated successfully.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request could not be processed due to invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ]
+        }
+      },
+      "/users/{id}:setskipmfa": {
+        "post": {
+          "description": "Sets a flag to skip Multi-Factor Authentication (MFA) for a specified user <code>ID</code>.",
+          "operationId": "UsersOps_mfa",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the individual for whom the MFA needs to be skipped.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and MFA skip has been set.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SkipMfaDto"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/users/{id}:updatepassword": {
+        "put": {
+          "description": "Updates the password for a specific user <code>ID</code>. Optionally, a boolean flag can be set to require the user to reset their password during next login.",
+          "operationId": "UsersOps_updatePassword",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The user <code>ID</code> of the individual for whom the password needs to be updated.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the password has been reset.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "string"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "The request could not be processed due to invalid syntax or missing required fields.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.ValidationError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Users"
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UpdatePasswordRequestDto"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "UsersQueryParameter.loginname": {
+          "name": "loginname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by one or multiple login names.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.loginnamelike": {
+          "name": "loginname[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by login name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.displaynamelike": {
+          "name": "displayname[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by display name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.primaryemaillike": {
+          "name": "primaryemail[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filter results by primary email using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.domainname": {
+          "name": "domainname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by a domain name or by multiple domain.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        },
+        "UsersQueryParameter.idpname": {
+          "name": "idpname",
+          "in": "query",
+          "required": false,
+          "description": "Filters results by one or more identity provider names.",
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "explode": false
+        }
+      },
+      "schemas": {
+        "UserProfilePubRespDto": {
+          "description": "The structure of a user profile returned by the API.",
+          "type": "object",
+          "required": [
+            "id",
+            "source",
+            "idp"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier <code>ID</code> of the user."
+            },
+            "source": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SourceType"
+                }
+              ],
+              "description": "The source type where the user was created."
+            },
+            "idp": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                }
+              ],
+              "description": "Identity provider information."
+            }
+          },
+          "allOf": [
+            {
+              "type": "object",
+              "required": [
+                "loginName",
+                "displayName",
+                "primaryEmail",
+                "status"
+              ],
+              "properties": {
+                "loginName": {
+                  "description": "Unique login name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "displayName": {
+                  "description": "Display name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "firstName": {
+                  "description": "First name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "lastName": {
+                  "description": "Last name of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "primaryEmail": {
+                  "description": "Primary email address of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "secondaryEmail": {
+                  "description": "Secondary email address of the user.",
+                  "type": "string",
+                  "maxLength": 255
+                },
+                "department": {
+                  "description": "The department to which the user is associated.",
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                },
+                "status": {
+                  "description": "Whether the user is active (<code>true</code>) or disabled (<code>false</code>).",
+                  "type": "boolean"
+                },
+                "customAttrsInfo": {
+                  "type": "object",
+                  "additionalProperties": {
+                    "type": "string"
+                  },
+                  "description": "User-defined set of custom attributes represented as key-value pairs used to store additional information."
+                }
+              }
+            }
+          ]
+        },
+        "Zscaler.Core.UnauthorizedError": {
+          "description": "The structure of a <code>unauthorized</code> error response, indicating that the request lacks valid authorization credentials or the provided credentials do not grant sufficient permissions for the requested operation.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the request is unauthorized."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 401)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining that the request is unauthorized."
+            }
+          }
+        },
+        "RefPubReqDto": {
+          "description": "Details of the referenced entity.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier of the referenced entity."
+            }
+          }
+        },
+        "Zscaler.Core.ValidationError": {
+          "description": "The structure for a validation error response used when a request fails due to incorrect or missing input.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI identifier that categorizes the error type."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the validation is not successful."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 400)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining the nature of the validation error."
+            }
+          }
+        },
+        "Zscaler.Core.InternalServerError": {
+          "description": "The structure of an internal server error response, including standardized fields used to convey detailed error information when an unexpected server-side error occurs.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message about the internal server error."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 500)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A detailed explanation  providing details about the internal server error."
+            }
+          }
+        },
+        "AdminEntitlementsPubRespDto": {
+          "type": "object",
+          "description": "The structure for administrative entitlement information within the API response.",
+          "required": [
+            "roles",
+            "scope",
+            "service"
+          ],
+          "properties": {
+            "roles": {
+              "description": "An array of role objects assigned as administrative entitlements.",
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/RefPubRespDto"
+              }
+            },
+            "scope": {
+              "$ref": "#/components/schemas/RefPubRespDto"
+            },
+            "service": {
+              "$ref": "#/components/schemas/TserviceProfileRespDto"
+            }
+          }
+        },
+        "GroupProfilePubRespDto": {
+          "description": "Group details, including the assigned service entitlements.",
+          "type": "object",
+          "required": [
+            "id",
+            "source",
+            "idp",
+            "isDynamicGroup",
+            "adminEntitlementEnabled",
+            "serviceEntitlementEnabled"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier for the group."
+            },
+            "source": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/SourceType"
+                }
+              ],
+              "description": "The source type of the group."
+            },
+            "idp": {
+              "allOf": [
+                {
+                  "$ref": "#/components/schemas/RefPubRespDto"
+                }
+              ],
+              "description": "Identity provider information associated with the group."
+            },
+            "isDynamicGroup": {
+              "description": "Boolean flag indicating if the group is dynamic.",
+              "type": "boolean"
+            },
+            "adminEntitlementEnabled": {
+              "description": "Whether the group supports admin entitlements.",
+              "type": "boolean"
+            },
+            "serviceEntitlementEnabled": {
+              "description": "Whether the group supports service entitlements.",
+              "type": "boolean"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/GroupProfilePubReqDto"
+            }
+          ]
+        },
+        "ServiceEntitlementsPubRespDto": {
+          "description": "Represents the service entitlement details.",
+          "type": "object",
+          "required": [
+            "service"
+          ],
+          "properties": {
+            "service": {
+              "$ref": "#/components/schemas/TserviceProfileRespDto"
+            }
+          }
+        },
+        "SkipMfaDto": {
+          "description": "The structure for skipping multi-factor authentication (MFA) for a user.",
+          "type": "object",
+          "required": [
+            "timestamp"
+          ],
+          "properties": {
+            "timestamp": {
+              "description": "The timestamp indicating when the MFA skip action was set, usually represented in epoch time.",
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "UpdatePasswordRequestDto": {
+          "description": "The structure for updating a user password with an option to force the user to reset their password on the next login and requires the new password.",
+          "type": "object",
+          "required": [
+            "password"
+          ],
+          "properties": {
+            "resetPwdOnLogin": {
+              "description": "A flag indicating whether the user should be prompted to reset their password on the next login.",
+              "type": "boolean"
+            },
+            "password": {
+              "description": "The new password to be set for the user.",
+              "type": "string"
+            }
+          }
+        },
+        "SourceType": {
+          "description": "The various sources from which an entity can originate.<li> <strong>UI</strong>: Resource was created or managed via a user interface. <li> <strong>API</strong>: Resource was created or managed through API calls.<li><strong>SCIM</strong>:  Resource was provisioned via System for Cross-domain Identity Management (SCIM). <li><strong>JIT</strong>: Resource was created or updated via Just-in-Time (JIT).",
+          "type": "string",
+          "enum": [
+            "UI",
+            "API",
+            "SCIM",
+            "JIT"
+          ]
+        },
+        "RefPubRespDto": {
+          "description": "The scope associated with the entitlement.",
+          "type": "object",
+          "required": [
+            "name",
+            "displayName"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the referenced entity."
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Display name of the referenced entity."
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RefPubReqDto"
+            }
+          ]
+        },
+        "TserviceProfileRespDto": {
+          "description": "The service-specific details for entitlement.",
+          "type": "object",
+          "required": [
+            "id",
+            "serviceName",
+            "cloudName",
+            "cloudDomainName",
+            "orgName",
+            "orgId"
+          ],
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the service.",
+              "type": "string"
+            },
+            "serviceName": {
+              "description": "Name of the service.",
+              "type": "string"
+            },
+            "cloudName": {
+              "description": "Name of the cloud environment where the service is hosted.",
+              "type": "string"
+            },
+            "cloudDomainName": {
+              "description": "Domain name associated with the cloud where the service is configured.",
+              "type": "string"
+            },
+            "orgName": {
+              "description": "Name of the organization that provides or owns the service.",
+              "type": "string"
+            },
+            "orgId": {
+              "description": "Unique identifier of the organization.",
+              "type": "string"
+            }
+          }
+        },
+        "GroupProfilePubReqDto": {
+          "description": "Group profile details.",
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "description": "The name of the group.",
+              "type": "string",
+              "maxLength": 128
+            },
+            "description": {
+              "description": "A description of the group.",
+              "type": "string",
+              "maxLength": 256
+            }
+          }
+        }
+      }
+    }
+  }
+}

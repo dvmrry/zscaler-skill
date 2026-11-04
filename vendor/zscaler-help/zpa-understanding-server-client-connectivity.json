@@ -1,0 +1,102 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Server-to-Client Connectivity",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/understanding-server-client-connectivity",
+    "node": "1485581",
+    "revision": "3194206",
+    "updated": "2026-04-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This feature is in limited availability. To learn more, contact Zscaler Support."
+    },
+    {
+      "text": "In addition to connecting users to private applications, Private Access (ZPA) also supports connecting users to other Private Access-enabled devices for remote assistance."
+    },
+    {
+      "text": "Enabling server-to-client connectivity allows applications on your internal servers to connect through Branch Connectors and Cloud Connectors to endpoints running Zscaler Client Connector. This supports use cases such as remote troubleshooting and software distribution. Server-to-client connectivity allows you to connect to an end user's machine using a Zscaler IP address or FQDN from servers that don't have Zscaler Client Connector installed. This differs from the client-to-client approach where the connectivity is between two endpoints running Zscaler Client Connector. A Zscaler IP, which is a virtual IP address maintained by Zscaler, makes any end user's machine reachable via the Cloud or Branch Connectors for server-to-client connectivity. To learn more, see About Client Connector IP Assignment."
+    },
+    {
+      "text": "The following diagram shows the network flow for server-to-client connectivity."
+    },
+    {
+      "text": "If you are leveraging virtual Zscaler IP-based connectivity:"
+    },
+    {
+      "item": "A client or endpoint enrolls in peer-to-peer connectivity when validating a client hostname.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler assigns a virtual Zscaler IP address from the configured IP range (e.g., 192.168.254.0/24). You can then download the IP assignment details as a CSV file. To learn more, see About IP Bindings.",
+      "depth": 0
+    },
+    {
+      "item": "The cloud applications or on-premises applications initiate connectivity to the client over the virtual Zscaler IP address (192.168.254.0/24) on a specific port (e.g., 445).",
+      "depth": 0
+    },
+    {
+      "item": "Cloud or Branch Connector (as applicable and based on your policy criteria) intercepts these outgoing requests from the applications and forwards them to the Zscaler cloud for connectivity to the client or endpoint.",
+      "depth": 0
+    },
+    {
+      "text": "You can also achieve the virtual IP-based connectivity workflows using FQDN connectivity, depending on how your tools connect with the endpoints."
+    },
+    {
+      "text": "To successfully enable server-to-client connectivity, the end user must:"
+    },
+    {
+      "item": "Have Zscaler Client Connector on their device with Private Access enabled.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy a Cloud or Branch Connector. To learn more, see Zscaler Cloud and Branch Connector Help.",
+      "depth": 0
+    },
+    {
+      "item": "If you are deploying Cloud or Branch Connector specifically for server-to-client connectivity through an FQDN, Zscaler recommends you configure conditional DNS forwarding so only the DNS requests from the applications requiring server-to-client connections are forwarded to the Cloud or Branch Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Update routing to ensure the Zscaler IP ranges traverse the Cloud or Branch Connector (e.g., 100.64.0.0/16 gateway = BranchConnectorGroup1).",
+      "depth": 0
+    },
+    {
+      "item": "Define Zscaler virtual IP ranges or subnets along with the location attribute in Private Access that is assigned to Zscaler Client Connectors. The IP address or subnet is then assigned to Zscaler Client Connector from the defined IP ranges.",
+      "depth": 0
+    },
+    {
+      "item": "Configure application segments and access policies in Private Access either with FQDNs of endpoints or virtual IP ranges or subnets that are assigned to Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "text": "The admin then uses their third-party tool (i.e., Microsoft Configuration Manager) to launch remote assistance to workstations by using the FQDNs or virtual Zscaler IP addresses. The Cloud or Branch Connector then forwards these requests to the Private Access cloud to begin connections with Zscaler Client Connector. Zscaler Client Connector then completes the connection and sends the request back to the server. To learn more, see Configuring Server-To-Client Connectivity."
+    },
+    {
+      "text": "The following functions and features are not supported for server-to-client connectivity based on the virtual Zscaler IP:"
+    },
+    {
+      "item": "Configuring a forwarding profile action for ZIA using DTLA",
+      "depth": 0
+    },
+    {
+      "item": "Disaster Recovery",
+      "depth": 0
+    },
+    {
+      "item": "Machine Tunnels",
+      "depth": 0
+    },
+    {
+      "item": "Microtenants",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector Support for Multiple Tenants. This limitation applies if those tenants correspond to partner tenants, or when a user is logged in to a partner tenant.",
+      "depth": 0
+    }
+  ]
+}

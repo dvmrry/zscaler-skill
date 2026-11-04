@@ -1,0 +1,279 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Devices",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/devices",
+    "node": "1541302",
+    "revision": "3209566",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Devices_0.json?VersionId=4upTJtnaKfgapa95bWAYxUrwwDEG3gZ_",
+    "updated": "2026-06-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Devices"
+      }
+    ],
+    "paths": {
+      "/devices": {
+        "get": {
+          "tags": [
+            "Devices"
+          ],
+          "description": "Retrieves a list of all the devices registered with Zscaler. To learn more, see <a href=\"/zia/about-devices\" target=\"_blank\">About Devices</a>.",
+          "operationId": "UserDevicesResource_getUserDevices",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "query",
+              "description": "Filters the list based on the device IDs",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "Search string to filter devices",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "valid",
+              "in": "query",
+              "description": "Filter the list for valid devices",
+              "required": false,
+              "type": "boolean"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "includeCbiDevices",
+              "in": "query",
+              "description": "Filter to include CBI devices in the search result",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/UserDevice"
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/devices/{id}": {
+        "get": {
+          "tags": [
+            "Devices"
+          ],
+          "description": "Retrieves information about the registered device based on the device ID",
+          "operationId": "UserDevicesResource_getUserDevice",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated device ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "valid",
+              "in": "query",
+              "description": "Filters for a valid device",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/UserDevice"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "UserDevice": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated device ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Device name"
+          },
+          "active": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates the active status of the device"
+          },
+          "version": {
+            "type": "string",
+            "description": "The OS version of the device"
+          },
+          "hostname": {
+            "type": "string",
+            "description": "Device hostname"
+          },
+          "vendor": {
+            "type": "string",
+            "description": "The vendor information"
+          },
+          "model": {
+            "type": "string",
+            "description": "Device model"
+          },
+          "locale": {
+            "type": "string",
+            "description": "The device's locale (i.e., language code and country code)"
+          },
+          "os": {
+            "type": "string",
+            "description": "The device operating system"
+          },
+          "udid": {
+            "type": "string",
+            "description": "The Zscaler-provided device's unique identifier"
+          },
+          "hardwareId": {
+            "type": "string",
+            "description": "Hardware ID of the device"
+          },
+          "macAddress": {
+            "type": "string",
+            "description": "The device MAC address"
+          },
+          "user": {
+            "description": "The owner or user of the device",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "firstRegistrationTimestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when the device was first registered to a user"
+          },
+          "lastRegistrationTimestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when the device was last registered to a user"
+          },
+          "unRegistrationTimestamp": {
+            "type": "integer",
+            "format": "int64",
+            "description": "Timestamp of when a user is unregistered from the device"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if a user is deleted from the device"
+          },
+          "rooted": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if the user has full administrative privileges on the device"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

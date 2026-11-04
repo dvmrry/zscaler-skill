@@ -1,0 +1,1297 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "App Connector Deployment Guide for VMware Platforms",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/connector-deployment-guide-vmware-platforms",
+    "node": "1483731",
+    "revision": "3240752",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy an App Connector on a VMware platform with vCenter or vSphere Hypervisor (ESXi), and post-deployment verification checks. For general information regarding App Connector deployment for Private Access, see About Deploying App Connectors."
+    },
+    {
+      "item": "Step 1: Make Sure You Have Met All App Connector Deployment Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: (Optional) Migrate App Connectors to RHEL 9",
+      "depth": 0
+    },
+    {
+      "item": "This article provides migration instructions to replace CentOS 7 instances with Red Hat Enterprise Linux 9 (RHEL 9). The enrollment and provisioning of new App Connectors can be automated in a few steps using Terraform (IaC) or Container Orchestration to further simplify deployment.",
+      "depth": 0
+    },
+    {
+      "item": "Note the following requirements for successfully migrating from CentOS 7 to RHEL 9:",
+      "depth": 0
+    },
+    {
+      "item": "Use a fresh install for all deployments.",
+      "depth": 1
+    },
+    {
+      "item": "The EL9 repository must be used with RHEL 9 base OS. Older platform binaries (EL7/EL8) are not supported.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the/opt/zscaler/var folder is empty before install.",
+      "depth": 1
+    },
+    {
+      "item": "Yum upgrades from EL7/EL8 to RHEL9 are not supported.",
+      "depth": 1
+    },
+    {
+      "item": "Use the following steps to migrate from CentOS 7 to RHEL 9:",
+      "depth": 0
+    },
+    {
+      "item": "Use a current provisioning key or create a new App Connector group with a provisioning key for each location.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Verify the version profile is set to Default, Previous Default, or New Release.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          46,
+          62
+        ],
+        [
+          67,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Follow the step-by-step guide to deploy new VMs using the RHEL 9 images and newly created provisioning keys. Ensure the yum repository is pointing to the new RHEL 9 link: https://yum.private.zscaler.com/yum/el9",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Only RHEL 9 repositories and RPMs are supported on RHEL 9.",
+      "depth": 0
+    },
+    {
+      "item": "Add the new App Connector groups to each respective server group.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "(Optional) Disable the App Connector groups 5 minutes prior to the regional off-hours maintenance window to allow connections to gradually drain down.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "During regional off hours, remove the CentOS 7 App Connector groups.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Step 3: Deploy the App Connector on a VMware Platform",
+      "depth": 0
+    },
+    {
+      "item": "Deploying on VMware vCenter",
+      "depth": 1
+    },
+    {
+      "item": "The following deployment procedure only provides additional information on prerequisites and how to deploy an App Connector on a VMware platform with vCenter.",
+      "depth": 1
+    },
+    {
+      "item": "The following additional prerequisites apply to VMware vCenter only:",
+      "depth": 1
+    },
+    {
+      "item": "VMware vSphere Hypervisor (ESXi) version 7.0 Update 2 or later",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to deploy an OVA file as a virtual machine (VM)",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to configure the virtual NIC of the VM onto the appropriate Virtual Network or VLAN",
+      "depth": 2
+    },
+    {
+      "item": "Access to vCenter to modify the vApp attributes of the VM",
+      "depth": 2
+    },
+    {
+      "item": "VMware vSphere Client Integration Plugin installed (which enables the functionality needed to upload new OVA/OVF images into vSphere)",
+      "depth": 2
+    },
+    {
+      "item": "To deploy an App Connector on VMware vCenter:",
+      "depth": 1
+    },
+    {
+      "item": "Obtain the latest VMware image from Zscaler. You can also use the following link to download the file for the vSphere Web Client: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Connect to a vCenter Server with the vSphere Web Client and log in.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click on Home, then click VMs and Templates.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          26,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "From the Actions menu, select Deploy OVF Template....",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          30,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Deploy OVF Template window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "For 1 Source > 1a Select source, complete one of the following procedures:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          12
+        ],
+        [
+          15,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Select URL, enter the following URL for the App Connector image into the provided field, then click Next: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          100,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "The image downloads from the link and uploads to vCenter.",
+      "depth": 1
+    },
+    {
+      "item": "If you’ve already downloaded the VMware image to your local system, select Local file and Browse to the location of the image file, then click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          75,
+          85
+        ],
+        [
+          90,
+          96
+        ],
+        [
+          143,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 1 Source > 1b Review details, verify that the OVF template details are correct, then click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          12
+        ],
+        [
+          15,
+          32
+        ],
+        [
+          95,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2a Select name and folder, the name and folder specified in vCenter has no impact on the ZPA service. So, select a name and folder that is suitable for your organization, then click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          20,
+          45
+        ],
+        [
+          202,
+          206
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2b Select a resource, select the destination resource (i.e., cluster, host, vApp, or resource pool), then click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          20,
+          40
+        ],
+        [
+          132,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2c Select storage, choose Thin Provision for the virtual disk format, then click Next. This selection generally results in smaller disk space utilization.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          20,
+          37
+        ],
+        [
+          46,
+          60
+        ],
+        [
+          101,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 2 Destination > 2d Setup networks, configure the IP allocation network setting as necessary.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          20,
+          37
+        ],
+        [
+          53,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "The App Connector is preconfigured to obtain an IP address on its primary interface via DHCP.",
+      "depth": 1
+    },
+    {
+      "item": "If the DHCP service is available in your environment, select DHCP.",
+      "depth": 2,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "If the DHCP service is not available in your environment, you must complete the following networking tasks:",
+      "depth": 2
+    },
+    {
+      "item": "Configure Static IP Addressing",
+      "depth": 3
+    },
+    {
+      "item": "Configure the Domain Name System (DNS) Resolver",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For 3 Ready to Complete, ensure that Power on after deployment is not selected, then click Finish.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          4,
+          23
+        ],
+        [
+          37,
+          62
+        ],
+        [
+          91,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Within the Recent Tasks panel, you can monitor the deployment progress.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After the deployment has successfully completed, ensure that the VM has not been powered on before proceeding to the next step.",
+      "depth": 1
+    },
+    {
+      "item": "Within the Navigator panel, select the deployed VM, and from the Actions menu select Edit Settings.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          65,
+          72
+        ],
+        [
+          85,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Edit Settings window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Settings window, select the vApp Options tab.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Authoring > OVF settings:",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "For OVF environment transport, select VMware Tools.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          29
+        ],
+        [
+          38,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "For Installation boot, select Enable.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          30,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "From the Actions menu, select Power > Power On.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          30,
+          35
+        ],
+        [
+          38,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Verify the local time on the VMware machine is correct. If it is not, update the time using Network Time Protocol.",
+      "depth": 2,
+      "number": 16
+    },
+    {
+      "item": "Make any necessary network configuration changes before enrolling the App Connector.",
+      "depth": 2,
+      "number": 17
+    },
+    {
+      "item": "Enroll the App Connector using one of the following methods:",
+      "depth": 2,
+      "number": 18
+    },
+    {
+      "item": "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+      "depth": 2
+    },
+    {
+      "item": "OAuth 2.0 enrollment token",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value, similar to the following example:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T",
+      "depth": 4
+    },
+    {
+      "item": "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, add the enrollment token for your software component:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "App Connector",
+      "depth": 5
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 5
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 5
+    },
+    {
+      "item": "Network Connector",
+      "depth": 5
+    },
+    {
+      "item": "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page. To learn more, see Configuring App Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Service Edge and enter the OAuth enrollment token on the Add Private Service Edge page. To learn more, see Configuring Private Service Edges.",
+      "depth": 3,
+      "strong": [
+        [
+          71,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page. To learn more, see Configuring Private Cloud Controllers.",
+      "depth": 3,
+      "strong": [
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Add a Network Connector and enter the OAuth enrollment token on the Add Network Connector page. To learn more, see Configuring Network Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          68,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning key",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "On Zscaler-provided virtual appliances, SSH is not enabled by default. It is required for a short time to configure the provisioning key for the App Connector. Complete the following steps to temporarily enable SSH:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "After the initial boot of an App Connector instance, it might take up to 15 minutes for the admin credentials to apply. So, if you receive an invalid credentials error after initial boot, wait a few minutes and try again.",
+      "depth": 3
+    },
+    {
+      "item": "Start the SSH daemon using the following command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start sshd",
+      "depth": 3
+    },
+    {
+      "item": "This command will temporarily enable SSH, but it will not persist if a reboot occurs. If you need SSH to remain enabled after a reboot, use the sudo systemctl enable sshd command.",
+      "depth": 3
+    },
+    {
+      "item": "Verify the App Connector's IP address using the following command:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ ip addr show",
+      "depth": 3
+    },
+    {
+      "item": "The configuration output should look similar to the following:",
+      "depth": 3
+    },
+    {
+      "item": "1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 100 link/loopback 00:00:00:00:00:00 bird 00:00:00:00:00:00 inet 127.0.0.1/8 scope host valid_lft forever preferred_lft forever inet6 ::1/128 scope host valid_lft forever preferred_lft forever 2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu1500 disc mq state UP group default glen link/ether 00:50:56:9b:f4:6d bird ff:ff:ff:ff:ff:ff altname enp11s0 inet 10.66.13.249/24 bird 10.66.13.255 scope global dynamic noprefixroute ens192 valid_lft 690049sec preferred_lft 690049sec inet6 2605:4300:fe00:420d:c724:58a4:2cea:c0fc/64 scope global dynamic noprefixroute valid_lft 2591936sec preferred_lft 604736sec inlet6 fe80::fbe0:b0a6:5347:62dc/64 scope link noprefixroute valid_lft forever preferred_lft forever",
+      "depth": 3
+    },
+    {
+      "item": "SSH into the virtual machine (VM) using a standard SSH client. Using the previous example, the App Connector IP address is 192.0.2.1:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ ssh admin@192.0.2.1",
+      "depth": 3
+    },
+    {
+      "item": "Populate the provisioning key file.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Stop running the zpa-connector service. If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and will look for the key again every 24 hours.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions, at /opt/zscaler/var/provision_key. For example:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 3
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 3
+    },
+    {
+      "item": "echo \"<App Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 3
+    },
+    {
+      "item": "Start the zpa-connector service.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "After the App Connector is enrolled, disable SSH using the following command:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop sshd",
+      "depth": 3
+    },
+    {
+      "item": "However, if you used the sudo systemctl enable sshd command previously, then enter the sudo systemctl disable sshd command.",
+      "depth": 3
+    },
+    {
+      "item": "Zscaler highly recommends updating the App Connector system software before proceeding.",
+      "depth": 2,
+      "number": 19
+    },
+    {
+      "item": "Deploying on VMware vSphere Hypervisor (ESXi)",
+      "depth": 1
+    },
+    {
+      "item": "The following deployment procedure only provides additional information on prerequisites and how to deploy an App Connector on a VMware platform with vSphere Hypervisor (ESXi).",
+      "depth": 1
+    },
+    {
+      "item": "The following additional prerequisites apply to VMware vSphere Hypervisor (ESXi) only:",
+      "depth": 1
+    },
+    {
+      "item": "VMware vSphere Hypervisor (ESXi) version 7.0 Update 2 or later",
+      "depth": 2
+    },
+    {
+      "item": "VMware offers ESXi as part of a paid vSphere edition or free of charge with the vSphere Hypervisor edition. However, the free version of the platform does not include several deployment features. Specifically, the standalone vSphere Hypervisor edition is not able to parse the extended OVF attributes that allow you to provide the App Connector provisioning key during deployment.",
+      "depth": 2
+    },
+    {
+      "item": "VMware vSphere Client",
+      "depth": 2
+    },
+    {
+      "item": "Hypervisor account",
+      "depth": 2
+    },
+    {
+      "item": "To deploy an App Connector on vSphere Hypervisor (ESXi):",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor (ESXi) Server with the vSphere Client.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to File > Deploy OVF Template....",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Complete one of the following procedures:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Enter the following URL for the App Connector image into the provided field: https://dist.private.zscaler.com/vms/VMware/2026.07/zpa-connector-el9-2026.07.ova, then click Next:",
+      "depth": 3,
+      "strong": [
+        [
+          171,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "If you use this option, the image is downloaded from the URL and uploaded to the vSphere Hypervisor (ESXi) server from the local system.",
+      "depth": 1
+    },
+    {
+      "item": "If you’ve already downloaded the VMware image to your local system, Browse to the location of the image file, then click Next.",
+      "depth": 2,
+      "strong": [
+        [
+          68,
+          74
+        ],
+        [
+          121,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "Verify that the OVF Template Details are correct, then click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          16,
+          36
+        ],
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "The Name and Location specified in vSphere Hypervisor (ESXi) has no impact on the ZPA service. So, select a name and folder that is suitable for your organization, then click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          175,
+          179
+        ]
+      ]
+    },
+    {
+      "item": "After you are asked to select a Storage configuration, make sure that you select Thin Provision for the disk format, then click Next. This selection generally results in smaller disk space utilization.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          39
+        ],
+        [
+          81,
+          95
+        ],
+        [
+          128,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that Power on after deployment is selected, then click Finish.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          12,
+          37
+        ],
+        [
+          62,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Within the Recent Tasks panel, you can monitor the deployment progress. After the deployment has successfully completed, ensure that the VM has powered on before proceeding to the next step.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "The App Connector is preconfigured to obtain an IP address on its primary interface via DHCP.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "If the DHCP service is available in your environment, skip to the next step.",
+      "depth": 2
+    },
+    {
+      "item": "If the DHCP service is not available in your environment, you must complete the following networking tasks before proceeding to the next step:",
+      "depth": 2
+    },
+    {
+      "item": "Configure Static IP Addressing",
+      "depth": 3
+    },
+    {
+      "item": "Configure the Domain Name System (DNS) Resolver",
+      "depth": 3
+    },
+    {
+      "item": "Verify the local time on the VMware machine is correct. If it is not, update the time using Network Time Protocol.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Make any necessary network configuration changes before enrolling the App Connector.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "Enroll the App Connector using one of the following methods:",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "The image attempts to use OAuth enrollment tokens by default but applies a provisioning key first if one is available.",
+      "depth": 2
+    },
+    {
+      "item": "OAuth 2.0 enrollment token",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "In the software component's virtual serial console, a login prompt appears followed by an OAuth Token value, similar to the following example:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "$ OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T To sign in, use a web browser to open the admin UI and enter the code JDPBF-P6W5V to authenticate. OAuth Token: JDR8G-P6W5T",
+      "depth": 4
+    },
+    {
+      "item": "Copy the OAuth token that appears. Tokens are valid for 2 hours.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, add the enrollment token for your software component:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "App Connector",
+      "depth": 5
+    },
+    {
+      "item": "Private Service Edge",
+      "depth": 5
+    },
+    {
+      "item": "Private Cloud Controller",
+      "depth": 5
+    },
+    {
+      "item": "Network Connector",
+      "depth": 5
+    },
+    {
+      "item": "Add an App Connector and enter the OAuth enrollment token on the Add App Connectors page. To learn more, see Configuring App Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          65,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Service Edge and enter the OAuth enrollment token on the Add Private Service Edge page. To learn more, see Configuring Private Service Edges.",
+      "depth": 3,
+      "strong": [
+        [
+          71,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Add a Private Cloud Controller and enter the OAuth enrollment token on the Add Private Cloud Controller page. To learn more, see Configuring Private Cloud Controllers.",
+      "depth": 3,
+      "strong": [
+        [
+          75,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Add a Network Connector and enter the OAuth enrollment token on the Add Network Connector page. To learn more, see Configuring Network Connectors.",
+      "depth": 3,
+      "strong": [
+        [
+          68,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning key",
+      "depth": 3
+    },
+    {
+      "item": "See instructions.",
+      "depth": 3
+    },
+    {
+      "item": "On Zscaler-provided virtual appliances, SSH is not enabled by default. It is required for a short time to configure the provisioning key for the App Connector. Complete the following steps to temporarily enable SSH:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Log in to the App Connector console using your admin credentials.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "After the initial boot of an App Connector instance, it might take up to 15 minutes for the admin credentials to apply. So, if you receive an invalid credentials error after initial boot, wait a few minutes and try again.",
+      "depth": 3
+    },
+    {
+      "item": "Start the SSH daemon using the following command:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start sshd",
+      "depth": 3
+    },
+    {
+      "item": "This command will temporarily enable SSH, but it will not persist if a reboot occurs. If you need SSH to remain enabled after a reboot, use the sudo systemctl enable sshd command.",
+      "depth": 3
+    },
+    {
+      "item": "Verify the App Connector's IP address using the following command:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ ip addr show",
+      "depth": 3
+    },
+    {
+      "item": "The configuration output should look similar to the following:",
+      "depth": 3
+    },
+    {
+      "item": "1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000 link/loopback 00:00:00:00:00:00 bird 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever inet6 ::1/128 scope host valid_lft forever preferred_lft forever 2: ens192: <BROADCAST,MULTICAST,UP,LOWER_UP> mtu1500 disc mq state UP group default glen 1000 link/ether 00:50:56:9b:f4:6d bird ff:ff:ff:ff:ff:ff altname enp11s0 inlet 10.66.13.249/24 bird 10.66.13.255 scope global dynamic noprefixroute ens192 valid_lft 690049sec preferred_lft 690049sec inet6 2605:4300:fe00:420d:c724:58a4:2cea:c0fc/64 scope global dynamic noprefixroute valid_lft 2591936sec preferred_lft 604736sec inet6 fe80::fbe0:b0a6:5347:62dc/64 scope link noprefixroute valid_lft forever preferred_lft forever",
+      "depth": 3
+    },
+    {
+      "item": "SSH into the virtual machine (VM) using a standard SSH client. Using the previous example, the App Connector IP address is 192.0.2.1:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ ssh admin@192.0.2.1",
+      "depth": 3
+    },
+    {
+      "item": "Populate the provisioning key file.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Stop the running zpa-connector service. If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and will look for the key again every 24 hours.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions, at /opt/zscaler/var/provision_key. For example:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 3
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 3
+    },
+    {
+      "item": "echo \"<App Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 3
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 3
+    },
+    {
+      "item": "Start the zpa-connector service.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector",
+      "depth": 3
+    },
+    {
+      "item": "After theApp Connector is enrolled, disable SSH using the following command:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl stop sshd",
+      "depth": 3
+    },
+    {
+      "item": "However, if you used the sudo systemctl enable sshd command previously, then enter the sudo systemctl disable sshd command.",
+      "depth": 3
+    },
+    {
+      "item": "Run the following:",
+      "depth": 2,
+      "number": 12
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ systemctl daemon-reload [admin@zpa-connector ~]$ systemctl start zpa-connector",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler highly recommends updating the App Connector system software before proceeding.",
+      "depth": 2,
+      "number": 13
+    },
+    {
+      "item": "Step 4: Configure the Networking for the Deployed App Connector",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Verify that the deployed App Connector is running and healthy. Also, check that it meets your sizing requirements.",
+      "depth": 0
+    },
+    {
+      "text": "After you have verified your deployment, you can perform additional tasks to maintain the system (i.e., changing your App Connector console admin credentials or performing system software updates). To learn more, see Managing Deployed Software Components."
+    },
+    {
+      "text": "After App Connectors are deployed, you can:"
+    },
+    {
+      "item": "Create application segments and access policies to pass application traffic. For example, to test your configuration, consider setting up a simple application segment that allows SSH access to your App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a log receiver for your App Connectors to receive information about your App Connectors or users via the Log Streaming Service (LSS).",
+      "depth": 0
+    }
+  ]
+}

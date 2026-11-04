@@ -1,0 +1,390 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Device Groups",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/device-groups",
+    "node": "1402471",
+    "revision": "3108843",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Device%20Groups_9.json?VersionId=R.Fm6a_VPHhoGxZix9_76xJ3QyDtmTqN",
+    "updated": "2025-05-21",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Device Groups"
+      }
+    ],
+    "paths": {
+      "/deviceGroups": {
+        "get": {
+          "tags": [
+            "Device Groups"
+          ],
+          "description": "Gets a list of device groups.",
+          "operationId": "DeviceGroupResource_getDeviceGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "includeDeviceInfo",
+              "description": "Include or exclude device information.",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "includePseudoGroups",
+              "description": "Include or exclude Zscaler Client Connector and Cloud Browser Isolation-related device groups.",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "includeIOTGroups",
+              "description": "Include or exclude IoT device groups.",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/DeviceGroup"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/deviceGroups/devices": {
+        "get": {
+          "tags": [
+            "Device Groups"
+          ],
+          "description": "Gets a list of devices. Any given search parameters are applied during device search. Search parameters are based on device name, model, owner, OS type, and OS version. The devices listed can also be restricted to return information only for ones belonging to specific users.",
+          "operationId": "DeviceGroupResource_getDevices",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "description": "The device group name.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "model",
+              "description": "The device models.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "owner",
+              "description": "The device owners.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "description": "The device's operating system.",
+              "in": "query",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "ANY",
+                "OTHER_OS",
+                "IOS",
+                "ANDROID_OS",
+                "WINDOWS_OS",
+                "MAC_OS",
+                "LINUX"
+              ]
+            },
+            {
+              "name": "osVersion",
+              "description": "The device's operating system version.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "deviceGroupId",
+              "description": "The unique identifier for the device group.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "userIds",
+              "description": "Used to list devices for specific users.",
+              "in": "query",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "name": "search_all",
+              "description": "Used to match against all device attribute information.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "includeAll",
+              "description": "Used to include or exclude Cloud Browser Isolation devices.",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Device"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/deviceGroups/devices/lite": {
+        "get": {
+          "tags": [
+            "Device Groups"
+          ],
+          "description": "Gets a list of devices that includes device ID, name, and owner name. Any given search parameters are applied during device search. Search parameters are based on device or user name and owner. The devices listed can also be restricted to return information only for ones belonging to specific users.",
+          "operationId": "DeviceGroupResource_getDevicesLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "name",
+              "description": "The device group name.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "userIds",
+              "description": "Used to list devices for specific users.",
+              "in": "query",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            },
+            {
+              "name": "includeAll",
+              "description": "Used to include or exclude Cloud Browser Isolation devices.",
+              "in": "query",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Device"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "DeviceGroup": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifer for the device group."
+          },
+          "name": {
+            "type": "string",
+            "description": "The device group name."
+          },
+          "groupType": {
+            "type": "string",
+            "description": "The device group type.",
+            "enum": [
+              "ZCC_OS",
+              "NON_ZCC",
+              "CBI"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "The device group's description."
+          },
+          "osType": {
+            "type": "string",
+            "description": "The operating system (OS)."
+          },
+          "predefined": {
+            "type": "boolean",
+            "description": "Indicates whether this is a predefined device group. If this value is set to true, the group is predefined.",
+            "readOnly": true
+          },
+          "deviceCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The number of devices within the group."
+          }
+        },
+        "description": "Device group information."
+      },
+      "Device": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier for the device."
+          },
+          "name": {
+            "type": "string",
+            "description": "The device name."
+          },
+          "deviceGroupType": {
+            "type": "string",
+            "description": "The device group type.",
+            "enum": [
+              "ZCC_OS",
+              "NON_ZCC",
+              "CBI"
+            ]
+          },
+          "deviceModel": {
+            "type": "string",
+            "description": "The device model."
+          },
+          "osType": {
+            "type": "string",
+            "description": "The operating system (OS).",
+            "enum": [
+              "ANY",
+              "OTHER_OS",
+              "IOS",
+              "ANDROID_OS",
+              "WINDOWS_OS",
+              "MAC_OS",
+              "LINUX"
+            ]
+          },
+          "osVersion": {
+            "type": "string",
+            "description": "The operating system version."
+          },
+          "description": {
+            "type": "string",
+            "description": "The device's description."
+          },
+          "ownerUserId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier of the device owner (i.e., user)."
+          },
+          "ownerName": {
+            "type": "string",
+            "description": "The device owner's user name."
+          },
+          "hostName": {
+            "type": "string",
+            "description": "The hostname of the device."
+          }
+        },
+        "description": "Device information."
+      }
+    }
+  }
+}

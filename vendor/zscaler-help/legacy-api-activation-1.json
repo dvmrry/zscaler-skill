@@ -1,0 +1,190 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Activation",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/activation-1",
+    "node": "1450246",
+    "revision": "2562181",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Activation_5.json?VersionId=5n42O_dzi2C9NKhGDTkWI.4StF5u5P49",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Activation"
+      }
+    ],
+    "paths": {
+      "/ecAdminActivateStatus/activate": {
+        "put": {
+          "tags": [
+            "Activation"
+          ],
+          "description": "Activates configuration changes.",
+          "operationId": "EcActivateZResource_activate",
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrgEditActivateStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecAdminActivateStatus/forcedActivate": {
+        "put": {
+          "tags": [
+            "Activation"
+          ],
+          "operationId": "EcActivateZResource_forceActivate",
+          "description": "Force activates configuration changes.",
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrgEditActivateStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ecAdminActivateStatus": {
+        "get": {
+          "tags": [
+            "Activation"
+          ],
+          "operationId": "EcActivateZResource_getOrgEditActivateStatus",
+          "description": "Gets activation status.",
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/OrgEditActivateStatus"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "OrgEditActivateStatus": {
+          "type": "object",
+          "description": "Organization policy edit/update activation status.",
+          "properties": {
+            "orgEditStatus": {
+              "type": "string",
+              "description": "Organization policy edit status.",
+              "enum": [
+                "EDITS_CLEARED",
+                "EDITS_PRESENT",
+                "EDITS_ACTIVATED_ON_RESTART"
+              ]
+            },
+            "orgLastActivateStatus": {
+              "type": "string",
+              "description": "Organization policy last activation status.",
+              "enum": [
+                "CAC_ACTV_UNKNOWN",
+                "CAC_ACTV_UI",
+                "CAC_ACTV_OLD_UI",
+                "CAC_ACTV_SUPERADMIN",
+                "CAC_ACTV_AUTOSYNC",
+                "CAC_ACTV_TIMER"
+              ]
+            },
+            "adminStatusMap": {
+              "type": "object",
+              "description": "Admin status.",
+              "additionalProperties": {
+                "type": "string",
+                "enum": [
+                  "ADM_LOGGED_IN",
+                  "ADM_EDITING",
+                  "ADM_ACTV_QUEUED",
+                  "ADM_ACTIVATING",
+                  "ADM_ACTV_DONE",
+                  "ADM_ACTV_FAIL",
+                  "ADM_EXPIRED"
+                ]
+              }
+            },
+            "adminActivateStatus": {
+              "type": "string",
+              "description": "Admin activation status.",
+              "enum": [
+                "ADM_LOGGED_IN",
+                "ADM_EDITING",
+                "ADM_ACTV_QUEUED",
+                "ADM_ACTIVATING",
+                "ADM_ACTV_DONE",
+                "ADM_ACTV_FAIL",
+                "ADM_EXPIRED"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

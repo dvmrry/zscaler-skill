@@ -1,0 +1,685 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Cloud Deception Settings for an AWS Account",
+  "source": {
+    "url": "https://help.zscaler.com/deception/managing-cloud-deception-settings-aws-account",
+    "node": "1542540",
+    "revision": "3226057",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can edit or delete Cloud Deception settings configured for your Amazon Web Services (AWS) accounts from the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Editing an AWS Account",
+      "level": 1
+    },
+    {
+      "text": "Depending on whether the configurations are already propagated to AWS, the editing is either a single-step process (if the changes were never propagated to AWS) or a two-step process (if the changes were propagated at least once)."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate editing in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Locate the account that you want to edit, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          56,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The AWS Account Setting window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS Account Setting window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: Select to modify the status of Cloud Deception for the AWS account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enable GenAI Prompt Logging: Select to modify the status of logging prompts and responses from generative AI (Gen AI) decoys in AWS. The prompts and responses are recorded in the aws gen ai input and aws gen ai ouput on the ThreatParse page with the AWS GenAI Model was Invoked rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          250,
+          277
+        ]
+      ]
+    },
+    {
+      "item": "When logging is enabled, an S3 bucket is created to store prompts and responses from the Gen AI models. This S3 bucket collects prompts and responses from all Gen AI applications in that AWS account, including the legitimate Gen AI applications. However, only those prompts and responses pertaining to the Gen AI decoys created by Deception are sent to the Deception Admin Portal. If you want to avoid storing (temporary) prompts and responses from the legitimate Gen AI applications in the S3 bucket, ensure that the Gen AI decoys are deployed in a different AWS account that does not contain any legitimate Gen AI applications.",
+      "depth": 2
+    },
+    {
+      "item": "Tags: Click to configure tags for AWS resources. To learn more, see Creating and Managing Tags for AWS Resources.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: In the AWS Cloud",
+      "depth": 0
+    },
+    {
+      "item": "To complete editing in AWS Cloud, choose a method based on how the integration was configured:",
+      "depth": 0
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch AWS CloudShell.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "When prompted to continue with deletion, enter y and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "If you enter n and press Enter, then the deletion process is aborted, and the configuration is enabled again in the Deception Admin Portal.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "heading": "Deleting an AWS Account",
+      "level": 1
+    },
+    {
+      "text": "Depending on whether the configurations are already propagated to AWS, the deletion is either a single-step process (if the changes were never propagated to AWS) or a two-step process (if the changes were propagated at least once)."
+    },
+    {
+      "text": "You can delete AWS deception settings only if no AWS decoys are deployed. If you have already deployed AWS decoys, you must delete all decoys and complete the deletion in AWS cloud first (via Terraform or CloudShell script) before deleting the settings."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate deletion in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Locate the account that you want to delete, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          58,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "All decoys are marked for deletion and the configuration is disabled in the Deception Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "If you have never run the deployment script on AWS or used the Terraform commands, then the deletion process is completed with this step. If you have already used either of them to sync the settings or deploy decoys, then proceed to Step 2 to complete the deletion process.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: In the AWS Cloud",
+      "depth": 0
+    },
+    {
+      "item": "To complete deletion in the AWS Cloud, choose a method based on how the integration was configured:",
+      "depth": 0
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch AWS CloudShell.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "When prompted to continue with deletion, enter y and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "If you enter n and press Enter, then the deletion process is aborted, and the configuration is enabled again in the Deception Admin Portal.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In some cases, the deployment script might fail to remove the entries of the AWS resources that were marked for deletion in the Deception Admin Portal. For example, manually removing AWS resources deployed by Deception from the AWS cloud can fail to remove entries of resources from the Deception Admin Portal if the resources are interdependent. If the deployment script fails to remove these entries, you need to use the Force Delete option.",
+      "depth": 1,
+      "strong": [
+        [
+          423,
+          435
+        ]
+      ]
+    },
+    {
+      "item": "See instructions.",
+      "depth": 2
+    },
+    {
+      "item": "In the Deception Admin Portal, go to Deceive > Cloud Deception > AWS > Settings.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          47,
+          62
+        ],
+        [
+          65,
+          68
+        ],
+        [
+          71,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Click Force Delete. This option appears when the deletion process is started.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Confirm your action.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "The AWS resource entries are removed from the Deception Admin Portal.",
+      "depth": 3
+    }
+  ]
+}

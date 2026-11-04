@@ -1,0 +1,57 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding ICAP Communication Between Zscaler and DLP Servers",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-icap-communication-between-zscaler-and-dlp-servers",
+    "node": "1400106",
+    "revision": "3247512",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When you configure Data Loss Prevention (DLP) policy rules in the Zscaler Admin Console, you can specify whether you want the Zscaler service to send information about policy violations via ICAP to your organization's on-premises or cloud-based DLP server. Your organization can then use the information sent to follow standard data loss prevention or remediation workflows."
+    },
+    {
+      "text": "When the Zscaler service sends information to your DLP server, it does not do so from a Public Service Edge for Internet & SaaS (ZIA) on the cloud that initially inspects your users' transaction. If a Service Edge finds that a transaction violates a DLP policy rule and further, the rule specifies that the service sends violation information to the organization's DLP server, that Service Edge forwards the transaction information to another Service Edge. The second Service Edge is on a different cloud that the service uses for sending communications to your DLP servers."
+    },
+    {
+      "text": "The second Service Edge actually sends the following information about the transaction to your organization's DLP server:"
+    },
+    {
+      "item": "Client IP and username via ICAP X-headers.",
+      "depth": 0
+    },
+    {
+      "item": "A copy of the HTTP POST request that contains the file that violated the DLP policy, or if the content is from HTTP Forms data, a copy of the content that violated the DLP policy. The host URL to which the user was attempting to send content would also be included here.",
+      "depth": 0
+    },
+    {
+      "text": "You must configure your organization's firewall to allow communications from the second Service Edge. Further, to protect your organization's data, Zscaler recommends that you have the Service Edge send the preceding information in encrypted form via secure ICAP. However, because most DLP servers can only read unencrypted information, Zscaler recommends installing an open-source application called the stunnel application on your DLP server. After installation, the stunnel application and the Service Edge can establish an SSL communication, and the Service Edge can send transaction information in encrypted form to the DLP server. The stunnel application then decrypts the transaction information for the DLP server."
+    },
+    {
+      "text": "Zscaler recommends that you use secure ICAP, however, you can use unencrypted ICAP if your organization requires it. The same process would apply, with the following exceptions:"
+    },
+    {
+      "item": "The second Service Edge does not encrypt the transaction information it sends to your DLP server.",
+      "depth": 0
+    },
+    {
+      "item": "You do not need to install the stunnel application. The DLP server can accept the information from the Service Edge as is.",
+      "depth": 0
+    },
+    {
+      "text": "Configuration requirements differ depending on whether you're using secure ICAP or unencrypted ICAP. Select the appropriate configuration option for your organization."
+    },
+    {
+      "item": "Enabling Secure ICAP",
+      "depth": 0
+    },
+    {
+      "item": "Enabling Unencrypted ICAP",
+      "depth": 0
+    }
+  ]
+}

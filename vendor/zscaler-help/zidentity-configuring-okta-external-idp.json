@@ -1,0 +1,7408 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Okta as an External IdP",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/configuring-okta-external-idp",
+    "node": "1499411",
+    "revision": "3251481",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure Okta as an external Identity Provider (IdP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management. You can configure Okta as an external IdP to enable SSO to Authentication Service using OpenID Connect (OIDC) or Security Assertion Markup Language (SAML) authentication protocols."
+    },
+    {
+      "text": "Zscaler and Okta are technology partners. To learn more about integrating Zscaler and Okta, see the Zscaler and Okta Deployment Guide."
+    },
+    {
+      "text": "Depending on the authentication protocol, you can provision users to Authentication Service from Okta using Just-in-Time (JIT) provisioning or System for Cross-domain Identity Management (SCIM) provisioning."
+    },
+    {
+      "heading": "Configuration Selection",
+      "level": 1
+    },
+    {
+      "text": "Authentication Service and Okta integration depends on how your organization manages identity, custom session attributes, and provisioning across Private Access (ZPA) and Authentication Service, and Okta. The following decision table helps you determine the appropriate deployment model based on the key requirements:"
+    },
+    {
+      "table": [
+        [
+          "Protocol",
+          "Custom Session Attributes for Private Access Policies",
+          "Recommended Approach"
+        ],
+        [
+          "OIDC",
+          "No",
+          "Single app: OIDC OIN app with built-in SCIM provisioning"
+        ],
+        [
+          "Yes",
+          "If the customer environment supports SCIM: Two apps: Custom OIDC app for authentication and OIN app for SCIM provisioning If the customer environment does not support SCIM: Single app: Custom OIDC app with JIT provisioning",
+          ""
+        ],
+        [
+          "SAML",
+          "Yes",
+          "If the customer environment supports SCIM: Two apps: Custom SAML app for authentication and OIN app for SCIM provisioning If the customer environment does not support SCIM: Single app: Custom SAML app with JIT provisioning"
+        ]
+      ]
+    },
+    {
+      "text": "If you want to leverage step-up authentication, it is recommended to use OIDC-based integrations as most IdPs only support step-up authentication with the OIDC protocol."
+    },
+    {
+      "item": "OIDC-Based Authentication via OIN App Integration",
+      "depth": 0
+    },
+    {
+      "item": "This section explains how to use the Okta Integration Network (OIN) app integration to configure Okta as the OpenID Provider (OP) for Authentication Service. This configuration enables single sign-on (SSO) to various Zscaler services for admin access management.",
+      "depth": 0
+    },
+    {
+      "item": "An OIN-based integration uses SCIM-based provisioning and Zscaler recommends the OIN-based integration. If your Okta subscription does not include SCIM provisioning, Zscaler recommends using the custom OIDC application as Okta does not support sending custom claims such as Groups or Departments with the OIN application. To learn more, see OIDC-Based Authentication via Custom App Integration.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "An Okta account with admin privileges",
+      "depth": 1
+    },
+    {
+      "item": "A SCIM provisioning subscription for Okta",
+      "depth": 1
+    },
+    {
+      "item": "An existing user directory in Okta",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Supported Features",
+      "level": 1
+    },
+    {
+      "item": "The following features are supported for OIDC and SCIM:",
+      "depth": 0
+    },
+    {
+      "heading": "Supported Features for OIDC",
+      "level": 2
+    },
+    {
+      "item": "JIT Provisioning",
+      "depth": 1
+    },
+    {
+      "item": "IdP-Initiated SSO",
+      "depth": 1
+    },
+    {
+      "item": "SP-Initiated SSO",
+      "depth": 1
+    },
+    {
+      "item": "After setting up the OIN-based integration, Authentication Service administrators can log in to the Zscaler Admin Console using Okta.",
+      "depth": 1
+    },
+    {
+      "item": "To log in to Zscaler Admin Console via Okta:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the vanity URL specific to your Authentication Service tenant. For example, the vanity URL has the following format:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "https://customername.zslogin.net/",
+      "depth": 2
+    },
+    {
+      "item": "Enter your username registered with Okta.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "If the username is valid, you are redirected to the Okta page for authentication. After successful authentication, you are logged in to the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "heading": "Supported Features for SCIM",
+      "level": 2
+    },
+    {
+      "item": "Create Users",
+      "depth": 1
+    },
+    {
+      "item": "Update User Attributes",
+      "depth": 1
+    },
+    {
+      "item": "Deactivate Users",
+      "depth": 1
+    },
+    {
+      "item": "Group Push",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Okta as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up Okta as an OP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Configure OIN app integration for Authentication Service in Okta.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Browse App Catalog.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Search for zscaler.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "From the search results, locate and click the Zscaler app.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          46,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the app details page, click Add Integration.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          31,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add Zscaler window, enter a name for the Application label field.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Done.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "An OIN app for Authentication Service is added.",
+      "depth": 2
+    },
+    {
+      "item": "In the application page, on the Sign On tab, copy the Client ID and Client secret values. These values are used in a subsequent step when configuring Okta as an OP for Authentication Service.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          32,
+          39
+        ],
+        [
+          54,
+          63
+        ],
+        [
+          68,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To obtain the metadata URL, right-click the OpenID Provider Metadata text, and copy the URL. This value is used in a subsequent step when configuring Okta as an OP for Authentication Service. The metadata URL has the following format:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          44,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "If you are using Org Authorization Server:",
+      "depth": 2
+    },
+    {
+      "item": "https://<your_subdomain>.okta.com/.well-known/openid-configuration",
+      "depth": 2
+    },
+    {
+      "item": "If you are using Custom Authorization Server:",
+      "depth": 2
+    },
+    {
+      "item": "https://<your_subdomain>.okta.com/oauth2/default/.well-known/openid-configuration",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "2. Set up Okta as an OP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Okta from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          225,
+          229
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 4
+    },
+    {
+      "item": "Input Method: Select Metadata URL and paste the value copied from the Okta Admin Console and click Fetch.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ],
+        [
+          99,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Copy the value. This value is used in a subsequent step.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring Okta as your secondary IDP, the final segment in the Redirect URI is required for configuring Initiate Login URI in the Okta Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          76,
+          88
+        ],
+        [
+          117,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Select Client Secret Basic and paste the Client ID and Client Secret values copied from the Okta Admin Console to the respective fields.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          79,
+          88
+        ],
+        [
+          93,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Requested Scopes: Add the required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Okta Admin Console, and go to the OIN app added for Authentication Service.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "On the Sign On tab:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Paste the URI copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Initiate Login URI: Enter the following value as required:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring Okta as your primary IdP in the Zscaler Admin Console:",
+      "depth": 4
+    },
+    {
+      "item": "https://<your_domain>.zslogin.net/?idp_id=default",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "If you are configuring Okta as your secondary IdP in the Zscaler Admin Console:",
+      "depth": 4
+    },
+    {
+      "item": "https://<your_domain>.zslogin.net/?idp_id=<final_segment_from_redirect_URI>",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. Provision users for Authentication Service using JIT or SCIM provisioning.",
+      "depth": 1
+    },
+    {
+      "item": "JIT provisioning",
+      "depth": 2
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated using JIT provisioning. These user records must be updated via SCIM provisioning only.",
+      "depth": 3
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab, and enable JIT Provisioning:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Map the required attributes. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in ID tokens are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname instead of family_name, then you must map it with the Last Name user attribute in Authentication Service. See image.",
+      "depth": 5
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens.",
+      "depth": 5,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Open the OIN app created for Authentication Service and go to the Assignments tab.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          66,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Add users and groups to the application using the Assign drop-down menu.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          50,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The JIT provisioning with Okta users is configured for Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "SCIM provisioning",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab, and enable SCIM Provisioning.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Authentication Method: Select Bearer Token.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate Token and copy the Bearer Token value. This value is used in a subsequent step.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles. If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 4
+    },
+    {
+      "item": "(Optional) Map the SCIM attribute (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service. To learn more about the SCIM attributes that require custom attribute mapping, see Understanding SCIM.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Okta Admin Console, and go to the OIN app added for Authentication Service.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "On the Provisioning tab:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Configure API Integration.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Select Enable API integration.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Paste the SCIM Endpoint URL value copied from the Zscaler Admin Console to the Base URL field.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          27
+        ],
+        [
+          79,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Paste the Bearer Token value copied from the Zscaler Admin Console to the API Token field.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          74,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Click Test API Credentials.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Edit.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Provisioning to App section, enable the Create Users, Update Users to Attributes, and Deactivate Users options.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          47,
+          59
+        ],
+        [
+          61,
+          87
+        ],
+        [
+          93,
+          103
+        ],
+        [
+          104,
+          109
+        ],
+        [
+          117,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Assignments tab, click the Assign drop-down menu, and select an option to assign users or groups:",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Assign users",
+      "depth": 5
+    },
+    {
+      "item": "Select Assign to People.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Search and locate users you want to assign, and click Assign.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Done.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Assign groups",
+      "depth": 5
+    },
+    {
+      "item": "Select Assign to Groups.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Search and locate the groups you want to assign, and click Assign.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "To sync groups and the assigned users or members from Okta to Authentication Service, go to the Push Groups tab, and select an option to push groups by name or rule:",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          96,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Push Groups by name",
+      "depth": 5
+    },
+    {
+      "item": "Select the Find groups by name option from the Push Groups drop-down menu.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "By default, the Push group memberships immediately option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to do this.",
+      "depth": 6,
+      "strong": [
+        [
+          16,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the group that you want to push and select the group from the drop-down menu.",
+      "depth": 6,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save or click Save & Add Another if you want to push multiple groups.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          20,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Close.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, click By name on the left-side navigation and verify that all your groups have been added. Ensure that the Push Status for each group is Active.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          37
+        ],
+        [
+          131,
+          142
+        ],
+        [
+          161,
+          167
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Push Groups by rule",
+      "depth": 5
+    },
+    {
+      "item": "Select the Find groups by rule option from the Push Groups drop-down menu.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Push groups by rule window:",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Rule name: Enter a name for the rule.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Group name: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the name matching the condition. For example, you can select Contains as the match condition and enter Admins as the string to match all groups that has the string \"Admin\" and push them to Authentication Service.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          182,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Group description: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the description matching the condition. For example, you can select Contains as the match condition and enter For Admins as the string to match all groups that has the string \"For Admins\" in the description and push them to Authentication Service.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          196,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "By default, the Immediately push groups found by this rule option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to do this.",
+      "depth": 7,
+      "strong": [
+        [
+          16,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 7,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, select the rule name created in the previous step under the By rule option on the left-side navigation, and verify that all of your groups have been added. Ensure that the Push Status for each group is Active.",
+      "depth": 7,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          84,
+          91
+        ],
+        [
+          196,
+          207
+        ],
+        [
+          226,
+          232
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "To learn more about group push, refer to the Okta technical documentation.",
+      "depth": 4
+    },
+    {
+      "item": "The SCIM provisioning with Okta users is configured for Authentication Service.",
+      "depth": 2
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 1
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 2
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants.",
+      "depth": 2
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 1
+    },
+    {
+      "item": "a. Configure authentication levels in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "b. Enable ACR values and configure the necessary policies in the external IdPs.",
+      "depth": 2
+    },
+    {
+      "item": "c. Map authentication levels and ACR values in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "d. Configure access policies in supported Zscaler services.",
+      "depth": 2
+    },
+    {
+      "item": "In the external IdP integrated with Authentication Service, configure the necessary ACR values and authentication policies. To learn more about the configuration, refer to the respective product documentation.",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          22,
+          47
+        ],
+        [
+          52,
+          80
+        ],
+        [
+          104,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Advanced Configurations tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          19
+        ],
+        [
+          20,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Levels to Authentication Context Mapping section, enter the ACR claim value for each authentication level. To learn more about the supported ACR claims in external IdP, refer to the respective product documentation.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR claim value for the strongest context.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can configure the necessary policies in the following Zscaler services as required:",
+      "depth": 1
+    },
+    {
+      "item": "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          93,
+          111
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          201,
+          229
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          92,
+          110
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          195,
+          215
+        ]
+      ]
+    },
+    {
+      "item": "OIDC-Based Authentication via Custom App Integration",
+      "depth": 0
+    },
+    {
+      "item": "This section provides information on how to configure Okta as your OpenID Provider (OP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "Ensure that you have:",
+      "depth": 0
+    },
+    {
+      "item": "An Okta account with admin privileges",
+      "depth": 1
+    },
+    {
+      "item": "An existing user directory in Okta",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Okta as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up Okta as an OP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Configure app integration for Authentication Service in Okta.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Create App Integration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Create a new app integration window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Sign-in method: Select the OIDC - OpenID Connect option.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          27,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Application type: Select the Web Application option.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          29,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The New Web App Integration window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the New Web App Integration window:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the General Settings section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "App integration name: Enter a name for the Authentication Service integration.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that Grant type is set to Authorization Code.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          12,
+          22
+        ],
+        [
+          33,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Assignments section:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Controlled Access: Select an appropriate option.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Disable the Enable immediate access with Federation Broker Mode option.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          12,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the application page, on the General tab, copy the Client ID and Client Secret values.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          32,
+          39
+        ],
+        [
+          54,
+          63
+        ],
+        [
+          68,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) Configure custom authorization server. You can use either the default authorization server or configure a custom authorization server in the Okta Admin Console.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Steps to create custom authorization server.",
+      "depth": 3
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API > Authorization Server.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ],
+        [
+          50,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Authorization Server.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Authorization Server window:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the authorization server.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Audience: Enter api://zscaler.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The custom authorization server is saved and the custom authorization server page is opened.",
+      "depth": 4
+    },
+    {
+      "item": "On the custom authorization server page, copy the Metadata URI.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          50,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "2. Set up Okta as an OP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Okta from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          225,
+          229
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 4
+    },
+    {
+      "item": "Input Method: Select Metadata URL and enter the following value:",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "If you are using Org Authorization Server:",
+      "depth": 3
+    },
+    {
+      "item": "https://<your_subdomain>.okta.com/.well-known/openid-configuration",
+      "depth": 3
+    },
+    {
+      "item": "If you are using Custom Authorization Server:",
+      "depth": 3
+    },
+    {
+      "item": "https://<your_subdomain>.okta.com/oauth2/default/.well-known/openid-configuration",
+      "depth": 3
+    },
+    {
+      "item": "If you are using the Custom Authorization Server, enter the Metadata URI copied from the Okta Admin Console.",
+      "depth": 3
+    },
+    {
+      "item": "Click Fetch.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Copy the value. This value is used in a subsequent step.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Client Secret Basic and paste the Client ID and Client Secret values copied from the Okta Admin Console to the respective fields.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          45,
+          57
+        ],
+        [
+          72,
+          81
+        ],
+        [
+          86,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "Requested Scopes: Add the required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Okta Admin Console, and go to the application integration created for Authentication Service.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "On the General tab:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the General Settings section, click Edit.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Login section, paste the Redirect URI value copied from the Zscaler Admin Console in a previous step to the Sign-in redirect URIs field.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          32,
+          44
+        ],
+        [
+          115,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "This section explains how to provision Okta users in the Zscaler Admin Console using Just-in-Time (JIT) provisioning. Okta does not support SCIM provisioning for custom OIDC applications. For configuring SCIM-based provisioning using Okta, Zscaler recommends using a SAML app integration.",
+      "depth": 1
+    },
+    {
+      "item": "JIT provisioning",
+      "depth": 2
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated using JIT provisioning. These user records must be updated via SCIM provisioning only.",
+      "depth": 3
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "a. (Optional) Configure Okta to retrieve group membership information.",
+      "depth": 3
+    },
+    {
+      "item": "In the Okta Admin Console, go to Security > API.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          41
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the authorization server. You can either use the default authorization server or a custom authorization server.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Scopes tab:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Scope.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Enter a name for the scope. For example, enter Groups-Scope.",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Create.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The custom scope is added to the authorization server.",
+      "depth": 5
+    },
+    {
+      "item": "On the Claims tab:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Claim.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Enter a name for the claim. For example, enter Groups.",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "Include in the Token Type: Select ID Token and select Always from the respective drop-down menus.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          42
+        ],
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Value type: Select Groups from the drop-down menu.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Filter: Select Match regex from the drop-down menu and enter .* to return all of the user's groups.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Include in: Select The following scopes and add the scope created in step iii (i.e., Groups-Scope).",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Create.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The custom claim is added to the authorization server.",
+      "depth": 5
+    },
+    {
+      "item": "b. Provision users.",
+      "depth": 3
+    },
+    {
+      "item": "In the Okta Admin Console, go to Directory > Profile Editor.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          42
+        ],
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "On the Profile Editor page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Users tab, click User (default).",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          24,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the user.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "On the Users tab, select Apps in the Filters pane, and click the Okta OIN app created for user provisioning.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the app.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "Click Mappings.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the profile mappings window, map the attributes created for the user with the attribute created for the application.",
+      "depth": 5,
+      "number": 8
+    },
+    {
+      "item": "Go to Security > API.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the default or custom authorization server to configure it.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the authorization server details page, go to the Claims tab, and click Add Claim.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          52,
+          58
+        ],
+        [
+          74,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Claim window:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the claim.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Include in the Token Type: Select ID Token and select Always from the respective drop-down menus.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          42
+        ],
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Value type: Select Expression from the drop-down menu.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter the value.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Include: Select Any scope or select The following scope and specify a preferred scope (e.g. profile).",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          25
+        ],
+        [
+          36,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "You can map multiple claims as required.",
+      "depth": 4
+    },
+    {
+      "item": "See the list of claims.",
+      "depth": 4
+    },
+    {
+      "item": "The following table provides a sample list of claims mapped in the Okta authorization server:",
+      "depth": 4
+    },
+    {
+      "table": [
+        [
+          "Claim Name",
+          "Value"
+        ],
+        [
+          "first_name",
+          "user.firstName"
+        ],
+        [
+          "Department",
+          "user.department"
+        ],
+        [
+          "Last_Name",
+          "user.lastName"
+        ],
+        [
+          "Groups",
+          "groups: matches .*"
+        ],
+        [
+          "costcenter",
+          "user.costCenter"
+        ],
+        [
+          "Title",
+          "user.title"
+        ],
+        [
+          "Organization",
+          "user.organization"
+        ],
+        [
+          "Division",
+          "user.division"
+        ],
+        [
+          "Manager",
+          "user.managerId"
+        ],
+        [
+          "PrimaryPhone",
+          "user.primaryphone"
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Service requires the Manager attribute to be in the email address format. In Okta, the Manager attribute represents the display name and the ManagerId attribute represents the username of the manager. When configuring users in Okta, ensure that the email address of the manager is mapped to the ManagerId profile attribute. To learn more, refer to the Okta documentation.",
+      "depth": 4
+    },
+    {
+      "item": "On the authorization server details page, go to the Access Policies tab, and click Add Policy.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          52,
+          67
+        ],
+        [
+          83,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Policy window:",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the policy.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the policy.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Assign To: Select All Clients or The Following Clients, and choose the custom OIDC app created for Authentication Service.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          29
+        ],
+        [
+          33,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create Policy.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "The access policy is created.",
+      "depth": 4
+    },
+    {
+      "item": "On the access policy details page, click Add Rule.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Rule window, configure the details based on the following image:",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create rule.",
+      "depth": 4,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 14,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 15,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 4,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) On the Advanced Configurations tab:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "If you have configured custom session attributes, then you must map those attributes with the custom profile app attributes configured in the Okta Admin Console.",
+      "depth": 5
+    },
+    {
+      "item": "In the Session Attribute Mapping section:",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "IdP Attribute: Enter the custom profile app attribute created in the Okta Admin console.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Session Attribute: Select the session attribute from the drop-down menu.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Mapping and repeat these steps to map all the necessary attributes.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "If you do not use custom session attributes in Private Access (ZPA) policies, you can skip this session attribute mapping.",
+      "depth": 6
+    },
+    {
+      "item": "On the Provisioning Details tab:",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable JIT Provisioning.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Just-in-time User Group Attribute: Enter the claim name created for group information retrieval (i.e., Groups). This retrieves the group membership information of the users from Okta.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Map Authentication Service user attributes with the appropriate Okta attributes as necessary. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in ID tokens are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 6,
+      "number": 3
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname instead of family_name, then you must map it with the Last Name user attribute in Authentication Service. See image.",
+      "depth": 7
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens.",
+      "depth": 7,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 17,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The JIT provisioning with Okta users is configured for Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "SCIM provisioning using OIN app",
+      "depth": 2
+    },
+    {
+      "item": "Okta does not support SCIM provisioning for custom OIDC applications. However, if you use Private Access (ZPA) policies with custom session attributes and prefer using SCIM provisioning, then you can create an OIN app for SCIM provisioning in addition to the custom Okta app for authentication.",
+      "depth": 2
+    },
+    {
+      "item": "Provisioning users",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Browse App Catalog.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Search for zscaler.",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "From the search results, locate and click the Zscaler app.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the app details page, click Add Integration.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          31,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Zscaler window, enter a name for the Application label field.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Done.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "An OIN app for provisioning users to Authentication Service is added.",
+      "depth": 4
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab and enable SCIM Provisioning.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          47,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Authentication Method: Select Bearer Token.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate Token and copy the Bearer Token.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles. If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 5
+    },
+    {
+      "item": "(Optional) Map the SCIM attributes (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service.",
+      "depth": 5,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Open the OIN application created for Authentication Service and do the following:",
+      "depth": 4,
+      "number": 13
+    },
+    {
+      "item": "On the Provisioning tab:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit for SCIM Connection.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          15,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "SCIM connector base URL: Enter the SCIM Endpoint URL copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          35,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Unique identifier field for users: Enter userName as the value.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Supported provisioning actions: Select the Push New Users and Push Groups options.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          43,
+          57
+        ],
+        [
+          62,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Authentication mode: Select HTTP Header from the drop-down menu.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Authorization: Enter the bearer token copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Test Connector Configuration and make sure that Create Users and Push Groups options are shown with green checkmarks.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Close the Test Connector Configuration window.",
+      "depth": 5,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and ensure that the Create Users option is enabled on the Provisioning tab.",
+      "depth": 5,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          31,
+          43
+        ],
+        [
+          69,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Assignments tab, click the Assign drop-down menu, and select an option to assign users or groups:",
+      "depth": 5,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Assign Users",
+      "depth": 6
+    },
+    {
+      "item": "Select Assign to People.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Search and locate users you want to assign, and click Assign.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Done.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Assign Groups",
+      "depth": 6
+    },
+    {
+      "item": "Select Assign to Groups.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Search and locate the groups you want to assign, and click Assign.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Done.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To sync users between an Okta group and an Authentication Service group, go to the Push Groups tab, and select an option to push groups by name or rule:",
+      "depth": 5,
+      "number": 11,
+      "strong": [
+        [
+          83,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Push Groups by Name",
+      "depth": 6
+    },
+    {
+      "item": "Select the Find groups by name option from the Push Groups drop-down menu.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "By default, the Push group memberships immediately option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 7,
+      "strong": [
+        [
+          16,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the group that you want to push and select the group from the drop-down menu.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Save or click Save & Add Another if you want to push multiple groups.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          20,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Close.",
+      "depth": 7,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, click By name on the left-side navigation and verify that all of your groups have been added.",
+      "depth": 7,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Push Groups by Rule",
+      "depth": 6
+    },
+    {
+      "item": "Select the Find groups by rule option from the Push Groups drop-down menu.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "In the Push groups by rule window:",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Rule name: Enter a name for the rule.",
+      "depth": 8,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Group name: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the name matching the condition. For example, you can select Contains as the match condition and enter Admins as the string to match all groups that has the string \"Admin\" and push them to Authentication Service.",
+      "depth": 8,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          182,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Group description: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the description matching the condition. For example, you can select Contains as the match condition and enter For Admins as the string to match all groups that has the string \"For Admins\" in the description and push them to Authentication Service.",
+      "depth": 8,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          196,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "By default, the Immediately push groups found by this rule option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 8,
+      "strong": [
+        [
+          16,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 8
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 8,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, select the rule name created in the previous step under the By rule option on the left-side navigation, and verify that all of your groups have been added.",
+      "depth": 8,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          84,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 8
+    },
+    {
+      "item": "To learn more about group push, refer to the Okta technical documentation.",
+      "depth": 5
+    },
+    {
+      "item": "The SCIM provisioning with Okta users is configured for Authentication Service.",
+      "depth": 4,
+      "number": 14
+    },
+    {
+      "item": "(Optional) Custom session attribute mapping",
+      "depth": 3
+    },
+    {
+      "item": "In the Okta Admin Console, go to Directory > Profile Editor.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          42
+        ],
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "On the Profile Editor page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Users tab, click User (default).",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          24,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the user.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "On the Users tab, select Apps in the Filters pane, and click the Okta OIN app created for user provisioning.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the app.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "Click Mappings.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the profile mappings window, map the attributes created for the user with the attribute created for the application.",
+      "depth": 5,
+      "number": 8
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page, select the Advanced Configurations tab, and configure the following:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          47,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the Session Attribute Mapping section:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "IdP Attribute: Enter the custom profile app attribute created in the Okta Admin console.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Session Attribute: Select the session attribute from the drop-down menu.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Mapping and repeat these steps to map all the necessary attributes.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Save.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 1
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 1
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 2
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA) tenants.",
+      "depth": 2
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 1
+    },
+    {
+      "item": "1. Configure authentication levels in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "2. Enable ACR values and configure the necessary policies in the external IdPs.",
+      "depth": 2
+    },
+    {
+      "item": "In the external IdP integrated with Authentication Service, configure the necessary ACR values and authentication policies. To learn more about the configuration, refer to the respective product documentation.",
+      "depth": 2
+    },
+    {
+      "item": "3. Map authentication levels and ACR values in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          22,
+          47
+        ],
+        [
+          52,
+          80
+        ],
+        [
+          104,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Advanced Configurations tab.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Levels to Authentication Context Mapping section, enter the ACR claim value for each authentication level. To learn more about the supported ACR claims in external IdP, refer to the respective product documentation.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR claim value for the strongest context.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "4. Configure access policies in supported Zscaler services.",
+      "depth": 2
+    },
+    {
+      "item": "You can configure the necessary policies in the following Zscaler services as required:",
+      "depth": 2
+    },
+    {
+      "item": "Private Access: Configuring Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+      "depth": 3,
+      "strong": [
+        [
+          95,
+          113
+        ],
+        [
+          121,
+          132
+        ],
+        [
+          203,
+          231
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configuring the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field.",
+      "depth": 3,
+      "strong": [
+        [
+          94,
+          112
+        ],
+        [
+          120,
+          126
+        ],
+        [
+          197,
+          217
+        ]
+      ]
+    },
+    {
+      "item": "SAML-Based Authentication",
+      "depth": 0
+    },
+    {
+      "item": "This section provides information on how to configure Okta as the SAML Identity Provider (IdP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "A subscription to Okta",
+      "depth": 1
+    },
+    {
+      "item": "An existing user directory in Okta",
+      "depth": 1
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 1
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 1
+    },
+    {
+      "heading": "Configuring Okta as IdP for Authentication Service",
+      "level": 1
+    },
+    {
+      "item": "To set up Okta as an idP for Authentication Service:",
+      "depth": 0
+    },
+    {
+      "item": "1. Set up Okta as an IdP for Authentication Service.",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select Okta from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select SAML.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the token received from the IdP. By default, the NameID attribute is populated in this field when the SAML option is selected in the Protocol field. You can use any attribute that is present in the SAML assertion, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          212,
+          216
+        ],
+        [
+          243,
+          251
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the SAML assertion matches with one of the domains configured in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the SAML assertion.",
+      "depth": 4
+    },
+    {
+      "item": "SP Entity ID: Copy the value.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Do not close the window as the SP Entity ID is going to be refreshed.",
+      "depth": 1,
+      "strong": [
+        [
+          31,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure app integration for Authentication Service in Okta.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Create App Integration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Create a new app integration window:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Sign-in method: Select the SAML 2.0 option.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          27,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create SAML Integration window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Create SAML Integration window:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the General Settings section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "App name: Enter a name for the Authentication Service integration.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Configure SAML section:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Enter the SP Entity ID value copied from the Zscaler Admin Console in the previous step for both Single sign-on URL and Audience URI (SP Entity ID) fields.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          97,
+          115
+        ],
+        [
+          120,
+          147
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Feedback section:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Select the This is an internal app that we have created option.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The SAML application page appears.",
+      "depth": 3
+    },
+    {
+      "item": "On the SAML application page, in the Sign On tab:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Metadata URL from the Metadata details section.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          31,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Attribute statements section, click Show legacy configuration, and configure the following:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          43,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Profile attribute statements: Enter a SAML attribute and an appropriate filter. This is used to pass any user attributes. For example, enter Email for the Name field and enter the appropriate variable name (e.g., user.email) from the Okta profile.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          155,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "Group attribute statements: Enter a group name and an appropriate filter. This is used to pass group information. For example, enter Groups for the Name field and set Filter to Matches regex for .* to retrieve group membership information of users.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          148,
+          152
+        ],
+        [
+          167,
+          173
+        ],
+        [
+          177,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "You can also use Okta's new claims management feature instead of the legacy attribute statements. To learn more, refer to the Okta documentation.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Zscaler Admin Console where the Add External Identity page is already open, and configure the following:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          42,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Metadata URL: Enter the value copied from the Okta Admin Console in the previous step for the IdP Metadata URL field.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          94,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "Click Fetch.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "The SAML integration between Okta and Authentication Service is completed.",
+      "depth": 2
+    },
+    {
+      "item": "3. Provision users for Authentication Service using JIT or SCIM provisioning.",
+      "depth": 1
+    },
+    {
+      "item": "You can provision Okta users for Authentication Service using Just-in-time (JIT) provisioning or System for Cross-domain Identity Management (SCIM) provisioning.",
+      "depth": 1
+    },
+    {
+      "item": "JIT provisioning",
+      "depth": 2
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated via JIT provisioning. These records must be updated via SCIM provisioning only.",
+      "depth": 3
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) Custom session attribute mapping",
+      "depth": 3
+    },
+    {
+      "item": "(Optional) In the Okta Admin Console, go to Directory > Profile Editor.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          53
+        ],
+        [
+          56,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) On the Profile Editor page:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Mapping the custom profile user attributes with the custom profile app attributes is necessary if you want to use custom session attributes in Private Access (ZPA) policies.",
+      "depth": 4
+    },
+    {
+      "item": "On the Users tab, click User (default).",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          24,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the user.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "On the Users tab, select Apps in the Filters pane, and click the Okta OIN app created for user provisioning.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the Attributes section, click Add Attribute.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Attribute window, enter the necessary values for the attribute, such as Data Type, Display Name, and Variable Name, and click Add. Repeat this step to add the necessary attributes for the app.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          83,
+          92
+        ],
+        [
+          94,
+          106
+        ],
+        [
+          112,
+          125
+        ],
+        [
+          137,
+          140
+        ]
+      ]
+    },
+    {
+      "item": "Click Mappings.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "In the profile mappings window, map the attributes created for the user with the attribute created for the application.",
+      "depth": 5,
+      "number": 8
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) On the Advanced Configurations tab:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "If you have configured custom session attributes, then you must map those attributes with the custom profile app attributes configured in the Okta Admin Console.",
+      "depth": 5
+    },
+    {
+      "item": "In the Session Attribute Mapping section:",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "IdP Attribute: Enter the custom profile app attribute created in the Okta Admin console.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Session Attribute: Select the session attribute from the drop-down menu.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Mapping and repeat these steps to map all the necessary attributes.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "If you do not use custom session attributes in Private Access (ZPA) policies, you can skip this session attribute mapping.",
+      "depth": 6
+    },
+    {
+      "item": "Provisioning users",
+      "depth": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Provisioning Details tab:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable JIT Provisioning.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Map the Authentication Service user and group attributes with the appropriate Okta attributes as necessary. The mapping of the Primary Email attribute is mandatory as it is required for functionalities, such as password resetting and multi-factor authentication. By default, the following attributes in SAML assertions are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "Attribute in SAML Assertions",
+          "Description"
+        ],
+        [
+          "First Name",
+          "firstName",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "lastName",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "displayName",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "mobile or telephoneNumber",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email or mail",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale or preferredLanguage",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "timezone",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "department",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "organization or company",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "title",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "division",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "costCenter",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "userType or employeeType",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "formattedName",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "manager",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the SAML assertion from the external IdP includes Surname instead of lastName, then you must map it with the Last Name user attribute in Authentication Service.",
+      "depth": 6
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the SAML assertions.",
+      "depth": 6,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Open the SAML application created for Authentication Service and go to the Assignments tab.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          75,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Add users and groups to the application using the Assign drop-down menu.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          50,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The JIT provisioning with Okta users is configured for Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "SCIM provisioning",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities..",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Provisioning Details tab.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Enable SCIM Provisioning.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Authentication Method: Select Bearer Token.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate Token and copy the Bearer Token.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles. If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 4
+    },
+    {
+      "item": "(Optional) Map the SCIM attributes (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service. To learn more about the SCIM attributes that require custom attribute mapping, see Understanding SCIM.",
+      "depth": 4,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Open the SAML application created for Authentication Service and do the following:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "On the General tab:",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit next to App Settings.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          19,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable SCIM provisioning.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Provisioning tab:",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit for SCIM Connection.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          15,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Connector Base URL: Enter the SCIM Endpoint URL copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          35,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Unique identifier field for users: Enter userName as the value.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Supported provisioning actions: Select the Push New Users and Push Groups options.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          43,
+          57
+        ],
+        [
+          62,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Authentication mode: Select HTTP Header from the drop-down menu.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Authorization: Enter the bearer token copied from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Test Connector Configuration and make sure that Create users and Push Groups options are shown with green checkmarks.",
+      "depth": 5,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Close the Test Connector Configuration window.",
+      "depth": 5,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and ensure that the Create users option is enabled on the Provisioning tab.",
+      "depth": 5,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          31,
+          43
+        ],
+        [
+          69,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Assignments tab, click the Assign drop-down menu, and select an option to assign users or groups:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Assign users",
+      "depth": 5
+    },
+    {
+      "item": "Select Assign to People.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Search and locate users you want to assign, and click Assign.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Done.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Assign groups",
+      "depth": 5
+    },
+    {
+      "item": "Select Assign to Groups.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Search and locate the groups you want to assign, and click Assign.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Done.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To sync users between an Okta group and an Authentication Service group, go to the Push Groups tab, and select an option to push groups by name or rule:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          83,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Push groups by name",
+      "depth": 5
+    },
+    {
+      "item": "Select the Find groups by name option from the Push Groups drop-down menu.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "By default, the Push group memberships immediately option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 6,
+      "strong": [
+        [
+          16,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the group that you want to push and select the group from the drop-down menu.",
+      "depth": 6,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Save or click Save & Add Another if you want to push multiple groups.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          20,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Close.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, click By name on the left-side navigation and verify that all of your groups have been added.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Push groups by rule",
+      "depth": 5
+    },
+    {
+      "item": "Select the Find groups by rule option from the Push Groups drop-down menu.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Push groups by rule window:",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Rule name: Enter a name for the rule.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Group name: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the name matching the condition. For example, you can select Contains as the match condition and enter Admins as the string to match all groups that has the string \"Admin\" and push them to Authentication Service.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          182,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Group description: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the description matching the condition. For example, you can select Contains as the match condition and enter For Admins as the string to match all groups that has the string \"For Admins\" in the description and push them to Authentication Service.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          196,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "By default, the Immediately push groups found by this rule option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 7,
+      "strong": [
+        [
+          16,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 7,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, select the rule name created in the previous step under the By rule option on the left-side navigation, and verify that all of your groups have been added.",
+      "depth": 7,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          84,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "To learn more about group push, refer to the Okta technical documentation.",
+      "depth": 4
+    },
+    {
+      "item": "The SCIM provisioning with Okta users is configured for Authentication Service.",
+      "depth": 2
+    },
+    {
+      "item": "SCIM provisioning with OIN app",
+      "depth": 2
+    },
+    {
+      "item": "Okta does not support SCIM provisioning for custom OIDC applications. However, if you use Private Access (ZPA) policies with custom session attributes and prefer using SCIM provisioning, then you can create an OIN app for SCIM provisioning in addition to the custom Okta app for authentication.",
+      "depth": 2
+    },
+    {
+      "item": "Provisioning users",
+      "depth": 3
+    },
+    {
+      "item": "Log in to the Okta Admin Console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Browse App Catalog.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Search for zscaler.",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "From the search results, locate and click the Zscaler app.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the app details page, click Add Integration.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          31,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add Zscaler window, enter a name for the Application label field.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          48,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Done.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "An OIN app for provisioning users to Authentication Service is added.",
+      "depth": 4
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP entry created for Okta in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          45,
+          70
+        ],
+        [
+          75,
+          103
+        ],
+        [
+          127,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "On the Provisioning Details tab:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enable SCIM Provisioning.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP in the Basic tab are completed and saved.",
+      "depth": 5,
+      "strong": [
+        [
+          4,
+          21
+        ],
+        [
+          82,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Authentication Method: Select Bearer Token.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate Token and copy the Bearer Token.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles. If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 5
+    },
+    {
+      "item": "(Optional) Map the SCIM attributes (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service.",
+      "depth": 5,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Okta Admin Console, go to Applications > Applications.",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          33,
+          45
+        ],
+        [
+          48,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Open the SAML application created for Authentication Service and do the following:",
+      "depth": 4,
+      "number": 13
+    },
+    {
+      "item": "On the General tab:",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit next to App Settings.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          19,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable SCIM provisioning.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Provisioning tab:",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit for SCIM Connection.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          15,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "SCIM connector base URL: Enter the SCIM Endpoint URL copied from the Zscaler Admin Console.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          35,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Unique identifier field for users: Enter userName as the value.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Supported provisioning actions: Select the Push New Users and Push Groups options.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          43,
+          57
+        ],
+        [
+          62,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Mode: Select HTTP Header from the drop-down menu.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Authorization: Enter the bearer token copied from the Zscaler Admin Console.",
+      "depth": 6,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click Test Connector Configuration and make sure that Create Users and Push Groups options are shown with green checkmarks.",
+      "depth": 6,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          54,
+          66
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Close the Test Connector Configuration window.",
+      "depth": 6,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and ensure that the Create Users option is enabled on the Provisioning tab.",
+      "depth": 6,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          31,
+          43
+        ],
+        [
+          69,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "On the Assignments tab, click the Assign drop-down menu, and select an option to assign users or groups:",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Assign Users",
+      "depth": 6
+    },
+    {
+      "item": "Select Assign to People.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Search and locate users you want to assign, and click Assign.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Done.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select Assign to Groups.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Search and locate the groups you want to assign, and click Assign.",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Done.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select the Find groups by name option from the Push Groups drop-down menu.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "By default, the Push group memberships immediately option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 7,
+      "strong": [
+        [
+          16,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Enter the name of the group that you want to push and select the group from the drop-down menu.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Click Save or click Save & Add Another if you want to push multiple groups.",
+      "depth": 7,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          20,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Close.",
+      "depth": 7,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, click By name on the left-side navigation and verify that all of your groups have been added.",
+      "depth": 7,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "Select the Find groups by rule option from the Push Groups drop-down menu.",
+      "depth": 7,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          30
+        ],
+        [
+          47,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 7
+    },
+    {
+      "item": "In the Push groups by rule window:",
+      "depth": 7,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Rule name: Enter a name for the rule.",
+      "depth": 8,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Group name: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the name matching the condition. For example, you can select Contains as the match condition and enter Admins as the string to match all groups that has the string \"Admin\" and push them to Authentication Service.",
+      "depth": 8,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          182,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "Group description: Select a match condition from the drop-down menu and enter a string that should be used to find a group with the description matching the condition. For example, you can select Contains as the match condition and enter For Admins as the string to match all groups that has the string \"For Admins\" in the description and push them to Authentication Service.",
+      "depth": 8,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          196,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "By default, the Immediately push groups found by this rule option is selected to push groups immediately to Authentication Service. However, you can disable it if you do not want to push groups immediately.",
+      "depth": 8,
+      "strong": [
+        [
+          16,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 8
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 8,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Push Groups tab, select the rule name created in the previous step under the By rule option on the left-side navigation, and verify that all of your groups have been added.",
+      "depth": 8,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          84,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 8
+    }
+  ]
+}

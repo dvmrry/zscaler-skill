@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Login Controller",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/login-controller",
+    "node": "1417276",
+    "revision": "3245480",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/login-controller_12.json?VersionId=eCZll9ZjiEVnxJlGmZq5WlDdPPz8jG.9",
+    "updated": "2026-10-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Api Documentation",
+      "description": "Api Documentation",
+      "termsOfService": "urn:tos",
+      "contact": {},
+      "license": {
+        "name": "Apache 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0"
+      },
+      "version": "v2"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8080/papi",
+        "description": "Generated server url"
+      }
+    ],
+    "tags": [
+      {
+        "name": "login-controller"
+      }
+    ],
+    "paths": {
+      "/auth/v1/login": {
+        "post": {
+          "tags": [
+            "login-controller"
+          ],
+          "description": "Authenticate using the <code>apikey</code> and the <code>secretKey</code>. The response returns a JSON Web Token (JWT), which must be used for authentication against other API calls in subsequent requests.",
+          "operationId": "login",
+          "requestBody": {
+            "description": "JSON payload containing API credentials required for authentication.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "description": "Request schema for authenticating with API credentials.",
+                  "$ref": "#/components/schemas/PApiLoginRequest"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "CREATED",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PApiLoginResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "PApiLoginRequest": {
+          "description": "Request payload for authenticating with API credentials.",
+          "title": "PApiLoginRequest",
+          "type": "object",
+          "properties": {
+            "apiKey": {
+              "description": "API key ID obtained from credential management. <p><strong>Note:</strong> Keep this value secure and never expose it in front-end code or public repositories.</p>",
+              "type": "string"
+            },
+            "secretKey": {
+              "description": "Client secret paired with the API key. <p><strong>Note:</strong> This is a sensitive credential. Store it securely (e.g., in environment variables, secure vaults, or secret management systems). Never expose in logs, front-end code, or version control systems.</p>",
+              "type": "string"
+            }
+          }
+        },
+        "PApiLoginResponse": {
+          "description": "Response payload containing JWT token and authentication status message.",
+          "title": "PApiLoginResponse",
+          "type": "object",
+          "properties": {
+            "jwtToken": {
+              "description": "JSON Web Token (JWT) for authenticating subsequent API requests. <p><strong>Note:</strong> This token has an expiration time. Call the login endpoint again to obtain a new token when it expires.</p>",
+              "type": "string"
+            },
+            "message": {
+              "description": "API login status, describing the authentication result.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

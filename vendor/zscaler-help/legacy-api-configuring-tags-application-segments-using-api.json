@@ -1,0 +1,339 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Tags for Application Segments Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-tags-application-segments-using-api",
+    "node": "1541748",
+    "revision": "3227789",
+    "updated": "2026-08-04",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Private Access (ZPA) application segments with tags using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you manage tags within an application segment, you must get the following required details:"
+    },
+    {
+      "item": "Details of the particular application segments you want to manage. To learn more, see Configuring Application Segments Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Segment group IDs. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Server Group IDs. To learn more, see Configuring Server Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Details of tags (including namespace, key, and value). To learn more, see:",
+      "depth": 0
+    },
+    {
+      "item": "Configuring Tag Namespaces Using API",
+      "depth": 1
+    },
+    {
+      "item": "Configuring Tag Key-Value Pairs Using API",
+      "depth": 1
+    },
+    {
+      "heading": "Adding an Application Segment with Tags",
+      "level": 1
+    },
+    {
+      "text": "To add an application segment with tags for the specified customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment.",
+      "depth": 1
+    },
+    {
+      "item": "The domains of the application.",
+      "depth": 1
+    },
+    {
+      "item": "The TCP and UDP ports. You can provide multiple port ranges using the format in the JSON payload.",
+      "depth": 1
+    },
+    {
+      "item": "The segment group and server group IDs.",
+      "depth": 1
+    },
+    {
+      "item": "Tag namespace, key, and key-pair values. To learn more, see Configuring Tag Namespaces Using API and Configuring Tag Key-Value Pairs Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<application segment name>\", \"description\": \"<application segment description>\", \"enabled\": true, \"domainNames\": [ \"<domain name>\" ], \"tcpPortRange\": [ { \"from\": \"443\", \"to\": \"443\" } ], \"segmentGroupId\": \"<segment group ID>\", \"serverGroups\": [ { \"id\": \"<server group ID>\" } ], \"tags\": [ { \"namespace\": { \"id\": \"<namespace ID>\" }, \"tagKey\": { \"id\": \"<key ID>\" }, \"tagValue\": { \"id\": \"<value ID>\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"app-seg-tagged.com\", \"description\": \"Application segment with tags\", \"enabled\": true, \"domainNames\": [ \"app-seg-tagged.com\" ], \"tcpPortRange\": [ { \"from\": \"443\", \"to\": \"443\" } ], \"segmentGroupId\": \"145260601092866600\", \"serverGroups\": [ { \"id\": \"145260601092866700\" } ], \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\" }, \"tagKey\": { \"id\": \"145260601092866401\" }, \"tagValue\": { \"id\": \"145260601092866402\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145260601092866801\", \"modifiedTime\": \"1705617500\", \"creationTime\": \"1705617500\", \"modifiedBy\": \"145260601092866482\", \"name\": \"app-seg-tagged.com\", \"enabled\": true, \"domainNames\": [ \"app-seg-tagged.com\" ], \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\", \"name\": \"Environment\" }, \"tagKey\": { \"id\": \"145260601092866401\", \"name\": \"Region\" }, \"tagValue\": { \"id\": \"145260601092866402\", \"name\": \"us-east-1\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Tags for an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "To update the tags for an application segment:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/72057615512764474.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The name of the application segment.",
+      "depth": 1
+    },
+    {
+      "item": "The domains of the application.",
+      "depth": 1
+    },
+    {
+      "item": "The TCP and UDP ports. You can provide multiple port ranges using the format in the JSON payload.",
+      "depth": 1
+    },
+    {
+      "item": "The segment group and server group IDs.",
+      "depth": 1
+    },
+    {
+      "item": "Tag namespace, key, and key-pair values. To learn more, see Configuring Tag Namespaces Using API and Configuring Tag Key-Value Pairs Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<application segment name>\", \"enabled\": true, \"domainNames\": [ \"<domain>\" ], \"tcpPortRange\": [ { \"from\": \"443\", \"to\": \"443\" } ], \"segmentGroupId\": \"<segment group ID>\", \"serverGroups\": [ { \"id\": \"<server group ID>\" } ], \"tags\": [ { \"namespace\": { \"id\": \"<namespace ID>\" }, \"tagKey\": { \"id\": \"<key ID>\" }, \"tagValue\": { \"id\": \"<value ID>\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"app-seg-tagged.com\", \"enabled\": true, \"domainNames\": [ \"app-seg-tagged.com\" ], \"tcpPortRange\": [ { \"from\": \"443\", \"to\": \"443\" } ], \"segmentGroupId\": \"145260601092866600\", \"serverGroups\": [ { \"id\": \"145260601092866700\" } ], \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\" }, \"tagKey\": { \"id\": \"145260601092866401\" }, \"tagValue\": { \"id\": \"145260601092866403\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Tags for Inherited or Shared Application Segments",
+      "level": 1
+    },
+    {
+      "text": "To update the tags for inherited or shared application segments:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to update data from the Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "Passing microtenantId in the request endpoint updates tags for an inherited or shared application segment. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/72057615512764474?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following in the tags model. The required fields are highlighted in red:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "namespace.Id: The unique identifier of the namespace. To learn more, see Configuring Tag Namespaces Using API.",
+      "depth": 1
+    },
+    {
+      "item": "tagKey.Id: The unique identifier of the key. To learn more, see Configuring Tag Key-Value Pairs Using API.",
+      "depth": 1
+    },
+    {
+      "item": "tagValue.Id: The unique identifier of the value. To learn more, see Configuring Tag Key-Value Pairs Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"tags\": [ { \"namespace\": { \"id\": \"<namespace ID>\" }, \"tagKey\": { \"id\": \"<key ID>\" }, \"tagValue\": { \"id\": \"<value ID>\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"tags\": [ { \"namespace\": { \"id\": \"145260601092866400\" }, \"tagKey\": { \"id\": \"145260601092866401\" }, \"tagValue\": { \"id\": \"145260601092866402\" }, \"origin\": \"CUSTOM\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an Application",
+      "level": 1
+    },
+    {
+      "text": "To delete an application segment and remove the associated tags:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}?forceDelete={true|false}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "forceDelete: Indicates if the mapping between the application segment and its segment group is deleted (true) or not (false). This field is optional and is set to false by default.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to update data from the Microtenant. The microtenantId can be obtained on the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "Passing microtenantId in the request endpoint updates tags for an inherited or shared application segment. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/application/72057615512764474?forceDelete=trueµtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

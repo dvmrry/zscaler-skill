@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Kerberos Authentication Deployment Guidelines",
+  "source": {
+    "url": "https://help.zscaler.com/zia/kerberos-authentication-deployment-guidelines",
+    "node": "1399561",
+    "revision": "3251193",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Before you deploy Kerberos, review the following guidelines:"
+    },
+    {
+      "item": "To enforce Kerberos authentication, your organization must send its traffic to port 80, 443, or 8800.",
+      "depth": 0
+    },
+    {
+      "item": "For known locations, the Zscaler service enforces Kerberos on all explicitly forwarded traffic it receives on port 8800, unless the location does not have authentication enabled. The SSL/TLS inspection settings and other settings are inherited from the location. If Kerberos isn't enabled for a location, but you need some users from that location to use Kerberos, you can send their traffic to port 8800. Ensure that remote users send their traffic to port 8800. The service doesn't perform SSL/TLS inspection on this traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Enabling Kerberos on a location enforces Kerberos authentication on all traffic that is explicitly forwarded to the service from that location and its dedicated proxy ports. Therefore, when Kerberos is enabled on a location, you can forward traffic to port 80 or 443, and the service still enforces Kerberos authentication.",
+      "depth": 0
+    },
+    {
+      "item": "Authentication must be enabled on a location that deploys Kerberos authentication for some or all its users.",
+      "depth": 0
+    },
+    {
+      "text": "To complete the required tasks before deploying Kerberos, see the Kerberos requirements."
+    },
+    {
+      "text": "The service only supports Kerberos authentication for traffic that is forwarded to the service in explicit mode. It does not support Kerberos authentication for traffic forwarded to the service in transparent mode (i.e., traffic forwarded through a GRE or IPSec tunnel, and the browser isn't configured to use a PAC file to forward traffic), regardless of the location settings or destination port."
+    },
+    {
+      "heading": "Kerberos Deployment Options",
+      "level": 1
+    },
+    {
+      "text": "Kerberos can be used by itself or combined with other authentication mechanisms, depending on your business requirements. The following are some typical deployment scenarios and guidelines:"
+    },
+    {
+      "heading": "Using Kerberos for All Users in a Location",
+      "level": 2
+    },
+    {
+      "text": "You can enable Kerberos for a location, requiring all its users to authenticate via Kerberos. To deploy Kerberos for all users in a location:"
+    },
+    {
+      "item": "Provision all users on the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "Configure Kerberos and enable it for the location. See Deploying Kerberos. When you enable Kerberos on a location, the service automatically uses Kerberos to authenticate users from that location.",
+      "depth": 0
+    },
+    {
+      "item": "Distribute the default Kerberos PAC file URL to all users in the location. The default Kerberos PAC file forwards traffic to port 8800, the default Kerberos port on Public Service Edges for Internet & SaaS (ZIA). Because Kerberos is enabled for the location, there is no need to send the traffic to port 8800. However, if you want to send the traffic to port 80 instead of port 8800, due to firewall constraints, copy the default Kerberos PAC file and replace the variables ${GATEWAY_HOST}:8800 with ${GATEWAY_HOST}:80 and ${SECONDARY_GATEWAY_HOST}:8800 with ${SECONDARY_GATEWAY_HOST}:80. Or, if your organization subscribes to a dedicated proxy port, specify that port instead. To learn more, see Using the Default Zscaler Kerberos PAC File.",
+      "depth": 0
+    },
+    {
+      "heading": "Using Kerberos for Some Users in a Location",
+      "level": 2
+    },
+    {
+      "text": "If you want some users in a location to authenticate via Kerberos because the location already has a primary authentication mechanism (e.g., LDAP or SAML), you can distribute the default Kerberos PAC file URL to those users. To deploy Kerberos authentication for specific users in a location:"
+    },
+    {
+      "item": "Provision the users who use Kerberos for authentication on the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "Configure Kerberos, but don't enable it for the location. To learn more, see Deploying Kerberos.",
+      "depth": 0
+    },
+    {
+      "item": "Distribute the default Kerberos PAC file URL to the appropriate users. To learn more, see Using the Default Zscaler Kerberos PAC File.",
+      "depth": 0
+    },
+    {
+      "heading": "Using Kerberos for Remote Users",
+      "level": 2
+    },
+    {
+      "text": "To use Kerberos authentication for remote users, ensure the remote users meet the following requirements:"
+    },
+    {
+      "item": "Remote users must use DirectAccess to connect to the KDC Proxy. DirectAccess is only supported on Windows 11. Older versions of Windows don't support DirectAccess. There are no native clients for MacOS and Linux. Remote user access without DirectAccess might work for other VPN solutions.",
+      "depth": 0
+    },
+    {
+      "item": "Edit the default Kerberos PAC file and distribute its URL to the remote users. Copy the default Kerberos PAC file and add a bypass for the KDC Proxy hostname. Retain the default destination port, port 8800, to ensure that remote user traffic is sent to that port on the Public Service Edge. If you want to send remote user traffic to a dedicated proxy port to enable the service to apply customized SSL/TLS settings:",
+      "depth": 0
+    },
+    {
+      "item": "Specify the dedicated proxy port as the destination port, in the PAC file.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that Kerberos is enabled at the location associated with the dedicated proxy port.",
+      "depth": 1
+    }
+  ]
+}

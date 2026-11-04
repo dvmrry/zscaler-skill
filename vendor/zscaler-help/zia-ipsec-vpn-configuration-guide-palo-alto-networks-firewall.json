@@ -1,0 +1,2056 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IPSec VPN Configuration Guide for Palo Alto Networks Firewall",
+  "source": {
+    "url": "https://help.zscaler.com/zia/ipsec-vpn-configuration-guide-palo-alto-networks-firewall",
+    "node": "1399101",
+    "revision": "3249921",
+    "updated": "2026-10-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article uses only sample IP addresses in the configuration steps and screenshots. For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+    },
+    {
+      "text": "This article illustrates how to configure two IPSec VPN tunnels from a Palo Alto Networks firewall to two Public Service Edges for Internet & SaaS (ZIA): a primary tunnel from the PAN appliance to a Public Service Edge in one data center and a secondary tunnel from the PAN appliance to a Public Service Edge in another data center."
+    },
+    {
+      "text": "In this article, the IP address of the primary Public Service Edge is 165.225.80.35 and the IP address of the secondary Public Service Edge is 185.46.212.35. You can learn how to locate the Public Service Edge IP addresses for your organization in the Prerequisites section."
+    },
+    {
+      "text": "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address. If your organization wants to forward more than 400 Mbps of traffic, Zscaler recommends using one of the following configurations:"
+    },
+    {
+      "item": "Configure multiple IPSec tunnels with different public source IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
+      "depth": 0
+    },
+    {
+      "text": "For example, if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels."
+    },
+    {
+      "text": "Organizations typically forward all traffic destined for any port to the Zscaler service. Alternatively, you can limit the traffic that you forward to the service to HTTP and HTTPS traffic (traffic destined for port 80 and port 443). Regardless, tunneling provides visibility into the internal IP addresses, which can be used for the Zscaler security policies and logging."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have the following information for setting up the tunnels:"
+    },
+    {
+      "item": "IP addresses of the Public Service Edges",
+      "depth": 0
+    },
+    {
+      "item": "Virtual IP addresses of the Public Service Edges",
+      "depth": 0
+    },
+    {
+      "item": "Maximum Transmission Unit (MTU) for the tunnels",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the locations of the Public Service Edge Virtual IP addresses correspond to the locations of the Public Service Edge IP addresses.",
+      "depth": 0
+    },
+    {
+      "text": "If you are unable to ping both Public Service Edge IP addresses, contact Zscaler Support."
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in the Zscaler Admin Console",
+      "level": 1
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Add the VPN Credential",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Note down the IP address or FQDN and the pre-shared key (PSK) of the added VPN credentials. You need this information to link the VPN credentials to a location and create the IKE gateways.",
+      "depth": 0
+    },
+    {
+      "item": "Link the VPN Credentials to a Location",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnels on PAN-OS",
+      "level": 1
+    },
+    {
+      "text": "This guide covers only the configuration details of IPSec VPN tunnels between the Palo Alto Networks firewall and the Public Service Edges. For any other specific information about Palo Alto Networks, refer to the Palo Alto Networks documentation."
+    },
+    {
+      "text": "This section describes how to configure two IPSec VPN tunnels on a PAN-OS firewall running version 8.x or later."
+    },
+    {
+      "text": "The following image shows the lab setup."
+    },
+    {
+      "text": "The ethernet1/2 interface represents the internal corporate network. All traffic from the corporate network egresses through this interface. The ethernet1/4 interface is the external interface. Traffic destined for any external network goes out through this interface. Ensure that the internal network is in the trust security zone and the external network is in the untrust security zone. Also, ensure that these two interfaces are in the same default virtual router service.",
+      "strong": [
+        [
+          4,
+          15
+        ],
+        [
+          145,
+          156
+        ],
+        [
+          312,
+          317
+        ],
+        [
+          367,
+          374
+        ]
+      ]
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels on PAN-OS:"
+    },
+    {
+      "text": "Zscaler does not support Extended Sequence Number (ESN)-based proposals during IPSec tunnel negotiations."
+    },
+    {
+      "item": "1. Configure the tunnel interfaces.",
+      "depth": 0
+    },
+    {
+      "item": "Configure two tunnel interfaces on the external interface (ethernet1/4). Ensure both tunnels are configured in the untrust security zone. In this example, the primary tunnel interface is named tunnel.1 with a source IP address 10.96.19.91. The secondary tunnel interface is named tunnel.2 with a source IP address 10.96.19.92.",
+      "depth": 0,
+      "strong": [
+        [
+          115,
+          122
+        ],
+        [
+          193,
+          201
+        ],
+        [
+          227,
+          238
+        ],
+        [
+          280,
+          288
+        ],
+        [
+          314,
+          325
+        ]
+      ]
+    },
+    {
+      "item": "To configure the primary tunnel interface:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to Network > Interfaces.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          47,
+          54
+        ],
+        [
+          57,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Click the Tunnel tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Tunnel Interface window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Interface Name: Enter a name for the tunnel interface, such as tunnel.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Comment: (Optional) Enter additional notes or information.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Netflow Profile: Choose the appropriate Netflow profile. In this example, it's None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          79,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "On the Config tab:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Assign Interface To:",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Router: Choose default.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Security Zone: Choose untrust.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the IPv4 tab, click Add.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          23,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "IP: Palo Alto Networks uses ICMP probes for tunnel and policy-based forward monitoring. Enter the source IP address from which the ICMP monitoring probes is initiated. The source IP address can be any IP address that does not coincide with an existing subnet. In this example, the IP is 10.96.19.91.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Advanced tab:",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Management Profile: Choose the appropriate management profile.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "MTU: Enter the optimal MTU for your tunnel. In this example, it's 1400.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Config and then Save changes.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Commit and then OK.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          22,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat this procedure to configure the secondary tunnel interface (tunnel.2) using the source IP address 10.96.19.92.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          67,
+          75
+        ],
+        [
+          105,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "2. Create the IKE crypto profile.",
+      "depth": 0
+    },
+    {
+      "item": "Create an IKE crypto profile that specifies the security settings for the IKE phase 1 negotiations.",
+      "depth": 0
+    },
+    {
+      "item": "To create an IKE crypto profile:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Network tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Network Profiles > IKE Crypto.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          51
+        ],
+        [
+          54,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the IKE Crypto Profile window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IKE crypto profile, such as zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "DH Group: Click Add, and choose group2.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          16,
+          19
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Encryption: Click Add, and choose aes-128-gcm.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          18,
+          21
+        ],
+        [
+          34,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Based on the DH group selected, Authentication is automatically chosen.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Key Lifetime: Set it for 24 Hours.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "IKEv2 Authentication Multiple: Enter 0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "3. Create the IKE gateway.",
+      "depth": 0
+    },
+    {
+      "item": "Create two IKE gateways, one for each Zscaler IPSec VPN node. In this example, the primary gateway created is named ZscalerPrimaryTunnel with the Public Service Edge IP address 165.225.80.35. The secondary gateway is named ZscalerBackupTunnel with the Public Service Edge IP address 185.46.212.35.",
+      "depth": 0,
+      "strong": [
+        [
+          116,
+          136
+        ],
+        [
+          177,
+          190
+        ],
+        [
+          223,
+          242
+        ],
+        [
+          283,
+          296
+        ]
+      ]
+    },
+    {
+      "item": "To create the primary IKE gateway:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Network tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Network Profiles > IKE Gateways.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          51
+        ],
+        [
+          54,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the IKE Gateway window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IKE gateway, such as ZscalerPrimaryTunnel.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Version: Select IKEv2 only mode.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Address Type: Select IPv4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Interface: Choose the external interface ethernet 1/4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          41,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Local IP Address: Choose None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Peer IP Type: Choose Static.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Peer IP Address: Enter the Public Service Edge IP address for the primary gateway. In this example, it's 165.225.80.35.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Select Pre-Shared Key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Pre-shared Key: Enter the pre-shared key of the VPN credentials you created in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Confirm Pre-shared Key: Reenter the pre-shared key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Local Identification: Enter the FQDN or IP address of the VPN credentials you created in the Zscaler Admin Console. In this example, it's the IP address 99.41.72.25.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Peer Identification: Choose None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Advanced Options tab:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Enable Passive Mode: Deselect this checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Enable NAT Traversal: Select this checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IKE Crypto Profile: Choose the IKE crypto profile that you created when creating the IKE Crypto Profile. In this example, it's zscaler.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          127,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "Liveness Check: Select this checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Interval: Enter 5.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the procedure to create the secondary IKE gateway (ZscalerBackupTunnel) using the Public Service Edge IP address 185.46.212.35.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          58,
+          77
+        ],
+        [
+          120,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "4. Create the IPSec crypto profile.",
+      "depth": 0
+    },
+    {
+      "item": "Create an IPSec crypto profile that specifies the security parameters for the IKE phase 2 negotiations.",
+      "depth": 0
+    },
+    {
+      "item": "To create an IPSec crypto profile:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Network tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Network Profiles > IPSec Crypto.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          51
+        ],
+        [
+          54,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the IPSec Crypto Profile window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IPSec crypto profile, such as zscaler-ipsec.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IPSec Protocol: Ensure ESP is chosen.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Encryption: Click Add, and choose aes-gcm based encryption.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          18,
+          21
+        ],
+        [
+          34,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption.",
+      "depth": 2
+    },
+    {
+      "item": "Authentication: Click Add, and choose md5.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          25
+        ],
+        [
+          38,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "DH Group: Ensure group2 is chosen.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Lifetime: Set it for 8 Hours.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          23,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Keep the Enable option unchecked because Zscaler does not support life size.",
+      "depth": 2,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "5. Create the tunnel monitor profile.",
+      "depth": 0
+    },
+    {
+      "item": "A tunnel monitor profile specifies how the firewall monitors IPSec tunnels and the actions it takes if the tunnel is unavailable.",
+      "depth": 0
+    },
+    {
+      "item": "To create a tunnel monitor profile:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Network tab.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Network Profiles > Monitor.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          51
+        ],
+        [
+          54,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Monitor Profile window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the monitor profile, such as zscalersla.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Action: Choose Fail Over.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Interval (sec): Enter 20.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Threshold: Enter 5.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "6. Create the IPSec VPN tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "Create two IPSec VPN tunnels at two different Public Service Edges. In this example, the primary IPSec tunnel is configured from the primary IKE gateway (ZscalerPrimaryTunnel), which has the Public Service Edge IP address 165.225.80.35 and the Virtual IP address 165.225.80.34. The secondary IPSec tunnel is configured from the secondary IKE gateway (ZscalerBackupTunnel), which has the Public Service Edge IP address 185.46.212.35 and the Virtual IP address 185.46.212.34.",
+      "depth": 0,
+      "strong": [
+        [
+          154,
+          174
+        ],
+        [
+          222,
+          235
+        ],
+        [
+          263,
+          276
+        ],
+        [
+          351,
+          370
+        ],
+        [
+          418,
+          431
+        ],
+        [
+          459,
+          472
+        ]
+      ]
+    },
+    {
+      "item": "To create the primary IPSec VPN tunnel:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Network tab, and click IPSec Tunnels in the left-side navigation.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          58
+        ],
+        [
+          74,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the General tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the tunnel, such as ZscalerPrimaryTunnel.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel Interface: Choose the primary tunnel interface you created when configuring the tunnel interfaces. In this example, it's tunnel.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          128,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Type: Ensure Auto Key is chosen.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Address Type: Choose IPv4.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "IKE Gateway: Choose the primary IKE gateway you created when creating the IKE gateway. In this example, it's ZscalerPrimaryTunnel.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          109,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "IPSec Crypto Profile: Choose the IPSec crypto profile you created when creating the IPSec crypto profile. In this example, it's zscaler-ipsec.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          128,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "Show Advanced Options: Select.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Enable Replay Protection: Select this checkbox.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Copy TOS Header: Deselect this checkbox.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel Monitor: Select this checkbox.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Destination IP: Enter the Virtual IP address of your primary tunnel. In this example, it's 165.225.80.34.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Profile: Choose the tunnel monitor profile you created when creating the tunnel monitor profile. In this example, it's zscalersla.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          119,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Proxy IDs tab, click Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          28,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Proxy ID: Enter a name for the proxy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Local: Enter the local IP address 0.0.0.0/0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Remote: Enter the remote IP address 0.0.0.0/0.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Ensure Any is chosen.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click OK again.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Config and then Save Changes.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          22,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Commit and then OK.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          22,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the procedure to create a secondary IPSec VPN tunnel (ZscalerSecondaryTunnel) using the secondary tunnel interface (tunnel.2), IKE gateway (ZscalerBackupTunnel), and Public Service Edge Virtual IP address (185.46.212.34).",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          61,
+          84
+        ],
+        [
+          123,
+          131
+        ],
+        [
+          147,
+          166
+        ],
+        [
+          213,
+          226
+        ]
+      ]
+    },
+    {
+      "item": "7. Define the policy-based forwarding rule.",
+      "depth": 0
+    },
+    {
+      "item": "Define two policy-based forwarding rules to route the traffic from the Palo Alto Networks appliance into the tunnel.",
+      "depth": 0
+    },
+    {
+      "item": "To define the primary policy-based forwarding rule:",
+      "depth": 0
+    },
+    {
+      "item": "In the Palo Alto Networks web interface, go to the Policies tab, and click Policy Based Forwarding in the left-side navigation.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          51,
+          59
+        ],
+        [
+          75,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the bottom-left corner.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the General tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the policy, such as PTpolicy.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Tags: (Optional) Choose a tag.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Source tab, under Zone, click Add, and choose trust.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          29
+        ],
+        [
+          37,
+          40
+        ],
+        [
+          53,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Destination/Application/Service tab:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination Address: Ensure Any is selected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Applications: Ensure Any is selected.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Service: Ensure Any is chosen. If you only want to send traffic to port 80/443, click Add, and choose service-http and service-https.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          19
+        ],
+        [
+          86,
+          89
+        ],
+        [
+          102,
+          114
+        ],
+        [
+          119,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Forwarding tab:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Action: Choose Forward.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Egress Interface: Choose the primary tunnel interface you created when configuring the tunnel interfaces. In this example, it's tunnel.1.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          128,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Next Hop: Leave this field blank.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Monitor: Select this checkbox.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Profile: Choose zscalersla.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Disable this rule if nexthop/monitor ip is unreachable: Select this checkbox.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "IP Address: Enter the Virtual IP address of your primary tunnel. In this example, it's 165.225.80.34.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Schedule: Choose None.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the procedure to define the policy-based forwarding rule for the secondary tunnel (BTpolicy) using the secondary tunnel interface (tunnel.2) and Public Service Edge Virtual IP address (185.46.212.34).",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          90,
+          98
+        ],
+        [
+          138,
+          146
+        ],
+        [
+          192,
+          205
+        ]
+      ]
+    },
+    {
+      "text": "You need to create some additional security policies on the firewall to allow the internet traffic to flow through the IPSec tunnel to Internet & SaaS."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "From the navigation menu, you can go to Data Explorer > Internet & SaaS > Tunnel Insights to see data as well as monitor the health and status of your configured IPSec VPN tunnels. To learn more, see About Insights and About Insights Logs."
+    },
+    {
+      "text": "On the PAN appliance, the following are some sample commands that you can use to monitor and troubleshoot the VPNs. Make an SSH connection to the PAN-OS and log in to the CLI to execute the commands."
+    },
+    {
+      "item": "View a List of \"show vpn\" Commands",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn command to view the IPSec-VPN tunnel information, IKE gateway configuration, and IPSec tunnel configuration.",
+      "depth": 0
+    },
+    {
+      "item": "> flow Show dataplane IPSec-VPN tunnel information > gateway show list of IKE gateway configuration > ike-sa show IKE SA > ipsec-sa show IPSec SA > tunnel show list of auto-key IPSec tunnel configuration",
+      "depth": 0
+    },
+    {
+      "item": "View the VPN Tunnels and Their States and Peer Addresses",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn flow command to view the total number of configured VPN tunnels, their states, and peer addresses.",
+      "depth": 0
+    },
+    {
+      "item": "total tunnels configured: 2 filter - type IPSec, state any total IPSec tunnel configured: 2 total IPSec tunnel shown: 2 id name state monitor local-ip peer-ip tunnel-i/f -- ---- ----- ------- -------- ------- ---------- 24 localzs3:primarytunnel active up 10.96.19.238 10.66.88.108 tunnel.2",
+      "depth": 0
+    },
+    {
+      "item": "View the VPN Gateway Configuration Information",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn gateway command to view the VPN gateway configuration, no. of gateways configured, their peer address, etc.",
+      "depth": 0
+    },
+    {
+      "item": "GwID Name Peer-Address/ID Local Address/ID Protocol Proposals ---- ---- --------------- ---------------- -------- --------- 17 localzs3 10.66.88.108 10.96.19.238(email:pa220@ec2.c IKEv2 [PSK][DH2][AES128][SHA1]360-sec Show IKE gateway config: Total 1 gateways found.",
+      "depth": 0
+    },
+    {
+      "item": "View the Phase 1 SA Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn ike-sa command to view the configured phase 1 SA tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "IKEv2 SAs Gateway ID Peer-Address Gateway Name Role SN Algorithm Established Expiration Xt Child ST ---------- ------------ ------------ ---- -- --------- ----------- ---------- -- ----- -- 17 10.66.88.108 localzs3 Init 1 PSK/ DH2/A128/SHA1 Jun.29 12:49:41 Jun.29 12:55:41 0 1 Established IKEv2 IPSec Child SAs Gateway Name TnID Tunnel ID Parent Role SPI(in) SPI(out) MsgID ST ------------ ---- ------ -- ------ ---- ------- -------- ----- -- localzs3 24 localzs3:primarytunnel 1 1 Init CBF7DC1D 5D1568FD 00000001 Mature Show IKEv2 SA: Total 1 gateways found. 1 ike sa found.",
+      "depth": 0
+    },
+    {
+      "item": "View the Phase 2 SA Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn ipsec-sa command to view the phase 2 SA tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "GwID/client IP TnID Peer-Address Tunnel(Gateway) Algorithm SPI(in) SPI(out) life(Sec/KB) -------------- ---- ------------ --------------- --------- ------- -------- ------------ 17 24 10.66.88.108 localzs3:primarytunnel(localzs3) ESP/A256/MD5 CBF7DC1D 5D1568FD 3527/102400 Show IPSec SA: Total 2 tunnels found. 1 ipsec sa found.",
+      "depth": 0
+    },
+    {
+      "item": "View the VPN Tunnels",
+      "depth": 0
+    },
+    {
+      "item": "Use the show vpn tunnel command to view the VPN tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "TnID Name(Gateway) Local Proxy IP Ptl:Port Remote Proxy IP Ptl:Port Proposals ----------------------------------------------------------------------------------------------------------------------------------------------------- 3 Zscaler-Tunnel(VPN-71) 0.0.0.0/0 0:0 0.0.0.0/0 0:0 ESP tunl [DH2][NULL][MD5] 7200-sec 4 Zscaler-backup-tunnel(VPN-81) 0.0.0.0/0 0:0 0.0.0.0/0 0:0 ESP tunl [DH2][NULL][MD5] 7200-sec Show IPSec tunnel config: Total 2 tunnels found",
+      "depth": 0
+    },
+    {
+      "item": "Clear Phase 1 SA Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Use the run clear vpn ike-sa command to clear the phase 1 SA tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "Clear IKE SA: 0 IKEv1 SA, 1 IKEv2 SA.",
+      "depth": 0
+    },
+    {
+      "item": "Clear Phase 2 SA Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "Use the run clear vpn ipsec-sa command to clear the phase 2 SA tunnels.",
+      "depth": 0
+    },
+    {
+      "item": "Clear IPSec SA: 0 IKEv1 SA, 2 IKEv2 SA.",
+      "depth": 0
+    },
+    {
+      "item": "View the Routing Table",
+      "depth": 0
+    },
+    {
+      "item": "Use the show routing fib command to view the total virtual routers.",
+      "depth": 0
+    },
+    {
+      "item": "total virtual-router shown : 1 -------------------------------------------------------------------------------- virtual-router name: default interfaces: ethernet1/1 ethernet1/2 tunnel.1 tunnel.2 tunnel.3 tunnel.4 tunnel.5 tunnel.6 tunnel.7 tunnel.8 tunnel.9 tunnel.10 tunnel.11 tunnel.12 route table: flags: u - up, h - host, g - gateway, e - ecmp, * - preferred path maximum of fib entries for device: 2500 maximum of IPv4 fib entries for device: 2500 maximum of IPv6 fib entries for device: 2500 number of fib entries for device: 25 maximum of fib entries for this fib: 2500 number of fib entries for this fib: 25 number of fib entries shown: 25 id destination nexthop flags interface mtu -------------------------------------------------------------------------------- 27 0.0.0.0/0 0.0.0.0 u tunnel.11 1300 2821 10.10.104.0/24 10.96.19.254 ug ethernet1/1 1500 2824 10.65.25.3/32 10.96.19.254 ug ethernet1/1 1500 2826 10.66.88.107/32 10.96.19.254 ug ethernet1/1 1500 2827 10.66.88.108/32 10.96.19.254 ug ethernet1/1 1500 2822 10.66.88.131/32 10.96.19.254 ug ethernet1/1 1500 2823 10.66.88.135/32 10.96.19.254 ug ethernet1/1 1500 2820 10.96.19.0/24 0.0.0.0 u ethernet1/1 1500 5 10.96.19.81/32 0.0.0.0 uh tunnel.1 1300 4232 10.96.19.82/32 0.0.0.0 uh tunnel.2 1300 7 10.96.19.83/32 0.0.0.0 uh tunnel.3 1500 12 10.96.19.88/32 0.0.0.0 uh tunnel.8 1400 13 10.96.19.89/32 0.0.0.0 uh tunnel.9 1400 14 10.96.19.90/32 0.0.0.0 uh tunnel.10 1400 15 10.96.19.91/32 0.0.0.0 uh tunnel.11 1300 16 10.96.19.92/32 0.0.0.0 uh tunnel.12 1300 2819 10.96.19.238/32 0.0.0.0 uh ethernet1/1 1500 24 10.96.19.242/32 0.0.0.0 u tunnel.7 1400 2825 165.225.241.79/32 10.96.19.254 ug ethernet1/1 1500 49 172.19.1.0/24 0.0.0.0 u ethernet1/2 1500 48 172.19.1.1/32 0.0.0.0 uh ethernet1/2 1500",
+      "depth": 0
+    }
+  ]
+}

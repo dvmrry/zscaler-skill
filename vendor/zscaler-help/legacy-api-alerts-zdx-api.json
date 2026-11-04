@@ -1,0 +1,506 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Alerts",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/alerts-zdx-api",
+    "node": "1457676",
+    "revision": "2430056",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Alerts_10.json?VersionId=RZg3QonXWhrRnROtUonOTY3Q_A7TCqFs",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": [
+      {
+        "name": "Alerts"
+      }
+    ],
+    "paths": {
+      "/alerts/ongoing": {
+        "get": {
+          "description": "Gets the list of ongoing alert rules across an organization. All ongoing alert rules are returned if the search filter is not specified. The endpoint defaults to the previous 2 hours. Ongoing alerts are alerts that don't have an Ended On date. The alert rule's Started On date is used in conjunction with the provided filters. Cannot exceed the 14-day time range limit for alert rules.",
+          "tags": [
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "alerts": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Alert"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/alerts/historical": {
+        "get": {
+          "description": "Gets the list of alert history rules defined across an organization. All alert history rules are returned if the search filter is not specified. The default is set to the previous 2 hours. Alert history rules have an Ended On date. The Ended On date is used to pull alerts in conjunction with the provided filters. Cannot exceed the 14-day time range limit for alert rules.",
+          "tags": [
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "alerts": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/Alert"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/alerts/{alert_id}": {
+        "get": {
+          "description": "Gets the alert details including the impacted department, Zscaler locations, geolocation, and alert trigger.",
+          "tags": [
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "alert_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/AlertDetails"
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/alerts/{alert_id}/affected_devices": {
+        "get": {
+          "description": "Gets the list of all affected devices associated with an alert rule in conjunction with provided filters (e.g., impacted department, locations, and geolocation) by using the Alert ID provided.",
+          "tags": [
+            "Alerts"
+          ],
+          "parameters": [
+            {
+              "in": "path",
+              "name": "alert_id",
+              "schema": {
+                "type": "string"
+              },
+              "required": true
+            },
+            {
+              "$ref": "#/components/parameters/departments"
+            },
+            {
+              "$ref": "#/components/parameters/locations"
+            },
+            {
+              "$ref": "#/components/parameters/active_geo"
+            },
+            {
+              "$ref": "#/components/parameters/offset"
+            },
+            {
+              "$ref": "#/components/parameters/limit"
+            },
+            {
+              "$ref": "#/components/parameters/location_groups"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "object",
+                    "properties": {
+                      "devices": {
+                        "type": "array",
+                        "items": {
+                          "$ref": "#/components/schemas/AlertDevice"
+                        }
+                      },
+                      "next_offset": {
+                        "type": "string",
+                        "description": "This value must be entered in the next request to get the next batch from the list."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "from": {
+          "in": "query",
+          "name": "from",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The start time (in seconds) for the query. The value is entered in Unix Epoch. If start time is not entered, returns the data for the previous 2 hours."
+        },
+        "to": {
+          "in": "query",
+          "name": "to",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The end time (in seconds) for the query. The value is entered in Unix Epoch. If end time is not entered, returns the data for the previous 2 hours."
+        },
+        "departments": {
+          "in": "query",
+          "name": "dept",
+          "description": "The department ID. You can add multiple department IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "locations": {
+          "in": "query",
+          "name": "loc",
+          "description": "The Zscaler location ID. You can add multiple location IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "active_geo": {
+          "in": "query",
+          "name": "geo",
+          "description": "The active geolocation ID. You can add multiple active geolocation IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            }
+          },
+          "style": "form",
+          "explode": false
+        },
+        "offset": {
+          "in": "query",
+          "name": "offset",
+          "required": false,
+          "schema": {
+            "type": "string"
+          },
+          "description": "<p>The <code>next_offset</code> value from the last request. You must enter this value to get the next batch from the list. When the <code>next_offset</code> value becomes null, the list is complete.</p>"
+        },
+        "limit": {
+          "in": "query",
+          "name": "limit",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "default": 1000,
+            "minimum": 1,
+            "maximum": 10000
+          },
+          "description": "The number of items that must be returned per request from the list."
+        },
+        "location_groups": {
+          "in": "query",
+          "name": "location groups",
+          "description": "The location group ID. You can add multiple location group IDs.",
+          "required": false,
+          "schema": {
+            "type": "array",
+            "items": {
+              "type": "integer"
+            }
+          },
+          "style": "form",
+          "explode": false
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      },
+      "schemas": {
+        "AlertDetails": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The alert ID."
+            },
+            "rule_name": {
+              "type": "string",
+              "description": "The alert name."
+            },
+            "severity": {
+              "type": "string",
+              "description": "The severity level of the alert."
+            },
+            "alert_type": {
+              "type": "string",
+              "description": "The alert type."
+            },
+            "alert_status": {
+              "type": "string",
+              "description": "The alert status."
+            },
+            "application": {
+              "type": "object",
+              "properties": {
+                "id": {
+                  "type": "integer"
+                },
+                "name": {
+                  "type": "string"
+                }
+              }
+            },
+            "geolocations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "string",
+                    "description": "The location ID."
+                  },
+                  "city": {
+                    "type": "string",
+                    "description": "The city name."
+                  },
+                  "state": {
+                    "type": "string",
+                    "description": "The state name."
+                  },
+                  "country": {
+                    "type": "string",
+                    "description": "The country name."
+                  },
+                  "num_devices": {
+                    "type": "integer",
+                    "description": "The number of affected devices."
+                  }
+                }
+              }
+            },
+            "departments": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "The department ID."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The name of the department."
+                  },
+                  "num_devices": {
+                    "type": "integer",
+                    "description": "The number of affected devices."
+                  }
+                }
+              }
+            },
+            "locations": {
+              "type": "array",
+              "items": {
+                "type": "object",
+                "properties": {
+                  "id": {
+                    "type": "integer",
+                    "description": "The location ID."
+                  },
+                  "name": {
+                    "type": "string",
+                    "description": "The location name."
+                  },
+                  "num_devices": {
+                    "type": "integer",
+                    "description": "The number of affected devices."
+                  },
+                  "groups": {
+                    "type": "object",
+                    "properties": {
+                      "id": {
+                        "type": "integer",
+                        "description": "The location group ID."
+                      },
+                      "name": {
+                        "type": "string",
+                        "description": "The location group name."
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "started_on": {
+              "type": "integer"
+            },
+            "ended_on": {
+              "type": "integer"
+            }
+          }
+        }
+      }
+    }
+  }
+}

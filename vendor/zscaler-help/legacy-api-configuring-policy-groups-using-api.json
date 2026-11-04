@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Policy Groups Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-policy-groups-using-api",
+    "node": "1541529",
+    "revision": "3249189",
+    "updated": "2026-10-15",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on configuring ZPA policy groups using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "text": "After policy groups are enabled, legacy access policy API calls are not supported for managing policies. Ensure that cloud service API automation and workflows for legacy access policy API calls are updated before enabling this feature. To learn more, contact Zscaler Support."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before managing or obtaining details of policy groups, you must get the policy group set ID. To learn more, see Obtaining Policy Group Set Details Using API."
+    },
+    {
+      "heading": "Getting All Policy Groups",
+      "level": 1
+    },
+    {
+      "text": "To get all policy groups within a policy group set:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/all.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/all."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"modifiedTime\": \"1778041475\", \"creationTime\": \"1772652338\", \"modifiedBy\": \"73255551684837478\", \"id\": \"73255551684837496\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"Global Policy Group\", \"type\": \"GLOBAL\", \"groupOrder\": \"1\", \"permissionLevel\": \"FULL\" }, { \"modifiedTime\": \"1782909192\", \"creationTime\": \"1778255900\", \"modifiedBy\": \"73255551684837485\", \"id\": \"73255551684837608\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"punit-test-group-5\", \"type\": \"CUSTOM\", \"groupOrder\": \"2\", \"permissionLevel\": \"FULL\" }, { \"modifiedTime\": \"1782136682\", \"creationTime\": \"1778255906\", \"modifiedBy\": \"73255551684837485\", \"id\": \"73255551684837609\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"punit-test-group-6\", \"type\": \"CUSTOM\", \"groupOrder\": \"3\", \"permissionLevel\": \"FULL\" }, { \"modifiedTime\": \"1783064270\", \"creationTime\": \"1783064231\", \"modifiedBy\": \"73255551684837485\", \"id\": \"73255551684837655\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"raja-group\", \"type\": \"CUSTOM\", \"groupCriteriaRuleGid\": \"73255551684837656\", \"groupOrder\": \"4\", \"groupCriteriaRule\": { \"id\": \"73255551684837656\", \"modifiedTime\": \"1783064231\", \"creationTime\": \"1783064231\", \"modifiedBy\": \"73255551684837485\", \"name\": \"raja-group_73255551684837655_criteria\", \"ruleOrder\": \"0\", \"priority\": \"10\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"ALLOW\", \"disabled\": \"0\", \"extranetEnabled\": false, \"devicePostureFailureNotificationEnabled\": false, \"policySetId\": \"73255551684837392\", \"groupId\": \"73255551684837655\", \"ruleType\": \"GROUP_CRITERIA\", \"conditions\": [ { \"id\": \"101366551\", \"modifiedTime\": \"1783064231\", \"creationTime\": \"1783064231\", \"modifiedBy\": \"73255551684837485\", \"operator\": \"OR\", \"negated\": false, \"policySetType\": \"1\", \"operands\": [ { \"id\": \"101366552\", \"modifiedTime\": \"1783064231\", \"creationTime\": \"1783064231\", \"modifiedBy\": \"73255551684837485\", \"objectType\": \"APP_GROUP\", \"lhs\": \"id\", \"rhs\": \"73255551684837537\", \"name\": \"CLIENTLESS_SEGMENT_GROUP\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"101366551\" } ], \"ruleGid\": \"73255551684837656\" } ], \"readOnly\": false, \"defaultRule\": false, \"zscalerManaged\": false }, \"permissionLevel\": \"FULL\" }, { \"modifiedTime\": \"1784717210\", \"creationTime\": \"1784717182\", \"modifiedBy\": \"73255551684837474\", \"id\": \"73255551684837659\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"ZCC policy group\", \"type\": \"CUSTOM\", \"groupCriteriaRuleGid\": \"73255551684837660\", \"groupOrder\": \"5\", \"groupCriteriaRule\": { \"id\": \"73255551684837660\", \"modifiedTime\": \"1784717182\", \"creationTime\": \"1784717182\", \"modifiedBy\": \"73255551684837474\", \"name\": \"ZCC policy group_73255551684837659_criteria\", \"ruleOrder\": \"0\", \"priority\": \"10\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"ALLOW\", \"disabled\": \"0\", \"extranetEnabled\": false, \"devicePostureFailureNotificationEnabled\": false, \"policySetId\": \"73255551684837392\", \"groupId\": \"73255551684837659\", \"ruleType\": \"GROUP_CRITERIA\", \"conditions\": [ { \"id\": \"102599354\", \"modifiedTime\": \"1784717182\", \"creationTime\": \"1784717182\", \"modifiedBy\": \"73255551684837474\", \"operator\": \"OR\", \"negated\": false, \"policySetType\": \"1\", \"operands\": [ { \"id\": \"102599355\", \"modifiedTime\": \"1784717182\", \"creationTime\": \"1784717182\", \"modifiedBy\": \"73255551684837474\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_zapp\", \"name\": \"zpn_client_type_zapp\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"102599354\" } ], \"ruleGid\": \"73255551684837660\" } ], \"readOnly\": false, \"defaultRule\": false, \"zscalerManaged\": false }, \"permissionLevel\": \"FULL\" }, { \"modifiedTime\": \"1782137003\", \"creationTime\": \"1772652338\", \"modifiedBy\": \"73255551684837485\", \"id\": \"73255551684837497\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"Default Policy Group\", \"type\": \"DEFAULT\", \"groupOrder\": \"6\", \"permissionLevel\": \"FULL\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting All Policy Groups within a Policy Group Set Using Search and Pagination",
+      "level": 1
+    },
+    {
+      "text": "To get all policy groups within a policy group set using search and pagination:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/search.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/search.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "sortBy.sortName: The field name to sort by.",
+      "depth": 1
+    },
+    {
+      "item": "sortBy.sortOrder: The sort direction (i.e., ASC for ascending or DESC for descending).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.operator: The logical operator for combining filter groups (i.e., AND or OR).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].operator: The logical operator for combining filters in the group (i.e., AND or OR).",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].filterName: The field name to filter by.",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].operator: The comparison operator.",
+      "depth": 1
+    },
+    {
+      "item": "filterBy.filterGroups[].filters[].value: The value to compare against.",
+      "depth": 1
+    },
+    {
+      "item": "pageBy.page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pageBy.pageSize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "View the sample JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"sortBy\": { \"sortName\": \"name\", \"sortOrder\": \"ASC\" }, \"filterBy\": { \"operator\": \"AND\", \"filterGroups\": [ { \"operator\": \"OR\", \"filters\": [ { \"filterName\": \"name\", \"operator\": \"EQ\", \"value\": \"punit-test-group-5\" } ] } ] }, \"pageBy\": { \"page\": \"1\", \"pageSize\": \"20\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"modifiedTime\": \"1782909192\", \"creationTime\": \"1778255900\", \"modifiedBy\": \"73255551684837485\", \"id\": \"73255551684837608\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"punit-test-group-5\", \"type\": \"CUSTOM\", \"groupOrder\": \"2\", \"permissionLevel\": \"FULL\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Policy Group Details by ID",
+      "level": 1
+    },
+    {
+      "text": "To get details of a policy group by ID:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Getting All Policy Groups.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": \"1778041475\", \"creationTime\": \"1772652338\", \"modifiedBy\": \"73255551684837478\", \"id\": \"73255551684837496\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"Global Policy Group\", \"type\": \"GLOBAL\", \"groupOrder\": \"1\", \"permissionLevel\": \"FULL\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To add a new policy group to a policy group set:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "action: The rule action. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ALLOW",
+      "depth": 2
+    },
+    {
+      "item": "DENY",
+      "depth": 2
+    },
+    {
+      "item": "REQUIRE_APPROVAL",
+      "depth": 2
+    },
+    {
+      "item": "name: The name of the policy group.",
+      "depth": 1
+    },
+    {
+      "item": "The policy criteria you want to include. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<policy group name>\", \"description\": \"<optional description>\", \"type\": \"CUSTOM\", \"groupCriteria\": { \"name\": \"<name>\", \"action\": \"<action>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"<objectType>\", \"values\": [\"<objectType value>\"] } ], \"operator\": \"<operator>\" } ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"Contracter Ayhan\", \"description\": \"Contractor access group\", \"type\": \"CUSTOM\", \"groupCriteria\": { \"name\": \"Contractors-ayhan-test-Criteria\", \"action\": \"ALLOW\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"IDP\", \"values\": [\"73255551684837442\"] } ], \"operator\": \"OR\" } ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": \"1787092423\", \"creationTime\": \"1787092423\", \"modifiedBy\": \"73255551684837662\", \"id\": \"73255551684837665\", \"policyGroupSetGid\": \"73255551684837495\", \"name\": \"Contracter Ayhan\", \"description\": \"Contractor access group\", \"type\": \"CUSTOM\", \"groupCriteriaRuleGid\": \"73255551684837666\", \"groupOrder\": \"7\", \"groupCriteriaRule\": { \"id\": \"73255551684837666\", \"modifiedTime\": \"1787092423\", \"creationTime\": \"1787092423\", \"modifiedBy\": \"73255551684837662\", \"name\": \"Contractors-ayhan-test-Criteria\", \"ruleOrder\": \"0\", \"priority\": \"12\", \"policyType\": \"1\", \"operator\": \"AND\", \"action\": \"ALLOW\", \"disabled\": \"0\", \"extranetEnabled\": false, \"devicePostureFailureNotificationEnabled\": false, \"policySetId\": \"73255551684837392\", \"groupId\": \"73255551684837665\", \"ruleType\": \"GROUP_CRITERIA\", \"conditions\": [ { \"id\": \"103024035\", \"modifiedTime\": \"1787092423\", \"creationTime\": \"1787092423\", \"modifiedBy\": \"73255551684837662\", \"operator\": \"OR\", \"negated\": false, \"policySetType\": \"1\", \"operands\": [ { \"id\": \"103024036\", \"modifiedTime\": \"1787092423\", \"creationTime\": \"1787092423\", \"modifiedBy\": \"73255551684837662\", \"objectType\": \"IDP\", \"lhs\": \"id\", \"rhs\": \"73255551684837442\", \"name\": \"ZSlogin_73255551684837376\", \"referencedObjectDeleted\": false, \"policySetType\": \"1\", \"conditionId\": \"103024035\" } ], \"ruleGid\": \"73255551684837666\" } ], \"readOnly\": false, \"defaultRule\": false, \"zscalerManaged\": false }, \"permissionLevel\": \"FULL\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To update a policy group within a policy group set:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Getting All Policy Groups.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "action: The rule action. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ALLOW",
+      "depth": 2
+    },
+    {
+      "item": "DENY",
+      "depth": 2
+    },
+    {
+      "item": "REQUIRE_APPROVAL",
+      "depth": 2
+    },
+    {
+      "item": "name: The name of the policy group.",
+      "depth": 1
+    },
+    {
+      "item": "The policy criteria you want to update. To learn more, see Configuring Access Policies Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<policy group name>\", \"description\": \"<optional description>\", \"type\": \"CUSTOM\", \"groupCriteria\": { \"name\": \"<name>\", \"action\": \"ALLOW\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"<objectType>\", \"values\": [\"<objectType value>\"] } ], \"operator\": \"<operator>\" } ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View the example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"Contracter Ayhan\", \"description\": \"Contractor access group\", \"type\": \"CUSTOM\", \"groupCriteria\": { \"name\": \"Contractors-ayhan-test-Criteria\", \"action\": \"DENY\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"IDP\", \"values\": [\"73255551684837442\"] } ], \"operator\": \"OR\" } ] } }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To delete a policy group within a policy group set:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Getting All Policy Groups.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496.",
+      "depth": 0
+    },
+    {
+      "text": "The request fails if the group is referenced or in use."
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Reordering a Policy Group",
+      "level": 1
+    },
+    {
+      "text": "To reorder a policy group within a policy group set:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policyGroupSet/{groupSetId}/group/{groupId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "groupSetId: The unique identifier of the policy group set. To learn more, see Obtaining Policy Group Set Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "groupId: The unique identifier of the policy group. To learn more, see Getting All Policy Groups.",
+      "depth": 1
+    },
+    {
+      "item": "newOrder: The new order of the policy group. The supported value is an integer (e.g., 5).",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73255551684837376/policyGroupSet/73255551684837495/group/73255551684837496/reorder/7.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the policy group use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The ZPA tenant ID of the customer",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer"
+        ],
+        [
+          "pageSize",
+          "Specifies the page size",
+          "No",
+          "Integer"
+        ],
+        [
+          "search",
+          "Indicates the search string used to support search by features or fields",
+          "No",
+          "String"
+        ],
+        [
+          "sortBy",
+          "Indicates the parameter to sort by",
+          "No",
+          "String"
+        ],
+        [
+          "sortdir",
+          "Specifies the sort direction (i.e., ascending or descending order)",
+          "No",
+          "Enum Supported values: ASC: Ascending DSC: Descending"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    }
+  ]
+}

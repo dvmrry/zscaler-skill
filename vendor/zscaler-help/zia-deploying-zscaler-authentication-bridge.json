@@ -1,0 +1,1078 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying a Zscaler Authentication Bridge",
+  "source": {
+    "url": "https://help.zscaler.com/zia/deploying-zscaler-authentication-bridge",
+    "node": "1399636",
+    "revision": "3251968",
+    "updated": "2026-11-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler Authentication Bridge (ZAB) is a virtual machine (VM) that you can use to provision and authenticate users. To learn more, see About the Zscaler Authentication Bridge."
+    },
+    {
+      "text": "If you're subscribed to multiple ZABs, only one ZAB can synchronize your users. For example, you can deploy two ZABs, and the Zscaler service automatically uses the healthy one to sync users. If you also want to use the ZAB for authentication, ensure the configured ZAB URL can address both ZABs. During deployment, you can create a DNS entry for the ZAB. The user is redirected to the URL during the password authentication phase. You can implement a round-robin DNS or put the ZABs behind a load balancer to achieve an active deployment."
+    },
+    {
+      "text": "New or clean deployment of ZAB requires VM image running on Zscaler OS version 24."
+    },
+    {
+      "heading": "Requirements",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have the following to deploy the ZAB:"
+    },
+    {
+      "item": "Hypervisor VMware ESX/ESXi version 6.0 and later.",
+      "depth": 0
+    },
+    {
+      "item": "A VM with:",
+      "depth": 0
+    },
+    {
+      "item": "2 GB of RAM minimum. This increases with the number of users.",
+      "depth": 1
+    },
+    {
+      "item": "64-bit Xeon CPU. Two cores assigned to the VM.",
+      "depth": 1
+    },
+    {
+      "item": "1 network interface with a static IP address. This IP address is used for control and data connections to the Zscaler cloud and to connect to the directory server. Your administrator can also use it to make an SSH connection to the VM.",
+      "depth": 1
+    },
+    {
+      "item": "A ZAB subscription.",
+      "depth": 0
+    },
+    {
+      "item": "Super admin access for the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Log in information for your directory server.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure your outbound firewall is configured to allow the necessary connections. The ZAB requires outbound connections to the Zscaler service. To view the firewall requirements, go to:"
+    },
+    {
+      "text": "https://config.zscaler.com/<Zscaler Cloud Name>/zab"
+    },
+    {
+      "text": "The <Zscaler Cloud> depends on the URL you use to log in to the Zscaler service. For example, if you log in to admin.zscalerbeta.net, then go to https://config.zscaler.com/zscalerbeta.net/zab. To learn more, see Understanding Zscaler Cloud Names."
+    },
+    {
+      "heading": "Deploying a ZAB",
+      "level": 1
+    },
+    {
+      "text": "Only super admins can deploy a ZAB."
+    },
+    {
+      "text": "To deploy a ZAB:"
+    },
+    {
+      "item": "1. Verify the ZAB subscription.",
+      "depth": 0
+    },
+    {
+      "item": "To verify your organization's ZAB subscription:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Subscription > Internet & SaaS.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          61
+        ],
+        [
+          64,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Verify that your organization is subscribed to Zscaler Auth Bridge.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          47,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Add the ZAB using the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the ZAB virtual machine (VM).",
+      "depth": 0
+    },
+    {
+      "item": "4. Download the ZAB SSL certificate.",
+      "depth": 0
+    },
+    {
+      "item": "The ZAB uses an SSL certificate to authenticate itself to the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "To download the ZAB SSL certificate:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Authentication Bridges.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          139
+        ]
+      ]
+    },
+    {
+      "item": "In the SSL Certificate column of the ZAB, click Download.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "5. Configure the ZAB network settings.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the network settings of the ZAB:",
+      "depth": 0
+    },
+    {
+      "item": "On the ZAB, log in with the following default credentials:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Switch to a superuser, by entering the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo su -",
+      "depth": 0
+    },
+    {
+      "item": "Enter the password. In this example, it's zsroot.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to configure the ZAB network settings:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "zab configure",
+      "depth": 0
+    },
+    {
+      "item": "Enter the the following information for the network settings:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Name server IP address",
+      "depth": 1
+    },
+    {
+      "item": "ZAB IP address and netmask",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to verify your configuration:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "zab dump-config",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler strongly recommends that you change the default password by entering the following command:",
+      "depth": 0
+    },
+    {
+      "item": "passwd <Username>",
+      "depth": 0
+    },
+    {
+      "item": "For example, if you're using the default username, enter passwd zsroot.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "6. Install the ZAB client SSL certificate.",
+      "depth": 0
+    },
+    {
+      "item": "Install the ZAB SSL certificate you downloaded from the Zscaler Admin Console. The certificate authenticates the ZAB to the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "item": "To install the ZAB SSL certificate:",
+      "depth": 0
+    },
+    {
+      "item": "Copy the client certificate securely to the ZAB VM. Zscaler recommends that you use SCP or SFTP instead of FTP.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the ZAB, enter the following command to install the ZAB:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "zab install-client-cert ZabCert.zip",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify that the ZAB is associated with the Zscaler cloud and your organization:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "zab dump-config",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "7. Install the server SSL certificate.",
+      "depth": 0
+    },
+    {
+      "item": "In order for the ZAB to authenticate a user against the AD, it needs to present the user with an authentication form, where the user enters their credentials to be validated against the AD. To be able to serve the form over a webpage, the ZAB has an HTTPS server component running on it.",
+      "depth": 0
+    },
+    {
+      "item": "You can either install your own certificate signed by a trusted Certificate Authority or install a self-signed certificate. A server certificate from an issuing authority must be used if you're using the ZAB for user authentication. This prevents the user from seeing a server certificate warning in the browser. However, if you're using ZAB only to provision users but not to authenticate them, you can allow the system to generate a self-signed certificate.",
+      "depth": 0
+    },
+    {
+      "item": "Configure one of the following options:",
+      "depth": 0
+    },
+    {
+      "item": "Install A Certificate Signed by a Trusted Certificate Authority",
+      "depth": 1
+    },
+    {
+      "item": "To install a certificate signed by a trusted Certificate Authority:",
+      "depth": 1
+    },
+    {
+      "item": "Copy the server certificate and the private key on to the ZAB.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Copy the full path of the certificate and the private key.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "zab install-server-cert",
+      "depth": 1
+    },
+    {
+      "item": "Enter the full path of the server certificate in PEM format.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Enter the full path of the server private key.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "(Optional) Enter a passphrase to decrypt the private key. There are no restrictions for the passphrase.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "Enter y when it asks if you have a separate host CA certificate file.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Enter the full path of the host CA certificate in PEM format.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "root@ZAB:/usr/home/zsroot/servercerts # zab install-server-cert Please enter full path of the server certificate in PEM format (Empty to generate self-signed cert): /var/test_servercert.pem Please enter full path of the server key in PEM format: /usr/home/zsroot/servercerts/zscaler.encrypted.key Please enter passphrase for decrypting the server key: REPEAT: Please enter passphrase for decrypting the server key: Validating pass_phrase with /usr/home/zsroot/servercerts/zscaler.encrypted.key... Pass phrase works! Do you have a separate host CA certificate file? <y/n> : [y]: y Please enter complete path of the host CA certificate file:/usr/home/zsroot/servercerts/chain.pem Copying files to /sc/conf... Finished server certificate installation.",
+      "depth": 1
+    },
+    {
+      "item": "Install a Self-Signed Certificate",
+      "depth": 1
+    },
+    {
+      "item": "To install a self-signed certificate:",
+      "depth": 1
+    },
+    {
+      "item": "Enter the command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "zab install-server-cert",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Press Enter on your keyboard.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Under Self signed certificate generation, enter your domain name.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Enter a passphrase for generating the certificate. There are no restrictions for the passphrase.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "8. Install and start the ZAB software.",
+      "depth": 0
+    },
+    {
+      "item": "To install and start the ZAB software:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install and update the ZAB software:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "zab update-now",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the ZAB:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "zab start",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to enable ZAB automatic startup:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "zab enable-autostart",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to display the process running:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "zab status",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to verify the ZAB is making outbound connections:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sockstat -4",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "9. (Optional) Configure nested groups on the ZAB.",
+      "depth": 0
+    },
+    {
+      "item": "Nesting groups is adding a group as a member of another group in order to consolidate member accounts and reduce replicated traffic. Enabling nested groups on the ZAB allows the Zscaler service to flatten and sync user group membership for nested groups.",
+      "depth": 0
+    },
+    {
+      "item": "To enable nested groups on the ZAB:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to enable nested groups:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "zab enable-nested-groups",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Restart the ZAB",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "To disable nested groups on the ZAB:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to disable nested groups:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "zab disable-nested-groups",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Restarts the ZAB",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "10. Configure the user synchronization settings.",
+      "depth": 0
+    },
+    {
+      "item": "After you configure the ZAB, you must use the Zscaler Authentication Wizard to synchronize users with the ZAB. You optionally can configure the service to use the ZAB for authentication as well. To learn more about the steps in the Authentication Wizard, see Synchronizing User Data with an Active Directory or OpenLDAP.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Zscaler service to synchronize users with the ZAB:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "On the Default Settings tab, for Directory Type, choose Active Directory.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          33,
+          47
+        ],
+        [
+          56,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Authentication Wizard.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Directory Server:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          3,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent Hosting: Choose Enterprise.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Directory Server IP Address: Enter the IP address of the directory server that the ZAB connects to.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Agent Address: Enter the ZAB URL if your organization is using the ZAB for user authentication. If your organization is using another authentication mechanism (e.g., SAML or OpenLDAP), then you can enter any IP address.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Authentication:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          3,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Use Anonymous Authentication: Enable if the directory server allows anonymous access. Ensure that this option is also enabled on your directory server.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Bind DN: Enter the DN of any user account to query the directory server. The user doesn't have to be an administrator.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Bind Password: Enter the password of the entered user account.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Detected Settings:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          3,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Base DN: The Zscaler service connects to the directory server and automatically populates this field.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Pagination: Choose Auto (Recommended).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Lookup & Attributes:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          3,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Lookup Parameters: Choose Auto.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Lookup User Entry: Enter an email address, login name, DN, or LDAP attribute., and click Look Up User. The Zscaler service queries the directory server for the user entry and attributes.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          89,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Lookup Results: Displays the user's attributes that were retrieved from the directory server. The Zscaler service uses this information to populate the Attributes Field section below.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          152,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Synchronization, click Start Synchronization to start synchronizing the Zscaler service with the directory server. The wizard displays the synchronization status and results. Click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          3,
+          18
+        ],
+        [
+          26,
+          47
+        ],
+        [
+          184,
+          188
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Authentication Parameters:",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          3,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Test User Login: Enter a test user's login ID.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Test User Password: Enter a test user's password.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Check Authentication: Click to verify the user's credentials, and ensure the information was synchronized correctly.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Review, click Finish.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          3,
+          9
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "11. (Optional) Configure the local NTP server to synchronize time with the ZAB.",
+      "depth": 0
+    },
+    {
+      "item": "Optionally, if you have a local NTP server, you can configure the ZAB to synchronize time with the server.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the ZAB to synchronize time with the NTP server:",
+      "depth": 0
+    },
+    {
+      "item": "On the ZAB, enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "crontab -e",
+      "depth": 0
+    },
+    {
+      "item": "Add the following line with your local NTP server name:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "*/10 * * * * ntpdate <NTP Server Name>",
+      "depth": 0
+    },
+    {
+      "item": "Save and exit.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "The time synchronization command runs every 10 minutes.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "You can use the following commands to troubleshoot your ZAB configuration:"
+    },
+    {
+      "item": "Enter the following command to view a ​​list of the ZAB commands:",
+      "depth": 0
+    },
+    {
+      "text": "zab -h"
+    },
+    {
+      "item": "Enter the following command to run a script to test access to the outbound firewall:",
+      "depth": 0
+    },
+    {
+      "text": "zab test-firewall"
+    },
+    {
+      "item": "Enter the following command to collect all the relevant ZAB log files and configuration files. You can then compress the files into a ZIP file and send it to Zscaler Support for troubleshooting.",
+      "depth": 0
+    },
+    {
+      "text": "zab collect-diagnostics"
+    },
+    {
+      "item": "Enter the following command to allow Zscaler Support remote access to examine and diagnose configuration errors. This feature is disabled by default.",
+      "depth": 0
+    },
+    {
+      "text": "zab enable-remote-debugging"
+    },
+    {
+      "item": "Enter the following command to allow Zscaler Support remote access to log in to your ZAB via SSH. An interactive shell is useful when additional troubleshooting assistance is required. This feature is disabled by default.",
+      "depth": 0
+    },
+    {
+      "text": "zab support-access-start"
+    }
+  ]
+}

@@ -1,0 +1,576 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Geolocalization IP",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-geolocalization-ip",
+    "node": "1499521",
+    "revision": "3218057",
+    "updated": "2026-06-25",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "For users in a country not serviced by Zscaler Point-of-Presence (PoP), the Geolocalization IP (GeoIP) feature can be used to access local content or destinations that restrict access based on the source IP address. However, you must consult with your compliance or legal team to ensure the configuration complies with applicable local laws."
+    },
+    {
+      "text": "Organizations that are located across the globe often access destinations (local government websites or other restricted entities) that allow access only if the source IP address of the traffic is local to the country from where the traffic originates. When the users access these destinations through Zscaler, the client's source IP address reaching the destination is replaced with a Zscaler IP address. This leads to traffic being blocked if the Zscaler IP address is not native to the country."
+    },
+    {
+      "text": "When Zscaler does not host a data center in a country and a user from that country accesses a local destination with source IP address-based access restrictions, the traffic is routed to the geographically closest Zscaler data center outside the country. As the egress source IP address is not local to the country from where the traffic originates, the user is either denied access to the destination or the results displayed are not localized to the user's location."
+    },
+    {
+      "text": "To avoid bypassing security checks when traffic is routed to Zscaler data centers outside the country, Zscaler offers a cloud-based service that allows organizations to forward their traffic via the egress source IP address (GeoIP address) mapped to the country from where the traffic originates for countries that Zscaler does not host a data center in. This ensures that the user is able to access specific destinations which have source IP address-based restrictions, and localized content is displayed if the destination renders content based on the country of the originating request."
+    },
+    {
+      "text": "The following steps are the primary process of using a GeoIP address to forward traffic:"
+    },
+    {
+      "item": "If not already available on your Internet & SaaS (ZIA) tenant, contact Zscaler Support to enable GeoIP for your Internet & SaaS tenant.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "After the feature is enabled, Zscaler enables GeoIP as a traffic forwarding method in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure GeoIP forwarding policies and specify all the criteria to be met before forwarding the traffic. The criteria include location, users, network service, applications, source IPs, destination, etc. If you choose no criteria, all the traffic egresses with GeoIP addresses based on the source country.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The forwarding gateway configuration is not required. Zscaler automatically forwards the traffic with a source IP address mapped to the country from where the traffic originates.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "The GeoIP feature leverages forwarding policies to steer traffic processed by Internet & SaaS to the destination servers, ensuring that the traffic is secure and that the egress source IP address is mapped to the source country. The Zscaler service determines the country that the user is in based on the user's source IP. You can configure granular policies in the Zscaler Admin Console to forward traffic using the GeoIP addresses to destinations that require an IP address native to the country of traffic's origin for access. To learn more about forwarding traffic via GeoIP, see Configuring Forwarding Control Policy."
+    },
+    {
+      "text": "For example, a GeoIP forwarding rule is applied to the traffic of a user located in Czechia, so the traffic is forwarded towards the destination with a Czechian source IP address. If the user moves to Serbia, then the traffic is forwarded to the destination with a Serbian local source IP address. The Zscaler service recognizes that the user is in Czechia or Serbia based on their source IP address. If the user is in a country which hosts a Zscaler data center, the traffic is serviced by the local data center and egresses with a country-local source IP address, and the GeoIP rule does not apply."
+    },
+    {
+      "text": "When the GeoIP forwarding rule is triggered, Zscaler egresses the traffic with a local source IP address. In some cases, destination websites might not honor the source IP for country mapping to determine the location of the user and provide access. In such scenarios, you could deploy App Connectors in the region for Source IP Anchoring with local IP addresses or deploy the Virtual Service Edges for Internet & SaaS or Private Service Edges for Internet & SaaS in the region for local IP addresses."
+    },
+    {
+      "heading": "Supported Countries",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the currently supported countries for the GeoIP feature:"
+    },
+    {
+      "text": "This table includes pagination. Use the Search function in the table to find your desired country."
+    },
+    {
+      "table": [
+        [
+          "Country Name",
+          "Region"
+        ],
+        [
+          "Albania",
+          "Europe"
+        ],
+        [
+          "Algeria",
+          "Africa"
+        ],
+        [
+          "American Samoa",
+          "Americas"
+        ],
+        [
+          "Armenia",
+          "Middle East"
+        ],
+        [
+          "Aruba",
+          "Africa"
+        ],
+        [
+          "Azerbaijan",
+          "Europe"
+        ],
+        [
+          "Bahamas",
+          "Americas"
+        ],
+        [
+          "Bahrain",
+          "Middle East"
+        ],
+        [
+          "Bangladesh",
+          "APJ"
+        ],
+        [
+          "Belarus",
+          "Europe"
+        ],
+        [
+          "Benin",
+          "Africa"
+        ],
+        [
+          "Bolivia",
+          "Americas"
+        ],
+        [
+          "Bosnia and Herzegovina",
+          "Europe"
+        ],
+        [
+          "Bulgaria",
+          "Europe"
+        ],
+        [
+          "Burkina Faso",
+          "Africa"
+        ],
+        [
+          "Cambodia",
+          "APJ"
+        ],
+        [
+          "Cameroon",
+          "Africa"
+        ],
+        [
+          "Costa Rica",
+          "Americas"
+        ],
+        [
+          "Croatia",
+          "Europe"
+        ],
+        [
+          "Cyprus",
+          "Europe"
+        ],
+        [
+          "Czechia",
+          "Europe"
+        ],
+        [
+          "Djibouti",
+          "Africa"
+        ],
+        [
+          "Dominican Republic",
+          "Americas"
+        ],
+        [
+          "Ecuador",
+          "Americas"
+        ],
+        [
+          "Egypt",
+          "Africa"
+        ],
+        [
+          "El Salvador",
+          "Americas"
+        ],
+        [
+          "Equatorial Guinea",
+          "Africa"
+        ],
+        [
+          "Estonia",
+          "Europe"
+        ],
+        [
+          "Ethiopia",
+          "Africa"
+        ],
+        [
+          "Fiji",
+          "APJ"
+        ],
+        [
+          "French Guiana",
+          "Americas"
+        ],
+        [
+          "French Polynesia",
+          "Oceania"
+        ],
+        [
+          "Gabon",
+          "Africa"
+        ],
+        [
+          "Georgia",
+          "Europe"
+        ],
+        [
+          "Ghana",
+          "Africa"
+        ],
+        [
+          "Greece",
+          "Europe"
+        ],
+        [
+          "Guadeloupe",
+          "Americas"
+        ],
+        [
+          "Guam",
+          "APJ"
+        ],
+        [
+          "Guatemala",
+          "Americas"
+        ],
+        [
+          "Guinea",
+          "Africa"
+        ],
+        [
+          "Honduras",
+          "Americas"
+        ],
+        [
+          "Hungary",
+          "Europe"
+        ],
+        [
+          "Indonesia",
+          "APJ"
+        ],
+        [
+          "Ireland",
+          "Europe"
+        ],
+        [
+          "Jamaica",
+          "Americas"
+        ],
+        [
+          "Jersey",
+          "Europe"
+        ],
+        [
+          "Jordan",
+          "Middle East"
+        ],
+        [
+          "Kazakhstan",
+          "APJ"
+        ],
+        [
+          "Kenya",
+          "Africa"
+        ],
+        [
+          "Kuwait",
+          "Middle East"
+        ],
+        [
+          "Kyrgyzstan",
+          "Middle East"
+        ],
+        [
+          "Laayoune",
+          "Africa"
+        ],
+        [
+          "Latvia",
+          "Europe"
+        ],
+        [
+          "Lebanon",
+          "Middle East"
+        ],
+        [
+          "Liberia",
+          "Africa"
+        ],
+        [
+          "Libya",
+          "Africa"
+        ],
+        [
+          "Lithuania",
+          "Europe"
+        ],
+        [
+          "Luxembourg",
+          "Europe"
+        ],
+        [
+          "Madagascar",
+          "Africa"
+        ],
+        [
+          "Malawi",
+          "Africa"
+        ],
+        [
+          "Maldives",
+          "Africa"
+        ],
+        [
+          "Mali",
+          "Africa"
+        ],
+        [
+          "Malta",
+          "Europe"
+        ],
+        [
+          "Mauritania",
+          "Africa"
+        ],
+        [
+          "Mauritius",
+          "APJ"
+        ],
+        [
+          "Moldova",
+          "Europe"
+        ],
+        [
+          "Monaco",
+          "Europe"
+        ],
+        [
+          "Mongolia",
+          "APJ"
+        ],
+        [
+          "Montenegro",
+          "Africa"
+        ],
+        [
+          "Morocco",
+          "Africa"
+        ],
+        [
+          "Mozambique",
+          "Africa"
+        ],
+        [
+          "Myanmar",
+          "APJ"
+        ],
+        [
+          "Namibia",
+          "Africa"
+        ],
+        [
+          "Nepal",
+          "APJ"
+        ],
+        [
+          "New Caledonia",
+          "APJ"
+        ],
+        [
+          "Nicaragua",
+          "Americas"
+        ],
+        [
+          "Niger",
+          "Africa"
+        ],
+        [
+          "Oman",
+          "Middle East"
+        ],
+        [
+          "Pakistan",
+          "APJ"
+        ],
+        [
+          "Panama",
+          "Americas"
+        ],
+        [
+          "Papua New Guinea",
+          "Africa"
+        ],
+        [
+          "Paraguay",
+          "Americas"
+        ],
+        [
+          "Peru",
+          "Americas"
+        ],
+        [
+          "Philippines",
+          "APJ"
+        ],
+        [
+          "Puerto Rico",
+          "Americas"
+        ],
+        [
+          "Qatar",
+          "Middle East"
+        ],
+        [
+          "Republic of Côte d'Ivoire",
+          "Africa"
+        ],
+        [
+          "Romania",
+          "Europe"
+        ],
+        [
+          "Russia",
+          "Europe"
+        ],
+        [
+          "Rwanda",
+          "Africa"
+        ],
+        [
+          "Saint Martin",
+          "Americas"
+        ],
+        [
+          "Samoa",
+          "APJ"
+        ],
+        [
+          "Senegal",
+          "Africa"
+        ],
+        [
+          "Serbia",
+          "Europe"
+        ],
+        [
+          "Sierra Leone",
+          "Africa"
+        ],
+        [
+          "Slovakia",
+          "Europe"
+        ],
+        [
+          "Slovenia",
+          "Europe"
+        ],
+        [
+          "Somalia",
+          "Africa"
+        ],
+        [
+          "South Sudan",
+          "Africa"
+        ],
+        [
+          "Sri Lanka",
+          "APJ"
+        ],
+        [
+          "Sudan",
+          "Africa"
+        ],
+        [
+          "Suriname",
+          "Africa"
+        ],
+        [
+          "Tajikistan",
+          "APJ"
+        ],
+        [
+          "Tanzania",
+          "Africa"
+        ],
+        [
+          "Thailand",
+          "APJ"
+        ],
+        [
+          "Togo",
+          "Africa"
+        ],
+        [
+          "Trinidad and Tobago",
+          "Americas"
+        ],
+        [
+          "Tunisia",
+          "Africa"
+        ],
+        [
+          "Turkey",
+          "Europe"
+        ],
+        [
+          "Turkmenistan",
+          "APJ"
+        ],
+        [
+          "Uganda",
+          "Africa"
+        ],
+        [
+          "Ukraine",
+          "Europe"
+        ],
+        [
+          "Uruguay",
+          "Americas"
+        ],
+        [
+          "Uzbekistan",
+          "Europe"
+        ],
+        [
+          "Venezuela",
+          "Americas"
+        ],
+        [
+          "Vietnam",
+          "APJ"
+        ],
+        [
+          "Yemen",
+          "Africa"
+        ],
+        [
+          "Zambia",
+          "Africa"
+        ],
+        [
+          "Zimbabwe",
+          "Africa"
+        ]
+      ]
+    },
+    {
+      "heading": "Benefits of GeoIP Address",
+      "level": 1
+    },
+    {
+      "text": "The following are a few benefits of using a GeoIP address:"
+    },
+    {
+      "item": "Eliminates the need for organizations to maintain PAC files to bypass the Zscaler service to access certain destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Eliminates the need to deploy on-premises infrastructure to provide a local source IP address.",
+      "depth": 0
+    },
+    {
+      "item": "Applies uniform Zscaler security policies throughout the organization's traffic irrespective of the user's location.",
+      "depth": 0
+    },
+    {
+      "item": "Provides you with the ability to granularly control the egress source IP address based on specified forwarding policy criteria.",
+      "depth": 0
+    }
+  ]
+}

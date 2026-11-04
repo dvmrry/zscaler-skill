@@ -1,0 +1,555 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Email Quarantine",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/email-quarantine",
+    "node": "1542825",
+    "revision": "3232994",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Email%20Quarantine_0.json?VersionId=oT.osObg75mAEqhuSy0q98JX7A.buV3a",
+    "updated": "2026-08-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Workflow Automation - DLP Incident  Management API",
+      "description": "Zscaler Workflow Automation - DLP Incident Management API.",
+      "termsOfService": "http://zscaler.com/terms/",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.us1.zsworkflow.net"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Email Quarantine"
+      }
+    ],
+    "paths": {
+      "/dlp/v1/incidents/{dlpIncidentId}/quarantine/release": {
+        "post": {
+          "tags": [
+            "Email Quarantine"
+          ],
+          "operationId": "releaseQuarantinedEmail",
+          "description": "Releases quarantined emails to specified recipients or all recipients for the DLP incident. This endpoint accepts a release request and processes it asynchronously and can mark an incident as a false positive if applicable.",
+          "parameters": [
+            {
+              "name": "dlpIncidentId",
+              "in": "path",
+              "required": true,
+              "description": "The DLP incident ID for which the quarantined email is released",
+              "schema": {
+                "type": "string"
+              },
+              "example": "INC-12345"
+            }
+          ],
+          "requestBody": {
+            "required": true,
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ZSDLPIncidentQuarantineReleaseRequest"
+                },
+                "examples": {
+                  "releaseAll": {
+                    "value": {
+                      "releaseToAll": true,
+                      "justificationReason": "False positive - approved by manager",
+                      "markAsFalsePositive": true
+                    }
+                  },
+                  "releaseSpecific": {
+                    "value": {
+                      "recipients": [
+                        "user1@example.com",
+                        "user2@example.com"
+                      ],
+                      "releaseToAll": false,
+                      "justificationReason": "Approved by security team",
+                      "markAsFalsePositive": false
+                    }
+                  }
+                }
+              }
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZSRecipientStatusResponse"
+                  },
+                  "examples": {
+                    "success": {
+                      "summary": "Successful release request",
+                      "value": {
+                        "incidentId": "INC-12345",
+                        "status": "In Progress",
+                        "releaseToAll": false,
+                        "message": "Request is accepted and processing",
+                        "recipients": [
+                          "user1@example.com",
+                          "user2@example.com"
+                        ]
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "invalidRequest": {
+                      "value": {
+                        "internalMessage": "Recipients not found in original incident: [user3@example.com]"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authorization failure"
+            },
+            "404": {
+              "description": "Resource does not exist",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "notFound": {
+                      "value": {
+                        "reason": "DLP Incident not found or no recipient status available"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Failed to process the request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "serverError": {
+                      "summary": "Server error",
+                      "value": {
+                        "reason": "Something went wrong"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dlp/v1/incidents/{dlpIncidentId}/quarantine/status": {
+        "get": {
+          "tags": [
+            "Email Quarantine"
+          ],
+          "operationId": "getRecipientStatus",
+          "description": "Fetches the status of quarantined email release process for the recipients of the DLP incident. Returns detailed information about each recipient's quarantined email status.",
+          "parameters": [
+            {
+              "name": "dlpIncidentId",
+              "in": "path",
+              "required": true,
+              "description": "The ID of the DLP incident",
+              "schema": {
+                "type": "string"
+              },
+              "example": "INC-12345"
+            },
+            {
+              "name": "operationType",
+              "in": "query",
+              "required": true,
+              "description": "The operation type for getting the status",
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "RELEASE"
+                ]
+              },
+              "example": "RELEASE"
+            }
+          ],
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZSDLPIncidentQuarantineReleaseResponse"
+                  },
+                  "examples": {
+                    "allSuccess": {
+                      "value": {
+                        "incidentId": "INC-12345",
+                        "status": "success",
+                        "message": "All emails released successfully",
+                        "totalRecipients": 3,
+                        "successCount": 3,
+                        "failedCount": 0,
+                        "inProgressCount": 0,
+                        "releaseToAll": true,
+                        "recipientStatuses": [
+                          {
+                            "emailId": "user1@example.com",
+                            "status": "SUCCESS",
+                            "message": null
+                          },
+                          {
+                            "emailId": "user2@example.com",
+                            "status": "SUCCESS",
+                            "message": null
+                          },
+                          {
+                            "emailId": "user3@example.com",
+                            "status": "SUCCESS",
+                            "message": null
+                          }
+                        ]
+                      }
+                    },
+                    "partialSuccess": {
+                      "value": {
+                        "incidentId": "INC-12345",
+                        "status": "partial",
+                        "message": "Some emails released successfully, some failed",
+                        "totalRecipients": 3,
+                        "successCount": 2,
+                        "failedCount": 1,
+                        "inProgressCount": 0,
+                        "releaseToAll": true,
+                        "recipientStatuses": [
+                          {
+                            "emailId": "user1@example.com",
+                            "status": "SUCCESS",
+                            "message": null
+                          },
+                          {
+                            "emailId": "user2@example.com",
+                            "status": "SUCCESS",
+                            "message": null
+                          },
+                          {
+                            "emailId": "user3@example.com",
+                            "status": "FAILED",
+                            "message": "Failed to release email - recipient not found"
+                          }
+                        ]
+                      }
+                    },
+                    "inProgress": {
+                      "value": {
+                        "incidentId": "INC-12345",
+                        "status": "pending",
+                        "message": "Email release is in progress",
+                        "totalRecipients": 3,
+                        "successCount": 0,
+                        "failedCount": 0,
+                        "inProgressCount": 3,
+                        "releaseToAll": true,
+                        "recipientStatuses": []
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "invalidOperationType": {
+                      "value": {
+                        "internalMessage": "Invalid operation type"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authorization failure"
+            },
+            "404": {
+              "description": "Resource does not exist",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "notFound": {
+                      "value": {
+                        "reason": "DLP Incident not found or no recipient status available"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Failed to process the request",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ErrorResponse"
+                  },
+                  "examples": {
+                    "serverError": {
+                      "summary": "Server error",
+                      "value": {
+                        "code": "1847",
+                        "reason": "Failed to fetch recipient status"
+                      }
+                    }
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "ZSDLPIncidentQuarantineReleaseRequest": {
+          "type": "object",
+          "properties": {
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "email"
+              },
+              "description": "The list of recipient email addresses to release the quarantined emails. This is required only if <code>releaseToAll</code> is set to false. All recipients must be part of the original DLP incident.",
+              "example": [
+                "user1@example.com",
+                "user2@example.com"
+              ]
+            },
+            "releaseToAll": {
+              "type": "boolean",
+              "description": "If true, releases to all quarantined recipients. If false, uses the recipients list. This is a required field.",
+              "example": false
+            },
+            "justificationReason": {
+              "type": "string",
+              "description": "The eason for releasing the quarantined emails",
+              "example": "False positive - approved by manager"
+            },
+            "markAsFalsePositive": {
+              "type": "boolean",
+              "description": "The DLP incident is marked as a false positive. This field updates the DLP incident status.",
+              "example": true
+            }
+          },
+          "required": [
+            "releaseToAll"
+          ]
+        },
+        "ZSRecipientStatusResponse": {
+          "type": "object",
+          "properties": {
+            "incidentId": {
+              "type": "string",
+              "description": "The DLP incident ID",
+              "example": "INC-12345"
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the quarantined email release request",
+              "enum": [
+                "In Progress",
+                "Success",
+                "Failed",
+                "Partial"
+              ],
+              "example": "In Progress"
+            },
+            "releaseToAll": {
+              "type": "boolean",
+              "description": "If true, releases quarantined email to all recipients",
+              "example": false
+            },
+            "message": {
+              "type": "string",
+              "description": "The reason for the quarantined email release status",
+              "example": "Request is accepted and processing"
+            },
+            "recipients": {
+              "type": "array",
+              "items": {
+                "type": "string",
+                "format": "email"
+              },
+              "description": "The recipients affected by the quarantined email release request",
+              "example": [
+                "user1@example.com",
+                "user2@example.com"
+              ]
+            }
+          },
+          "required": [
+            "incidentId",
+            "status",
+            "releaseToAll",
+            "message"
+          ]
+        },
+        "ErrorResponse": {
+          "type": "object",
+          "properties": {
+            "internalMessage": {
+              "type": "string",
+              "nullable": true,
+              "description": "An internal error message with additional technical details",
+              "example": "Recipients not found in original incident: [user3@example.com]"
+            }
+          }
+        },
+        "ZSDLPIncidentQuarantineReleaseResponse": {
+          "type": "object",
+          "properties": {
+            "incidentId": {
+              "type": "string",
+              "description": "The DLP incident ID",
+              "example": "INC-12345"
+            },
+            "status": {
+              "type": "string",
+              "description": "The overall status of the request",
+              "enum": [
+                "success",
+                "partial",
+                "failed",
+                "pending"
+              ],
+              "example": "success"
+            },
+            "message": {
+              "type": "string",
+              "description": "The status message for the final result",
+              "example": "All emails released successfully"
+            },
+            "totalRecipients": {
+              "type": "integer",
+              "description": "The total number of recipients in the DLP incident",
+              "example": 3
+            },
+            "successCount": {
+              "type": "integer",
+              "description": "The number of successful email releases",
+              "example": 3
+            },
+            "failedCount": {
+              "type": "integer",
+              "description": "The number of failed email releases",
+              "example": 0
+            },
+            "inProgressCount": {
+              "type": "integer",
+              "description": "The number of email releases still in progress",
+              "example": 0
+            },
+            "releaseToAll": {
+              "type": "boolean",
+              "description": "If true, releases quarantined email to all recipients",
+              "example": true
+            },
+            "recipientStatuses": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSEmailRecipientStatus"
+              },
+              "description": "The detailed status for each recipient"
+            }
+          },
+          "required": [
+            "incidentId",
+            "status",
+            "message",
+            "totalRecipients",
+            "successCount",
+            "failedCount",
+            "inProgressCount",
+            "releaseToAll"
+          ]
+        },
+        "ZSEmailRecipientStatus": {
+          "type": "object",
+          "properties": {
+            "emailId": {
+              "type": "string",
+              "format": "email",
+              "description": "The email address of the recipient",
+              "example": "user1@example.com"
+            },
+            "status": {
+              "type": "string",
+              "description": "The status of the release process for the recipient",
+              "enum": [
+                "SUCCESS",
+                "FAILED",
+                "IN_PROGRESS",
+                "PENDING"
+              ],
+              "example": "SUCCESS"
+            },
+            "message": {
+              "type": "string",
+              "nullable": true,
+              "description": "The status message or error details for the recipient",
+              "example": "Email released successfully"
+            }
+          },
+          "required": [
+            "emailId",
+            "status"
+          ]
+        }
+      }
+    }
+  }
+}

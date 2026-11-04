@@ -1,0 +1,681 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Root Certificates",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/root-certificates",
+    "node": "1541306",
+    "revision": "3209579",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Root%20Certificates_0.json?VersionId=jZwVEIF7tim.bADY60Nyt0Zn3S.pL_Ih",
+    "updated": "2026-06-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Root Certificates"
+      }
+    ],
+    "paths": {
+      "/rootCertificates": {
+        "get": {
+          "tags": [
+            "Root Certificates"
+          ],
+          "description": "Retrieves a list of all configured root certificates for third-party proxy-chaining services and isolation profiles. To learn more, see <a href=\"/zia/about-root-certificates\" target=\"_blank\">About Root Certificates</a>.",
+          "operationId": "RootCertificateResource_getCerts",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "certTypes",
+              "in": "query",
+              "description": "The type of root certificate",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PROXY_CHAINING",
+                  "BROWSER_ISOLATION"
+                ]
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/SslCertificate"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Root Certificates"
+          ],
+          "description": "Adds a custom root certificate for a third-party proxy-chaining service or isolation profile. To learn more, see <a href=\"/zia/adding-root-certificates\" target=\"_blank\">Adding Root Certificates</a>.",
+          "operationId": "RootCertificateResource_createRootCertificate",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the certificate",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/SslCertificate"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SslCertificate"
+              }
+            },
+            "201": {
+              "description": "Created"
+            },
+            "400": {
+              "description": "<p>If the file upload fails, one of the following responses is displayed: <ul> <li>Invalid request format</li> <li>Invalid file name</li> <li>No file selected</li> <li>Unsupported file format</li> <li>File size cannot exceed 64K</li> <li>Certificate has already expired</li> <li>Certificate not yet valid</li> <li>Invalid certificate contents, certificate and key do not match</li> <li>No CSR found</li> <li>Certificate cannot be parsed properly</li> <li>Not a valid root certificate</li> <li>Error in certificate format</li> </ul></p>\n"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            }
+          }
+        }
+      },
+      "/rootCertificates/certDetail/{rootCertId}": {
+        "get": {
+          "tags": [
+            "Root Certificates"
+          ],
+          "description": "Retrieves the root certificate for third-party proxy-chaining services or isolation profiles based on the specified root certificate ID",
+          "operationId": "RootCertificateResource_showCert",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "rootCertId",
+              "in": "path",
+              "description": "Unique identifier for the root certificate",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "certTypes",
+              "in": "query",
+              "description": "The type of root certificate",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PROXY_CHAINING",
+                  "BROWSER_ISOLATION"
+                ]
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/CustomCertificate"
+              }
+            }
+          }
+        }
+      },
+      "/rootCertificates/{rootCertId}": {
+        "put": {
+          "tags": [
+            "Root Certificates"
+          ],
+          "description": "Updates the root certificate based on the specified root certificate ID",
+          "operationId": "RootCertificateResource_updateRootCertificate",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "rootCertId",
+              "in": "path",
+              "description": "Unique identifier for the root certificate",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the certificate",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/SslCertificate"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SslCertificate"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Root Certificates"
+          ],
+          "description": "Deletes the root certificate based on the specified root certificate ID",
+          "operationId": "RootCertificateResource_deleteCert",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "rootCertId",
+              "in": "path",
+              "description": "Unique identifier for the root certificate",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "name": "certTypes",
+              "in": "query",
+              "description": "The type of root certificate",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string",
+                "enum": [
+                  "PROXY_CHAINING",
+                  "BROWSER_ISOLATION"
+                ]
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "SslCertificate": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the certificate"
+          },
+          "name": {
+            "type": "string",
+            "description": "Name of the certificate"
+          },
+          "cert": {
+            "type": "string",
+            "description": "The required root certificate that you want to upload from your system"
+          },
+          "createTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the root certificate was created"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the root certificate was last modified"
+          },
+          "expiryTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The certificate expiration time"
+          },
+          "displayName": {
+            "type": "string",
+            "description": "The certificate display name"
+          },
+          "isolationCertificateId": {
+            "type": "string",
+            "description": "The isolation certificate ID"
+          },
+          "isDefault": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether any of the root certificates is a default root certificate"
+          },
+          "certTypes": {
+            "type": "array",
+            "description": "The root certificate type",
+            "items": {
+              "type": "string",
+              "enum": [
+                "PROXY_CHAINING",
+                "BROWSER_ISOLATION"
+              ]
+            }
+          }
+        }
+      },
+      "CustomCertificate": {
+        "type": "object",
+        "required": [
+          "certName",
+          "city",
+          "commName",
+          "country",
+          "deptName",
+          "orgName",
+          "state"
+        ],
+        "properties": {
+          "sha1fingerprint": {
+            "type": "string",
+            "description": "Certificate SHA fingerprint. This information is provided only for the <b>showCert</b> functionality.",
+            "readOnly": true
+          },
+          "validityInDays": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of days of certificate validity. This information is provided only for the <b>showCert</b> functionality.",
+            "readOnly": true
+          },
+          "certName": {
+            "type": "string",
+            "description": "Certificate Name"
+          },
+          "commName": {
+            "type": "string",
+            "description": "Common Name"
+          },
+          "orgName": {
+            "type": "string",
+            "description": "Organization"
+          },
+          "deptName": {
+            "type": "string",
+            "description": "Department"
+          },
+          "city": {
+            "type": "string",
+            "description": "City"
+          },
+          "state": {
+            "type": "string",
+            "description": "State"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country",
+            "enum": [
+              "NONE",
+              "COUNTRY_AC",
+              "COUNTRY_AD",
+              "COUNTRY_AE",
+              "COUNTRY_AF",
+              "COUNTRY_AG",
+              "COUNTRY_AI",
+              "COUNTRY_AL",
+              "COUNTRY_AM",
+              "COUNTRY_AN",
+              "COUNTRY_AO",
+              "COUNTRY_AP",
+              "COUNTRY_AQ",
+              "COUNTRY_AR",
+              "COUNTRY_AS",
+              "COUNTRY_AT",
+              "COUNTRY_AU",
+              "COUNTRY_AW",
+              "COUNTRY_AX",
+              "COUNTRY_AZ",
+              "COUNTRY_BA",
+              "COUNTRY_BB",
+              "COUNTRY_BD",
+              "COUNTRY_BE",
+              "COUNTRY_BF",
+              "COUNTRY_BG",
+              "COUNTRY_BH",
+              "COUNTRY_BI",
+              "COUNTRY_BJ",
+              "COUNTRY_BL",
+              "COUNTRY_BM",
+              "COUNTRY_BN",
+              "COUNTRY_BO",
+              "COUNTRY_BQ",
+              "COUNTRY_BR",
+              "COUNTRY_BS",
+              "COUNTRY_BT",
+              "COUNTRY_BU",
+              "COUNTRY_BV",
+              "COUNTRY_BW",
+              "COUNTRY_BX",
+              "COUNTRY_BY",
+              "COUNTRY_BZ",
+              "COUNTRY_CA",
+              "COUNTRY_CC",
+              "COUNTRY_CD",
+              "COUNTRY_CF",
+              "COUNTRY_CG",
+              "COUNTRY_CH",
+              "COUNTRY_CI",
+              "COUNTRY_CK",
+              "COUNTRY_CL",
+              "COUNTRY_CM",
+              "COUNTRY_CN",
+              "COUNTRY_CO",
+              "COUNTRY_CP",
+              "COUNTRY_CR",
+              "COUNTRY_CS",
+              "COUNTRY_CT",
+              "COUNTRY_CU",
+              "COUNTRY_CV",
+              "COUNTRY_CW",
+              "COUNTRY_CX",
+              "COUNTRY_CY",
+              "COUNTRY_CZ",
+              "COUNTRY_DD",
+              "COUNTRY_DE",
+              "COUNTRY_DG",
+              "COUNTRY_DJ",
+              "COUNTRY_DK",
+              "COUNTRY_DM",
+              "COUNTRY_DO",
+              "COUNTRY_DZ",
+              "COUNTRY_EA",
+              "COUNTRY_EC",
+              "COUNTRY_EE",
+              "COUNTRY_EF",
+              "COUNTRY_EG",
+              "COUNTRY_EH",
+              "COUNTRY_EM",
+              "COUNTRY_EP",
+              "COUNTRY_ER",
+              "COUNTRY_ES",
+              "COUNTRY_ET",
+              "COUNTRY_EU",
+              "COUNTRY_EV",
+              "COUNTRY_FI",
+              "COUNTRY_FJ",
+              "COUNTRY_FK",
+              "COUNTRY_FM",
+              "COUNTRY_FO",
+              "COUNTRY_FQ",
+              "COUNTRY_FR",
+              "COUNTRY_FX",
+              "COUNTRY_GA",
+              "COUNTRY_GB",
+              "COUNTRY_GC",
+              "COUNTRY_GD",
+              "COUNTRY_GE",
+              "COUNTRY_GF",
+              "COUNTRY_GG",
+              "COUNTRY_GH",
+              "COUNTRY_GI",
+              "COUNTRY_GL",
+              "COUNTRY_GM",
+              "COUNTRY_GN",
+              "COUNTRY_GP",
+              "COUNTRY_GQ",
+              "COUNTRY_GR",
+              "COUNTRY_GS",
+              "COUNTRY_GT",
+              "COUNTRY_GU",
+              "COUNTRY_GW",
+              "COUNTRY_GY",
+              "COUNTRY_HK",
+              "COUNTRY_HM",
+              "COUNTRY_HN",
+              "COUNTRY_HR",
+              "COUNTRY_HT",
+              "COUNTRY_HU",
+              "COUNTRY_HV",
+              "COUNTRY_IB",
+              "COUNTRY_IC",
+              "COUNTRY_ID",
+              "COUNTRY_IE",
+              "COUNTRY_IL",
+              "COUNTRY_IM",
+              "COUNTRY_IN",
+              "COUNTRY_IO",
+              "COUNTRY_IQ",
+              "COUNTRY_IR",
+              "COUNTRY_IS",
+              "COUNTRY_IT",
+              "COUNTRY_JE",
+              "COUNTRY_JM",
+              "COUNTRY_JO",
+              "COUNTRY_JP",
+              "COUNTRY_JT",
+              "COUNTRY_KE",
+              "COUNTRY_KG",
+              "COUNTRY_KH",
+              "COUNTRY_KI",
+              "COUNTRY_KM",
+              "COUNTRY_KN",
+              "COUNTRY_KP",
+              "COUNTRY_KR",
+              "COUNTRY_KW",
+              "COUNTRY_KY",
+              "COUNTRY_KZ",
+              "COUNTRY_LA",
+              "COUNTRY_LB",
+              "COUNTRY_LC",
+              "COUNTRY_LF",
+              "COUNTRY_LI",
+              "COUNTRY_LK",
+              "COUNTRY_LR",
+              "COUNTRY_LS",
+              "COUNTRY_LT",
+              "COUNTRY_LU",
+              "COUNTRY_LV",
+              "COUNTRY_LY",
+              "COUNTRY_MA",
+              "COUNTRY_MC",
+              "COUNTRY_MD",
+              "COUNTRY_ME",
+              "COUNTRY_MF",
+              "COUNTRY_MG",
+              "COUNTRY_MH",
+              "COUNTRY_MI",
+              "COUNTRY_MK",
+              "COUNTRY_ML",
+              "COUNTRY_MM",
+              "COUNTRY_MN",
+              "COUNTRY_MO",
+              "COUNTRY_MP",
+              "COUNTRY_MQ",
+              "COUNTRY_MR",
+              "COUNTRY_MS",
+              "COUNTRY_MT",
+              "COUNTRY_MU",
+              "COUNTRY_MV",
+              "COUNTRY_MW",
+              "COUNTRY_MX",
+              "COUNTRY_MY",
+              "COUNTRY_MZ",
+              "COUNTRY_NA",
+              "COUNTRY_NC",
+              "COUNTRY_NE",
+              "COUNTRY_NF",
+              "COUNTRY_NG",
+              "COUNTRY_NH",
+              "COUNTRY_NI",
+              "COUNTRY_NL",
+              "COUNTRY_NO",
+              "COUNTRY_NP",
+              "COUNTRY_NQ",
+              "COUNTRY_NR",
+              "COUNTRY_NT",
+              "COUNTRY_NU",
+              "COUNTRY_NZ",
+              "COUNTRY_OA",
+              "COUNTRY_OM",
+              "COUNTRY_PA",
+              "COUNTRY_PC",
+              "COUNTRY_PE",
+              "COUNTRY_PF",
+              "COUNTRY_PG",
+              "COUNTRY_PH",
+              "COUNTRY_PK",
+              "COUNTRY_PL",
+              "COUNTRY_PM",
+              "COUNTRY_PN",
+              "COUNTRY_PR",
+              "COUNTRY_PS",
+              "COUNTRY_PT",
+              "COUNTRY_PU",
+              "COUNTRY_PW",
+              "COUNTRY_PY",
+              "COUNTRY_PZ",
+              "COUNTRY_QA",
+              "COUNTRY_RB",
+              "COUNTRY_RE",
+              "COUNTRY_RO",
+              "COUNTRY_RS",
+              "COUNTRY_RU",
+              "COUNTRY_RW",
+              "COUNTRY_SA",
+              "COUNTRY_SB",
+              "COUNTRY_SC",
+              "COUNTRY_SD",
+              "COUNTRY_SE",
+              "COUNTRY_SG",
+              "COUNTRY_SH",
+              "COUNTRY_SI",
+              "COUNTRY_SJ",
+              "COUNTRY_SK",
+              "COUNTRY_SL",
+              "COUNTRY_SM",
+              "COUNTRY_SN",
+              "COUNTRY_SO",
+              "COUNTRY_SR",
+              "COUNTRY_SS",
+              "COUNTRY_ST",
+              "COUNTRY_SU",
+              "COUNTRY_SV",
+              "COUNTRY_SX",
+              "COUNTRY_SY",
+              "COUNTRY_SZ",
+              "COUNTRY_TA",
+              "COUNTRY_TC",
+              "COUNTRY_TD",
+              "COUNTRY_TF",
+              "COUNTRY_TG",
+              "COUNTRY_TH",
+              "COUNTRY_TJ",
+              "COUNTRY_TK",
+              "COUNTRY_TL",
+              "COUNTRY_TM",
+              "COUNTRY_TN",
+              "COUNTRY_TO",
+              "COUNTRY_TP",
+              "COUNTRY_TR",
+              "COUNTRY_TT",
+              "COUNTRY_TV",
+              "COUNTRY_TW",
+              "COUNTRY_TZ",
+              "COUNTRY_UA",
+              "COUNTRY_UG",
+              "COUNTRY_UM",
+              "COUNTRY_US",
+              "COUNTRY_UY",
+              "COUNTRY_UZ",
+              "COUNTRY_VA",
+              "COUNTRY_VC",
+              "COUNTRY_VD",
+              "COUNTRY_VE",
+              "COUNTRY_VG",
+              "COUNTRY_VI",
+              "COUNTRY_VN",
+              "COUNTRY_VU",
+              "COUNTRY_WF",
+              "COUNTRY_WK",
+              "COUNTRY_WO",
+              "COUNTRY_WS",
+              "COUNTRY_WV",
+              "COUNTRY_YD",
+              "COUNTRY_YE",
+              "COUNTRY_YT",
+              "COUNTRY_YU",
+              "COUNTRY_ZA",
+              "COUNTRY_ZM",
+              "COUNTRY_ZR",
+              "COUNTRY_ZW"
+            ]
+          },
+          "keySize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The key size. By default, the value is set to 2048",
+            "readOnly": true
+          },
+          "signatureAlgorithm": {
+            "type": "string",
+            "description": "The algorithm used by a Certificate Authority (CA) to generate public and private keys and to sign certificates.",
+            "enum": [
+              "SHA_1",
+              "SHA_256"
+            ]
+          }
+        },
+        "description": "Information about the CA certificate generated within your organization for specific purposes, such as code signing or SSL inspection."
+      }
+    }
+  }
+}

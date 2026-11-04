@@ -1,0 +1,569 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Decoy Connector Deployment Guide for Microsoft Hyper-V",
+  "source": {
+    "url": "https://help.zscaler.com/deception/decoy-connector-deployment-guide-microsoft-hyper-v",
+    "node": "1542262",
+    "revision": "3221886",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Decoy Connector on Microsoft Hyper-V (Windows Server 2012 R2 or later), how to configure the Connector management network, and how to connect the Decoy Connector to the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying a Decoy Connector, Zscaler strongly recommends reading the following information and making the necessary changes to your organization's environment, where applicable."
+    },
+    {
+      "item": "Ensure that you have a virtual machine (VM) with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "2 CPU cores",
+      "depth": 1
+    },
+    {
+      "item": "4 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "50 GB disk storage. An SSD-backed storage is recommended.",
+      "depth": 1
+    },
+    {
+      "item": "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have the following details to configure the Decoy Connector management interface:",
+      "depth": 0
+    },
+    {
+      "item": "An IP address",
+      "depth": 1
+    },
+    {
+      "item": "The subnet mask",
+      "depth": 1
+    },
+    {
+      "item": "The default gateway",
+      "depth": 1
+    },
+    {
+      "item": "The DNS server details",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have outbound access to TCP port 443 from the Decoy Connector management IP address to the following hosts:",
+      "depth": 0
+    },
+    {
+      "item": "Deception Admin Portal",
+      "depth": 1
+    },
+    {
+      "item": "Aggregator",
+      "depth": 1
+    },
+    {
+      "item": "ib.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "rs.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "If required, you can configure proxy for a Decoy Connector and pass the network connections through the proxy server. However, you must turn off all inspection features for the hosts in the preceding list and also ensure that the proxy provides unfiltered access to TCP port 443 for these destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Enable the MAC address spoofing option on the network adapter.",
+      "depth": 0,
+      "strong": [
+        [
+          11,
+          31
+        ]
+      ]
+    },
+    {
+      "heading": "Deploying a Decoy Connector on Microsoft Hyper-V",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to deploy a Decoy Connector on Microsoft Hyper-V:"
+    },
+    {
+      "text": "The Decoy Connectors do not support VLAN trunking in the Hyper-V platform. If you need to configure two or more VLANs, a virtual NIC for each VLAN must be configured."
+    },
+    {
+      "item": "Step 1: Download the VM Image File from the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "Go to Settings > Topology > Decoy Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Image, and then select HyperV to download the image (.vhd.zip) file.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          38,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Extract the file to your system. You need to access the virtual hard disk (.vhd) file to complete the deployment.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Step 2: Deploy a Decoy Connector on Hyper-V",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Decoy Connector on Hyper-V:",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a Decoy Connector VM on Hyper-V.",
+      "depth": 1
+    },
+    {
+      "item": "Open the Hyper-V Manager.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Actions > New > Virtual Machine….",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          19
+        ],
+        [
+          22,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The New Virtual Machine Wizard appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On the Before You Begin page, click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Name and Location page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the VM.",
+      "depth": 3
+    },
+    {
+      "item": "Click Browse... to choose a location where you want to save the VM configuration files, and then click Next.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          103,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Specify Generation page, select Generation 1, and then click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          39,
+          51
+        ],
+        [
+          68,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Assign Memory page, enter the Startup memory amount that you want to allocate to the VM. For example, enter 4096 to allocate 4 GB of RAM, and then click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          51
+        ],
+        [
+          160,
+          164
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Configure Networking page, select a virtual switch from the Connection drop-down menu, and then click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          67,
+          77
+        ],
+        [
+          109,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Connect Virtual Hard Disk page, select Use an existing virtual hard disk and click Browse... to find the .vhd file you extracted in Step 1, and then click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          46,
+          79
+        ],
+        [
+          90,
+          99
+        ],
+        [
+          162,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Summary page, review the VM description, and then click Finish.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          63,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To add decoys, you need to add a network interface to the Decoy Connector VM on Hyper-V.",
+      "depth": 1
+    },
+    {
+      "item": "b. Add a network interface to the Decoy Connector VM on Hyper-V.",
+      "depth": 1
+    },
+    {
+      "item": "Open the Hyper-V Manager.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Select the VM to which you want to add the network interface.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Right-click on the VM that you created, and then click Settings....",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          55,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Settings page for the Decoy Connector VM opens.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, go to Hardware > Add Hardware.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Hardware pane, select Network Adapter.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          33,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, go to Hardware > Network Adapter > Virtual Switch.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          46,
+          61
+        ],
+        [
+          64,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "In the Network Adapter pane, select a virtual switch that you want to assign to the decoy network.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the left-side navigation, go to Network Adapter > Advanced Features.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          35,
+          50
+        ],
+        [
+          53,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the Advanced Features pane, under MAC address, select the Enable Mac address spoofing checkbox.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          48
+        ],
+        [
+          61,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply, and then click OK.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          28,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the Decoy Connector VM, then from the Action menu, select Start.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          45,
+          51
+        ],
+        [
+          65,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Step 3: Configure the Decoy Connector Management Network",
+      "depth": 0
+    },
+    {
+      "item": "After you deploy the Decoy Connector on Hyper-V, you need to configure the Decoy Connector management network.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Add and Connect the Decoy Connector to the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "After the Decoy Connector management network interface is configured, you need to add the Decoy Connector and connect it to the Zscaler Deception Admin Portal.",
+      "depth": 0
+    }
+  ]
+}

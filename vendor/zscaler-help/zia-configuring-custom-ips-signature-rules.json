@@ -1,0 +1,487 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Custom IPS Signature Rules",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-custom-ips-signature-rules",
+    "node": "1403191",
+    "revision": "3243533",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler service supports Snort-like syntax to create custom IPS signature rules. The custom signature rules are validated in two stages—static and dynamic validation—before deployment on the Zscaler cloud. Each custom signature rule is assigned a threat category, and the threat category is configured as a condition in IPS Control rules to inspect traffic against the associated signatures and enforce the policy action when there is a match. To learn more, see About Custom IPS Signature Rules."
+    },
+    {
+      "item": "To enable Custom IPS for your organization, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "item": "You can add a maximum of 1,000 custom signature rules. To learn more, see Ranges & Limitations.",
+      "depth": 0
+    },
+    {
+      "text": "Writing Snort rules requires specialized technical expertise. Misconfiguration might lead to unexpected behavior. Before creating custom signatures, Zscaler strongly recommends that you read the Specifications and Limitations for Custom IPS Signature Rules to understand the Snort-like syntax and features that Zscaler supports."
+    },
+    {
+      "text": "The following sections provide information on the end-to-end workflow for configuring custom IPS signatures in the Zscaler Admin Console and using them in the IPS Control policy to inspect traffic against your signatures. Each stage of the custom IPS signature's lifecycle is marked by a corresponding status."
+    },
+    {
+      "item": "1. (Optional) Add a custom threat category to associate your custom IPS signature rules with this threat category.",
+      "depth": 0
+    },
+    {
+      "item": "2. Add a signature rule and complete static validation.",
+      "depth": 0
+    },
+    {
+      "item": "The custom IPS signature rules are validated in two sequential stages—static and dynamic validation—before deployment on the Zscaler cloud. When adding a new custom signature rule, you can check its validity based on specific predefined conditions, such as syntax errors, duplicate signatures, and more. Even if the rule is not explicitly manually validated during configuration, it is automatically validated upon saving.",
+      "depth": 0
+    },
+    {
+      "item": "To add a custom signature rule:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Resources > Custom IPS Signatures.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          59
+        ],
+        [
+          62,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Click the Custom Signature Rules tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Signature Rule.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The Add Signature Rule drawer appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Signature Rule drawer:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a unique name for the custom signature rule, not exceeding 255 characters. The name can contain alphanumeric characters and certain special characters, such as period (.), underscore (_), and hyphen (-). It can contain spaces but not in the leading position.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Threat Category: Select a threat category that must be assigned to the custom signature rule. The custom signature rule can be used in an IPS Control rule via the assigned threat category.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Provide a description of your custom signature rule. The description cannot exceed 255 characters.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Signature Rule: Enter the signature rule based on the Snort-like syntax, ensuring that it meets the requirements for static validation. The rule cannot exceed 16,000 characters.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Static Validation Criteria",
+      "depth": 2
+    },
+    {
+      "item": "TCP, UDP, and HTTP are the only supported protocols.",
+      "depth": 3
+    },
+    {
+      "item": "The minimum pattern length for content and PCRE options is 5 characters.",
+      "depth": 3
+    },
+    {
+      "item": "A PCRE option can be used only in the presence of at least one content option in the rule.",
+      "depth": 3
+    },
+    {
+      "item": "The maximum number of detection filters and event filters allowed is 10 each.",
+      "depth": 3
+    },
+    {
+      "item": "The maximum number of track_by fields allowed per filter is one.",
+      "depth": 3
+    },
+    {
+      "item": "The upper limit for the seconds field in detection and event filters is 3600 seconds or 1 hour.",
+      "depth": 3
+    },
+    {
+      "item": "The maximum scan size supported is 32 KB.",
+      "depth": 3
+    },
+    {
+      "item": "The maximum number of rules designed to match any IP addresses and any ports for both source and destination is limited to 5.",
+      "depth": 3
+    },
+    {
+      "item": "Example Rule",
+      "depth": 3
+    },
+    {
+      "item": "alert [protocol] any any -> any any",
+      "depth": 3
+    },
+    {
+      "item": "The maximum number of invocations per flow including both request and response is 16. A flow is identified by a unique 5-tuple combination when a packet arrives. Within a flow, the maximum number of packets on which a rule can be applied is 16 (in other words, the 17th packet in the flow does not have signature validation).",
+      "depth": 3
+    },
+    {
+      "item": "Signature rules containing options that inspect both HTTP header and HTTP body should use stream mode (i.e., flow:stream) for optimal results.",
+      "depth": 3
+    },
+    {
+      "item": "Example Rule",
+      "depth": 3
+    },
+    {
+      "item": "alert http any any -> any 80 (msg:\"Content Match with Long and Invalid Characters in http_accept Header\"; flow:to_server; flow:stream; content:\"application/txt\"; nocase; http_accept; content:\"echo{\"; http_request_body; classtype:web-application-attack; sid:1; )",
+      "depth": 3
+    },
+    {
+      "item": "For source and destination IP addresses, the following ranges are not allowed:",
+      "depth": 3
+    },
+    {
+      "item": "127.0.1.0 to 127.255.255.255",
+      "depth": 4
+    },
+    {
+      "item": "240.0.1.0 to 255.255.255.254",
+      "depth": 4
+    },
+    {
+      "item": "The export option is not supported.",
+      "depth": 3
+    },
+    {
+      "item": "The flowbits option is not supported.",
+      "depth": 3
+    },
+    {
+      "item": "Duplicate signatures are not allowed.",
+      "depth": 3
+    },
+    {
+      "item": "The maximum number of rules cannot exceed 1,000.",
+      "depth": 3
+    },
+    {
+      "item": "For comprehensive information on the Snort-like syntax and features supported by Zscaler, see Specifications and Limitations for Custom IPS Signature Rules.",
+      "depth": 2
+    },
+    {
+      "item": "Optionally, you can click Validate Rule to trigger a static validation of the rule. Static validation results are instantly shown as a success or an error message.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          26,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "The Enable Signature Rule toggle button is not accessible until the rule moves to the Enable Ready state with the successful completion of dynamic validation.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          25
+        ],
+        [
+          86,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Save the rule in one of the following ways:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Click Save. This triggers a static validation of the rule even if it is not already validated explicitly and the rule is saved only if static validation is successful.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Save & Promote to trigger both static and dynamic validation of the rule in sequence. To learn more about dynamic validation, see the following section.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The rule is saved only if validation is successful. After a successful static validation, the custom signature rule is assigned the Promote Ready status, marking the readiness of the rule for dynamic validation.",
+      "depth": 0,
+      "strong": [
+        [
+          132,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "3. Submit the signature rule for dynamic validation.",
+      "depth": 0
+    },
+    {
+      "item": "In dynamic validation, the signatures are run against designated packet captures to ensure efficient resource usage, optimal performance, minimal costs—helping maintain a smooth and reliable experience across organizations in the Zscaler cloud infrastructure.",
+      "depth": 0
+    },
+    {
+      "item": "You can send a rule for dynamic validation while creating the rule, or after it is created, using the following steps:",
+      "depth": 0
+    },
+    {
+      "item": "Click Add Signature Rule or edit an existing rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The Add or Edit Signature Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          7
+        ],
+        [
+          11,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the Add or Edit Signature Rule window, make sure that the signature rule is added and click Save & Promote. This triggers both static and dynamic validation of the rule in sequence.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          14,
+          33
+        ],
+        [
+          95,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, if you want to perform dynamic validation for multiple rules at once, use the Promote All button on the Custom Signature Rules page.",
+      "depth": 1,
+      "strong": [
+        [
+          93,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Dynamic validation might take a few minutes and the rule is assigned the Validation Pending status during this period. When dynamic validation is completed successfully, the rule is assigned the Enable Ready status.",
+      "depth": 0,
+      "strong": [
+        [
+          73,
+          91
+        ],
+        [
+          195,
+          207
+        ]
+      ]
+    },
+    {
+      "item": "If dynamic validation fails, the rule is assigned the Validation Failed status and the reason for failure, along with recommendations or remedies, is displayed to the user in the rule window. The rule must be modified and submitted for validation again.",
+      "depth": 0,
+      "strong": [
+        [
+          54,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "4. Enable the signature rule.",
+      "depth": 0
+    },
+    {
+      "item": "You need to manually enable the rule using the following steps to deploy it on the Zscaler cloud:",
+      "depth": 0
+    },
+    {
+      "item": "On the Custom Signature Rules page, locate the rule you want to enable and click the Edit icon displayed for the rule.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          85,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Signature Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Signature Rule window, check the Enable Signature Rule toggle button.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          45,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "When enablement is complete, the rule is marked by the Enabled status.",
+      "depth": 0,
+      "strong": [
+        [
+          55,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "To disable or delete a rule, use the Enable Signature Rule toggle or the Delete button, respectively, in the Edit Signature Rule window.",
+      "depth": 0,
+      "strong": [
+        [
+          37,
+          58
+        ],
+        [
+          73,
+          79
+        ],
+        [
+          109,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "5. Define an IPS Control policy rule with the required threat category conditions to which your custom signatures are added to start inspecting your traffic against the signatures and enforce appropriate policy actions.",
+      "depth": 0
+    }
+  ]
+}

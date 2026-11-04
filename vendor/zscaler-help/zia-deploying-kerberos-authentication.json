@@ -1,0 +1,425 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Kerberos Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/zia/deploying-kerberos-authentication",
+    "node": "1399566",
+    "revision": "3251231",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides step-by-step instructions for deploying Kerberos authentication for your organization. To learn more about using Kerberos for your organization, see About Kerberos Authentication."
+    },
+    {
+      "heading": "Requirements",
+      "level": 1
+    },
+    {
+      "text": "Before deploying Kerberos authentication, see:"
+    },
+    {
+      "item": "Kerberos Requirements",
+      "depth": 0
+    },
+    {
+      "item": "Kerberos Deployment Guidelines",
+      "depth": 0
+    },
+    {
+      "heading": "Deploying Kerberos Authentication",
+      "level": 1
+    },
+    {
+      "text": "To deploy Kerberos authentication:"
+    },
+    {
+      "item": "1. Verify the Kerberos Realm Name Is a Zscaler Registered Domain",
+      "depth": 0
+    },
+    {
+      "item": "To verify that your Kerberos realm name is a registered domain on the Zscaler service:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Organization (previously called Company Profile).",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "On the General Information tab, verify that the realm name matches one of the domains in the Domains field.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          93,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "2. Provision Users on the Zscaler service",
+      "depth": 0
+    },
+    {
+      "item": "Provision users on the Zscaler service. You can provision users with one of the following options:",
+      "depth": 0
+    },
+    {
+      "item": "Manually adding users to the Zscaler Hosted User Database",
+      "depth": 1
+    },
+    {
+      "item": "Importing users to the Zscaler Hosted User Database",
+      "depth": 1
+    },
+    {
+      "item": "Synchronizing user data from an Active Directory or LDAP server",
+      "depth": 1
+    },
+    {
+      "item": "The sAMAccountName@Windows- Domain is sent as the Kerberos identifier. You might need to change the user login attribute in your synchronization settings to map to the sAMAccountName.",
+      "depth": 0
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "3. Configure Your Outbound Firewall",
+      "depth": 0
+    },
+    {
+      "item": "Configure your outbound firewall to allow the necessary connections. To view the Zscaler Central Authority (CA) and Public Service Edge IP addresses:",
+      "depth": 0
+    },
+    {
+      "item": "Go to https://config.zscaler.com/.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Cloud drop-down menu, select your Zscaler cloud (e.g., zscaler.net).",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Review the Firewall Config Requirements sections.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          39
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Source",
+          "Destination",
+          "Destination Port",
+          "Description"
+        ],
+        [
+          "Client Workstation",
+          "Central Authority IP Addresses",
+          "TCP 88 or UDP 88",
+          "Enables the client to authenticate against the Zscaler domain KDC. The choice of TCP or UDP is determined by the client. Some clients fall back to the other protocol if either port is blocked, but this is not guaranteed."
+        ],
+        [
+          "Client Workstation",
+          "Public Service Edge IP Address Ranges",
+          "TCP 8800 (The default Kerberos authentication port on Public Service Edges.)",
+          "Enables the client to send traffic to the global Kerberos authentication port on the Public Service Edge. Not required if Kerberos is enabled on a location. Enabling Kerberos on a location automatically enforces Kerberos authentication, so you can send traffic to the default proxy ports, such as port 80."
+        ]
+      ]
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "4. Configure Kerberos in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "Configure Kerberos as an authentication mechanism to generate the domain trust password that is used to establish the trust relationship between the Zscaler domain and your organization's domain. This password is required when you configure the trust relationship.",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Click Edit to enable Kerberos authentication on the Internet Authentication Settings page.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          52,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "Enable the toggle Enable Kerberos to use Kerberos authentication. You can use Kerberos authentication in addition to other authentication methods. The Domain Trust Password field appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          18,
+          33
+        ],
+        [
+          151,
+          172
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Domain Trust Password, click Generate New Password.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          35,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "The Alert window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the Alert window, click OK to generate a new password.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          27,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Reveal Password.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Copy the password and store it securely. The password is required when you establish the cross-realm trust between your organization's domain and the Zscaler domain.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Click Conceal Password.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "5. (Optional) Enable Kerberos for a Location",
+      "depth": 0
+    },
+    {
+      "item": "Optionally enable Kerberos for a location. Perform this task only if you want the service to enforce Kerberos authentication on all web traffic explicitly forwarded from the location and its associated dedicated ports. Skip this task, if you want to use Kerberos for specific users and another authentication mechanism for all other users in the location.",
+      "depth": 0
+    },
+    {
+      "item": "To enable Kerberos authentication for all users in a location:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          68
+        ],
+        [
+          71,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click the Edit icon for the required location.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Enable both Enforce Authentication and Enable Kerberos Authentication.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          12,
+          34
+        ],
+        [
+          39,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "6. Configure the Trust Relationship on the Organization's Server",
+      "depth": 0
+    },
+    {
+      "item": "Configure the trust relationship on the organization's server. To learn more, see Kerberos Trust Relationship Configuration for Windows Server & GPO Push and Kerberos Trust Relationship Configuration for Linux Server.",
+      "depth": 0
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "item": "7. Use PAC files to Forward Traffic to the Zscaler service",
+      "depth": 0
+    },
+    {
+      "item": "To use Kerberos as an authentication mechanism, your organization's users must configure their browsers to use PAC files to forward their traffic to the Zscaler service, even if their location has established an IPSec or VPN tunnel to forward traffic to the service.",
+      "depth": 0
+    },
+    {
+      "item": "To use the default Zscaler PAC file for Kerberos, see Using the Default Zscaler Kerberos PAC File.",
+      "depth": 0
+    },
+    {
+      "item": ".",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot your Kerberos configuration, see Troubleshooting Kerberos and Public Service Edge for Internet & SaaS (ZIA)."
+    }
+  ]
+}

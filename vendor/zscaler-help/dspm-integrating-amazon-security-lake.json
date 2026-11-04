@@ -1,0 +1,837 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating with Amazon Security Lake",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/integrating-amazon-security-lake",
+    "node": "1487541",
+    "revision": "3243304",
+    "updated": "2026-09-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can integrate DSPM with the Amazon Security Lake service to export and store the alert data in a dedicated Amazon Simple Storage Service (S3) bucket that is pre-configured as part of the Amazon Security Lake setup."
+    },
+    {
+      "text": "Amazon Security Lake is a data lake for security logs, built into the customer’s account. The data lake is backed by an Amazon S3 bucket and organizes data as a set of Lake Formation tables. Amazon Security Lake is designed to optimize the cost of storing and querying massive security logs. Amazon Security Lake uses the Open Cybersecurity Schema Framework (OCSF) as the selected format for the alert information and requires the Parquet file format for the stored alerts. To learn more, refer to the AWS documentation."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps before exporting the alert data to Amazon Security Lake:"
+    },
+    {
+      "item": "1. Configure the Amazon Security Lake service.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have a configured Amazon Security Lake service that is connected to an S3 bucket in your AWS account. To learn more, refer to the Amazon Security Lake documentation.",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the custom source.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler is regarded as a source integration for Amazon Security Lake. To enable the integration, you must generate a custom source in Amazon Security Lake. To learn more, refer to the Amazon Security Lake documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to your AWS account.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Open the Security Lake console.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "From the Security Lake left-side navigation, select customized sources.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          52,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down to the Customized source details section:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          19,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Data source name: Provide a name for this custom source. This name determines the path in the S3 bucket to which the alert data is written. Amazon Security Lake generates a new folder for each custom source.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Event class: Make sure you use the Security_Finding event class.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region from the drop-down menu. The custom source is created in the region where the AWS console is connected. You need to specify this region while setting up the Security Lake integration in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Enter the account ID that you copied from the Cloud Storage page in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          58,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "External ID: Enter the external ID that you copied from the Cloud Storage page in the Zscaler Admin Console. To learn more, refer to the AWS documentation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          60,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "The AWS Account ID and External ID are identifiers of the custom source (DSPM) that writes logs and events to the data lake.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ],
+        [
+          23,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Amazon Security Lake custom source is created.",
+      "depth": 1
+    },
+    {
+      "item": "On the Customized sources page, search for the custom source you created.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Copy the ARN IAM role. You need to provide this value while setting up the Security Lake integration in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Collect the S3 Bucket details.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have the following information for setting up the DSPM integration:",
+      "depth": 0
+    },
+    {
+      "item": "The Amazon Security Lake S3 region.",
+      "depth": 1
+    },
+    {
+      "item": "The S3 bucket name (e.g., aws-security-data-lake-us-east-2-o-4g8wg3sx9z).",
+      "depth": 1
+    },
+    {
+      "item": "The folder prefix for the custom source path on the S3 bucket (e.g., /ext/dspm-security-alerts).",
+      "depth": 1
+    },
+    {
+      "heading": "Integrating DSPM with Amazon Security Lake",
+      "level": 1
+    },
+    {
+      "text": "To configure the Amazon Security Lake integration:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > DSPM Integrations.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          59
+        ],
+        [
+          60,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Click Add next to the Cloud Storage integration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          22,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Cloud Storage Integration page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Cloud Storage Integration page, under Integrations Details:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          36
+        ],
+        [
+          49,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Integration Name: Enter a unique name for the integration.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Storage: Select Amazon Security Lake.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Storage page, complete the following steps to provide DSPM with write permissions on Amazon Security Lake:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "DSPM AWS Account: Copy the DSPM AWS Account ID and paste it in the Account ID field while creating the custom source on the Amazon Security Lake console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          67,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "External ID: Copy the External ID and paste it in the External ID field while creating the custom source on the Amazon Security Lake console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          54,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "IAM Role: Enter the AWS Identity and Access Management (IAM) ARN role that you copied after creating the custom source. This role allows the DSPM AWS account to write data to Security Lake.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Amazon S3 Bucket Name: Provide the Amazon S3 bucket name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Region: Select the bucket region from the drop-down menu. You should have these details from the Prerequisites step.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Folder Location: Provide the folder path for the S3 bucket set for Amazon Security Lake. You should have these details from the Prerequisites step.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Test Connection: Click to verify the connection between DSPM and the AWS service. The test connection validates that the S3 bucket exists.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "A message is displayed indicating the connection is verified.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Review the integration summary. Click the Edit icon if you want to make any changes.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "You can see the integration details on the Integrations page. The initial status shows as Pending because data has not yet been sent to the Amazon Security Lake. You must configure and associate the alert notification rules with this integration for DSPM to be able to send the data logs. When DSPM sends the data logs to the Amazon Security Lake, then the status changes to Success.",
+      "strong": [
+        [
+          43,
+          55
+        ]
+      ]
+    },
+    {
+      "heading": "Partitioning",
+      "level": 1
+    },
+    {
+      "text": "Partitioning is a technique for organizing datasets, so they can be queried efficiently. DSPM alerts are exported in OCSF format to Amazon Security Lake and are stored in Parquet files. The Parquet format is a column-based data format."
+    },
+    {
+      "text": "The files are limited by size. A new file is generated and posted whenever the file size reaches 256 MB or after 5 minutes. The files are stored under the root path created for the custom source. The folder structure is: region=<awsregion>/accountid=<cloudaccountid>/eventDay=<YYYYMMDD>."
+    },
+    {
+      "text": "New folders are generated to host new alert files."
+    },
+    {
+      "heading": "OCSF Mapping",
+      "level": 1
+    },
+    {
+      "text": "OCSF includes an open specification for the normalization of security telemetry across a wide range of security products and services, as well as open-source tools that provide support for using the OCSF schema. To learn more, refer to the GitHub page on OCSF."
+    },
+    {
+      "item": "Cloud alert data logs written to OCSF",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "OCSF Field",
+          "DSPM Cloud Alert Field",
+          "Static Value"
+        ],
+        [
+          "category_name",
+          "",
+          "Findings"
+        ],
+        [
+          "category_uid",
+          "",
+          "2"
+        ],
+        [
+          "class_name",
+          "",
+          "Security Finding"
+        ],
+        [
+          "class_uid",
+          "",
+          "2001"
+        ],
+        [
+          "time",
+          "csp_event_timestamp",
+          ""
+        ],
+        [
+          "time_dt",
+          "csp_event_timestamp",
+          ""
+        ],
+        [
+          "activity",
+          "alert_status",
+          ""
+        ],
+        [
+          "activity_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_name",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_uid",
+          "alert_status",
+          ""
+        ],
+        [
+          "state_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "status",
+          "alert_status",
+          ""
+        ],
+        [
+          "status_detail",
+          "alert_status_description",
+          ""
+        ],
+        [
+          "message",
+          "alert_description",
+          ""
+        ],
+        [
+          "severity",
+          "risk",
+          ""
+        ],
+        [
+          "severity_id",
+          "risk",
+          ""
+        ],
+        [
+          "finding.uid",
+          "alert_id",
+          ""
+        ],
+        [
+          "finding.title",
+          "policy_name",
+          ""
+        ],
+        [
+          "finding.created_time",
+          "alert_created_dt",
+          ""
+        ],
+        [
+          "finding.modified_time",
+          "alert_updated_dt",
+          ""
+        ],
+        [
+          "finding.desc",
+          "",
+          "ocfs_finding_desc.txt"
+        ],
+        [
+          "finding.types.0",
+          "policy_type",
+          ""
+        ],
+        [
+          "finding.threat_category",
+          "policy_threat_category",
+          ""
+        ],
+        [
+          "finding.theme",
+          "policy_theme",
+          ""
+        ],
+        [
+          "finding.age",
+          "age",
+          ""
+        ],
+        [
+          "cloud.account_name",
+          "account_name",
+          ""
+        ],
+        [
+          "cloud.org_name",
+          "organisation_name",
+          ""
+        ],
+        [
+          "cloud.provider",
+          "csp",
+          ""
+        ],
+        [
+          "cloud.resource_uid",
+          "resource_id",
+          ""
+        ],
+        [
+          "cloud.account_uid",
+          "account_id",
+          ""
+        ],
+        [
+          "cloud.org_uid",
+          "organisation_id",
+          ""
+        ],
+        [
+          "resources.0.account_uid",
+          "account_id",
+          ""
+        ],
+        [
+          "resources.0.name",
+          "resource_name",
+          ""
+        ],
+        [
+          "resources.0.type",
+          "resource_type",
+          ""
+        ],
+        [
+          "resources.0.labels.0",
+          "tags",
+          ""
+        ],
+        [
+          "resources.0.details",
+          "",
+          "ocfs_resource_details.txt"
+        ],
+        [
+          "resources.0.clusterName",
+          "cluster_name",
+          ""
+        ],
+        [
+          "resources.0.clusterType",
+          "cluster_type",
+          ""
+        ],
+        [
+          "resources.0.namespace",
+          "namespace",
+          ""
+        ],
+        [
+          "resources.0.associatedCloud",
+          "associated_cloud",
+          ""
+        ],
+        [
+          "resources.0.owner.name",
+          "",
+          "“”"
+        ],
+        [
+          "resources.0.owner.uid",
+          "identity_id",
+          ""
+        ],
+        [
+          "resources.0.owner.type",
+          "identity_type",
+          ""
+        ],
+        [
+          "resources.0.owner.type_id",
+          "",
+          "0"
+        ],
+        [
+          "resources.0.owner.domain",
+          "identity_source",
+          ""
+        ],
+        [
+          "resources.0.owner.email_addr",
+          "identity_name",
+          ""
+        ],
+        [
+          "resources.0.owner.groups.0.name",
+          "identity_power_category",
+          ""
+        ],
+        [
+          "resources.Owner.TypeId",
+          "",
+          "0"
+        ],
+        [
+          "metadata.product.name",
+          "",
+          "dspm"
+        ],
+        [
+          "metadata.product.vendor_name",
+          "",
+          "zscaler"
+        ],
+        [
+          "metadata.version",
+          "",
+          "2.2"
+        ],
+        [
+          "compliance.requirements.0",
+          "compliance_benchmark",
+          ""
+        ],
+        [
+          "compliance.requirements.1",
+          "compliance_control_number",
+          ""
+        ],
+        [
+          "attacks.0.tactics.0.uid",
+          "NA",
+          "NA"
+        ],
+        [
+          "attacks.0.technique.uid",
+          "NA",
+          "NA"
+        ],
+        [
+          "attacks.0.version",
+          "",
+          "\"ATT&CK v13\""
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          10
+        ],
+        [
+          0,
+          1,
+          0,
+          22
+        ],
+        [
+          0,
+          2,
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends the following resolutions for issues that you might encounter while integrating and using DSPM with Amazon Security Lake."
+    },
+    {
+      "table": [
+        [
+          "Issue",
+          "Resolution"
+        ],
+        [
+          "The DSPM alert data is available in the Amazon Security Lake S3 bucket, but the Glue Crawler fails to parse the data into Amazon Security Lake.",
+          "This issue typically occurs when the custom source that is created for the integration is using the wrong event class. Make sure you create the custom source with the Security Finding event class."
+        ],
+        [
+          "Amazon Security Lake integration object on the DSPM Integrations page shows a Failed status.",
+          "This indicates that DSPM does not have the permission to access the Amazon Security Lake S3 bucket. While integrating DSPM with Amazon Security Lake, make sure you have applied the required policy to grant DSPM access to the S3 bucket."
+        ],
+        [
+          "New alerts are present in the Zscaler Admin Console but are not exported into Amazon Security Lake.",
+          "Make sure you've configured the alert rule notification and check the scope of the alert rule."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          1,
+          0,
+          10
+        ]
+      ]
+    }
+  ]
+}

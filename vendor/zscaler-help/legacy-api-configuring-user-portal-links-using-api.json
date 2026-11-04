@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring User Portal Links Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-user-portal-links-using-api",
+    "node": "1530976",
+    "revision": "3141275",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing user portal links use cases using APIs. All APIs are rate limited. To learn more, see About User Portal Links and Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you create a user portal link or get details of user portal links, you must get the portalId, the unique identifier of the user portal. To learn more, see Configuring User Portals Using API."
+    },
+    {
+      "heading": "Getting Details of All User Portal Links",
+      "level": 1
+    },
+    {
+      "text": "To get details of all user portal links:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/?microtenantId={microtenantId}&page={page}&pagesize={pagesize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink/?microtenantId=0&page=1&pagesize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"145283994705985846\", \"modifiedTime\": \"1748372770\", \"creationTime\": \"1748372770\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test aneela1\", \"microtenantName\": \"Default\", \"enabled\": true, \"link\": \"aneela.com\", \"userPortals\": [ { \"id\": \"145283994705985838\", \"modifiedTime\": \"1747939958\", \"creationTime\": \"1747939958\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test aneela\", \"enabled\": true, \"domain\": \"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\": true, \"extDomainTranslation\": \"aneela.com\", \"extLabel\": \"aneela\" } ] }, { \"id\": \"145283994705985863\", \"modifiedTime\": \"1753247856\", \"creationTime\": \"1753247856\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test name\", \"microtenantName\": \"Default\", \"enabled\": true, \"description\": \"test description\", \"link\": \"aneela1.com\", \"userPortals\": [ { \"id\": \"145283994705985838\", \"modifiedTime\": \"1747939958\", \"creationTime\": \"1747939958\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test aneela\", \"enabled\": true, \"domain\": \"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\": true, \"extDomainTranslation\": \"aneela.com\", \"extLabel\": \"aneela\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular User Portal Link",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular user portal link:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}?microtenantId={microtenantId}&page={page}&pagesize={pagesize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal link.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}?microtenantId={microtenantId}&page={page}&pagesize={pagesize}.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145283994705985846\", \"modifiedTime\": \"1748372770\", \"creationTime\": \"1748372770\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test aneela1\", \"microtenantName\": \"Default\", \"enabled\": true, \"link\": \"aneela.com\", \"userPortals\": [ { \"id\": \"145283994705985838\", \"modifiedTime\": \"1747939958\", \"creationTime\": \"1747939958\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test aneela\", \"enabled\": true, \"domain\": \"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\": true, \"extDomainTranslation\": \"aneela.com\", \"extLabel\": \"aneela\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting the User Portal Link Details by User Portal ID",
+      "level": 1
+    },
+    {
+      "text": "To get details of the user portal link by user portal ID:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/userPortal/{portalId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "portalId: The unique identifier of the user portal. To learn more, see Configuring User Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink/userPortal/145283994705985838.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\":\"0\", \"list\":[ { \"id\":\"145283994705985864\", \"modifiedTime\":\"1756929922\", \"creationTime\":\"1753811234\", \"modifiedBy\":\"72057594038779845\", \"name\":\"aneela.com\", \"enabled\":true, \"description\":\"test\", \"link\":\"aneela.com\", \"iconText\":\"data:image/png;base64,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\", \"protocol\":\"https://\", \"userPortals\":[ { \"id\":\"145283994705985838\", \"modifiedTime\":\"1753811811\", \"creationTime\":\"1747939958\", \"modifiedBy\":\"72057594038779845\", \"name\":\"test aneela updated 2\", \"enabled\":true, \"domain\":\"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\":true, \"extDomainTranslation\":\"aneela.com\", \"extLabel\":\"aneela\", \"extDomain\":\"aneela.com\", \"extDomainName\":\"aneela-com.d.zscalerportal.net\", \"microtenantName\":\"Default\" } ] }, { \"id\":\"145283994705985846\", \"modifiedTime\":\"1748372770\", \"creationTime\":\"1748372770\", \"modifiedBy\":\"72057594038779845\", \"name\":\"test aneela1\", \"enabled\":true, \"link\":\"aneela.com\", \"userPortals\":[ { \"id\":\"145283994705985838\", \"modifiedTime\":\"1753811811\", \"creationTime\":\"1747939958\", \"modifiedBy\":\"72057594038779845\", \"name\":\"test aneela updated 2\", \"enabled\":true, \"domain\":\"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\":true, \"extDomainTranslation\":\"aneela.com\", \"extLabel\":\"aneela\", \"extDomain\":\"aneela.com\", \"extDomainName\":\"aneela-com.d.zscalerportal.net\", \"microtenantName\":\"Default\" } ] } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding a User Portal Link",
+      "level": 1
+    },
+    {
+      "text": "To add a user portal link:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "userPortalId: The unique identifier of the user portal. To learn more, see Configuring User Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the user portal link.",
+      "depth": 1
+    },
+    {
+      "item": "link: The domain name of IP address for the application link.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"<example user portal link name>\", \"link\":\"<exampleLink.com>\", \"linkPath\":\"\", \"description\":\"<example optional description>\", \"logoFileName\":\"\", \"userPortalId\": <user portal ID> }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"test name 1\", \"link\":\"aneela1.com\", \"linkPath\":\"\", \"description\":\"test description\", \"logoFileName\":\"\", \"userPortalId\": 145283994705985838 }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145283994705985874\", \"modifiedTime\": \"1756940241\", \"creationTime\": \"1756940241\", \"modifiedBy\": \"145283994705985860\", \"name\": \"test name 1\", \"enabled\": true, \"description\": \"test description\", \"link\": \"aneela1.com\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding a List of User Portal Links",
+      "level": 1
+    },
+    {
+      "text": "To add a list of user portal links:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/bulk?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink/bulk?microtenantId={microtenantId}.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "id: The unique identifier of the user portal. To learn more, see Configuring User Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the user portal link.",
+      "depth": 1
+    },
+    {
+      "item": "link: The domain name of IP address for the application link.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userPortalLinks\":[ { \"enabled\":true, \"name\":\"<example name>\", \"link\":\"<exampleLink.com>\", \"linkPath\":\"\", \"description\":\"<example description>\", \"logoFileName\":\"\", \"protocol\":\"\" } ], \"userPortals\":[ { \"id\":\"<user portal ID>\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userPortalLinks\":[ { \"enabled\":true, \"name\":\"test name\", \"link\":\"aneela1.com\", \"linkPath\":\"\", \"description\":\"test description\", \"logoFileName\":\"\", \"protocol\":\"\" } ], \"userPortals\":[ { \"id\":\"145283994705985838\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"userPortalLinks\":[ { \"id\":\"145283994705985863\", \"name\":\"test name\", \"enabled\":true, \"description\":\"test description\", \"link\":\"aneela1.com\", \"userPortals\":[ { \"id\":\"145283994705985838\", \"enabled\":true } ] } ], \"userPortals\":[ { \"id\":\"145283994705985838\", \"enabled\":true } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a User Portal Link",
+      "level": 1
+    },
+    {
+      "text": "To update a user portal link:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal link. To learn more, see Getting Details of All User Portal Links.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink/145283994705985863?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "id: The unique identifier of the user portal. To learn more, see Configuring User Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the user portal link.",
+      "depth": 1
+    },
+    {
+      "item": "link: The domain name of IP address for the application link.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"id\":\"145283994705985863\", \"modifiedTime\":\"1753247856\", \"creationTime\":\"1753247856\", \"modifiedBy\":\"72057594038779845\", \"name\":\"<example user portal name>\", \"microtenantName\":\"Default\", \"description\":\"<example description>\", \"link\":\"<exampleLink.com>\", \"userPortals\":[ { \"id\":\"<user portal ID>\" } ], \"linkPath\":\"\", \"logoFileName\":\"\", \"protocol\":\"\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"id\":\"145283994705985863\", \"modifiedTime\":\"1753247856\", \"creationTime\":\"1753247856\", \"modifiedBy\":\"72057594038779845\", \"name\":\"test name updated\", \"microtenantName\":\"Default\", \"description\":\"test description\", \"link\":\"aneela1.com\", \"userPortals\":[ { \"id\":\"145283994705985838\" } ], \"linkPath\":\"\", \"logoFileName\":\"\", \"protocol\":\"\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the user portal link is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a User Portal Link",
+      "level": 1
+    },
+    {
+      "text": "To delete a user portal link:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortalLink{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal link. To learn more, see Getting Details of All User Portal Links.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortalLink145283994705985863?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the user portal link is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the user portal link use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "iconText",
+          "The logo or favicon for the link",
+          "No",
+          "String"
+        ],
+        [
+          "link",
+          "The domain name of IP address for the application link",
+          "Yes",
+          "String"
+        ],
+        [
+          "linkPath",
+          "The specific path for the URL (e.g., entering /preferences creates a link pointing to www.example.com/preferences)",
+          "No",
+          "String"
+        ],
+        [
+          "logoFileName",
+          "The name for the logo or favicon",
+          "No",
+          "String"
+        ],
+        [
+          "protocol",
+          "The protocol for the user portal link. This is only supported for private applications where Browser Access is not enabled. For private applications where Browser Access is enabled, this field defaults to the protocol that was configured in the application segment, and cannot be changed.",
+          "No",
+          "String Supported values: https:// http://"
+        ]
+      ]
+    }
+  ]
+}

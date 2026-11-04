@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Segment Groups Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-segment-groups-using-api",
+    "node": "1484786",
+    "revision": "3160694",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) segment groups using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before you create a new segment group, you must get the required application segment details. To learn more, see Configuring Application Segments Using API."
+    },
+    {
+      "heading": "Creating a New Segment Group",
+      "level": 1
+    },
+    {
+      "text": "To add a new segment group:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/segmentGroup.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the entire JSON payload to create a segment group and add the applications to link:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the entire JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"string\", \"description\": \"string\", \"enabled\": true, \"applications\": [{ \"id\": \"<appId>\" }] }",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria for a JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"string\", \"description\": \"string\", \"enabled\": true }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303024818\", \"creationTime\": \"1614290499\", \"modifiedBy\": \"217246660303024817\", \"name\": \"Example Test Segment Group\", \"description\": \"App Segment Group for testing\", \"enabled\": true, \"applications\": [ { \"id\": \"217246660303024812\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"isCnameEnabled\": \"true\", \"ipAnchored\": false, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false } ], \"configSpace\": \"DEFAULT\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the segment group criteria you want to include in the JSON payload. You can also use the minimum criteria for a JSON payload to create a segment group. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the application segment group use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the segment group",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "Description of the segment group",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether this segment group is enabled or not",
+          "Yes",
+          "Default: False Boolean: True, False"
+        ],
+        [
+          "applications:id",
+          "The ID of the applications",
+          "No",
+          "Long"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "InspectTrafficWithZia",
+          "Indicates if Inspect Traffic with ZIA is enabled for the application. When enabled, this leverages a single posture for securing internet/SaaS and private applications, and applies Data Loss Prevention policies to the application segment you are creating. To learn more, see Configuring Defined Application Segments.",
+          "No",
+          "Default: false Boolean: true, false"
+        ]
+      ],
+      "strong": [
+        [
+          6,
+          1,
+          13,
+          37
+        ]
+      ]
+    },
+    {
+      "heading": "Getting Details for a Particular Segment Group",
+      "level": 1
+    },
+    {
+      "text": "To get a segment group:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{segmentGroupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "segmentGroupId: The particular segment group ID you want details for.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/segmentGroup/217246660303026632.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303026632\", \"creationTime\": \"1660797940\", \"modifiedBy\": \"72057594038608960\", \"name\": \"01-gdusgotra-app-seg-1\", \"microtenantName\": \"Default\", \"enabled\": true, \"applications\": [ { \"id\": \"217246660303026633\", \"modifiedTime\": \"1661413693\", \"creationTime\": \"1660797940\", \"modifiedBy\": \"72057594038608960\", \"name\": \"01-gdusgotra-app-seg-1\", \"domainName\": \"mywebsite.com\", \"domainNames\": [ \"mywebsite.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"80\", \"80\", \"8080\", \"8080\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\": true, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\": \"INCLUSIVE\" \"tcpPortRange\": [ { \"from\": \"80\", \"to\": \"80\" }, { \"from\": \"8080\", \"to\": \"8080\" } ] }, { \"id\": \"217246660303027213\", \"modifiedTime\": \"1682025474\", \"creationTime\": \"1682021568\", \"modifiedBy\": \"217246660303024753\", \"name\": \"example22\", \"domainName\": \"exampledomain.com\", \"domainNames\": [ \"exampledomain.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"53\", \"53\" ], \"udpPortRanges\": [ \"54\", \"54\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"inspectTrafficWithZia\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\" : \"INCLUSIVE\", \"tcpPortRange\": [ { \"from\": \"53\", \"to\": \"53\" } ], \"udpPortRange\": [ { \"from\": \"54\", \"to\": \"54\" } ] } ], \"configSpace\": \"DEFAULT\", \"tcpKeepAliveEnabled\": \"0\", \"restrictedEntity\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All Segment Groups",
+      "level": 1
+    },
+    {
+      "text": "To get details for all segment groups:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057615512764416/segmentGroup.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"106\", \"totalCount\": \"106\", \"list\": [ { \"id\": \"217246660303026632\", \"creationTime\": \"1660797940\", \"modifiedBy\": \"72057594038608960\", \"name\": \"01-gdusgotra-app-seg-1\", \"microtenantName\": \"Default\", \"enabled\": true, \"applications\": [ { \"id\": \"217246660303026633\", \"modifiedTime\": \"1661413693\", \"creationTime\": \"1660797940\", \"modifiedBy\": \"72057594038608960\", \"name\": \"01-gdusgotra-app-seg-1\", \"domainName\": \"mywebsite.com\", \"domainNames\": [ \"mywebsite.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"80\", \"80\", \"8080\", \"8080\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\": true, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\" : \"INCLUSIVE\", \"tcpPortRange\": [ { \"from\": \"80\", \"to\": \"80\" }, { \"from\": \"8080\", \"to\": \"8080\" } ] }, { \"id\": \"217246660303027213\", \"modifiedTime\": \"1682025474\", \"creationTime\": \"1682021568\", \"modifiedBy\": \"217246660303024753\", \"name\": \"example22\", \"domainName\": \"exampledomain.com\", \"domainNames\": [ \"exampledomain.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"53\", \"53\" ], \"udpPortRanges\": [ \"54\", \"54\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"cnameConfig\": \"NOFLATTEN\", \"ipAnchored\": false, \"inspectTrafficWithZia\": false, \"tcpKeepAlive\": \"0\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"matchStyle\" : \"INCLUSIVE\", \"tcpPortRange\": [ { \"from\": \"53\", \"to\": \"53\" } ], \"udpPortRange\": [ { \"from\": \"54\", \"to\": \"54\" } ] } ], \"policyMigrated\": true, \"configSpace\": \"DEFAULT\", \"tcpKeepAliveEnabled\": \"0\", \"restrictedEntity\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup?page=1&pagesize=20 .",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/segmentGroup?page=1&pagesize=2.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"list\": [ { \"id\": \"144118148382064801\", \"modifiedTime\": \"1603149530\", \"creationTime\": \"1489571820\", \"modifiedBy\": \"144118148382064642\", \"name\": \"Do not delete\", \"description\": \"desc\", \"enabled\": true, \"applications\": [ { \"id\": \"144118148382064803\", \"modifiedTime\": \"1648481104\", \"creationTime\": \"1489571905\", \"modifiedBy\": \"144118148382065486\", \"name\": \"CRM AWS\", \"domainName\": \"crm.lanukcorp.com\", \"domainNames\": [ \"crm.lanukcorp.com\" ], \"description\": \"Test text\", \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"80\", \"80\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"ipAnchored\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\": true, \"bypassOnReauth\":false, \"inspectTrafficWithZia\": false, \"tcpPortRange\": [ { \"from\": \"80\", \"to\": \"80\" } ] }, { \"id\": \"144118148382065459\", \"creationTime\": \"1616227608\", \"modifiedBy\": \"144118148382064667\", \"name\": \"test\", \"domainName\": \"api.github.com\", \"domainNames\": [ \"api.github.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"tcpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"udpPortRanges\": [ \"1\", \"52\", \"54\", \"65535\" ], \"doubleEncrypt\": false, \"healthCheckType\": \"DEFAULT\", \"icmpAccessType\": \"NONE\", \"bypassType\": \"NEVER\", \"configSpace\": \"DEFAULT\", \"ipAnchored\": false, \"inspectTrafficWithZia\": false, \"tcpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ], \"udpPortRange\": [ { \"from\": \"1\", \"to\": \"52\" }, { \"from\": \"54\", \"to\": \"65535\" } ] } ], \"policyMigrated\": false, \"configSpace\": \"DEFAULT\", \"tcpKeepAliveEnabled\": \"0\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup&search={searchString} .",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string enabled%20EQ%20true is supported for the Status filter, using the Equals (EQ) operator, for the True (Enabled) filter value.",
+      "depth": 1,
+      "strong": [
+        [
+          267,
+          273
+        ],
+        [
+          292,
+          298
+        ],
+        [
+          322,
+          326
+        ]
+      ]
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/segmentGroup&search=enabled%20EQ%20true.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"8\", \"totalCount\": \"8\", \"list\": [ { \"id\": \"73186051597800104\", \"creationTime\": \"1656365638\", \"modifiedBy\": \"73186051597795329\", \"name\": \"AD\", \"enabled\": true, \"applications\": [ { \"id\": \"73186051597800105\", \"modifiedTime\": \"1667504714\", \"creationTime\": \"1656365638\", \"modifiedBy\": \"73186051597795329\", \"name\": \"Example Server App\", \"domainName\": \"10.66.62.15\", \"domainNames\": [ \"10.66.62.15\", \"testdc.dummytest.com\" ], \"enabled\": true, \"passiveHealthEnabled\": true, \"doubleEncrypt\": false, \"healthCheckType\": \"NONE\", \"icmpAccessType\": \"PING\", \"bypassType\": \"ALWAYS\", \"configSpace\": \"DEFAULT\", \"ipAnchored\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"autoAppProtectEnabled\": true, \"tcpKeepAlive\": \"1\", \"useInDrMode\": false, \"selectConnectorCloseToApp\": false } ], \"policyMigrated\": true, \"configSpace\": \"DEFAULT\", \"tcpKeepAliveEnabled\": \"0\", \"microtenantName\": \"Default\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the Reference Guide to make your API calls, the search field string does not require any characters. For example, enabled%20EQ%20true is enabled EQ true."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating Segment Group Details",
+      "level": 1
+    },
+    {
+      "text": "To update a segment group:"
+    },
+    {
+      "item": "Use the updated JSON payload from Creating a New Segment Group and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/segmentGroup/{segmentGroupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "segmentGroupId: The ID of the segment group captured in Creating a New Segment Group.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/segmentGroup/72057615512764613.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\": true, \"skipDetailedAppInfo\": true, \"id\":\"<segmentGroupId>\", \"name\":\"string\", \"scopeName\": \"Default\", \"configSpace\":\"DEFAULT\", \"restrictedEntity\":false, \"hideInfoTooltip\":true, \"description\":\"string\", \"addedApps\":[\"<appId>\"], \"deletedApps\":[\"<appId>\"] }",
+      "depth": 0
+    },
+    {
+      "item": "The addedApps and deletedApps models contain a list of application IDs that can be used to add or remove the applications associated with segment groups.",
+      "depth": 0
+    },
+    {
+      "text": "An unsuccessful response returns code 400."
+    },
+    {
+      "item": "View Error Code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"invalid.resource.argument\", \"reason\": \"One or more input fields applications are not valid.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the segment group is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a segment group is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Deleting a Segment Group",
+      "level": 1
+    },
+    {
+      "text": "To delete a segment group:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/segmentGroup/{segmentGroupId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "segmentGroupId: The ID of the segment group.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/segmentGroup/72057615512764613.",
+      "depth": 0
+    },
+    {
+      "text": "An object that is referenced in another object cannot be deleted. Error code 400 is returned in this situation."
+    },
+    {
+      "item": "View error code 400",
+      "depth": 0
+    },
+    {
+      "item": "{ \"params\": [ \"Application\", \"app 3 created on postman feb 5_edited\" ], \"id\": \"resource.referenced\", \"reason\": \"Resource is being referenced in Application : app 3 created on postman feb 5_edited.\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the segment group is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a segment group is configured using Zscaler Deception, then the update and delete options are unavailable."
+    }
+  ]
+}

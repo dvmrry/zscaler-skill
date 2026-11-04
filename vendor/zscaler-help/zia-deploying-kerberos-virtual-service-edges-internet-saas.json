@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Kerberos: Virtual Service Edges for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/deploying-kerberos-virtual-service-edges-internet-saas",
+    "node": "1400371",
+    "revision": "3249135",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports authentication using Kerberos, an industry-standard security protocol. To learn more about Kerberos benefits, features, and limitations, see About Kerberos Authentication. Before deploying Kerberos for Virtual Service Edge for Internet & SaaS (ZIA), see Kerberos Requirements, Kerberos Deployment Guidelines, and Deploying Kerberos."
+    },
+    {
+      "text": "To deploy Kerberos authentication for a Virtual Service Edge:"
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "On the Default Settings page, under Kerberos Authentication, select Enable Kerberos. You must enable Kerberos in order for the Enable Kerberos option to appear within the Edit Location window.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          59
+        ],
+        [
+          68,
+          83
+        ],
+        [
+          127,
+          142
+        ],
+        [
+          171,
+          184
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Use the following hostname format for a forward proxy or Kerberos PAC file entry:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Forward Proxy",
+      "depth": 1
+    },
+    {
+      "item": "The hostname format depends on the deployment mode of the Virtual Service Edge:",
+      "depth": 1
+    },
+    {
+      "item": "For cluster deployment mode, use the cluster IP address:",
+      "depth": 2
+    },
+    {
+      "item": "vzen-<Cluster IP Address>-<Company ID>.gateway.<Cloud Name>.net",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "vzen-10-66-63-22-370255.gateway.zscalertwo.net",
+      "depth": 1
+    },
+    {
+      "item": "For standalone deployment mode, use the proxy IP address of the Virtual Service Edge instance:",
+      "depth": 2
+    },
+    {
+      "item": "vzen-<Proxy IP Address>-<Company ID>.gateway.<Cloud Name>.net",
+      "depth": 1
+    },
+    {
+      "item": "For example:",
+      "depth": 1
+    },
+    {
+      "item": "vzen-10-66-63-21-370255.gateway.zscalertwo.net",
+      "depth": 1
+    },
+    {
+      "item": "Kerberos PAC File",
+      "depth": 1
+    },
+    {
+      "item": "Use the following hostname format for the Kerberos PAC file:",
+      "depth": 1
+    },
+    {
+      "item": "return \"PROXY vzen-10-66-63-22-370255.gateway.<Cloud Name>.net:80; DIRECT\";}",
+      "depth": 1
+    },
+    {
+      "item": "Go to Infrastructure > Location Management > Legacy Locations.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          42
+        ],
+        [
+          45,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Location or click the Edit icon for an existing location..",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "On the Locations page, click the Edit icon for the location you want to use Kerberos authentication.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          33,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "The Edit Location window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Location window:",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select Enforce Authentication.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Kerberos Authentication.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Locations.",
+      "depth": 0
+    },
+    {
+      "item": "If Kerberos is enabled only in Authentication Settings and not in the Virtual Service Edge location configuration, all forward proxy traffic landing on ports 80/9443/DPPC-Port using the hostname format vzen-<Cluster IP Address>-<Company ID>.gateway.<Cloud Name>.net will do normal authentication, except port 8800. If the Virtual Service Edge location has Kerberos enabled, then all ports will use Kerberos authentication.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge redirects traffic to gateway authentication for ports 8800 and 8443 if Kerberos is enabled for the location. You can avoid bypassing Kerberos authentication for these ports by adding the following parameter to the vzen_custom.conf file:",
+      "depth": 0
+    },
+    {
+      "item": "[SME]",
+      "depth": 0
+    },
+    {
+      "item": "spnego_krb_noport_bypass=1",
+      "depth": 0
+    },
+    {
+      "item": "[-end-of-SME-]",
+      "depth": 0
+    },
+    {
+      "item": "The following caveats apply to this configuration:",
+      "depth": 0
+    },
+    {
+      "item": "If Kerberos is enabled for a location with the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file, then all the ports that the Virtual Service Edge is listening on, enforce Kerberos authentication.",
+      "depth": 1
+    },
+    {
+      "item": "The pauth_port (8080) enforces digest authentication irrespective of the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file or either Kerberos or digest authentication being enabled for the location.",
+      "depth": 1
+    },
+    {
+      "item": "The Kerberos port (8800) enforces Kerberos authentication irrespective of the spnego_krb_noport_bypass=1 parameter set in the vzen_custom.conf file or Kerberos authentication being enabled for the location.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

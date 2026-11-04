@@ -1,0 +1,123 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices for Firewall Control Policy",
+  "source": {
+    "url": "https://help.zscaler.com/zia/best-practices-firewall-control-policy",
+    "node": "1535227",
+    "revision": "3205050",
+    "updated": "2026-04-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides recommendations and best practices for configuring and using the Zscaler Firewall Control policy with Standard or Advanced Firewall."
+    },
+    {
+      "heading": "Firewall Filtering Rules",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the recommended configurations for Firewall Filtering rules:"
+    },
+    {
+      "table": [
+        [
+          "Rule",
+          "Configuration",
+          "Recommendation",
+          "Firewall Subscription"
+        ],
+        [
+          "Default Firewall Filtering Rule",
+          "Enable this predefined rule with the Block action and assign the lowest rule order.",
+          "This rule ensures that any traffic that is not explicitly allowed to the internet is blocked. You can review the Firewall logs to assess traffic match and impact.",
+          "Supported in Standard and Advanced Firewall"
+        ],
+        [
+          "Block Malicious IPs and Domains",
+          "Enable this predefined rule and assign a very high rule order.",
+          "This rule blocks IP addresses and FQDNs resolved to highly risky IP addresses.",
+          "Supported in Standard and Advanced Firewall"
+        ],
+        [
+          "Recommended Firewall Policy",
+          "Configure the recommended Firewall rule as an Allow rule, but include only HTTP, HTTPS, and DNS as network service conditions and assign a high rule order.",
+          "This rule allows traffic that is managed more granularly by the web proxy and the DNS Control to pass through the Firewall checks at the Network and Transport layers and be managed in those modules. All web and DNS rules are defined in the web proxy and DNS Control modules.",
+          "Supported in Standard and Advanced Firewall"
+        ],
+        [
+          "Custom Rules to Block ICMP and QUIC",
+          "Configure rules that block ICMP and QUIC using the network service criteria and assign a high rule order. Consider adding UDP port 80 to the default QUIC network service, or defining a new network service with this port number and including it in this Block rule.",
+          "The QUIC rule ensures that only web traffic that is supported by the web proxy is allowed and other web traffic is blocked. The ICMP rule ensures that only ICMP for authorized users is allowed and reduces the attack surface for ICMP tunneling. For both these rules, the Block/ICMP rule action must be used. Specifically for QUIC, this action ensures a rapid failover to other options and a better user experience.",
+          "Supported in Standard and Advanced Firewall"
+        ],
+        [
+          "Custom Rule to Block SMB",
+          "Configure a rule that blocks SMB using the network service criteria and assign a moderate rule order.",
+          "In general, there is no requirement to allow SMB to the internet in most environments. The Default Firewall Filtering Rule and strictly defined rule sets typically remove the need to explicitly block SMB.",
+          "Supported in Standard and Advanced Firewall"
+        ],
+        [
+          "Other Recommendations",
+          "Zscaler recommends creating any Allow rule using at least three or more conditions, including user, group, department, source or destination IP address, network service, application service, and network application. Zscaler strongly recommends against using network applications as the only rule condition in any Allow or Block rule.",
+          "Using three or more rule conditions ensures that any Allow rule is strictly defined and reduces risk exposure to a minimum.",
+          "Rules using network application criteria require Advanced Firewall."
+        ]
+      ]
+    },
+    {
+      "heading": "DNS Control Rules",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the recommended configurations for DNS Control rules:"
+    },
+    {
+      "table": [
+        [
+          "Rule",
+          "Configuration",
+          "Recommendation",
+          "Firewall Subscription"
+        ],
+        [
+          "Critical Risk DNS Categories",
+          "Enable this predefined rule with the Block action configured for DNS categorizations as well as DNS tunnels and assign a high rule order.",
+          "This is a recommended practice for DNS Control. To learn more, see Best Practices for DNS Control Rules.",
+          "Standard Firewall includes support for blocking DNS categorizations; DNS tunnel block requires Advanced Firewall."
+        ],
+        [
+          "Risky DNS",
+          "Consider enabling all predefined rules related to blocking risky DNS, including DNS categorizations and DNS tunnels, and assign a moderate to high rule order.",
+          "This is a recommended practice for DNS Control, subject to your corporate acceptable use policy. To learn more, see Best Practices for DNS Control Rules.",
+          "Standard Firewall includes support for blocking DNS categorizations; DNS tunnel block requires Advanced Firewall."
+        ]
+      ]
+    },
+    {
+      "heading": "IPS Control Rules",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the recommended configurations for Zscaler's Intrusion Prevention System (IPS) Control rules:"
+    },
+    {
+      "table": [
+        [
+          "Rule",
+          "Configuration",
+          "Recommendation",
+          "Firewall Subscription"
+        ],
+        [
+          "Default Cloud IPS Rule",
+          "Enable this predefined rule configured with the Block action and assign the lowest rule order.",
+          "This rule covers all low false-positive IPS detections created by ThreatLabz that must be blocked. Consider creating higher-order rules for internal security teams and other sensitive users, groups, departments, or locations who might need access to malware for research, or otherwise might need exclusion from non-web IPS protections.",
+          "Requires Advanced Firewall"
+        ]
+      ]
+    }
+  ]
+}

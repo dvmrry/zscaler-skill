@@ -1,0 +1,1418 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Workload Discovery Service for Microsoft Azure Accounts",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/configuring-workload-discovery-service-microsoft-azure-accounts",
+    "node": "1507561",
+    "revision": "3249095",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on how to onboard a Microsoft Azure account to enable workload discovery services within the Zscaler Admin Console. To learn more, see About Microsoft Azure Accounts."
+    },
+    {
+      "text": "Workload discovery services for Azure are in Limited Availability (LA). To learn more, contact Zscaler Support."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you configure an Azure account, ensure that the following prerequisites are met:"
+    },
+    {
+      "item": "Configure your IAM roles and permissions in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the managed identity is updated with the list of Cloud Connectors you want to deploy. To learn more, see Deploying Zscaler Cloud Connector with Microsoft Azure.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that your region is supported. To learn more, see Analyzing Microsoft Azure Account Details.",
+      "depth": 0
+    },
+    {
+      "item": "Create a resource group in Azure where your event grid topic for your Azure account is hosted.",
+      "depth": 0
+    },
+    {
+      "item": "Create a storage account for Cloud Connector to create storage queues to receive messages from the event grid. The Cloud Connector requires a storage account.",
+      "depth": 0
+    },
+    {
+      "item": "If you are using the event grid to distribute tags, create a partner configuration in Azure. For security reasons, Zscaler must authorize the partner configuration prior to onboarding.",
+      "depth": 0
+    },
+    {
+      "item": "To create a partner configuration in Azure:",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Navigate to the Event Grid page.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          16,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Event Grid page, from the left-side navigation, select Partner configurations.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          62,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Partner configurations page, click Create.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create Partner Configuration page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "On the Create Partner Configuration page, on the Basics tab:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Under Project Details:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Your subscription is set in this field, but you can change it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select your resource group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Under Partner Authorizations:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Default maximum partner authorization expiration time (in days): Enter the number of days to create an authorization that lasts for the specified time period. During this time period, the Zscaler service attempts to create a partner topic and a partner destination in your tenant. After expiry, this authorization is invalid, and the Zscaler service cannot create a partner topic or partner destination in your tenant. Zscaler only requires this authorization to create the partner topic or partner destination. If the authorization expires after the Zscaler service has created the partner topic or partner destination in your tenant, the partner topic or partner destination remains operational.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "If the user who creates the authorization in Azure and the user who creates the Azure account in the Zscaler Admin Console are different, enter a number of days that allows both users to coordinate the amount of time necessary to share credentials. If you create new accounts over the course of a year, you can give a one-time authorization of 365 days or give an authorization before every new account is created for 7 days at a time. If the same user creates the authorization in Azure and the Azure account in the Zscaler Admin Console, Zscaler recommends setting the authorization expiration to 7 days as no coordination is required.",
+      "depth": 4
+    },
+    {
+      "item": "Click Partner Authorization.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Add partner authorization to create resources window appears.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler is working on being added to the Microsoft verified partner list. Currently, you must add Zscaler as a non-verified partner.",
+      "depth": 4
+    },
+    {
+      "item": "In the Add partner authorization to create resources window, select the Authorize non-verified partner checkbox, and then configure the following:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          52
+        ],
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Partner registration ID: Enter ad8a5905-16a9-48f8-9f1e-30d750625b8e.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Authorization expiration time: Configure the expiration time as necessary.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Authorization expiration time UTC: This field displays the expiration time in Coordinated Universal Time (UTC).",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Add.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab, click Review + create.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review + create tab, click Create.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The partner configuration authorization is created.",
+      "depth": 1
+    },
+    {
+      "heading": "Adding an Azure Account",
+      "level": 1
+    },
+    {
+      "text": "To add an Azure account:"
+    },
+    {
+      "item": "Sign in to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Cloud > Common Resources > Azure.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          32,
+          48
+        ],
+        [
+          51,
+          67
+        ],
+        [
+          70,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Azure Account window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Azure Account window:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "On the Credentials tab:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Account Name: Enter a name for the Azure account used in the service principal credential. It does not have to be the same name used in the Azure portal.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Directory (tenant) ID: Enter the Directory (tenant) ID used in the service principal credential. Use the Directory (tenant) ID from Azure.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Client/Application ID: Enter the client/application ID used in the service principal credential. Use the Application (client) ID from Azure.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Client/Application Secret: Enter the client/application secret used in the service principal credential. Use the client secret from Azure.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about obtaining the Directory (tenant) ID, Client/Application ID, and Client/Application Secret credentials, see Configuring IAM Roles and Permissions for Microsoft Azure.",
+      "depth": 2,
+      "strong": [
+        [
+          34,
+          55
+        ],
+        [
+          57,
+          78
+        ],
+        [
+          84,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Subscription Groups tab:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region(s) you want the Zscaler service to read the resource tag from.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Subscriptions: Select the subscription(s) you want the service to read the resource tag from.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Groups & Namespace tab:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Connector Groups: (Optional) Select the Cloud Connector group(s) to which to send the mapping of IP address to tag.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the Cloud Connector groups you select receive the workload traffic from the subscriptions and regions you choose on the Subscription Groups tab. If you do not select a Cloud Connector group, the workload discovery service only discovers assets but cannot use the tags in policies. It can only view the policy.",
+      "depth": 2,
+      "strong": [
+        [
+          132,
+          151
+        ]
+      ]
+    },
+    {
+      "item": "Namespace (Optional): Enter a namespace to limit the IP addresses sent to the Cloud Connector. This ensures that duplicate IP addresses do not map incorrectly. If you have a duplicate CIDR block in your virtual networks (VNets) in the same subscription, you can partition the subscription tags to make one partition the namespace. You can then send the traffic to the Cloud Connector group, because in the Cloud Connector group you cannot see duplicate IP addresses.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Add Event Grid tab:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          11,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Regions: Select the regions where you want Zscaler to create the event grid topics. The event grid topics are used to notify the Zscaler service of real-time tag updates to ensure that real-time tag mapping updates in the Zscaler service.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Subscriptions: Select a subscription where Zscaler creates an instance of the partner topic and partner destination.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Resource Groups: Select a resource group where Zscaler creates an instance of the partner topic and partner destination.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The event grid is optional and depends on storage account creation in Azure. The queue that the Cloud Connector creates depends on the storage account for Cloud Connector to be able to create the queue. The Zscaler service can only attempt to create a partner topic and a partner destination after you provide the Resource Group and Subscription ID.",
+      "depth": 2,
+      "strong": [
+        [
+          314,
+          328
+        ],
+        [
+          333,
+          348
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Storage Account tab:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Regions: All regions selected on the Event Grid tab are listed. Select a subscription and storage account for each region.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Subscriptions: Select a subscription where your storage account is located.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Storage Account: Select a storage account where the Cloud Connector creates a storage queue for the event grid. To learn more about creating a storage account, refer to the Microsoft documentation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Prefix: (Optional) Enter a prefix to name and create a storage queue. This prefix is added to the name of the queue so you can organize the queues.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review tab, confirm that the information is correct and click Save and Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          69,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "heading": "Post-Configuration Requirements",
+      "level": 1
+    },
+    {
+      "text": "If you are using the event grid, the following post-configuration requirements are mandatory. After you configure an Azure account in the Zscaler Admin Console, ensure that the following requirements are met:"
+    },
+    {
+      "item": "Activate the partner topic and/or partner destination",
+      "depth": 0
+    },
+    {
+      "item": "Activating the partner topic allows you to receive tags soon after activation. Activating the partner destination allows you to send messages from your account to the Zscaler service when changes are happening.",
+      "depth": 0
+    },
+    {
+      "item": "To activate the partner topic and/or partner destination:",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Search resources, services, and docs (G+/) field, enter event grid.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "From the drop-down menu, select Event Grid. The Event Grid page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          42
+        ],
+        [
+          48,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "On the Event Grid page, from the left-side navigation, select Partner configurations. The Partner configurations page appears.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          62,
+          84
+        ],
+        [
+          90,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Partner configurations page, select the Resource group you created. On the Resource group page:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          47,
+          61
+        ],
+        [
+          82,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Copy your Resource Group and Subscription ID to be shared with the Zscaler service when Adding a Microsoft Azure Account. The Zscaler service can only attempt to create a partner topic and a partner destination after you provide the Resource Group and Subscription ID.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          24
+        ],
+        [
+          29,
+          44
+        ],
+        [
+          233,
+          247
+        ],
+        [
+          252,
+          267
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "From the Resources list, select the partner topic or partner destination.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Event Grid Partner Topic or Event Grid Partner Destination page, on the Overview tab, click Activate.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          35,
+          65
+        ],
+        [
+          79,
+          87
+        ],
+        [
+          99,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The partner topic and/or partner destination is activated. After the partner destination is activated, you must configure the system topic to send messages in the partner destination.",
+      "depth": 0
+    },
+    {
+      "item": "You must go to the resource group for every region you are activating and activate the partner topic and/or partner destination in that region.",
+      "depth": 0
+    },
+    {
+      "item": "Create the system topic",
+      "depth": 0
+    },
+    {
+      "item": "Creating the system topic allows you to send messages in the partner destination and alerts the Zscaler service that a change has occurred in your subscription so that tags are immediately extracted. You can either manually create the system topic or use the Terraform template.",
+      "depth": 0
+    },
+    {
+      "item": "To create the system topic:",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Search resources, services, and docs (G+/) field, enter event grid.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "From the drop-down menu, select Event Grid. The Event Grid page appears.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          42
+        ],
+        [
+          48,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "On the Event Grid page, from the left-side navigation, under Azure service events, select System topics. The Event Grid | System topics page appears.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          61,
+          81
+        ],
+        [
+          90,
+          103
+        ],
+        [
+          109,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Event Grid | System topics page, click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          46,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Event Grid System Topic page, configure the following:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Topic Details section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Topic Types: From the drop-down menu, select Azure Resource Notifications - Resource Management events.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          45,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select your subscription.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Only one system topic can be created per subscription.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the System Topic Details section:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select your resource group created as a prerequisite.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the system topic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Location: Global is selected by default and you cannot change it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          10,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Identity section, leave the settings unchanged.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "On the Tags tab, leave the settings unchanged.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + create tab, click Create.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the system topic Deployment page, after the deployment succeeds, click Go to resource. Alternatively, in the top-right corner, click Go to resource. Your Event Grid System Topic page appears.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          20,
+          30
+        ],
+        [
+          74,
+          88
+        ],
+        [
+          136,
+          150
+        ],
+        [
+          157,
+          180
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On your Event Grid System Topic page, from the left-side navigation, under Entities, select Event Subscriptions. The Event Subscriptions page appears.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          8,
+          31
+        ],
+        [
+          75,
+          83
+        ],
+        [
+          92,
+          111
+        ],
+        [
+          117,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Event Subscriptions page, click Event Subscription.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create Event Subscription page, configure the following:",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the Event Subscription Details section:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the event subscription.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Event Schema: From the drop-down menu, select Cloud Event Schema v1.0.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          46,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Topic Details section, you can view the Topic Type, Source Resource, and Topic Name details.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          47,
+          57
+        ],
+        [
+          59,
+          74
+        ],
+        [
+          80,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "In the Event Types section, from the Filter to Event Types drop-down menu, select the Resource Created or Updated checkbox.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          37,
+          58
+        ],
+        [
+          86,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Endpoint Details section:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint Type: From the drop-down menu, select Partner Destination.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          47,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Endpoint: Click Configure an endpoint. The Select Partner Destination window appears.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          16,
+          37
+        ],
+        [
+          43,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Select Partner Destination window:",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select your subscription. This is the subscription you provided when adding an Azure account in the Zscaler Admin Console.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select your resource group. This is the resource group you provided when adding an Azure account in the Zscaler Admin Console.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Partner Destination: From the drop-down menu, select the partner destination.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Select Confirm Selection.",
+      "depth": 5,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "On the Filters tab, leave the settings unchanged.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the Additional Features tab, leave the settings unchanged.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Delivery Properties tab, leave the settings unchanged.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "After your deployment succeeds, Zscaler can send and receive event notifications for a designated subscription.",
+      "depth": 0
+    }
+  ]
+}

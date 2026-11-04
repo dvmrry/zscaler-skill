@@ -1,0 +1,1550 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SAML Configuration Guide for AD FS 3.0",
+  "source": {
+    "url": "https://help.zscaler.com/zia/saml-configuration-guide-adfs-3.0",
+    "node": "1402081",
+    "revision": "3251471",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide illustrates how to configure a Windows Server 2012 R2 running Active Directory Federation Services 3.0 (AD FS) as the identity provider (IdP) for the Zscaler service. It assumes that AD FS 3.0 is already installed on the Windows server. To learn more about the steps in the Windows Server 2012 R2, refer to the Microsoft AD FS documentation."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have the following before you start configuring the AD FS server as your IdP:"
+    },
+    {
+      "item": "An AD FS account with admin privileges",
+      "depth": 0
+    },
+    {
+      "item": "Existing Active Directory (AD)",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler cloud name",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler SP SAML certificate",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler SP XML metadata",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring AD FS as the IdP for the Zscaler Service",
+      "level": 1
+    },
+    {
+      "text": "To configure SAML with AD FS:"
+    },
+    {
+      "item": "1. Add a Relying Party Trust and Claim Rule",
+      "depth": 0
+    },
+    {
+      "item": "In AD FS, a relying party is a Federation Service or application that requests and processes claims from a claims provider in a particular transaction. You must configure the Zscaler service as a relying party trust and add a claim rule, which is a statement that provides information about a user. The Zscaler service uses the claim rule to determine if a user is allowed access.",
+      "depth": 0
+    },
+    {
+      "item": "To add Zscaler as a relying party trust and to add a claim rule:",
+      "depth": 0
+    },
+    {
+      "item": "Open the Server Manager.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Go to Tools > AD FS Management.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          14,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the left navigation pane, expand the Trust Relationships folder, and click the Relying Party Trusts folder.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          40,
+          59
+        ],
+        [
+          82,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Actions section, click Add Relying Party Trust….",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          30,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Relying Party Trust Wizard appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In Welcome, click Start.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          3,
+          10
+        ],
+        [
+          18,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Select Data Source:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          3,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Choose Import data about the relying party from a file.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Under Federation metadata file location:, click Browse, navigate to the Zscaler SP XML metadata file, and then click Open.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          40
+        ],
+        [
+          48,
+          54
+        ],
+        [
+          117,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Specify Display Name, enter a display name for the Zscaler service, and click Next. In this example, it's Zscaler SAML.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          3,
+          23
+        ],
+        [
+          81,
+          85
+        ],
+        [
+          109,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Configure Multi-factor Authentication Now?, choose I do not want to configure multi-factor authentication settings for this relying party trust at this time, and click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          3,
+          45
+        ],
+        [
+          54,
+          159
+        ],
+        [
+          171,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Choose Issuance Authorization Rules, choose Permit all users to access this relying party, and then click Next.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          3,
+          38
+        ],
+        [
+          47,
+          92
+        ],
+        [
+          109,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Ready to Add Trust, review your settings, and click Next.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          3,
+          21
+        ],
+        [
+          55,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Finish, select Open the Edit Claim Rules dialog for this relying party trust when the wizard closes, and click Close to add the relying party trust to the database.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          3,
+          9
+        ],
+        [
+          18,
+          102
+        ],
+        [
+          114,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Edit Claim Rules window, click Add Rule....",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          38,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Transform Claim Rule Wizard appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In Choose Rule Type, choose Send LDAP Attributes as Claims from the drop-down menu, and click Next.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          28,
+          58
+        ],
+        [
+          94,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Configure Claim Rule:",
+      "depth": 1,
+      "number": 14,
+      "strong": [
+        [
+          3,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule name: Enter a name for the claim rule. In this example, it's Zscaler Claim Rule.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          72,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Attribute store: Choose Active Directory.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Mapping of LDAP attributes to outgoing claim types: Map the LDAP attributes that represent the user's login name, full name, group, and department to fields in the outgoing claim.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Login name",
+      "depth": 3
+    },
+    {
+      "item": "LDAP Attribute: Choose SAM-Account-Name if the Zscaler service is hosting one domain for your organization; otherwise, choose User-Principal-Name. Zscaler doesn't recommend choosing E-Mail-Addresses because users can have multiple email addresses, and this could result in multiple user credentials in the Zscaler service.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          39
+        ],
+        [
+          126,
+          145
+        ],
+        [
+          182,
+          198
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Claim Type: Choose Name ID.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Full name",
+      "depth": 3
+    },
+    {
+      "item": "LDAP Attribute: Choose Display-Name.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Claim Type: Enter DisplayName.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Group",
+      "depth": 3
+    },
+    {
+      "item": "LDAP Attribute: Choose Token Groups - Unqualified Names. Zscaler doesn't recommend choosing Is-Member-Of-DL because the groups can be displayed in the form of LDAP paths instead of the group name.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          55
+        ],
+        [
+          92,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Claim Type: Enter memberOf.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Department",
+      "depth": 3
+    },
+    {
+      "item": "LDAP Attribute: Choose Department or Organizational-Unit.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          33
+        ],
+        [
+          37,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Outgoing Claim Type: Enter department.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "The Zscaler service uses the department attribute to populate the Department field in the reports.",
+      "depth": 0,
+      "strong": [
+        [
+          66,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish to add the claim rule.",
+      "depth": 1,
+      "number": 15,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Claim Rules window, click Apply and then OK.",
+      "depth": 1,
+      "number": 16,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          38,
+          43
+        ],
+        [
+          53,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "2. Upload the Zscaler SAML Certificate",
+      "depth": 0
+    },
+    {
+      "item": "To edit the Zscaler SAML configuration on the AD FS server so you can add the Zscaler signature verification certificate:",
+      "depth": 0
+    },
+    {
+      "item": "In the Relying Party Trusts section, double-click the relying party trust you created in Step 1. In this example, it's Zscaler SAML.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          119,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Properties window, click the Signature tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          36,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Add...",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Choose All Files (*.*) from the drop-down menu, navigate to the Zscaler SP SAML certificate, and then click Open.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          108,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "In the Properties window, click Apply and then OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          32,
+          37
+        ],
+        [
+          47,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download the AD FS SAML Certificate",
+      "depth": 0
+    },
+    {
+      "item": "To download the AD FS SAML certificate that you import to the Zscaler Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "In the left navigation pane, expand the Service folder, and click the Certificates folder.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          40,
+          47
+        ],
+        [
+          70,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Certificates section, under Token-signing, right-click the certificate, and select View Certificate....",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          35,
+          48
+        ],
+        [
+          90,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Certificate window, click the Details tab.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          37,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Copy to File....",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Certificate Export Wizard appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In Welcome to the Certificate Export Wizard, click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          3,
+          43
+        ],
+        [
+          51,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Export File Format, select Base-64 encoded X.509 (.CER), and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          3,
+          21
+        ],
+        [
+          30,
+          58
+        ],
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In File to Export, click Browse, enter a name for the certificate, and click Save and then Next. In this example, the certificate name is adfs.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          3,
+          17
+        ],
+        [
+          25,
+          31
+        ],
+        [
+          77,
+          81
+        ],
+        [
+          91,
+          95
+        ],
+        [
+          138,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Completing the Certificate Export Wizard, click Finish.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          3,
+          43
+        ],
+        [
+          51,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Certificate window, click OK.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          33,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Navigate to the downloaded certificate, and ensure the file name:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "Has a .pem extension (e.g., rename it to adfs.pem). The Zscaler service only accepts certificates with the .pem extension.",
+      "depth": 2
+    },
+    {
+      "item": "Contains only one dot (\".\").",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "By default, Windows hides extensions for known file types.",
+      "depth": 0
+    },
+    {
+      "item": "Change the Windows Folder Properties to View and Edit Extensions",
+      "depth": 1
+    },
+    {
+      "item": "Start Windows Control Panel.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Appearance & Personalization > File Explorer Options.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          34
+        ],
+        [
+          37,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "When the File Explorer Options window appears, click the View tab.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          30
+        ],
+        [
+          57,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "In Advanced settings:, deselect Hide extensions for known file types to view extensions.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          3,
+          21
+        ],
+        [
+          32,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Rename the certificate to change the extension.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "4. (Optional) Restrict Groups",
+      "depth": 0
+    },
+    {
+      "item": "AD FS 3.0 federates all user groups by default. You can restrict the groups to only those to which policies are applied. Zscaler recommends putting users in groups that begin with a specific word (e.g., internet) to facilitate applying restrictions on group federations. For example, you can create groups such as Internet General, Internet Restricted, etc. To restrict groups, you must remove the group mapping from your existing claim rule, and add a new claim rule for your groups.",
+      "depth": 0
+    },
+    {
+      "item": "To restrict groups:",
+      "depth": 0
+    },
+    {
+      "item": "In the left navigation pane, expand the Trust Relationships folder, and click the Relying Party Trusts folder.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          40,
+          59
+        ],
+        [
+          82,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Relying Party Trusts section, right-click the relying party trust you created in Step 1, and select Edit Claim Rules.... In this example, it's Zscaler SAML.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          107,
+          126
+        ],
+        [
+          150,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Edit Claim Rules window, select the claim rule that you created in Step 1, and click Edit Rule.... In this example, it's Zscaler Claim Rule.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          92,
+          104
+        ],
+        [
+          128,
+          146
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Edit Rule window, remove the row containing the group LDAP attribute and outgoing claim type, and click OK. In this example, the group LDAP attribute is Token-Groups - Unqualified Names, and the group outgoing claim type is memberOf.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          111,
+          113
+        ],
+        [
+          160,
+          192
+        ],
+        [
+          231,
+          239
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Edit Claim Rules window, click Add Rule....",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          38,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Transform Claim Rule Wizard appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In Choose Rule Type, choose Send Claims Using a Custom Rule from the drop-down menu, and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          28,
+          59
+        ],
+        [
+          95,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Configure Claim Rule:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          3,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule name: Enter a name for the claim rule. In this example, it's Return Group Membership.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          72,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Custom rule: Enter a similar custom rule to enumerate the group membership and put it into an array called memberOf.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "c:[Type == \"http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname\", Issuer == \"AD AUTHORITY\"] => add(store = \"Active Directory\", types = (\"memberOf\"), query = \";tokenGroups;{0}\", param = c.Value);",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Claim Rules window, click Add Rule....",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          38,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Transform Claim Rule Wizard appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "In Choose Rule Type, choose Send Claims Using a Custom Rule from the drop-down menu, and click Next.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          3,
+          19
+        ],
+        [
+          28,
+          59
+        ],
+        [
+          95,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In Configure Claim Rule:",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          3,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Claim rule name: Enter a name for the claim rule. In this example, it's Restrict Group Membership.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          72,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Custom rule: Enter custom rules to authenticate specific groups.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "The following rule matches any group names that begin with Internet (e.g., Internet Access, InternetGroup3, Internet Restricted, etc.):",
+      "depth": 0
+    },
+    {
+      "item": "c:[Type == \"memberOf\", Value =~ \"Internet.+\"] => issue(claim = c);",
+      "depth": 0
+    },
+    {
+      "item": "The following rule only matches three groups: Sales, Marketing, and HR.",
+      "depth": 0
+    },
+    {
+      "item": "c:[Type == \"memberOf\", Value =~ \"Sales|Marketing|HR\"] => issue(claim = c);",
+      "depth": 0
+    },
+    {
+      "item": "The following rule matches any group names that begin with AccessLevel and has a number from 1 to 9 (e.g., AccessLevel1, AccessLevel7, etc.):",
+      "depth": 0
+    },
+    {
+      "item": "c:[Type == \"memberOf\", Value =~ \"AccessLevel[1-9]\"] => issue(claim = c);",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Claim Rules window, click Apply and then OK.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          38,
+          43
+        ],
+        [
+          53,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "5. Add AD FS as the IdP for the Zscaler Service",
+      "depth": 0
+    },
+    {
+      "item": "6. Configure SAML SSO in the Zscaler Admin Console",
+      "depth": 0
+    },
+    {
+      "item": "To configure SAML SSO in the Zscaler Admin Console:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Internet & SaaS Authentication > Internet Authentication Settings > Default Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          79
+        ],
+        [
+          82,
+          114
+        ],
+        [
+          117,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Frequency, choose how often users are required to authenticate to the Zscaler service. To learn more, see About Authentication Default Settings. If you select Custom, the following field appears:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ],
+        [
+          180,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "Custom Authentication Frequency (days): Specify 1 to 180 days.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under Authentication Type, choose SAML.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "7. Configure the Zscaler Authentication Exemptions List",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Zscaler Authentication Exemptions list and enable users access to AD FS:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Setting > Advanced Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          57
+        ],
+        [
+          60,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "In the Authentication Exemptions section, enter your organization's AD FS URL in Exempted URLs.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          81,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If you are using PAC files, enter the AD FS URL in the PAC file exemption list. Otherwise, the authentication fails.",
+      "depth": 0
+    },
+    {
+      "heading": "Testing the SAML Configuration",
+      "level": 1
+    },
+    {
+      "text": "This testing method only applies if you're forwarding traffic using PAC files, GRE tunnels, or IPSec tunnels, and you've enabled Enforce Authentication for the location or sublocation.",
+      "strong": [
+        [
+          129,
+          151
+        ]
+      ]
+    },
+    {
+      "text": "To test the SAML configuration with AD FS:"
+    },
+    {
+      "item": "If you're already logged in to the Zscaler service, browse to https://login.<Zscaler Cloud Name>.net/zscaler.portal, and click Logout. Replace <Zscaler Cloud Name> with your Zscaler cloud name. To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          127,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Browse to a website. You are redirected to AD FS and prompted to log in.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Enter your AD FS credentials, and you are automatically redirected to the original URL request.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "If you use Google Chrome to authenticate, you also need to provide domain information."
+    },
+    {
+      "item": "Go to ip.zscaler.com, and the status window shows the username indicating the authentication was successful.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "If any errors occur, see Troubleshooting SAML to troubleshoot browser settings and SAML error codes."
+    },
+    {
+      "text": "To troubleshoot Integrated Windows Authentication (IWA) in AD FS, refer to the Microsoft documentation for AD FS Troubleshooting and IWA Browser Configuration."
+    }
+  ]
+}

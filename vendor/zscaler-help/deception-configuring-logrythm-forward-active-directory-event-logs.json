@@ -1,0 +1,884 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring LogRhythm to Forward Active Directory Event Logs",
+  "source": {
+    "url": "https://help.zscaler.com/deception/configuring-logrythm-forward-active-directory-event-logs",
+    "node": "1542448",
+    "revision": "3221672",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can configure LogRhythm to filter event logs from the Active Directory (AD) domain controllers for decoy accounts or enumeration detection. You can forward these logs to the Zscaler Deception Admin Portal when adversary actions are detected."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure that the following prerequisites are met:"
+    },
+    {
+      "item": "Configure all AD servers to forward security logs to the LogRhythm server.",
+      "depth": 0
+    },
+    {
+      "item": "If you have selected the Deception Admin Portal to receive logs, make sure that there is network connectivity from the LogRhythm server to the Deception Admin Portal on TCP port 443.",
+      "depth": 0
+    },
+    {
+      "item": "If you have selected a Decoy Connector to receive logs, make sure that there is network connectivity from the LogRhythm server and the Decoy Connector’s management IP on TCP port 80.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring LogRhythm to Forward AD Event Logs to the Zscaler Deception Admin Portal",
+      "level": 1
+    },
+    {
+      "text": "To configure LogRhythm to forward logs to the Deception Admin Portal:"
+    },
+    {
+      "item": "Step 1: Configure and Download the LogRhythm Trigger Script",
+      "depth": 0
+    },
+    {
+      "item": "A trigger script sends logs from the LogRhythm server to the Deception Admin Portal. Configure and download the LogRhythm trigger script to forward AD event logs to the portal.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: Extract the LogRhythm Trigger Script Files",
+      "depth": 0
+    },
+    {
+      "item": "Copy the LogRhythm trigger script downloaded in Step 1 to the server running LogRhythm.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a folder and extract the contents of the .zip file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Create sub-folders for each individual tar.gz file that is extracted.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Step 3: Create the LogRhythm's SmartResponse Plugin File",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the LogRhythm Client console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the main toolbar, click Deployment Manager.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          27,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Tools menu, go to Administration > SmartResponse Plugin Manager.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          39
+        ],
+        [
+          42,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "In the SmartResponse Plugin Manager window, click Create Plugin.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          50,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Browse to the folder containing the plugin configuration files (Powershell and Actions.xml).",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Select the files, and click Validate.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          28,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "The .lpi plugin file is created.",
+      "depth": 1
+    },
+    {
+      "item": "Click Actions > Import.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Browse and select the .lpi file that you created in Step 3.f, and then click Open.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          77,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Step 4: Create Advanced Intelligence (AI) Engine Rules for Event IDs",
+      "depth": 0
+    },
+    {
+      "item": "On the main toolbar, click Deployment Manager.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click the AI Engine tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click the Rules tab, and then click the plus icon.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the Rule Block Types pane, drag and drop the Log Observed rule block icon to the Rule Block Designer pane.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          48,
+          60
+        ],
+        [
+          84,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "The AI Engine Rule Block Wizard page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click the Rule Blocks tab at the bottom of the AI Engine Rule Block Wizard page.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          47,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Click the Primary Criteria tab, and click New.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          26
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "The Log Message Filter window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          22
+        ],
+        [
+          37,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Add a filter criterion with the following settings. To learn more, see the LogRhythm documentation:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Field: Vendor Message ID",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Filter Mode: Filter In (Is)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Filter Value: {Event ID}",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Item.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the Include Filters tab, add a filter with the following settings to trigger an alarm when a specific user logs in. To learn more, see the LogRhythm documentation.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Field: User (Origin)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Filter Mode: Filter In (Is)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Filter Value: {decoy username or list}",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Item.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Click the Log Source Criteria tab, and select the AD domain controller's security logs as the log source's option. To learn more, see the LogRhythm documentation.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click the Group By tab, and select the following fields (event IDs) to forward to the Deception Admin Portal. To learn more, see the LogRhythm documentation:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "4625",
+      "depth": 3
+    },
+    {
+      "item": "4648",
+      "depth": 3
+    },
+    {
+      "item": "4768",
+      "depth": 3
+    },
+    {
+      "item": "4769",
+      "depth": 3
+    },
+    {
+      "item": "4771",
+      "depth": 3
+    },
+    {
+      "item": "4776",
+      "depth": 3
+    },
+    {
+      "item": "Click the Settings tab at the bottom of the AI Engine Rule Block Wizard page, and enter the event name.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          44,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click the Actions tab at the bottom of the AI Engine Rule Block Wizard page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          43,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Set Action: Select SmartResponse Plugin from the drop-down menu.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Parameters: Configure the following settings for each event ID:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Type: Alarm Field",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter the event name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "In the Execute SmartResponse Action From section, select a Security Information and Event Management (SIEM) to launch the SmartResponse plugin.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Action.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "The AI Engine rule is created.",
+      "depth": 1
+    },
+    {
+      "item": "Right-click on the rule, and select Actions > Enable to enable the rule.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          36,
+          43
+        ],
+        [
+          46,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Click Restart AI Engine Servers for the rule to take effect.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "To test AD decoys, log in to a decoy AD user account. You can see events triggered on the LogRhythm server and Deception Admin Portal.",
+      "depth": 0
+    },
+    {
+      "heading": "Event Field Mapping",
+      "level": 1
+    },
+    {
+      "text": "The following tables map the XML version of the events (as viewed in the Event Viewer on Windows) to the fields parsed by the LogRhythm server. If the fields don't match, you might have to make changes in the actions.xml file for the corresponding SmartResponse plugin."
+    },
+    {
+      "item": "4625",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter",
+          "Event Viewer"
+        ],
+        [
+          "Domain Origin",
+          "-SubjectDomainName",
+          "SubjectDomainName"
+        ],
+        [
+          "User (Origin)",
+          "-TargetUserName",
+          "TargetUserName"
+        ],
+        [
+          "Domain Origin",
+          "-TargetDomainName",
+          "TargetDomainName"
+        ],
+        [
+          "Status",
+          "-Status",
+          "Status"
+        ],
+        [
+          "Object Name",
+          "-SubStatus",
+          "SubStatus"
+        ],
+        [
+          "Command",
+          "-LogonType",
+          "LogonType"
+        ],
+        [
+          "Hostname (Origin)",
+          "-WorkstationName",
+          "WorkstationName"
+        ],
+        [
+          "IP Address (Origin)",
+          "-IpAddress",
+          "IpAddress"
+        ],
+        [
+          "TCP/UDP Port (Origin)",
+          "-IpPort",
+          "IpPort"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ],
+        [
+          0,
+          2,
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "4648",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter"
+        ],
+        [
+          "User (Origin)",
+          "-SubjectUserName"
+        ],
+        [
+          "Domain Origin",
+          "-SubjectDomainName"
+        ],
+        [
+          "User (Impacted)",
+          "-TargetUserName"
+        ],
+        [
+          "Domain Origin",
+          "-TargetDomainName"
+        ],
+        [
+          "Hostname (Impacted)",
+          "-TargetServerName"
+        ],
+        [
+          "IP Address (Origin)",
+          "-IpAddress"
+        ],
+        [
+          "TCP/UDP Port (Origin)",
+          "-IpPort"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "4768",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter"
+        ],
+        [
+          "User (Origin)",
+          "-TargetUserName"
+        ],
+        [
+          "Hostname(impacted)",
+          "-Workstation"
+        ],
+        [
+          "IP Address (Origin)",
+          "-IpAddress"
+        ],
+        [
+          "Policy",
+          "-TicketOptions"
+        ],
+        [
+          "Version",
+          "-TicketEncryptionType"
+        ],
+        [
+          "Object",
+          "-PreAuthType"
+        ],
+        [
+          "Subject",
+          "-Status"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "4769",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter"
+        ],
+        [
+          "User (Origin)",
+          "-TargetUserName"
+        ],
+        [
+          "Domain Origin",
+          "-TargetDomainName"
+        ],
+        [
+          "Hostname (Impacted)",
+          "-ServiceName"
+        ],
+        [
+          "Policy",
+          "-TicketOptions"
+        ],
+        [
+          "Version",
+          "-TicketEncryptionType"
+        ],
+        [
+          "IP Address (Origin)",
+          "-IpAddress"
+        ],
+        [
+          "TCP/UDP Port (Origin)",
+          "-IpPort"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "4771",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter"
+        ],
+        [
+          "User (Origin)",
+          "-TargetUserName"
+        ],
+        [
+          "Group",
+          "-ServiceName"
+        ],
+        [
+          "IP Address (Origin)",
+          "-IPAddress"
+        ],
+        [
+          "TCP/UDP Port (Origin)",
+          "-IPPort"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "4776",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "LogRhythm",
+          "PowerShell Parameter"
+        ],
+        [
+          "User (Origin)",
+          "-TargetUsername"
+        ],
+        [
+          "Hostname (Origin)",
+          "-Workstation"
+        ],
+        [
+          "Object Name",
+          "-Status"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          20
+        ]
+      ]
+    }
+  ]
+}

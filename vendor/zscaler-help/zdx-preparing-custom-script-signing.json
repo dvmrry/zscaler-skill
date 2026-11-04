@@ -1,0 +1,305 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Preparing Custom Script Signing",
+  "source": {
+    "url": "https://help.zscaler.com/zdx/preparing-custom-script-signing",
+    "node": "1531247",
+    "revision": "3246980",
+    "updated": "2026-10-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Each customized and uploaded script must have a signed certificate to allow any scripts to run on a device. This ensures each script meets the minimum security requirements and is validated by an admin for use."
+    },
+    {
+      "text": "You must have the following conditions for Windows devices to allow scripts to run:"
+    },
+    {
+      "item": "PowerShell's Execution Policy on the device is not restricted.",
+      "depth": 0
+    },
+    {
+      "item": "Enable PowerShell scripts to run on your device.",
+      "depth": 1
+    },
+    {
+      "item": "Open the PowerShell and run it as an Administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Enter one of the following prompts depending on which Execution Policy you want for the device:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Set-ExecutionPolicy AllSigned -Scope LocalMachine",
+      "depth": 2
+    },
+    {
+      "item": "Set-ExecutionPolicy RemoteSigned -Scope LocalMachine",
+      "depth": 2
+    },
+    {
+      "item": "Enter A to indicate yes to all to allow you to run remote scripts.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Verify if the policy is set correctly by running the following command to ensure rewritten and custom scripts for Remediation can run:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Get-ExecutionPolicy -List",
+      "depth": 2
+    },
+    {
+      "item": "Your Code Signing cert file is:",
+      "depth": 0
+    },
+    {
+      "item": "Added to the Trusted Publisher's directories. To learn more, refer to Microsoft's Trusted Publishers Certificate Store.",
+      "depth": 1
+    },
+    {
+      "item": "Valid and not expired.",
+      "depth": 1
+    },
+    {
+      "item": "Allowlist the following based on your Windows version:",
+      "depth": 0
+    },
+    {
+      "item": "32-bit",
+      "depth": 1
+    },
+    {
+      "item": "%ProgramFiles(x86)%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptOrchestratorService.exe %ProgramFiles(x86)%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptExecutor.exe",
+      "depth": 1
+    },
+    {
+      "item": "64-bit",
+      "depth": 1
+    },
+    {
+      "item": "%ProgramFiles%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptOrchestratorService.exe %ProgramFiles%\\Zscaler\\ZSAScriptOrchestratorService\\ZSAScriptExecutor.exe",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Zscaler Client Connector Processes to Allowlist.",
+      "depth": 0
+    },
+    {
+      "item": "The Windows device must have the minimum version compatibility or later.",
+      "depth": 0
+    },
+    {
+      "heading": "Zscaler Client Connector & Digital Experience Preparation",
+      "level": 1
+    },
+    {
+      "text": "You must have the following prepared for Zscaler:"
+    },
+    {
+      "item": "Zscaler Client Connector: Must download the minimum or later version of Zscaler Client Connector and ZDX Module.",
+      "depth": 0
+    },
+    {
+      "item": "Digital Experience (ZDX):",
+      "depth": 0
+    },
+    {
+      "item": "Enable Remediation from the Remediation Settings in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "Script management access permission to upload the signed script.",
+      "depth": 1
+    },
+    {
+      "heading": "Certificate Authority and Code Signing Certificate",
+      "level": 1
+    },
+    {
+      "text": "All custom scripts must be signed. There are two options depending on how you sign a custom script:"
+    },
+    {
+      "item": "Select a certificate authority (CA) that exists and is ready for use within your organization that can generate a code signing certificate.",
+      "depth": 0
+    },
+    {
+      "item": "If you have an existing CA for use, you can distribute the CA and code signing certificates by uploading them to the Windows Trust store in the following places:",
+      "depth": 0
+    },
+    {
+      "item": "Trusted Root Certification Authorities > Certificates: Upload your CA that is used to generate the code signing certificate.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          41,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Trusted Publishers > Certificates: Upload your code signing certificate.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "To learn more about where to locate the Windows Trust store, refer to Windows - Trusted Root Certification Authorities Certificate Store.",
+      "depth": 0
+    },
+    {
+      "item": "Generate a self-signed CA for code signing certificate.",
+      "depth": 0
+    },
+    {
+      "item": "To generate a code-signing certificate for Windows, you must:",
+      "depth": 0
+    },
+    {
+      "item": "Create a self-signed code-signing certificate on the signer's device.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Export the public certificate as a .cer file.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Trust the certificate on machines that are going to run the script.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "(Optional) Create a private key to sign the certificate on other Windows devices.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "This is an example certificate to do all of those steps. The green text indicates where you can revise as needed.",
+      "depth": 0
+    },
+    {
+      "item": "# ----- Create the certificate ----- # System-wide (LocalMachine; requires Administrator) $cert = New-SelfSignedCertificate -DnsName \"ZDX-ScriptSigner\" -Type CodeSigningCert -CertStoreLocation \"Cert:\\LocalMachine\\My\" # ----- Export the public certificate (no private key) ----- Export-Certificate -Cert $cert -FilePath \".\\ZDX-ScriptSigner.cer\" # ----- Trust the certificate on machines that will RUN the scripts ----- # If you created it in LocalMachine, import into LocalMachine stores: Import-Certificate -FilePath \".\\ZDX-ScriptSigner.cer\" -CertStoreLocation \"Cert:\\LocalMachine\\TrustedPublisher\" Import-Certificate -FilePath \".\\ZDX-ScriptSigner.cer\" -CertStoreLocation \"Cert:\\LocalMachine\\Root\" # ----- Optional: export a PFX (with private key) for signing on other Windows machines/CI ----- $mypwd = Read-Host -AsSecureString \"Enter password to protect the PFX\" Export-PfxCertificate -Cert $cert -FilePath \".\\ZDX-ScriptSigner.pfx\" -Password $mypwd",
+      "depth": 0
+    },
+    {
+      "item": "After the certificates are created, check if they exist in the Certificates folders:",
+      "depth": 0
+    },
+    {
+      "item": "Trusted Root Certification Authorities > Certificates: The CA used for generating the code signing certificate (e.g., ZDX-ScriptSigner.cer).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          41,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Trusted Publishers > Certificates: The code signing certificate (e.g., ZDX-ScriptSigner.cer).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "text": "After your CA and code signing certificate are ready for use, you can start to sign a script to run on a device."
+    },
+    {
+      "heading": "Example Custom Scripts",
+      "level": 1
+    },
+    {
+      "text": "As you go through the following example scripts, these are the following items you encounter:"
+    },
+    {
+      "item": "Parameters: The required parameters needed to run the script. If the parameters are mandatory, you must select the parameter as Mandatory in the Script configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Custom cmdlets for set-zresult and set-zoutput: Routes output to ZDX.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional)-Test flag: Local testing of the script before it is signed and uploaded. When the -Test flag is passed, the script's output is routed through PowerShell's write-output commands, rather than the Zscaler's z-output and z-result output commands.",
+      "depth": 0
+    },
+    {
+      "text": "The following are example scripts using a basic notification pop-up:"
+    },
+    {
+      "item": "Example Script without Mandatory Parameters",
+      "depth": 0
+    },
+    {
+      "item": "# Script Name: HelloWorld.ps1 <# .SYNOPSIS A basic demonstration of a script for the ZDX environment without parameters. .VERSION 1.0.1 .CATEGORY Documentation .DESCRIPTION This script serves as a minimal template. It demonstrates how to log details using Show-Output and how to report a final status using Show-Result. All details are routed via ZOutput, and ZResult is Success/Failure only. .PARAMETER None .EXAMPLE .\\HelloWorld.ps1 .EXAMPLE # Local test mode (routes to Write-Host) .\\HelloWorld.ps1 -Test .EXEC_LEVEL USER Escalated system privileges required: No User confirmation suggested: No #> param ( # Internal testing only [switch]$Test ) # --- HELPER FUNCTIONS --- # -test flag is used for local testing function Show-Output ($Message) { if ($Test) { Write-Host \"[OUTPUT] $Message\" } else { set-ZOutput $Message } } function Show-Result ($Result) { if ($Test) { Write-Host \"[RESULT] $Result\" } else { set-ZResult $Result $ExitCode = if ($Result -eq \"Success\") { 0 } else { 1 } exit $ExitCode } } # --- MAIN LOGIC --- try { Show-Output \"ZDX TEST: Starting execution...\" # Core Logic Show-Output \"Hello World! This is a standard ZDX log message.\" # Final Result and Process Exit Show-Result \"Success\" } catch { Show-Output \"Critical Error: $($_.Exception.Message)\" Show-Result \"Failure\" }",
+      "depth": 0
+    },
+    {
+      "item": "Example Script with Mandatory Parameters",
+      "depth": 0
+    },
+    {
+      "item": "### HelloWorld-WithParameters.ps1 # Script Name: HelloWorld-WithParameters.ps1 <# .SYNOPSIS A simple demonstration of a script using mandatory and optional parameters. .VERSION 1.0.0 .CATEGORY Documentation .DESCRIPTION This script serves as a template for handling user input. It requires a 'Name' but provides a default 'Greeting' if one is not specified. It demonstrates the standard ZDX script pattern for parameters and reporting. .PARAMETER Name The name of the entity to greet. (Mandatory) .PARAMETER Greeting The greeting word to use. Defaults to 'Hello'. (Optional) .EXAMPLE # Basic usage .\\HelloWorld-WithParameters.ps1 -Name \"ZDX User\" .EXAMPLE # Usage with optional greeting .\\HelloWorld-WithParameters.ps1 -Name \"ZDX Test\" -Greeting \"Welcome\" .EXAMPLE # Local test mode (routes to Write-Host) .\\HelloWorld-WithParameters.ps1 -Name \"ZDX Test\" -Greeting \"Welcome\" -Test .EXEC_LEVEL USER Escalated system privileges required: No User confirmation suggested: No #> param ( [Parameter(Mandatory = $true)] [string]$Name, [Parameter(Mandatory = $false)] [string]$Greeting = \"Hello\", # Internal testing only [switch]$Test ) # --- HELPER FUNCTIONS --- # -test flag is used for local testing function Show-Output ($Message) { if ($Test) { Write-Host \"[OUTPUT] $Message\" } else { set-ZOutput $Message } } function Show-Result ($Result) { if ($Test) { Write-Host \"[RESULT] $Result\" } else { set-ZResult $Result $ExitCode = if ($Result -eq \"Success\") { 0 } else { 1 } exit $ExitCode } } # --- MAIN LOGIC --- try { Show-Output \"ZDX TEST with Params: Initializing...\" # Combine parameters into a simple message $FullMessage = \"$Greeting, $Name!\" Show-Output \"Final Message: $FullMessage\" # Final Result and Process Exit Show-Result \"Success\" } catch { Show-Output \"An error occurred: $($_.Exception.Message)\" Show-Result \"Failure\" }",
+      "depth": 0
+    },
+    {
+      "text": "Only ASCII/UTF-8 without Byte Order Mark (BOM) encoding are accepted for scripts in the Zscaler Admin Console."
+    },
+    {
+      "heading": "Signing a Script",
+      "level": 1
+    },
+    {
+      "text": "You can sign PowerShell scripts so that they can run scripts under AllSigned and RemoteSigned permissions on Windows devices."
+    },
+    {
+      "text": "The following is an example of a signed command:"
+    },
+    {
+      "text": "# ----- Pick the certificate by Thumbprint ----- # LocalMachine (if you created it there): $cert = Get-ChildItem Cert:\\LocalMachine\\My -CodeSigningCert | Where-Object { $_.Subject -eq \"CN=ZDX-ScriptSigner\" } # If multiple matches, select Thumbprint explicitly: # $thumb = ($cert | Select-Object -First 1).Thumbprint # $cert = ($cert | Where-Object Thumbprint -eq $thumb) # ----- Sign the script (timestamp recommended so signature survives cert expiry) ----- $scriptPath = \"C:\\test_script.ps1\" # change to your script path Set-AuthenticodeSignature -FilePath $scriptPath -Certificate $cert -TimeStampServer \"http://timestamp.digicert.com\" # ----- Verify signature ----- (Get-AuthenticodeSignature -FilePath $scriptPath).Status # Expect: Valid"
+    },
+    {
+      "text": "It is important that each script is signed with at least the following command prompt to ensure a timestamp is recorded to indicate when the code signing certificate is expiring."
+    },
+    {
+      "text": "$cert = Get-ChildItem Cert:\\LocalMachine\\My | Where-Object { $_.Subject -like \"*CodeSigning Client*\" } Set-AuthenticodeSignature -FilePath \".\\cpu_sage_script.ps1\" -Certificate -TimestampServer \"http://timestamp.digicert.com\" $cert"
+    },
+    {
+      "text": "After your script is signed, you can upload the script to the Zscaler Admin Console."
+    }
+  ]
+}

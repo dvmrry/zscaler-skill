@@ -1,0 +1,667 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practice Guide for Active Directory Decoys",
+  "source": {
+    "url": "https://help.zscaler.com/deception/best-practice-guide-active-directory-decoys",
+    "node": "1542553",
+    "revision": "3221557",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This best practice guide provides use cases and deployment recommendations for Active Directory (AD) decoys."
+    },
+    {
+      "text": "AD infrastructure is a critical resource for managing the IT infrastructure in an organization. It is a target for adversaries who perform reconnaissance to map and identify the resources in an organization. After the information is retrieved from the AD, the adversaries move laterally to other assets, thus expanding their initial reach."
+    },
+    {
+      "text": "To secure your AD infrastructure, you can create and deploy AD decoys, such as decoy service accounts, decoy privileged accounts, decoy dictionary usernames, decoy *nix accounts, etc. AD decoys detect attackers running reconnaissance and privilege escalation. AD decoys reduce the attack surface by detecting and containing attackers before they laterally move within the network. To learn more, see About Active Directory Decoys."
+    },
+    {
+      "text": "Zscaler recommends that you deploy a minimum of 10 AD decoys. A typical deployment must contain a minimum of:"
+    },
+    {
+      "item": "One business-critical, Unix, and well-known user decoy AD account.",
+      "depth": 0
+    },
+    {
+      "item": "One decoy AD account with a fake password configured as the description.",
+      "depth": 0
+    },
+    {
+      "item": "Two decoy AD privileged accounts, service accounts, and persona accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Two decoy AD accounts with a distinct decoy share path.",
+      "depth": 0
+    },
+    {
+      "item": "Two decoy AD accounts with the Can Password Expire field enabled.",
+      "depth": 0
+    },
+    {
+      "text": "When creating AD decoys:"
+    },
+    {
+      "item": "Configure decoy names and properties as per the internal naming conventions.",
+      "depth": 0
+    },
+    {
+      "item": "Place decoys in different OUs that host high-value users.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the logon workstations are configured for operation security (OPSEC) safety for the privileged AD accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure decoy user and computer objects don't have keywords containing \"decoys,\" \"Zscaler,\" or \"Deception\".",
+      "depth": 0
+    },
+    {
+      "text": "The following are some of the use cases for AD decoys:"
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD Service Accounts to Detect Kerberoasting Attempts",
+      "depth": 0
+    },
+    {
+      "item": "Adversaries escalate privileges in an AD environment using Kerberoasting attack. This attack specifically targets service accounts with service principal names (SPN). The Kerberoasting attack abuses the Kerberos protocol to harvest password hashes from service accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Deploying decoy AD service accounts helps you to detect Kerberoasting attacks. This makes the adversary believe that they have obtained hashes to the service account while, at the same time, you are mitigating the risk of Kerberoasting a real service account.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a username that is a combination of location name, service name, and postfix \"svc\" (e.g, nysqlsvc).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the AD service account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description that is a combination of location name and service name (e.g., New York service account for DB).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Make Account Kerberoastable: Select a network decoy that represents a DB server with MySQL and PostgreSQL DB services enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD Privileged Accounts to Detect Privilege Escalation Techniques",
+      "depth": 0
+    },
+    {
+      "item": "Privileged user accounts in AD have powerful rights, privileges, and permissions. Privileged users can perform any critical operations in AD and domain-joined systems. If attackers gain access to these accounts, they’ll steal information and disrupt business operations.",
+      "depth": 0
+    },
+    {
+      "item": "Deploying decoy AD privileged accounts help you detect privilege escalation techniques, such as brute force. Some privileged AD groups include administrators, domain admins, and enterprise admins. Configuring enticing descriptions like passwords or password hints helps you to detect attacks.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a name that mimics an administrator user (e.g., ADglobaladmin).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the AD privileged account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Group membership: Enter the group name of the decoy user (e.g., Domain Admins, Administrators, etc.). Adversaries often target user accounts that are members of privileged administrative groups.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a fake password description (e.g., The password is globaladmin-1@$52314).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Restrict Logon To: Select a network decoy from the drop-down menu that represents sysadmin workstations to configure the logonworkstations attribute for the decoy privilege account.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD Privileged Service Accounts to Detect Kerberoasting Attempts",
+      "depth": 0
+    },
+    {
+      "item": "Deploying a Kerberoastable decoy privileged service account lures the adversaries to harvest password hashes. The decoy mitigates the risk of Kerberoasting a real privileged service account.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a name that mimics an administrator user (e.g., backupadmin).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the AD privileged service account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Group membership: Enter the group name of the decoy user (e.g., Domain Admins, Administrators, etc.).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a fake password description (e.g., Backup server admin account).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Restrict Logon To: To ensure that this account can only log in to the specified destination, select a network decoy from the drop-down menu (recommended for OPSEC safety).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD Persona Account to Lure Adversaries",
+      "depth": 0
+    },
+    {
+      "item": "Persona accounts are user accounts that represent a specific group. Deploying a decoy AD persona account that represents an administrator or domain admin group lures adversaries to launch an attack while, at the same time, secures your real user account.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a name that mimics an admin account (e.g., john-adm).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the admin account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Can Password Expire: Enable to activate the password expiration feature.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Group membership: Enter the group name of the decoy user (e.g., Domain Admins, Administrators, etc.).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a fake password description (e.g., Default password).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Profile Path (File Share Discovery Lure): Select a network decoy with Shares service from the drop-down menu to configure the profilePath attribute for the decoy user account. Adversaries analyze this attribute to discover file shares.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD User Accounts with Popular Dictionary Usernames to Detect Brute Force Attacks",
+      "depth": 0
+    },
+    {
+      "item": "One of the ways adversaries gain access to an AD environment is by identifying a known user account. They perform brute force attack and compromise the AD. They identify accounts using a popular word list of usernames and passwords. Deploying decoy AD user accounts with popular dictionary usernames helps you to detect brute force attacks.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a common name that is found in a dictionary (e.g., admin01, admin02, helpdesk, azure, etc.).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the admin account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Group membership: Enter the group name of the decoy user (e.g., Domain Admins, Administrators, etc.).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a fake password description (e.g., The password is 123456).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy *NIX User Accounts to Detect AS-REP Roasting Attack",
+      "depth": 0
+    },
+    {
+      "item": "Similar to Kerberoasting, adversaries target domain accounts that do not require authentication to escalate privileges. Deploying decoy *nix user accounts that have authentication disabled lures adversaries and detects AS-REP roasting attacks.",
+      "depth": 0
+    },
+    {
+      "item": "Recommendations:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a username (e.g., unix, rhel, centos, linux).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the generic account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Pre-auth Not Required: Enable to make the user account vulnerable to AS-REP roasting attacks.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter the description (e.g., RHEL server admin).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use Case: Deploy Decoy AD User Accounts That Mimic Business-Critical Applications",
+      "depth": 0
+    },
+    {
+      "item": "You can create decoy AD user accounts that mimic sensitive business-critical accounts or applications. These AD decoys can detect attacks against critical accounts.",
+      "depth": 0
+    },
+    {
+      "item": "Create an AD decoy with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "User Name: Enter a username that is a combination of application or service name and username (e.g, swiftadmin).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "OU: Enter the Swift account OU.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "First Name: Enter the same name as entered in User Name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          46,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Group membership: Enter the tier 2 AD model privileged group name (e.g., Swift admins).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Restrict Logon To: Select a network decoy (representing Swift user workstation) from the drop-down menu.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    }
+  ]
+}

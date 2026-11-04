@@ -1,0 +1,2175 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring PingOne as an External IdP",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/configuring-pingone-external-idp",
+    "node": "1499331",
+    "revision": "3251071",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure PingOne as the OpenID Provider (OP) for Authentication Service to facilitate single sign-on (SSO) to various Zscaler services for admin access management."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have:"
+    },
+    {
+      "item": "A subscription to PingOne",
+      "depth": 0
+    },
+    {
+      "item": "An existing user directory in PingOne",
+      "depth": 0
+    },
+    {
+      "item": "An Authentication Service account with an admin role that allows you to add an IdP configuration",
+      "depth": 0
+    },
+    {
+      "item": "If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 0
+    },
+    {
+      "heading": "IdP-Initiated SSO for Authentication Service Tenants Enabled with Experience Center",
+      "level": 1
+    },
+    {
+      "text": "All admins authenticating using the SAML protocol for Authentication Service and IdP integrations are redirected to Experience Center. However, if the zidServiceId attribute is configured in the IdP within the Authentication Service tenant, then the admins are redirected to the Authentication Service Admin Portal instead of Experience Center."
+    },
+    {
+      "heading": "Configuring PingOne as OP for Authentication Service",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps to set up PingOne as an OP for Authentication Service:"
+    },
+    {
+      "item": "1. Configure custom OIDC application in PingOne.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the PingOne admin console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click the Add Application icon.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add Application drawer:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Application Name: Enter a name for the application.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the application.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Icon: (Optional) Upload an icon for the application.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Application Type: Select OIDC Web App.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The OIDC web application is created.",
+      "depth": 1
+    },
+    {
+      "item": "In the application drawer, select the Configuration tab, and do the following:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          38,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the General section, copy the Client ID and Client Secret values.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          33,
+          42
+        ],
+        [
+          47,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the URLs section, copy the OIDC Discovery Endpoint value.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          30,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the Resources tab and click the Edit icon.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Edit Resources page appears within the application drawer.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Resources page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Scopes tab, select email and Profile to include them as allowed scopes.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          26,
+          31
+        ],
+        [
+          36,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click the toggle on the top right to enable the application.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Set up PingOne as an OP for Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Click Add in the Primary Identity Provider or Secondary Identity Providers section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          17,
+          42
+        ],
+        [
+          46,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "The Add External Identity page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Add External Identity page, go to the Basic Configurations tab, and configure the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          45,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IdP.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable the toggle.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Identity Vendor: Select PingOne from the drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Domains: Select the domain for which the IdP is responsible for authenticating the users. This allows the Zscaler service to display the correct IdP to authenticate an incoming user.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Enforce Zscaler MFA for Admins: Enable this option to ensure that admins using an external IdP authenticate with the multi-factor authentication (MFA) process in Authentication Service, irrespective of whether MFA is configured on the external IdP.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "An email is sent to all super admins in Authentication Service when the Enforce Zscaler MFA for Admins option is disabled.",
+      "depth": 2,
+      "strong": [
+        [
+          72,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Protocol: Select OIDC.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Login ID Attribute: Enter an attribute whose value must be used as the login ID. This attribute must exist in the tokens received from the IdP. By default, the preferred_username attribute is populated in this field when the OIDC option is selected in the Protocol field. You can use any attribute that is present in the ID token or the response of the UserInfo endpoint, provided its value is in the email address format (e.g., <user_name>@domain.com>).",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          225,
+          229
+        ],
+        [
+          256,
+          264
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the domain part of the email addresses received in the ID tokens match with one of the domains configured in Authentication Service.",
+      "depth": 3
+    },
+    {
+      "item": "Ensure that the attribute you enter matches exactly with the attribute received in the ID token or the UserInfo endpoint.",
+      "depth": 3
+    },
+    {
+      "item": "Input Method: Select Metadata URL and paste the OIDC Discovery Endpoint value copied from the PingOne admin console into the Metadata URL field and click Fetch.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          33
+        ],
+        [
+          48,
+          71
+        ],
+        [
+          125,
+          137
+        ],
+        [
+          154,
+          159
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI: Copy the value. The value copied in this step is used in the subsequent steps for configurations in the PingOne admin console.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Token Endpoint Authentication Method: Select Client Secret Basic and paste the Client ID and Client Secret values copied from the PingOne admin console to the respective fields.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          36
+        ],
+        [
+          45,
+          64
+        ],
+        [
+          79,
+          88
+        ],
+        [
+          93,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Requested Scopes: Add the required scopes. By default, when the OIDC protocol is selected, the openid, email, and profile scopes are added.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Provisioning Details tab and click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          30
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the PingOne admin console, go to Applications > Applications and click the OIDC web application created in the previous step.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          36,
+          48
+        ],
+        [
+          51,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Select the Configuration tab, and click the Edit icon.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          24
+        ],
+        [
+          44,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Edit Configuration page appears within the application drawer.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Configuration page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Paste the Redirect URI value copied from the Zscaler Admin Console to the Redirect URIs field.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          74,
+          82
+        ],
+        [
+          83,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Provision users for Authentication Service.",
+      "depth": 0
+    },
+    {
+      "item": "JIT Provisioning",
+      "depth": 1
+    },
+    {
+      "item": "Users created in Authentication Service via SCIM cannot be updated through JIT provisioning. These user records must be updated via SCIM provisioning only.",
+      "depth": 2
+    },
+    {
+      "item": "JIT provisioning for primary IdPs does not support provisioning or updating system-defined groups (e.g., Zscaler Global Administrators).",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          93
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for PingOne in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          42,
+          67
+        ],
+        [
+          72,
+          100
+        ],
+        [
+          124,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab, and enable JIT Provisioning.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Map Authentication Service user attributes with the appropriate PingOne attributes as necessary. The mapping of the Primay Email attribute is mandatory as it is required for password resetting and multi-factor authentication. By default, the following attributes in ID tokens are mapped with the corresponding user attributes in Authentication Service:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "table": [
+        [
+          "Default Authentication Service User Attributes",
+          "OIDC Attribute in ID Tokens",
+          "Description"
+        ],
+        [
+          "First Name",
+          "given_name",
+          "First name of the user (e.g., John). This attribute is mapped by default."
+        ],
+        [
+          "Last Name",
+          "family_name",
+          "Last name of the user (e.g., Doe). This attribute is mapped by default."
+        ],
+        [
+          "Display Name",
+          "name",
+          "Display name of the user (e.g. John Doe). This attribute is mapped by default."
+        ],
+        [
+          "Nick Name",
+          "nickname",
+          "Nickname of the user (e.g., Jo)"
+        ],
+        [
+          "Mobile Phone",
+          "phone_number",
+          "Mobile number of the user (e.g., +1 1234567890)"
+        ],
+        [
+          "Primary Email",
+          "email",
+          "Primary email address of the user (e.g. johndoe@company.com)"
+        ],
+        [
+          "Language",
+          "locale",
+          "Language preference of the user (e.g., English (US))"
+        ],
+        [
+          "Timezone",
+          "zoneinfo",
+          "Time zone of the user (e.g., UTC+3.00)"
+        ],
+        [
+          "Department",
+          "Needs a custom claim",
+          "The department name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Organization",
+          "Needs a custom claim",
+          "The organization name to which the user belongs (e.g., Finance)"
+        ],
+        [
+          "Title",
+          "Needs a custom claim",
+          "The job title of the user (e.g., Manager)"
+        ],
+        [
+          "Division",
+          "Needs a custom claim",
+          "The division of the organization to which the user belongs (e.g., Research)"
+        ],
+        [
+          "Cost Center",
+          "Needs a custom claim",
+          "The cost center of the organization to which the user belongs (e.g., IT)"
+        ],
+        [
+          "User Type",
+          "Needs a custom claim",
+          "The type of user in the organization (e.g., Regular)"
+        ],
+        [
+          "Formatted Name",
+          "Needs a custom claim",
+          "The name of the user in a specific format (e.g., Mr. John Doe)"
+        ],
+        [
+          "Manager",
+          "Needs a custom claim",
+          "The manager's login name (manager@company.com). This must be in the email address format."
+        ]
+      ]
+    },
+    {
+      "item": "If the external IdP is configured to send different attributes for First Name, Last Name, or Display Name, then you must map those attributes. For example, if the ID token from the external IdP includes Surname instead of family_name, then you must map it with the Last Name user attribute in Authentication Service.",
+      "depth": 4
+    },
+    {
+      "item": "While mapping attributes, ensure that the attributes you enter in the Just-in-time Attribute field match exactly with the attributes that are received in the ID tokens.",
+      "depth": 4,
+      "strong": [
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Addresses attribute in Authentication Service is supported only with SCIM provisioning.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "SCIM Provisioning",
+      "depth": 1
+    },
+    {
+      "item": "In the Zscaler Admin Console",
+      "depth": 2
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for PingOne in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          42,
+          67
+        ],
+        [
+          72,
+          100
+        ],
+        [
+          124,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page,",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Provisioning Details tab and enable SCIM Provisioning.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          47,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Copy the SCIM Endpoint URL. This value is used in a subsequent step.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "The SCIM Endpoint URL field appears only if the configurations for the IdP on the Basic Configurations tab are completed and saved.",
+      "depth": 4,
+      "strong": [
+        [
+          82,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Authentication Method: Select an option and complete one of the following steps corresponding to the selected method:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Bearer Token Method: Click Generate Token and copy the Bearer Token value. This value is used in a subsequent step.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          27,
+          41
+        ],
+        [
+          55,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "The bearer token is visible only to admins with Full permission enabled for external identities. To learn more, see Adding Authentication Service Admin Roles. If your organization uses Unified Role-Based Access Control (RBAC), administrator roles for Authentication Service are managed on a different Role Management page. To learn more, see About Role Management. Unified RBAC is a feature in limited availability. To access Unified RBAC, contact your Zscaler Account team.",
+      "depth": 5
+    },
+    {
+      "item": "Oauth2 Client Credentials Method: Copy the Client ID value and Token Endpoint value. Click Add for the Client Secret field, and copy the generated secret. These values are used in a subsequent step.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          32
+        ],
+        [
+          43,
+          52
+        ],
+        [
+          63,
+          77
+        ],
+        [
+          91,
+          94
+        ],
+        [
+          103,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "(Optional) Map the SCIM attribute (e.g., addresses) with the corresponding Authentication Service user attribute. This mapping is required only for attributes that need to be mapped to a custom user attribute in Authentication Service. To learn more about the SCIM attributes that require custom attribute mapping, see Understanding SCIM.",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the PingOne Admin Console",
+      "depth": 2
+    },
+    {
+      "item": "Go to Applications > Applications.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Locate and click the application created for Authentication Service.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "In the application drawer that appears, select the Attributes Mapping tab, and click the Edit icon in the Custom Attributes section.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          51,
+          69
+        ],
+        [
+          89,
+          93
+        ],
+        [
+          106,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Edit Attribute Mappings page appears within the application drawer.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Edit Attribute Mappings page:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click Add and map the necessary attributes configured in the Zscaler Admin Console.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "To map an expression with an attribute, locate the attribute for which you want to add an expression, and click the Advanced Expressions icon, and configure the expression. For example, the name attribute in Authentication Service is mapped combining Given Name and Family Name attributes in PingOne.",
+      "depth": 4,
+      "strong": [
+        [
+          116,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the left-side navigation, go to Integration > Provisioning.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          35,
+          46
+        ],
+        [
+          49,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Click the Add icon and add a new connection.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Create a new connection drawer:",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select Identity Store as the connection type.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Search for scim and the SCIM Outbound app appears.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          24,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the SCIM Outbound app and click Next.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          24
+        ],
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Enter a name for the connection and click Next.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Paste the SCIM Endpoint URL copied from the Zscaler Admin Console to the SCIM Base URL field.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          27
+        ],
+        [
+          73,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Depending on the authentication method selected in the Zscaler Admin Console, select an option from the Authentication Method drop-down menu and complete one of the following steps:",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          104,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "OAuth 2 Bearer Token: Paste the Bearer Token copied from the Zscaler Admin Console to the Oauth Access token field.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          32,
+          44
+        ],
+        [
+          90,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "OAuth 2 Client Credentials: Paste the values copied from the Zscaler Admin Console as described in the following table:",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Zscaler Admin Console Field",
+          "PingOne Field"
+        ],
+        [
+          "Token Endpoint",
+          "Oauth Token Request"
+        ],
+        [
+          "Client ID",
+          "Oauth Client ID"
+        ],
+        [
+          "Client Secret",
+          "Oauth Client Secret"
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "If you are switching from the bearer token method to the client credentials method, you need to remove the bear token configurations before configuring the client credential method in the PingOne admin console.",
+      "depth": 5
+    },
+    {
+      "item": "Click Test Connection to ensure the connection is successful and click Next.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          71,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "A new SCIM Outbound connection is created.",
+      "depth": 4,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Enable the toggle.",
+      "depth": 4,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click the Add icon and select New Rule.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          13
+        ],
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Create New Rule drawer appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Create New Rule drawer:",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the rule.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the rule.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "The rule is created, and the rule configuration drawer opens with the Configuration tab selected.",
+      "depth": 4,
+      "strong": [
+        [
+          70,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "In the rule configuration drawer:",
+      "depth": 3,
+      "number": 10
+    },
+    {
+      "item": "Select the SCIM Outbound app connection created for Authentication Service as the target.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The connection is saved and the options to apply user filter, attribute mapping, and group provisioning appears.",
+      "depth": 4
+    },
+    {
+      "item": "In the User Filter section, click the Edit icon.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Edit User Filter page appears.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit User Filter page, configure the necessary conditions for user filter. For example, you can filter users based on specific Group Names.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Go to Attribute Mapping and modify the attributes if necessary.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Go to Group Provisioning, and in the Group Provisioning section, click the Edit icon or click Add Groups.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          37,
+          55
+        ],
+        [
+          75,
+          79
+        ],
+        [
+          94,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Edit Group Provisioning page appears within the rule configuration drawer.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit Group Provisioning page:",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select the groups that you want to be provisioned for Authentication Service.",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Save.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Confirm group overwriting for the matching groups.",
+      "depth": 5,
+      "number": 3
+    },
+    {
+      "item": "The selected groups are added for group provisioning.",
+      "depth": 5
+    },
+    {
+      "item": "Enable the toggle.",
+      "depth": 4,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "4. (Optional) Enable step-up authentication.",
+      "depth": 0
+    },
+    {
+      "item": "You can configure step-up authentication to extend the existing authentication process by requiring multi-factor authentication (MFA) when needed, ensuring that access to high-risk or sensitive data is protected.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "item": "Before configuring step-up authentication, ensure that:",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector version 4.7 or later is deployed for the users in your organization.",
+      "depth": 1
+    },
+    {
+      "item": "Authentication Service is enabled for both admins and users.",
+      "depth": 1
+    },
+    {
+      "item": "Step-up authentication is enabled for Authentication Service, Internet & SaaS (ZIA), and Private Access (ZPA).",
+      "depth": 1
+    },
+    {
+      "item": "To enable step-up authentication:",
+      "depth": 0
+    },
+    {
+      "item": "a. Configure the necessary authentication levels in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "b. Enable ACR values and configure policies in the PingOne admin console.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the PingOne admin console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Authentication > Policies > MFA.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          49
+        ],
+        [
+          52,
+          60
+        ],
+        [
+          63,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "In the MFA Policies window, click Add policy.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          34,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add Policy drawer:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "If you want to use an existing policy, ensure that the necessary authentication options are enabled and skip the steps to add new policy.",
+      "depth": 2
+    },
+    {
+      "item": "Name: Enter a name for the MFA policy.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Method Selection: Select how PingOne should determine the MFA method during user authentication.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Send notification when a new device is paired: Select how PingOne must notify users when a new MFA device is paired to the user account.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Allowed Authentication Methods: Enable the necessary authentication options, such as authenticator app, email, SMS, FIDO2, etc.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Ensure that you select only the required authentication methods as the user is prompted with all options configured in this step.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The MFA policy is created.",
+      "depth": 2
+    },
+    {
+      "item": "Based on your requirements, you can create multiple MFA policies as required.",
+      "depth": 3
+    },
+    {
+      "item": "Users can register for the MFA options from the self-service portal (aka PingOne Self-Service - MyAccount app). To verify what information is displayed on the self-service portal for the users, go to Settings > Environments, click the three dots against the environment created for the Authentication Service app, and select Properties. Fetch the self-service URL from the drawer and access the self-service page.",
+      "depth": 3,
+      "strong": [
+        [
+          200,
+          208
+        ],
+        [
+          211,
+          223
+        ],
+        [
+          325,
+          335
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Authentication > Policies > Authentication.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          35,
+          49
+        ],
+        [
+          52,
+          60
+        ],
+        [
+          63,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Policy.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the policy configuration window:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Policy Name: Enter the ACR value that must be mapped to the authentication level in the Zscaler Admin Console. For example, if you are configuring this authentication policy for email authentication, enter Email as the policy name.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Step type: Select Multi-Factor Authentication.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "MFA Policy: Select the required MFA policy configured for step-up authentication.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Required When: Select the options when the MFA must be triggered (e.g., always, last sign-on is older than 1 hour).",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Repeat these steps to create additional policies based on your requirements.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Go to Applications > Applications",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Locate and click the application created for Authentication Service.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "In the application drawer that appears, select the Policies tab, and click the Edit icon.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          51,
+          59
+        ],
+        [
+          79,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Associate the authentication policies created for the application.",
+      "depth": 2,
+      "number": 13
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "c. Map authentication levels and ACR values in the Zscaler Admin Console.",
+      "depth": 1
+    },
+    {
+      "item": "From the navigation menu, go to Administration > Authentication > External Identities.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          63
+        ],
+        [
+          66,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Locate the IdP created for PingOne in the Primary Identity Provider (or Secondary Identity Providers) section and click the Edit icon.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          42,
+          67
+        ],
+        [
+          72,
+          100
+        ],
+        [
+          124,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "On the Edit External Identity page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the Advanced Configurations tab.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Levels to Authentication context mapping section, enter the ACR Claim value for each authentication level. To learn more about the supported ACR Claims in PingOne, refer to the PingOne documentation.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          47
+        ],
+        [
+          67,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that you map proper ACR claims for each level depending on the hierarchy. The highest level of authentication must be mapped to the ACR value for the strongest context.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "d. Configure policies in supported Zscaler services.",
+      "depth": 1
+    },
+    {
+      "item": "After configuring step-up authentication in Authentication Service and PingOne, you can configure the necessary policies in the following Zscaler services:",
+      "depth": 1
+    },
+    {
+      "item": "Private Access: Configure Access Policies for the target application or app segment with the Conditional Access as the Rule Action. Ensure that the necessary authentication level is selected using the Step-up Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          93,
+          111
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          201,
+          229
+        ]
+      ]
+    },
+    {
+      "item": "Internet & SaaS: Configure the URL Filtering Policy and Cloud App Control Policies with the Conditional Access as the Action. Ensure that the necessary authentication level is selected using the Authentication Level field.",
+      "depth": 2,
+      "strong": [
+        [
+          92,
+          110
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          195,
+          215
+        ]
+      ]
+    }
+  ]
+}

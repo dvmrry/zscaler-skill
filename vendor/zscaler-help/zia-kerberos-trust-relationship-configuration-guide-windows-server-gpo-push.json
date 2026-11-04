@@ -1,0 +1,912 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Kerberos Trust Relationship Configuration for Windows Server & GPO Push",
+  "source": {
+    "url": "https://help.zscaler.com/zia/kerberos-trust-relationship-configuration-guide-windows-server-gpo-push",
+    "node": "1399571",
+    "revision": "3251283",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "his article provides you the information on how to establish a one-way cross-realm trust from your organization's server to the Zscaler service. This one-way trust enables Zscaler to trust the authenticated users of the domain and not the reverse. Administrator access to the domain controller is required to establish a cross-realm trust and to use GPO to push configuration settings. To learn more about Kerberos, see Understanding Kerberos Authentication. To learn more about deploying Kerberos, see Deploying Kerberos Authentication."
+    },
+    {
+      "text": "In this article:"
+    },
+    {
+      "item": "The KDC in the organization's realm is Windows Server configured as a Domain Controller",
+      "depth": 0
+    },
+    {
+      "item": "The Windows client is running Windows 10 or 11 and is joined to the domain",
+      "depth": 0
+    },
+    {
+      "item": "The domain user, Jane Doe, can log in to the Windows client using domain credentials",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler domain is the Zscaler cloud name. In this example, it is zscalerbeta.net. To learn how you can find your cloud name, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Configure the Cross-Realm Trust on Windows Server",
+      "level": 1
+    },
+    {
+      "text": "This section describes how to configure the KDC and the Active Directory GPO feature on a Windows Server. For information on Active Directory GPO and GPMC, refer to the Windows Active Directory and GPMC documentation."
+    },
+    {
+      "text": "To configure the cross-realm trust on Windows Server:"
+    },
+    {
+      "item": "1. Create the new trust.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Windows server as administrator. Open the Server Manager and do the following:",
+      "depth": 0
+    },
+    {
+      "item": "Go to DNS and from the Tools menu, choose Active Directory Domains and Trusts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          42,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Active Directory Domains and Trusts window, hover over your domain, right-click and select Properties.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          42
+        ],
+        [
+          98,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Properties window, go to the Trusts tab and click New Trust.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          36,
+          42
+        ],
+        [
+          57,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When the New Trust wizard appears, click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "For Trust Name, enter the Zscaler cloud name in uppercase letters and click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          4,
+          14
+        ],
+        [
+          76,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "You can find your cloud name by looking at the URL you use to log in to the Zscaler Admin Console. For example, if you log in to https://admin.zscalerbeta.net/, your cloud name is ZSCALERBETA.NET as shown in the following image.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For Trust Type, select Realm trust and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          14
+        ],
+        [
+          23,
+          34
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For Transitivity of Trust, select Nontransitive and click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          4,
+          25
+        ],
+        [
+          34,
+          47
+        ],
+        [
+          58,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For Direction of Trust, select One-way: incoming and click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          4,
+          22
+        ],
+        [
+          31,
+          48
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For Trust Password, paste the password that you copied from Zscaler.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When the wizard displays your settings, verify them and click Next.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          62,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Configure the Trust Properties.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the properties of the newly configured trust.",
+      "depth": 0
+    },
+    {
+      "item": "Open the Properties window of your domain.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Properties window, select the following and click OK:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          57,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "The other domain supports Kerberos AES Encryption.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Non-transitive: only users from the directly trusted domain may authenticate in the trusting domain.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Validate the Settings.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that your configuration is correct before you proceed to the next step.",
+      "depth": 0
+    },
+    {
+      "item": "On the Windows server, open Windows PowerShell and enter the following command. Replace Zscaler Cloud with the name of the Zscaler cloud that you use.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Get-ADObject -Filter {trustPartner -eq \"Zscaler Cloud\"} -Properties *",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that the following values are displayed:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "CN: Zscaler cloud name. In this example, it is ZSCALERBETA.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "msDS-SupportedEncryptionTypes: 24",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Zscaler cloud name. In this example, it is ZSCALERBETA.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "objectClass: trustedDomain",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "trustAttributes: 1",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "trustDirection: 1",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "trustPartner: Zscaler cloud name. In this example, it is ZSCALERBETA.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "trustType: 3",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "4. Configure GPO to Push the Configuration to Users.",
+      "depth": 0
+    },
+    {
+      "item": "On the Windows server, open the Server Manager and do the following:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Dashboard, and from the Tools menu, select Group Policy Management.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          30,
+          35
+        ],
+        [
+          49,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Group Policy Management > Forest > Domains > Domain Name > Default Domain Policy, right-click and select Edit.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          32,
+          38
+        ],
+        [
+          41,
+          48
+        ],
+        [
+          65,
+          86
+        ],
+        [
+          111,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Group Policy Management Editor, go to Computer Configuration > Policies > Administrative Templates > System > Kerberos and from the Settings panel, select Define Interoperable Kerberos V5 realm settings.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          37
+        ],
+        [
+          45,
+          67
+        ],
+        [
+          70,
+          78
+        ],
+        [
+          81,
+          105
+        ],
+        [
+          108,
+          114
+        ],
+        [
+          117,
+          125
+        ],
+        [
+          162,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Define interoperable Kerberos V5 realm settings window, select Enabled and click Show....",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          54
+        ],
+        [
+          70,
+          77
+        ],
+        [
+          88,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Show Contents window:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Value name: Enter the Zscaler cloud name. In this example, it is ZSCALERBETA.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter <k>kerberos.Zscaler Cloud</k>. In this example, the value is <k>kerberos.zscalerbeta.net</k>.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK, and then click OK in the Define interoperable Kerberos V5 realm settings window.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ],
+        [
+          25,
+          27
+        ],
+        [
+          35,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Select Define host name-to-Kerberos realm mappings.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Define host name-to-Kerberos realm mappings window, select Enabled and click Show....",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          50
+        ],
+        [
+          66,
+          73
+        ],
+        [
+          84,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Show Contents window:",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Value name: Enter the Zscaler cloud name. In this example, it is ZSCALERBETA.NET.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter the Zscaler domain names. In this example, it is .zscalerbeta.net; .gateway.zscalerbeta.net.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Both the domain names must have leading dots to match all subdomains.",
+      "depth": 0
+    },
+    {
+      "item": "Click OK, click OK in the Define host name-to-Kerberos realm mappings window, and close the Group Policy Management Editor.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          8
+        ],
+        [
+          16,
+          18
+        ],
+        [
+          26,
+          69
+        ],
+        [
+          92,
+          122
+        ]
+      ]
+    },
+    {
+      "item": "Go to Group Policy Management > Default Domain Policy and click the Settings tab.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          32,
+          53
+        ],
+        [
+          68,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Expand Computer Configuration > Administrative Templates > System/Kerberos and verify each policy.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          32,
+          56
+        ],
+        [
+          59,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Scroll to the next policy.",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "5. Validate the GPO Configuration.",
+      "depth": 0
+    },
+    {
+      "item": "To validate the GPO configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Open Windows PowerShell and enter the following command to list the GPO registry value for the Zscaler KDC:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\MitRealms\" -name \"Default Domain Policy\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the following values:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Value: kerberos.zscalerbeta.net",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "ValueName: ZSCALERBETA.NET",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to list the GPO registry value for the Zscaler domain:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "get-gpregistryvalue -key \"HKLM\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\domain_realm\" -name \"Default Domain Policy\"",
+      "depth": 0
+    },
+    {
+      "item": "Verify the following values:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Value: .zscalerbeta.net; .gateway.zscalerbeta.net",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "ValueName: ZSCALERBETA.NET",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "6. Configure the Windows Workstation.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Windows workstation, open the command prompt, and run the following commands:",
+      "depth": 0
+    },
+    {
+      "item": "klist ensures that you are logged in to the domain and can contact the domain controller. It displays the Kerberos tickets that were used by the workstation to log in to the domain. If, when you run klist, the Kerberos tickets are not displayed, then there is an inherent domain or workstation configuration issue that must be resolved before you proceed. Run the following command to override and refresh the process:",
+      "depth": 0
+    },
+    {
+      "item": "gpupdate /force",
+      "depth": 0
+    },
+    {
+      "item": "You can verify that the Zscaler Kerberos settings are synchronized to the client and that the registry is updated by doing one of the following:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following queries in the Windows command prompt or Windows Powershell:",
+      "depth": 1
+    },
+    {
+      "item": "reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\domain_realm",
+      "depth": 0
+    },
+    {
+      "item": "reg query HKEY_LOCAL_MACHINE\\SOFTWARE\\Microsoft\\Windows\\CurrentVersion\\Policies\\System\\Kerberos\\MitRealms",
+      "depth": 0
+    },
+    {
+      "item": "Open the Registry editor and verify the domain_realm entries as shown in the following image.",
+      "depth": 1,
+      "strong": [
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Verify the MitRealms entries as shown in the following image.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the browser is configured with the Kerberos PAC file URL.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Open the browser and browse to a site to ensure that you are not challenged for authentication or that the browser displays an “Internet Access Denied” error page.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot your Kerberos configuration, see Troubleshooting Kerberos Authentication and Internet & SaaS Error Codes for Kerberos Authentication."
+    },
+    {
+      "text": "The following are some helpful Microsoft documents:"
+    },
+    {
+      "item": "Setting Kerberos Realm Flags",
+      "depth": 0
+    },
+    {
+      "item": "Forcing Kerberos to Use TCP Instead of UDP",
+      "depth": 0
+    }
+  ]
+}

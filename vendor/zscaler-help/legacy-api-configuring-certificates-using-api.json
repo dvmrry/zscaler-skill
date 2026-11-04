@@ -1,0 +1,1126 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Certificates Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-certificates-using-api",
+    "node": "1484831",
+    "revision": "3227889",
+    "updated": "2026-08-04",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) certificate use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Getting Details for All Issued Certificates",
+      "level": 1
+    },
+    {
+      "text": "To get details for all certificates:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/certificate/issued?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId, the ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/217246660302995456/certificate/issued?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"4\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382064931\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532110078\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"desc\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"ak\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1530614700\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1846233900\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDsjCCApqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBhMQswCQYDVQQG\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA\\nxQIDAQAB\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/certificate/issued?microtenantId={microtenantId}&page={page}&pagesize={pagesize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 0
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/144118148382064931/certificate/issued?microtenantId=0&page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382064931\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532110078\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"desc\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"ak\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1530614700\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1846233900\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDsjCCApqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBhMQswCQYD\\nMVaMj588I+mFwAiZR2YiMmvblVlPOqYlzU8M+2ACSpDu1qGZZyc=\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEhVOulm9GV4dqoFNZz\\nDIzzOjzsdWfgGGsPqU4TaranQX5Y1N+029IB2nSdQfnbHXDjcWDS5RG0ImDAPGay\\nxQIDAQAB\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382065029\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532636586\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"www.example.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1532538688\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1847898688\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDLjCCAhYCCQCSX0pPo6MXYDANBgkqhkiG9w0BAQsFADBZ/lagEnHJL0Ba6vMeHc0SG9m6rT2KXJfYYf/ejB0XgpZp5L\\nR5U=\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"CN=www.example.com,OU=Certificate generated at boot time,O=Bitnami\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"CN=www.example.com,OU=Certificate generated at boot time,O=Bitnami\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"10547230558233237344\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\\n1QIDAQAB\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting a List of All Certificates",
+      "level": 1
+    },
+    {
+      "text": "To get a list of all certificates:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId, the ZPA tenant ID of the customer,",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/73194682334576640/certificate.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"5\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382064931\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532110078\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"desc\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"ak\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1530614700\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1846233900\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDsjCCApqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBhMQs\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEhVOulm9GV\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate?microtenantId={microtenantId}&page={page}&pagesize={pagesize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 0
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73194682334576640/certificate?microtenantId=0&page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"3\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382064931\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532110078\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ADMIN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"desc\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"ak\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1530614700\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1846233900\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDsjCCApqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBhMQswCQYDVQQGEwJJT=\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEhVOulm9GV4dqoFNZz7\\nSl5hoNw\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382065029\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532636586\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Bitnami CRM cert\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"www.example.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1532538688\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1847898688\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDLjCCAhYCCQCSX0pPo6MXYDANBgkqhkiG9w0BAQsFADBZMRAwDgYDVQQKDAdC/ejB0XgpZp5L\\nR5U=\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"CN=www.example.com,OU=Certificate generated at boot time,O=Bitnami\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"CN=www.example.com,OU=Certificate generated at boot time,O=Bitnami\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"10547230558233237344\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEA7+4Onc+MdbP8\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/certificate&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string name%20LIKE%20client is supported for the Name filter, using the Contains (LIKE) operator, for the client filter value.",
+      "depth": 0,
+      "strong": [
+        [
+          268,
+          272
+        ],
+        [
+          291,
+          299
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/certificate&search=name%20LIKE%20client."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"73186051597797529\", \"modifiedTime\": \"1642071991\", \"creationTime\": \"1548345659\", \"modifiedBy\": \"72057594037951057\", \"name\": \"clientless\", \"description\": \"clientless\", \"cName\": \"ga.dummy.com\", \"validFromInEpochSec\": \"1533108480\", \"validToInEpochSec\": \"1848727680\", \"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIIDoDCCAoigAwIBAgIBATANBgkqhkiG9w0BAQsFADBYMQswCQYDVQQGEwJJTjEL\\nMAkGA1UECBMCSU4xCzAJBgNVBAcTAklOMQswCQYDVQQKEwJnYTELMAkGA1UECxMC\\nZ2ExFTATBgNVBAMTDGdhLmR1bW15LmNvbTAeFw0xODA4MDEwNzI4MDBaFw0yODA4\\nMDEwNzI4MDBaMFgxCzAJBgNVBAYTAklOMQswCQYDVQQIEwJJTjELMAkGA1UEBxMC\\nSU4xCzAJBgNVBAoTAmdhMQswCQYDVQQLEwJnYTEVMBMGA1UEAxMMZ2EuZHVtbXku\\nY29tMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxM772y77AFo1lYAJ\\nX+rkA30JhWAXtky+hyxIJROJ3OTHZPiOTMEXpArsYf6JbgNjLcFStxf3FaU3TFDp\\nfL1Se/Z4RWJh3mS7Pnpc6i5Uxw/nc+0x1Au1B/cuFxTmhPRsGH8i0XsQD7FlKQad\\nF/Dv0mbOjqDcrcczbDAOBgNVHQ8BAf8EBAMCAZ4wEQYJYIZIAYb4QgEBBAQDAgAH\\nMB4GCWCGSAGG+EIBDQQRFg94Y2EgY2VydGlmaWNhdGUwDQYJKoZIhvcNAQELBQAD\\nggEBAKjfZICpOtQkafJ9BpRiKdM6IKYXXw62F4QQwyNSjVl7c85Ki1j2B6KVNPWl\\nD5lF30XXl0am+rNyUgnr5cWFIyUiWu9IE8zZDWU1l3jSD4Cbg/3koEn1tDY1QKje\\n5tg5nEZLEelecFC2IO5pcoopnq/SxbMhXax8T5REWG0UTtKoFESzD+htJ46z03Tt\\nqrcfs1w3U72YZiFlxA8LJFThYXZI6YOozs889sNi96E727C5yiMR7F2ofwuSzQHL\\nmwp8Pe9g6G4Hae+cNLJyfAwq401WcPR7YDDUr6IVI9h0umT5g0JZ0615wTY0fa3J\\n9qfvSipVrCuD6GvsCzV8gIdZlB4=\\n-----END CERTIFICATE-----\\n\", \"issuedTo\": \"CN=ga.dummy.com,OU=ga,O=ga,L=IN,ST=IN,C=IN\", \"issuedBy\": \"CN=ga.dummy.com,OU=ga,O=ga,L=IN,ST=IN,C=IN\", \"serialNo\": \"1\", \"publicKey\": \"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxM772y77AFo1lYAJX+rk\\nA30JhWAXtky+hyxIJROJ3OTHZPiOTMEXpArsYf6JbgNjLcFStxf3FaU3TFDpfL1S\\ne/Z4RWJh3mS7Pnpc6i5Uxw/nc+0x1Au1B/cuFxTmhPRsGH8i0XsQD7FlKQadA8sq\\nHIZ5ionwXMsu01JXUVSrTcwBEFQyIpRnN/VuBF+cTbIWP3MIMuDOqp1q7daotRgZne9e0M7EU52TivlzPZNifzi3VkrdbyF+8bfzTP4aUBJ8VwpKUqPU+f39lC0zve/ds\\nCwIDAQAB\\n-----END PUBLIC KEY-----\\n\", \"microtenantName\": \"Default\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Browser Access Certificate",
+      "level": 1
+    },
+    {
+      "text": "This API is deprecated and will not be supported after January 27, 2023. To learn more, see Getting Details for a Particular Certificate."
+    },
+    {
+      "text": "To get details of a certificate:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientlessCertificate/{certificateId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "certificateId: The ID of the desired certificate.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/clientlessCertificate/72057615512764448."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"72057615512764448\", \"modifiedTime\": \"1559710128\", \"creationTime\": \"1559691154\", \"modifiedBy\": \"72057615512764423\", \"name\": \"Wild Card Cert\", \"description\": \"Wild%20Card%20Cert\", \"cName\": \"*.lanuk.com\", \"validFromInEpochSec\": \"1559667671\", \"validToInEpochSec\": \"1602867671\", \"certificate\": \"-----BEGIN CERTIFICATE-----\\nMIIEcDCCAlgCCQDLbbOJT3D49TANBgkqhkiG9w0BAQsFADCBhzELMAkGA1UEBhMC\\nVVMxEzARBgNVBAgMCkNhbGlmb3JuaWExETAPBgNVBAcMCFNhbiBK\\n-----END CERTIFICATE-----\\n\", \"issuedTo\": \"CN=*.lanuk.com,O=Lanuk Inc,ST=CA,C=USA,L=San Jose,OU=Lanuk Inc\", \"issuedBy\": \"1.2.840.113549.1.9.1=#161063657274407a7363616c65722e636f6d,CN=Certgen,OU=QA,O=Zscaler,L=San Jose,ST=California,C=US\", \"serialNo\": \"14658569764485527797\", \"publicKey\": \"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAvuhylAGQ916SLxlEXt+n\\nn2gsKuNTK6VO58utz8Qcz+nyrs9uLSWcJV+UUuePnOXIh/xNENKLrv\\n-----END PUBLIC KEY-----\\n\", \"san\": [ \"mail.lanuk.com\", \"hr.lanuk.com\", \"rdp.lanuk.com\" ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Certificate",
+      "level": 1
+    },
+    {
+      "text": "To get details of a certificate:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "certificateId: The ID of the desired certificate.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/144118148382064640/certificate/144118148382064931?microtenantId=0."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"144118148382064931\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1648916882\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1532110078\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037929181\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ADMIN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"desc\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cName\":\"ak\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\":\"Default\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validFromInEpochSec\":\"1530614700\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validToInEpochSec\":\"1846233900\",",
+      "depth": 0
+    },
+    {
+      "item": "\"certificate\":\"-----BEGIN CERTIFICATE-----\\nMIIDsjCCApqgAwIBAgIBATANBgkqhkiG9w0BAQUFADBhMQswCQYDVQQGEwJJTjEL\\nMAkGA1UECBMCSU4xCzAJBgNVBAcTAklOMQswCQYDVQQKEwJhazELMAkGA1UECxMC\\nYWsxCzAJBgNVBAMTAmFrMREwDwYJKoZIhvcNAQkBFgJhazAeFw0xODA3MDMxMDQ1\\nMDBaFw0yODA3MDMxMDQ1MDBaMGExCzAJBgNVBAYTAklOMQswCQYDVQQIEwJJTjEL\\nMAkGA1UEBxMCSU4xCzAJBgNVBAoTAmFrMQswCQYDVQQLEwJhazELMAkGA1UEAxMC\\nYWsxETAPBgkqhkiG9w0BCQEWAmFrMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIB\\nCgKCAQEAxEhVOulm9GV4dqoFNZz7Sl5hoNw+QidywF2Dgmps/oXH4gsQLU66hYeY\\ncqpWk3TDiDRY8l9tHWQI4m5wkbozrg20VJN2NR/R/iV233ckqd0DNOaxgQZsD2C0\\nagB2ste7eRcrdB24pWndYVRYYvihZK46E2VutgSyoNy4z0ZMeaKTCZ413UeyRg3t\\nXdHCwYlsSv+A+awST4TnKApoSZ9LFG2ptYkYerTtj9PVF/IB++S1EuhOK1Tm2SKA\\ndkRLN43J2Usrc+9W+oGwgFTMRa7qDIzzOjzsdWfgGGsPqU4TaranQX5Y1N+029IB\\n2nSdQfnbHXDjcWDS5RG0ImDAPGayxQIDAQABo3UwczAPBgNVHRMBAf8EBTADAQH/\\nMB0GA1UdDgQWBBSdeL+k+Tf9A4gORX2HY0BXFepSyTAOBgNVHQ8BAf8EBAMCAZ4w\\nEQYJYIZIAYb4QgEBBAQDAgAHMB4GCWCGSAGG+EIBDQQRFg94Y2EgY2VydGlmaWNh\\ndGUwDQYJKoZIhvcNAQEFBQADggEBAHbEWY2KKd+eHlVQ6lCjI/vzl9c8+2ARNXPT\\nI2vb4MKUjo7kaU8NLlJhatZH1cxNvcoElDwwc0kb0uSeqiKC+aE5CBdLHPErGSjK\\nlt08RWOm47cJXSHIiopWfqDhmLGMMRUaup1HRUdCrLYJe3kbm2ossz3yJf074Zo2\\n6yJkUijq+zKJjZD5438IS+dbZv7Zg+H/P2xusOAyJCeceVUOtpunZveEQyWbGVzm\\ncDXZgQA+b7ds3Gtgfg724JHNGdGqITzaYCTgmEbTBnJhLyZ7SnH/8IetfPAxwKPi\\nMVaMj588I+mFwAiZR2YiMmvblVlPOqYlzU8M+2ACSpDu1qGZZyc=\\n-----END CERTIFICATE-----\\n\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedTo\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"issuedBy\":\"1.2.840.113549.1.9.1=#1602616b,CN=ak,OU=ak,O=ak,L=IN,ST=IN,C=IN\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serialNo\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"publicKey\":\"-----BEGIN PUBLIC KEY-----\\nMIIBIjANBgkqhkiG9w0BAQEFAAOCAQ8AMIIBCgKCAQEAxEhVOulm9GV4dqoFNZz7\\nSl5hoNw+QidywF2Dgmps/oXH4gsQLU66hYeYcqpWk3TDiDRY8l9tHWQI4m5wkboz\\nrg20VJN2NR/R/iV233ckqd0DNOaxgQZsD2C0agB2ste7eRcrdB24pWndYVRYYvih\\nZK46E2VutgSyoNy4z0ZMeaKTCZ413UeyRg3tXdHCwYlsSv+A+awST4TnKApoSZ9L\\nFG2ptYkYerTtj9PVF/IB++S1EuhOK1Tm2SKAdkRLN43J2Usrc+9W+oGwgFTMRa7q\\nDIzzOjzsdWfgGGsPqU4TaranQX5Y1N+029IB2nSdQfnbHXDjcWDS5RG0ImDAPGay\\nxQIDAQAB\\n-----END PUBLIC KEY-----\\n\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a Certificate",
+      "level": 1
+    },
+    {
+      "text": "To create a certificate:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594038056531/certificate?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload to create a certificate and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "certBlob: The content of the certificate.",
+      "depth": 0
+    },
+    {
+      "text": "The certBlob field must be in string format and must include the certificate and the private key (in PEM format) in the JSON payload. The certificate must be in X.509 certificate format and the private key must be in PKCS #1 or PKCS #8 format."
+    },
+    {
+      "item": "name: The name of the certificate.",
+      "depth": 0
+    },
+    {
+      "item": "View the entire JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certBlob\": \"string\", \"description\": \"string\", \"id\": 0, \"name\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certBlob\": \"string\", \"name\": \"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"certBlob\": \"-----BEGIN CERTIFICATE----- MIICTjCCAbegAwIBAgIBADANBgkqhkiG9w0BAQ0FADBEMQswCQYDVQQGEwJ1czEL MAkGA1UECAwCRkwxFTATBgNVBAoMDFRlc3RfWnNjYWxlcjERMA8GA1UEAwwIdGVz dC5jb20wHhcNMjIwNzE1MTQxNjM0WhcNMjMwNzE1MTQxNjM0WjBEMQswCQYDVQQG EwJ1czELMAkGA1UECAwCRkwxFTATBgNVBAoMDFRlc3RfWnNjYWxlcjERMA8GA1UE AwwIdGVzdC5jb20wgZ8wDQYJKoZIhvcNAQEBBQADgY0AMIGJAoGBANCw2uSsu/+t bkjNvXiTLBrrjLsLkdddwlbxSB3JUpHM5wjMA4huCx0fMVm+qEq1KuH6ae3NsDGL 2hbabXQ1Yq8z3xnjO3bLVkjrJpc1o1m7x59nRrNctoOi4UwCXR4AcHOg3WlDb0g7 ynaPaPS48k1GcYi9/31MkZP81flqAD3TAgMBAAGjUDBOMB0GA1UdDgQWBBRRHuE2 AX8wWGI3N+VV7wsoc7uATTAfBgNVHSMEGDAWgBRRHuE2AX8wWGI3N+VV7wsoc7uA TTAMBgNVHRMEBTADAQH/MA0GCSqGSIb3DQEBDQUAA4GBAEBF6CI5uBCAfulyk39U pMHqGg7sj8BBaTBIVXFkDGiaB9zKVKH68IExv1g9OI2Rh5VF4bVaK0XnwIuuF7AO TV9G4cMbXWyG6Kk9lGSa+jTyz43PkRfiHkXqjpr9/ZSjgbnKSc9sTLdPfVf5XFJM FCKdpw0TcbNhybAcuZIU48Nl -----END CERTIFICATE--- ----BEGIN RSA PRIVATE KEY---- MIICXQIBAAKBgQDQsNrkrLv/rW5Izb14kywa64y7C5HXXcJW8UgdyVKRzOcIzAOI bgsdHzFZvqhKtSrh+mntzbAxi9oW2m10NWKvM98Z4zt2y1ZI6yaXNaNZu8efZ0az XLaDouFMAl0eAHBzoN1pQ29IO8p2j2j0uPJNRnGIvf99TJGT/NX5agA90wIDAQAB AoGAawjaLAEAJ2F/N+316LqrG1+GfYSwl2IqQ8daspRIOil6sYNZqIawQo52FE56 KF8FEIQMAoDFhpPxFlmPW9PpuX9QsksimcnKATaB5m0jxzi9yZqCTVd1VL47dIsN sfKwPePLd0AcP2szuqSZ009CQE/UPFIkDAmLzNspoXWs1PkCQQDuDAkD1S2cIapT e+eZUj/z59cc9pIYtIqmu1T/0o7O/A82KBrX5VdD4SqqO6BOS2txwzh5Te3GL6+h KENLAoB3AkEA4G4Kk07SPaO++tXLKlUqOkKjAdi16yVBp0u6KyvcWVa3LFB93S64 Hk+BduCLfuA/+Qk32xnmXedv8kC2cEiAhQJBANHQQdHi/8Rx19Klj0iQOlYcrnmU ysiDuQGkdBLX34+Ik0/EoYRRXE00FYrd6zmXOCiZTRl+GmlodoCxID7pAZkCQQC+ FfX3FoeTlaEoKvRNAp0lg1M1OSu74m5dGBKyhg+3y26Rpgs0z2E6qvRoj38XEzCb 6WbZuHIZjvCOKqlbKM1RAkB1BxmDgJWlubGuarb8v0zg8iolA0vt1vTGtTfyW47b lF/rrs19yfY4N+VuvVeJejL8vSL30SU/iIwiYq5OgM9p ----END RSA PRIVATE KEY----\", \"description\": \"Sample Public_API_Upload_Cert\", \"name\": \"Sample Public_API_Upload_Cert\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"73194682334586516\", \"creationTime\":\"1657908708\", \"modifiedBy\":\"72057594038056530\", \"name\":\"New Example Public_API_Upload_Cert\", \"description\":\"New ExamplePublic_API_Upload_Cert\", \"cName\":\"test.com\", \"microtenantName\":\"Default\", \"validFromInEpochSec\":\"1657894594\", \"validToInEpochSec\":\"1689430594\", \"certificate\":\"----BEGIN CERTIFICATE----\\nMIICTjCCAbegAwI\\n----END CERTIFICATE----\\n\", \"issuedTo\":\"CN=test.com,O=Test_Zscaler,ST=FL,C=us\", \"issuedBy\":\"CN=test.com,O=Test_Zscaler,ST=FL,C=us\", \"serialNo\":\"0\", \"publicKey\":\"----BEGIN PUBLIC KEY----\\nMIGfMA0GCB\\n----END PUBLIC KEY----\\n\", \"san\":[ \"test.com\" ] }",
+      "depth": 0
+    },
+    {
+      "text": "You cannot create a CSR with a canonical name (CNAME) that is a duplicate to a CNAME of another CSR. If the name of the CSR is updated, the CNAME remains the same. For example, if you create a CSR with the name test, the CNAME for the certificate is {domain}/test. If you rename this certificate to test1, the CNAME will not change (i.e., {domain}/test). If you try to create a new CSR with the name test, then the CNAME for the new certificate is {domain}/test and the CNAME doesn't change. Error code 400 is returned if you create a CSR with a duplicate CNAME."
+    },
+    {
+      "item": "View the error code response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"reason\": \"CSR with same subject already exists\", \"id\": \"cert.duplicate.csr\", \"hostname\": \"localhost\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Certificate",
+      "level": 1
+    },
+    {
+      "text": "To update the name or description of a certificate:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594038056531/certificate/144118148382064931?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload to create a certificate and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the certificate.",
+      "depth": 1
+    },
+    {
+      "item": "description: The description of the certificate.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"<example certificate name>\", \"description\":\"<example certificate description>\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"test name updated\", \"description\":\"updated description\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the certificate is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the certificate use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "certBlob",
+          "The content of the certificate",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "The description of the certificate",
+          "No",
+          "String"
+        ],
+        [
+          "id",
+          "The unique identifier of the certificate",
+          "No",
+          "Integer"
+        ],
+        [
+          "name",
+          "The name of the certificate",
+          "Yes",
+          "String"
+        ],
+        [
+          "customerId",
+          "The unique identifier of the ZPA tenant",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer"
+        ],
+        [
+          "pagesize",
+          "Specifies the page size",
+          "No",
+          "Integer"
+        ],
+        [
+          "search",
+          "The search string used to support search by features and fields for the API",
+          "No",
+          "String"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "Deleting a Certificate",
+      "level": 1
+    },
+    {
+      "text": "To delete a certificate:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/certificate/{certificateId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "certificateId: The unique identifier of the certificate.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594038056531/certificate/73194682334586516?microtenantId=0."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the certificate is deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

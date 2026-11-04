@@ -1,0 +1,389 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Server Role for Unmanaged Databases",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/configuring-sql-authentication-unmanaged-databases",
+    "node": "1519401",
+    "revision": "3247087",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "To add an unmanaged database to DSPM using any authentication type, you need to create a custom server role with the necessary permissions to access the database."
+    },
+    {
+      "heading": "Configuring Server Role for Unmanaged MS SQL Database",
+      "level": 1
+    },
+    {
+      "text": "To configure a server role for an unmanaged MS SQL database:"
+    },
+    {
+      "item": "Log in to the virtual machine where the SQL server is installed.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Open SQL Server Management Studio and run the following queries:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "a. Create a server role.",
+      "depth": 1
+    },
+    {
+      "item": "Creates a server role named ReadOnlyServerRole in the master database.",
+      "depth": 1
+    },
+    {
+      "item": "use master; CREATE SERVER ROLE ReadOnlyServerRole;",
+      "depth": 1
+    },
+    {
+      "item": "b. Grant role permissions.",
+      "depth": 1
+    },
+    {
+      "item": "Provides the server role with permissions to view or connect to all databases.",
+      "depth": 1
+    },
+    {
+      "item": "GRANT VIEW ANY DATABASE TO ReadOnlyServerRole; GRANT CONNECT ANY DATABASE TO ReadOnlyServerRole; GRANT VIEW ANY DEFINITION TO ReadOnlyServerRole;",
+      "depth": 1
+    },
+    {
+      "item": "c. Create login credentials for the database.",
+      "depth": 1
+    },
+    {
+      "item": "Login credentials are required to connect to the database server. Depending on the authentication type, run the following commands to create the login credentials:",
+      "depth": 1
+    },
+    {
+      "item": "SQL",
+      "depth": 2
+    },
+    {
+      "item": "CREATE LOGIN dspmloginuser WITH PASSWORD = 'password@123';",
+      "depth": 2
+    },
+    {
+      "item": "Managed Identity",
+      "depth": 2
+    },
+    {
+      "item": "CREATE LOGIN [user_managed_identity_name] FROM EXTERNAL PROVIDER;",
+      "depth": 2
+    },
+    {
+      "item": "Replace usermanaged_identity_name with the actual name of the managed identity.",
+      "depth": 2
+    },
+    {
+      "item": "Service Principal",
+      "depth": 2
+    },
+    {
+      "item": "CREATE LOGIN [service_principal_name] FROM EXTERNAL PROVIDER;",
+      "depth": 2
+    },
+    {
+      "item": "Replace service_principal_name with the actual name of the service principal.",
+      "depth": 2
+    },
+    {
+      "item": "d. Assign the server role to the user.",
+      "depth": 1
+    },
+    {
+      "item": "Assigns the user with a server role, granting them read-only access to the server.",
+      "depth": 1
+    },
+    {
+      "item": "ALTER SERVER ROLE [ReadOnlyServerRole] ADD MEMBER [dspmloginuser];",
+      "depth": 1
+    },
+    {
+      "item": "e. Apply read permissions to all databases.",
+      "depth": 1
+    },
+    {
+      "item": "Assigns read permissions to the db_datareader custom role in all databases. A server roles functions at the instance level. This query is to ensure that the custom role has read permissions for all databases, including system databases such as master, MSDB, etc.",
+      "depth": 1
+    },
+    {
+      "item": "DECLARE @DatabaseName NVARCHAR(100); DECLARE @SQL NVARCHAR(MAX); – Loop through all databases (excluding tempdb) DECLARE db_cursor CURSOR FOR SELECT name FROM sys.databases WHERE state_desc = 'ONLINE' – Only online databases AND name NOT IN ('tempdb'); – Exclude tempdb (permissions on tempdb are not persistent) OPEN db_cursor; FETCH NEXT FROM db_cursor INTO @DatabaseName; WHILE @@FETCH_STATUS = 0 BEGIN SET @SQL = ' USE [' + @DatabaseName + ']; IF DATABASE_PRINCIPAL_ID(''dspmreaduser'') IS NULL BEGIN – Create the database user for the server role, if it doesn't already exist CREATE USER [dspmreaduser] FOR LOGIN [dspmloginuser]; END; – Add the server role to the db_datareader role in the database EXEC sp_addrolemember ''db_datareader'', ''dspmreaduser''; '; – Execute the SQL statement EXEC sp_executesql @SQL; FETCH NEXT FROM db_cursor INTO @DatabaseName; END; CLOSE db_cursor; DEALLOCATE db_cursor;",
+      "depth": 1
+    },
+    {
+      "item": "f. Assign permissions to the newly created databases.",
+      "depth": 1
+    },
+    {
+      "item": "Creates a trigger to automatically assign permissions to new databases.",
+      "depth": 1
+    },
+    {
+      "item": "CREATE TRIGGER GrantReadAccessOnNewDatabase ON ALL SERVER FOR CREATE_DATABASE AS BEGIN DECLARE @DatabaseName NVARCHAR(100); -- Get the name of the newly created database SELECT @DatabaseName = EVENTDATA().value('(/EVENT_INSTANCE/DatabaseName)[1]', 'NVARCHAR(100)'); -- Grant read access to the new database DECLARE @SQL NVARCHAR(MAX); SET @SQL = ' USE [' + @DatabaseName + ']; IF DATABASE_PRINCIPAL_ID(''ReadOnlyServerRole'') IS NULL BEGIN CREATE USER [ReadOnlyServerRole] FOR LOGIN [ReadOnlyServerRole]; END; EXEC sp_addrolemember ''db_datareader'', ''ReadOnlyServerRole''; '; EXEC sp_executesql @SQL; END; GO",
+      "depth": 1
+    },
+    {
+      "text": "After you run these queries, the custom role has read-only access to all databases, allowing DSPM to scan the unmanaged MS SQL databases."
+    },
+    {
+      "heading": "Configuring Server Role for Unmanaged PostgreSQL Database",
+      "level": 1
+    },
+    {
+      "text": "To configure a server role for an unmanaged PostgreSQL database:"
+    },
+    {
+      "item": "Download the latest pgAdmin version and install it on your system.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Open pgAdmin and connect to your server. To learn more, refer to the pgAdmin documentation.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run the following query in the pgAdmin query tool to grant the select permission:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "GRANT SELECT ON ALL TABLES IN SCHEMA public TO <USERNAME>;",
+      "depth": 0
+    },
+    {
+      "item": "Replace <USERNAME> with the PostgreSQL username.",
+      "depth": 0
+    },
+    {
+      "text": "After running this query, the assigned role or user account has read-only access to all tables in the public schema, allowing DSPM to scan the unmanaged PostgreSQL database."
+    },
+    {
+      "heading": "Configuring Server Role for Unmanaged MongoDB Database",
+      "level": 1
+    },
+    {
+      "text": "To configure a read-only user for an unmanaged MongoDB database so that DSPM can scan your instances for sensitive data and configuration risks, you must create a dedicated database user with the following built-in roles:"
+    },
+    {
+      "item": "readAnyDatabase: Grants the scanner read-only access to all databases, excluding the local and config databases. This role is necessary for the DLP engine to inspect data for sensitive information.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "clusterMonitor: Provides read-only access to monitoring and cluster-level metadata, which allows DSPM to identify the database version, cluster state, and security configurations.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "These roles must be assigned within the admin database to ensure cross-database visibility."
+    },
+    {
+      "text": "To create a read-only user:"
+    },
+    {
+      "item": "Connect to your MongoDB deployment using mongosh (MongoDB Shell) or MongoDB Compass as an administrative user with the userAdmin or userAdminAnyDatabase role.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Switch to the administrative admin database:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "use admin",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to create a dedicated user assigned the built-in readAnyDatabase and clusterMonitor roles:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "db.createUser({ user: \"<USERNAME>\", pwd: \"<PASSWORD>\", roles: [ { role: \"readAnyDatabase\", db: \"admin\" }, { role: \"clusterMonitor\", db: \"admin\" } ] })",
+      "depth": 0
+    },
+    {
+      "item": "Replace <USERNAME> and <PASSWORD> with your preferred credentials.",
+      "depth": 0
+    },
+    {
+      "text": "After creating the user, the new user has read-only permissions to inspect collections, documents, and indexes across all non-system databases. It also provides the necessary access to monitor system status and cluster configurations, allowing DSPM to scan the unmanaged MongoDB databases."
+    },
+    {
+      "heading": "Configuring Server Role for Unmanaged Oracle Database",
+      "level": 1
+    },
+    {
+      "text": "To configure a read-only role for an unmanaged Oracle database (on-premises, AWS EC2, or Azure VM):"
+    },
+    {
+      "item": "1. Meet the prerequisites and network configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that Oracle Database is installed and running on the target virtual machine.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Ensure that an inbound firewall rule is configured on your cloud security group or local firewall of your virtual machine to open the necessary port. The default port is 1521, though your Oracle instance might be configured to use a different, custom port.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Verify that the Oracle listener is running and bound to accept remote connections:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Linux: Run lsnrctl start as the oracle user.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Windows: Update the listener.ora file (located in %ORACLE_HOME%\\network\\admin) to ensure the host is bound to 0.0.0.0 or your VM hostname to allow remote connections.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "2. Configure the user permissions in Oracle.",
+      "depth": 0
+    },
+    {
+      "item": "Connect to your Oracle database instance as an administrative user with sysdba privileges using sqlplus:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Azure (Linux):",
+      "depth": 2
+    },
+    {
+      "item": "sqlplus sys/<PASSWORD>@localhost/<DATABASE_NAME> as sysdba",
+      "depth": 2
+    },
+    {
+      "item": "AWS (Windows):",
+      "depth": 2
+    },
+    {
+      "item": "sqlplus sys/<PASSWORD>@localhost:<PORT>/<DATABASE_NAME> as sysdba",
+      "depth": 2
+    },
+    {
+      "item": "Replace <PASSWORD> with your system password, <DATABASE_NAME> with your Oracle database instance name, and <PORT> with the listener port configured for your Oracle instance (default: 1521).",
+      "depth": 1
+    },
+    {
+      "item": "Run the following SQL queries to create the DSPM scanning user and grant the required read-only permissions:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "The C## prefix and CONTAINER=ALL clause are required for common users in an Oracle Container Database (CDB).",
+      "depth": 1
+    },
+    {
+      "item": "Create a common read-only user for DSPM:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "CREATE USER C##READ_USER IDENTIFIED BY <PASSWORD> CONTAINER=ALL;",
+      "depth": 2
+    },
+    {
+      "item": "Replace <PASSWORD> with a secure password for the new user.",
+      "depth": 2
+    },
+    {
+      "item": "Grant session and connection privileges:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "GRANT CONNECT TO C##READ_USER CONTAINER=ALL; GRANT CREATE SESSION TO C##READ_USER CONTAINER=ALL;",
+      "depth": 2
+    },
+    {
+      "item": "Grant catalog and object-level read permissions:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "GRANT SELECT_CATALOG_ROLE TO C##READ_USER CONTAINER=ALL; GRANT SELECT ANY TABLE TO C##READ_USER CONTAINER=ALL; GRANT SELECT ANY SEQUENCE TO C##READ_USER CONTAINER=ALL; GRANT SELECT ANY DICTIONARY TO C##READ_USER CONTAINER=ALL;",
+      "depth": 2
+    },
+    {
+      "item": "Set container data scope to access all PDBs:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "ALTER USER C##READ_USER SET CONTAINER_DATA=ALL CONTAINER=CURRENT;",
+      "depth": 1
+    },
+    {
+      "item": "Verify the connection by logging in as the newly created user:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Azure (Linux):",
+      "depth": 2
+    },
+    {
+      "item": "sqlplus C##READ_USER/<PASSWORD>@localhost/<DATABASE_NAME> as sysdba",
+      "depth": 2
+    },
+    {
+      "item": "AWS (Windows):",
+      "depth": 2
+    },
+    {
+      "item": "sqlplus C##READ_USER/<PASSWORD>@localhost:<PORT>/<DATABASE_NAME> as sysdba",
+      "depth": 2
+    },
+    {
+      "item": "Replace <PASSWORD> with the password set in the previous step, <DATABASE_NAME> with the name of the Oracle database or service, and <PORT> with the listener port configured for your Oracle instance (default: 1521).",
+      "depth": 1
+    },
+    {
+      "text": "After executing these commands, the C##READ_USER account has read-only access to all containers in the Oracle CDB instance, allowing DSPM to scan the unmanaged Oracle database."
+    },
+    {
+      "text": "After configuring the server role for your unmanaged database, go to the Service Registration page to register the service and configure its scanning."
+    }
+  ]
+}

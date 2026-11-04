@@ -1,0 +1,1513 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "URL Filtering Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/url-filtering-policy",
+    "node": "1402516",
+    "revision": "3197775",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/URL%20Filtering%20Policy_1.json?VersionId=_lM6EEs5K3WIYiY9pOUdhMCVZkVluynB",
+    "updated": "2026-05-05",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "URL Filtering Policy"
+      }
+    ],
+    "paths": {
+      "/urlFilteringRules": {
+        "get": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "Retrieves all the rules in the URL Filtering Policy. To learn more, see <a href=\"/zia/about-url-filtering\" target=\"_blank\">About URL Filtering</a>.",
+          "operationId": "getRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/UrlFilteringRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "<p>Adds a URL Filtering Policy rule.</p><p>If you are using the Admin Rank feature, refer to <a href=\"/zia/about-admin-rank\" target=\"_blank\">About Admin Rank</a> to determine which value to provide for <code>rank</code> when adding a policy rule. If you are not using Admin Rank, the <code>rank</code> value must be 7.</p>",
+          "operationId": "addRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The URL filtering rule information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/UrlFilteringRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/UrlFilteringRule"
+              }
+            }
+          }
+        }
+      },
+      "/urlFilteringRules/count": {
+        "get": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "Retrieves the count of URL Filtering rules based on the specified search criteria",
+          "operationId": "UrlFilteringRuleResource_getRulesCount",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "/urlFilteringRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "<p>Gets the URL Filtering Policy rule for the specified ID.</p>",
+          "operationId": "getRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the URL Filtering Policy rule.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/UrlFilteringRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "<p>Updates the URL Filtering Policy rule for the specified ID.</p><p>If you are using the Admin Rank feature, refer to <a href=\"/zia/about-admin-rank\" target=\"_blank\">About Admin Rank</a> to determine which value to provide for <code>rank</code> when adding a policy rule. If you are not using Admin Rank, the <code>rank</code> value must be 7.</p>",
+          "operationId": "updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the URL Filtering Policy rule.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The URL filering rule information.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/UrlFilteringRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/UrlFilteringRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "URL Filtering Policy"
+          ],
+          "description": "Deletes the URL Filtering Policy rule for the specified ID.",
+          "operationId": "deleteRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "The unique identifier for the URL Filtering Policy rule.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/timeWindows": {
+        "get": {
+          "tags": [
+            "Firewall Policies",
+            "URL Filtering Policy"
+          ],
+          "description": "<p>Gets a list of <a href=\"/zia/defining-time-intervals\" target=\"_blank\">time intervals</a> used for by the Firewall policy or the URL Filtering policy.</p>\n",
+          "operationId": "TimeWindowResource_getTimeWindows",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TimeWindow"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/timeWindows/lite": {
+        "get": {
+          "tags": [
+            "Firewall Policies",
+            "URL Filtering Policy"
+          ],
+          "description": "<p>Gets a name and ID dictionary of <a href=\"/zia/defining-time-intervals\" target=\"_blank\">time intervals</a> used by the Firewall policy or the URL Filtering policy.</p> \n",
+          "operationId": "TimeWindowResource_getTimeWindowSummary",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TimeWindow"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "UrlFilteringRule": {
+        "type": "object",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "URL Filtering Rule ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule Name"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of execution of rule with respect to other URL Filtering rules"
+          },
+          "protocols": {
+            "type": "array",
+            "description": "Protocol criteria",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SMRULEF_ZPA_BROKERS_RULE",
+                "ANY_RULE",
+                "TCP_RULE",
+                "UDP_RULE",
+                "DOHTTPS_RULE",
+                "TUNNELSSL_RULE",
+                "HTTP_PROXY",
+                "FOHTTP_RULE",
+                "FTP_RULE",
+                "HTTPS_RULE",
+                "HTTP_RULE",
+                "SSL_RULE",
+                "TUNNEL_RULE"
+              ]
+            }
+          },
+          "locations": {
+            "type": "array",
+            "description": "Name-ID pairs of locations for which rule must be applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of groups for which rule must be applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments for which rule must be applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users for which rule must be applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "urlCategories": {
+            "type": "array",
+            "description": "<p>List of URL categories for which rule is be applied.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OTHER_ADULT_MATERIAL",
+                "ADULT_THEMES",
+                "LINGERIE_BIKINI",
+                "NUDITY",
+                "PORNOGRAPHY",
+                "SEXUALITY",
+                "ADULT_SEX_EDUCATION",
+                "K_12_SEX_EDUCATION",
+                "SOCIAL_ADULT",
+                "OTHER_BUSINESS_AND_ECONOMY",
+                "CORPORATE_MARKETING",
+                "FINANCE",
+                "PROFESSIONAL_SERVICES",
+                "CLASSIFIEDS",
+                "TRADING_BROKARAGE_INSURANCE",
+                "CUSTOM_00",
+                "CUSTOM_01",
+                "CUSTOM_02",
+                "CUSTOM_03",
+                "CUSTOM_04",
+                "CUSTOM_05",
+                "CUSTOM_06",
+                "CUSTOM_07",
+                "CUSTOM_08",
+                "CUSTOM_09",
+                "CUSTOM_10",
+                "CUSTOM_11",
+                "CUSTOM_12",
+                "CUSTOM_13",
+                "CUSTOM_14",
+                "CUSTOM_15",
+                "CUSTOM_16",
+                "CUSTOM_17",
+                "CUSTOM_18",
+                "CUSTOM_19",
+                "CUSTOM_20",
+                "CUSTOM_21",
+                "CUSTOM_22",
+                "CUSTOM_23",
+                "CUSTOM_24",
+                "CUSTOM_25",
+                "CUSTOM_26",
+                "CUSTOM_27",
+                "CUSTOM_28",
+                "CUSTOM_29",
+                "CUSTOM_30",
+                "CUSTOM_31",
+                "CUSTOM_32",
+                "CUSTOM_33",
+                "CUSTOM_34",
+                "CUSTOM_35",
+                "CUSTOM_36",
+                "CUSTOM_37",
+                "CUSTOM_38",
+                "CUSTOM_39",
+                "CUSTOM_40",
+                "CUSTOM_41",
+                "CUSTOM_42",
+                "CUSTOM_43",
+                "CUSTOM_44",
+                "CUSTOM_45",
+                "CUSTOM_46",
+                "CUSTOM_47",
+                "CUSTOM_48",
+                "CUSTOM_49",
+                "CUSTOM_50",
+                "CUSTOM_51",
+                "CUSTOM_52",
+                "CUSTOM_53",
+                "CUSTOM_54",
+                "CUSTOM_55",
+                "CUSTOM_56",
+                "CUSTOM_57",
+                "CUSTOM_58",
+                "CUSTOM_59",
+                "CUSTOM_60",
+                "CUSTOM_61",
+                "CUSTOM_62",
+                "CUSTOM_63",
+                "CUSTOM_64",
+                "CUSTOM_65",
+                "CUSTOM_66",
+                "CUSTOM_67",
+                "CUSTOM_68",
+                "CUSTOM_69",
+                "CUSTOM_70",
+                "CUSTOM_71",
+                "CUSTOM_72",
+                "CUSTOM_73",
+                "CUSTOM_74",
+                "CUSTOM_75",
+                "CUSTOM_76",
+                "CUSTOM_77",
+                "CUSTOM_78",
+                "CUSTOM_79",
+                "CUSTOM_80",
+                "CUSTOM_81",
+                "CUSTOM_82",
+                "CUSTOM_83",
+                "CUSTOM_84",
+                "CUSTOM_85",
+                "CUSTOM_86",
+                "CUSTOM_87",
+                "CUSTOM_88",
+                "CUSTOM_89",
+                "CUSTOM_90",
+                "CUSTOM_91",
+                "CUSTOM_92",
+                "CUSTOM_93",
+                "CUSTOM_94",
+                "CUSTOM_95",
+                "CUSTOM_96",
+                "CUSTOM_97",
+                "CUSTOM_98",
+                "CUSTOM_99",
+                "CUSTOM_100",
+                "CUSTOM_101",
+                "CUSTOM_102",
+                "CUSTOM_103",
+                "CUSTOM_104",
+                "CUSTOM_105",
+                "CUSTOM_106",
+                "CUSTOM_107",
+                "CUSTOM_108",
+                "CUSTOM_109",
+                "CUSTOM_110",
+                "CUSTOM_111",
+                "CUSTOM_112",
+                "CUSTOM_113",
+                "CUSTOM_114",
+                "CUSTOM_115",
+                "CUSTOM_116",
+                "CUSTOM_117",
+                "CUSTOM_118",
+                "CUSTOM_119",
+                "CUSTOM_120",
+                "CUSTOM_121",
+                "CUSTOM_122",
+                "CUSTOM_123",
+                "CUSTOM_124",
+                "CUSTOM_125",
+                "CUSTOM_126",
+                "CUSTOM_127",
+                "CUSTOM_128",
+                "CUSTOM_129",
+                "CUSTOM_130",
+                "CUSTOM_131",
+                "CUSTOM_132",
+                "CUSTOM_133",
+                "CUSTOM_134",
+                "CUSTOM_135",
+                "CUSTOM_136",
+                "CUSTOM_137",
+                "CUSTOM_138",
+                "CUSTOM_139",
+                "CUSTOM_140",
+                "CUSTOM_141",
+                "CUSTOM_142",
+                "CUSTOM_143",
+                "CUSTOM_144",
+                "CUSTOM_145",
+                "CUSTOM_146",
+                "CUSTOM_147",
+                "CUSTOM_148",
+                "CUSTOM_149",
+                "CUSTOM_150",
+                "CUSTOM_151",
+                "CUSTOM_152",
+                "CUSTOM_153",
+                "CUSTOM_154",
+                "CUSTOM_155",
+                "CUSTOM_156",
+                "CUSTOM_157",
+                "CUSTOM_158",
+                "CUSTOM_159",
+                "CUSTOM_160",
+                "CUSTOM_161",
+                "CUSTOM_162",
+                "CUSTOM_163",
+                "CUSTOM_164",
+                "CUSTOM_165",
+                "CUSTOM_166",
+                "CUSTOM_167",
+                "CUSTOM_168",
+                "CUSTOM_169",
+                "CUSTOM_170",
+                "CUSTOM_171",
+                "CUSTOM_172",
+                "CUSTOM_173",
+                "CUSTOM_174",
+                "CUSTOM_175",
+                "CUSTOM_176",
+                "CUSTOM_177",
+                "CUSTOM_178",
+                "CUSTOM_179",
+                "CUSTOM_180",
+                "CUSTOM_181",
+                "CUSTOM_182",
+                "CUSTOM_183",
+                "CUSTOM_184",
+                "CUSTOM_185",
+                "CUSTOM_186",
+                "CUSTOM_187",
+                "CUSTOM_188",
+                "CUSTOM_189",
+                "CUSTOM_190",
+                "CUSTOM_191",
+                "CUSTOM_192",
+                "CUSTOM_193",
+                "CUSTOM_194",
+                "CUSTOM_195",
+                "CUSTOM_196",
+                "CUSTOM_197",
+                "CUSTOM_198",
+                "CUSTOM_199",
+                "CUSTOM_200",
+                "CUSTOM_201",
+                "CUSTOM_202",
+                "CUSTOM_203",
+                "CUSTOM_204",
+                "CUSTOM_205",
+                "CUSTOM_206",
+                "CUSTOM_207",
+                "CUSTOM_208",
+                "CUSTOM_209",
+                "CUSTOM_210",
+                "CUSTOM_211",
+                "CUSTOM_212",
+                "CUSTOM_213",
+                "CUSTOM_214",
+                "CUSTOM_215",
+                "CUSTOM_216",
+                "CUSTOM_217",
+                "CUSTOM_218",
+                "CUSTOM_219",
+                "CUSTOM_220",
+                "CUSTOM_221",
+                "CUSTOM_222",
+                "CUSTOM_223",
+                "CUSTOM_224",
+                "CUSTOM_225",
+                "CUSTOM_226",
+                "CUSTOM_227",
+                "CUSTOM_228",
+                "CUSTOM_229",
+                "CUSTOM_230",
+                "CUSTOM_231",
+                "CUSTOM_232",
+                "CUSTOM_233",
+                "CUSTOM_234",
+                "CUSTOM_235",
+                "CUSTOM_236",
+                "CUSTOM_237",
+                "CUSTOM_238",
+                "CUSTOM_239",
+                "CUSTOM_240",
+                "CUSTOM_241",
+                "CUSTOM_242",
+                "CUSTOM_243",
+                "CUSTOM_244",
+                "CUSTOM_245",
+                "CUSTOM_246",
+                "CUSTOM_247",
+                "CUSTOM_248",
+                "CUSTOM_249",
+                "CUSTOM_250",
+                "CUSTOM_251",
+                "CUSTOM_252",
+                "CUSTOM_253",
+                "CUSTOM_254",
+                "CUSTOM_255",
+                "CUSTOM_256",
+                "OTHER_DRUGS",
+                "MARIJUANA",
+                "OTHER_EDUCATION",
+                "CONTINUING_EDUCATION_COLLEGES",
+                "HISTORY",
+                "K_12",
+                "REFERENCE_SITES",
+                "SCIENCE_AND_TECHNOLOGY",
+                "OTHER_ENTERTAINMENT_AND_RECREATION",
+                "ENTERTAINMENT",
+                "TELEVISION_AND_MOVIES",
+                "MUSIC",
+                "STREAMING_MEDIA",
+                "RADIO_STATIONS",
+                "GAMBLING",
+                "OTHER_GAMES",
+                "SOCIAL_NETWORKING_GAMES",
+                "OTHER_GOVERNMENT_AND_POLITICS",
+                "GOVERNMENT",
+                "POLITICS",
+                "HEALTH",
+                "OTHER_ILLEGAL_OR_QUESTIONABLE",
+                "COPYRIGHT_INFRINGEMENT",
+                "COMPUTER_HACKING",
+                "QUESTIONABLE",
+                "PROFANITY",
+                "MATURE_HUMOR",
+                "ANONYMIZER",
+                "OTHER_INFORMATION_TECHNOLOGY",
+                "TRANSLATORS",
+                "IMAGE_HOST",
+                "FILE_HOST",
+                "SHAREWARE_DOWNLOAD",
+                "WEB_BANNERS",
+                "WEB_HOST",
+                "WEB_SEARCH",
+                "PORTALS",
+                "SAFE_SEARCH_ENGINE",
+                "CDN",
+                "OSS_UPDATES",
+                "DNS_OVER_HTTPS",
+                "OTHER_INTERNET_COMMUNICATION",
+                "INTERNET_SERVICES",
+                "DISCUSSION_FORUMS",
+                "ONLINE_CHAT",
+                "EMAIL_HOST",
+                "BLOG",
+                "P2P_COMMUNICATION",
+                "REMOTE_ACCESS",
+                "WEB_CONFERENCING",
+                "ZSPROXY_IPS",
+                "JOB_SEARCH",
+                "MILITANCY_HATE_AND_EXTREMISM",
+                "OTHER_MISCELLANEOUS",
+                "MISCELLANEOUS_OR_UNKNOWN",
+                "NEWLY_REG_DOMAINS",
+                "NON_CATEGORIZABLE",
+                "NEWS_AND_MEDIA",
+                "OTHER_RELIGION",
+                "TRADITIONAL_RELIGION",
+                "CULT",
+                "ALT_NEW_AGE",
+                "OTHER_SECURITY",
+                "ADWARE_OR_SPYWARE",
+                "ENCR_WEB_CONTENT",
+                "MALICIOUS_TLD",
+                "OTHER_SHOPPING_AND_AUCTIONS",
+                "SPECIALIZED_SHOPPING",
+                "REAL_ESTATE",
+                "ONLINE_AUCTIONS",
+                "OTHER_SOCIAL_AND_FAMILY_ISSUES",
+                "SOCIAL_ISSUES",
+                "FAMILY_ISSUES",
+                "OTHER_SOCIETY_AND_LIFESTYLE",
+                "ART_CULTURE",
+                "ALTERNATE_LIFESTYLE",
+                "HOBBIES_AND_LEISURE",
+                "DINING_AND_RESTAURANT",
+                "ALCOHOL_TOBACCO",
+                "SOCIAL_NETWORKING",
+                "SPECIAL_INTERESTS",
+                "SPORTS",
+                "TASTELESS",
+                "TRAVEL",
+                "USER_DEFINED",
+                "VEHICLES",
+                "VIOLENCE",
+                "WEAPONS_AND_BOMBS"
+              ]
+            }
+          },
+          "urlCategories2": {
+            "type": "array",
+            "description": "<p>List of URL categories for which rule is applied.</p><p><b>Note</b>: The urlCategories and urlCategories2 parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected categories in both the URL Categories fields. To learn more, see <a href=\"/zia/configuring-url-filtering-policy\" target=\"_blank\">Configuring the URL Filtering Policy</a>.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "OTHER_ADULT_MATERIAL",
+                "ADULT_THEMES",
+                "LINGERIE_BIKINI",
+                "NUDITY",
+                "PORNOGRAPHY",
+                "SEXUALITY",
+                "ADULT_SEX_EDUCATION",
+                "K_12_SEX_EDUCATION",
+                "SOCIAL_ADULT",
+                "OTHER_BUSINESS_AND_ECONOMY",
+                "CORPORATE_MARKETING",
+                "FINANCE",
+                "PROFESSIONAL_SERVICES",
+                "CLASSIFIEDS",
+                "TRADING_BROKARAGE_INSURANCE",
+                "CUSTOM_00",
+                "CUSTOM_01",
+                "CUSTOM_02",
+                "CUSTOM_03",
+                "CUSTOM_04",
+                "CUSTOM_05",
+                "CUSTOM_06",
+                "CUSTOM_07",
+                "CUSTOM_08",
+                "CUSTOM_09",
+                "CUSTOM_10",
+                "CUSTOM_11",
+                "CUSTOM_12",
+                "CUSTOM_13",
+                "CUSTOM_14",
+                "CUSTOM_15",
+                "CUSTOM_16",
+                "CUSTOM_17",
+                "CUSTOM_18",
+                "CUSTOM_19",
+                "CUSTOM_20",
+                "CUSTOM_21",
+                "CUSTOM_22",
+                "CUSTOM_23",
+                "CUSTOM_24",
+                "CUSTOM_25",
+                "CUSTOM_26",
+                "CUSTOM_27",
+                "CUSTOM_28",
+                "CUSTOM_29",
+                "CUSTOM_30",
+                "CUSTOM_31",
+                "CUSTOM_32",
+                "CUSTOM_33",
+                "CUSTOM_34",
+                "CUSTOM_35",
+                "CUSTOM_36",
+                "CUSTOM_37",
+                "CUSTOM_38",
+                "CUSTOM_39",
+                "CUSTOM_40",
+                "CUSTOM_41",
+                "CUSTOM_42",
+                "CUSTOM_43",
+                "CUSTOM_44",
+                "CUSTOM_45",
+                "CUSTOM_46",
+                "CUSTOM_47",
+                "CUSTOM_48",
+                "CUSTOM_49",
+                "CUSTOM_50",
+                "CUSTOM_51",
+                "CUSTOM_52",
+                "CUSTOM_53",
+                "CUSTOM_54",
+                "CUSTOM_55",
+                "CUSTOM_56",
+                "CUSTOM_57",
+                "CUSTOM_58",
+                "CUSTOM_59",
+                "CUSTOM_60",
+                "CUSTOM_61",
+                "CUSTOM_62",
+                "CUSTOM_63",
+                "CUSTOM_64",
+                "CUSTOM_65",
+                "CUSTOM_66",
+                "CUSTOM_67",
+                "CUSTOM_68",
+                "CUSTOM_69",
+                "CUSTOM_70",
+                "CUSTOM_71",
+                "CUSTOM_72",
+                "CUSTOM_73",
+                "CUSTOM_74",
+                "CUSTOM_75",
+                "CUSTOM_76",
+                "CUSTOM_77",
+                "CUSTOM_78",
+                "CUSTOM_79",
+                "CUSTOM_80",
+                "CUSTOM_81",
+                "CUSTOM_82",
+                "CUSTOM_83",
+                "CUSTOM_84",
+                "CUSTOM_85",
+                "CUSTOM_86",
+                "CUSTOM_87",
+                "CUSTOM_88",
+                "CUSTOM_89",
+                "CUSTOM_90",
+                "CUSTOM_91",
+                "CUSTOM_92",
+                "CUSTOM_93",
+                "CUSTOM_94",
+                "CUSTOM_95",
+                "CUSTOM_96",
+                "CUSTOM_97",
+                "CUSTOM_98",
+                "CUSTOM_99",
+                "CUSTOM_100",
+                "CUSTOM_101",
+                "CUSTOM_102",
+                "CUSTOM_103",
+                "CUSTOM_104",
+                "CUSTOM_105",
+                "CUSTOM_106",
+                "CUSTOM_107",
+                "CUSTOM_108",
+                "CUSTOM_109",
+                "CUSTOM_110",
+                "CUSTOM_111",
+                "CUSTOM_112",
+                "CUSTOM_113",
+                "CUSTOM_114",
+                "CUSTOM_115",
+                "CUSTOM_116",
+                "CUSTOM_117",
+                "CUSTOM_118",
+                "CUSTOM_119",
+                "CUSTOM_120",
+                "CUSTOM_121",
+                "CUSTOM_122",
+                "CUSTOM_123",
+                "CUSTOM_124",
+                "CUSTOM_125",
+                "CUSTOM_126",
+                "CUSTOM_127",
+                "CUSTOM_128",
+                "CUSTOM_129",
+                "CUSTOM_130",
+                "CUSTOM_131",
+                "CUSTOM_132",
+                "CUSTOM_133",
+                "CUSTOM_134",
+                "CUSTOM_135",
+                "CUSTOM_136",
+                "CUSTOM_137",
+                "CUSTOM_138",
+                "CUSTOM_139",
+                "CUSTOM_140",
+                "CUSTOM_141",
+                "CUSTOM_142",
+                "CUSTOM_143",
+                "CUSTOM_144",
+                "CUSTOM_145",
+                "CUSTOM_146",
+                "CUSTOM_147",
+                "CUSTOM_148",
+                "CUSTOM_149",
+                "CUSTOM_150",
+                "CUSTOM_151",
+                "CUSTOM_152",
+                "CUSTOM_153",
+                "CUSTOM_154",
+                "CUSTOM_155",
+                "CUSTOM_156",
+                "CUSTOM_157",
+                "CUSTOM_158",
+                "CUSTOM_159",
+                "CUSTOM_160",
+                "CUSTOM_161",
+                "CUSTOM_162",
+                "CUSTOM_163",
+                "CUSTOM_164",
+                "CUSTOM_165",
+                "CUSTOM_166",
+                "CUSTOM_167",
+                "CUSTOM_168",
+                "CUSTOM_169",
+                "CUSTOM_170",
+                "CUSTOM_171",
+                "CUSTOM_172",
+                "CUSTOM_173",
+                "CUSTOM_174",
+                "CUSTOM_175",
+                "CUSTOM_176",
+                "CUSTOM_177",
+                "CUSTOM_178",
+                "CUSTOM_179",
+                "CUSTOM_180",
+                "CUSTOM_181",
+                "CUSTOM_182",
+                "CUSTOM_183",
+                "CUSTOM_184",
+                "CUSTOM_185",
+                "CUSTOM_186",
+                "CUSTOM_187",
+                "CUSTOM_188",
+                "CUSTOM_189",
+                "CUSTOM_190",
+                "CUSTOM_191",
+                "CUSTOM_192",
+                "CUSTOM_193",
+                "CUSTOM_194",
+                "CUSTOM_195",
+                "CUSTOM_196",
+                "CUSTOM_197",
+                "CUSTOM_198",
+                "CUSTOM_199",
+                "CUSTOM_200",
+                "CUSTOM_201",
+                "CUSTOM_202",
+                "CUSTOM_203",
+                "CUSTOM_204",
+                "CUSTOM_205",
+                "CUSTOM_206",
+                "CUSTOM_207",
+                "CUSTOM_208",
+                "CUSTOM_209",
+                "CUSTOM_210",
+                "CUSTOM_211",
+                "CUSTOM_212",
+                "CUSTOM_213",
+                "CUSTOM_214",
+                "CUSTOM_215",
+                "CUSTOM_216",
+                "CUSTOM_217",
+                "CUSTOM_218",
+                "CUSTOM_219",
+                "CUSTOM_220",
+                "CUSTOM_221",
+                "CUSTOM_222",
+                "CUSTOM_223",
+                "CUSTOM_224",
+                "CUSTOM_225",
+                "CUSTOM_226",
+                "CUSTOM_227",
+                "CUSTOM_228",
+                "CUSTOM_229",
+                "CUSTOM_230",
+                "CUSTOM_231",
+                "CUSTOM_232",
+                "CUSTOM_233",
+                "CUSTOM_234",
+                "CUSTOM_235",
+                "CUSTOM_236",
+                "CUSTOM_237",
+                "CUSTOM_238",
+                "CUSTOM_239",
+                "CUSTOM_240",
+                "CUSTOM_241",
+                "CUSTOM_242",
+                "CUSTOM_243",
+                "CUSTOM_244",
+                "CUSTOM_245",
+                "CUSTOM_246",
+                "CUSTOM_247",
+                "CUSTOM_248",
+                "CUSTOM_249",
+                "CUSTOM_250",
+                "CUSTOM_251",
+                "CUSTOM_252",
+                "CUSTOM_253",
+                "CUSTOM_254",
+                "CUSTOM_255",
+                "CUSTOM_256",
+                "OTHER_DRUGS",
+                "MARIJUANA",
+                "OTHER_EDUCATION",
+                "CONTINUING_EDUCATION_COLLEGES",
+                "HISTORY",
+                "K_12",
+                "REFERENCE_SITES",
+                "SCIENCE_AND_TECHNOLOGY",
+                "OTHER_ENTERTAINMENT_AND_RECREATION",
+                "ENTERTAINMENT",
+                "TELEVISION_AND_MOVIES",
+                "MUSIC",
+                "STREAMING_MEDIA",
+                "RADIO_STATIONS",
+                "GAMBLING",
+                "OTHER_GAMES",
+                "SOCIAL_NETWORKING_GAMES",
+                "OTHER_GOVERNMENT_AND_POLITICS",
+                "GOVERNMENT",
+                "POLITICS",
+                "HEALTH",
+                "OTHER_ILLEGAL_OR_QUESTIONABLE",
+                "COPYRIGHT_INFRINGEMENT",
+                "COMPUTER_HACKING",
+                "QUESTIONABLE",
+                "PROFANITY",
+                "MATURE_HUMOR",
+                "ANONYMIZER",
+                "OTHER_INFORMATION_TECHNOLOGY",
+                "TRANSLATORS",
+                "IMAGE_HOST",
+                "FILE_HOST",
+                "SHAREWARE_DOWNLOAD",
+                "WEB_BANNERS",
+                "WEB_HOST",
+                "WEB_SEARCH",
+                "PORTALS",
+                "SAFE_SEARCH_ENGINE",
+                "CDN",
+                "OSS_UPDATES",
+                "DNS_OVER_HTTPS",
+                "OTHER_INTERNET_COMMUNICATION",
+                "INTERNET_SERVICES",
+                "DISCUSSION_FORUMS",
+                "ONLINE_CHAT",
+                "EMAIL_HOST",
+                "BLOG",
+                "P2P_COMMUNICATION",
+                "REMOTE_ACCESS",
+                "WEB_CONFERENCING",
+                "ZSPROXY_IPS",
+                "JOB_SEARCH",
+                "MILITANCY_HATE_AND_EXTREMISM",
+                "OTHER_MISCELLANEOUS",
+                "MISCELLANEOUS_OR_UNKNOWN",
+                "NEWLY_REG_DOMAINS",
+                "NON_CATEGORIZABLE",
+                "NEWS_AND_MEDIA",
+                "OTHER_RELIGION",
+                "TRADITIONAL_RELIGION",
+                "CULT",
+                "ALT_NEW_AGE",
+                "OTHER_SECURITY",
+                "ADWARE_OR_SPYWARE",
+                "ENCR_WEB_CONTENT",
+                "MALICIOUS_TLD",
+                "OTHER_SHOPPING_AND_AUCTIONS",
+                "SPECIALIZED_SHOPPING",
+                "REAL_ESTATE",
+                "ONLINE_AUCTIONS",
+                "OTHER_SOCIAL_AND_FAMILY_ISSUES",
+                "SOCIAL_ISSUES",
+                "FAMILY_ISSUES",
+                "OTHER_SOCIETY_AND_LIFESTYLE",
+                "ART_CULTURE",
+                "ALTERNATE_LIFESTYLE",
+                "HOBBIES_AND_LEISURE",
+                "DINING_AND_RESTAURANT",
+                "ALCOHOL_TOBACCO",
+                "SOCIAL_NETWORKING",
+                "SPECIAL_INTERESTS",
+                "SPORTS",
+                "TASTELESS",
+                "TRAVEL",
+                "USER_DEFINED",
+                "VEHICLES",
+                "VIOLENCE",
+                "WEAPONS_AND_BOMBS"
+              ]
+            }
+          },
+          "state": {
+            "type": "string",
+            "description": "Rule State",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "Name-ID pairs of time interval during which rule must be enforced.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "workloadGroups": {
+            "type": "array",
+            "description": "The list of preconfigured workload groups to which the policy must be applied. To learn more, see <a href=\"/zia/about-workload-groups\" target=\"_blank\">About Workload Groups</a> and <a href=\" /zia/configuring-workload-groups\" target=\"_blank\">Configuring Workload Groups</a>.",
+            "items": {
+              "$ref": "#/definitions/WorkloadGroup"
+            }
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank of the admin who creates this rule"
+          },
+          "requestMethods": {
+            "type": "array",
+            "description": "Request method for which the rule must be applied. If not set, rule is applied to all methods",
+            "items": {
+              "type": "string",
+              "enum": [
+                "OPTIONS",
+                "GET",
+                "HEAD",
+                "POST",
+                "PUT",
+                "DELETE",
+                "TRACE",
+                "CONNECT",
+                "OTHER"
+              ]
+            }
+          },
+          "endUserNotificationUrl": {
+            "type": "string",
+            "description": "URL of end user notification page to be displayed when the rule is matched. Not applicable if either 'overrideUsers' or 'overrideGroups' is specified."
+          },
+          "overrideUsers": {
+            "type": "array",
+            "description": "Name-ID pairs of users for which this rule can be overridden. Applicable only if blockOverride is set to 'true', action is 'BLOCK' and overrideGroups is not set.If this overrideUsers is not set, 'BLOCK' action can be overridden for any user.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "overrideGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of groups for which this rule can be overridden. Applicable only if blockOverride is set to 'true' and action is 'BLOCK'. If this overrideGroups is not set, 'BLOCK' action can be overridden for any group.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "blockOverride": {
+            "type": "boolean",
+            "description": "When set to true, a 'BLOCK' action triggered by the rule could be overridden. If true and both overrideGroup and overrideUsers are not set, the BLOCK triggered by this rule could be overridden for any users. If blockOverride is not set, 'BLOCK' action cannot be overridden.",
+            "default": false
+          },
+          "timeQuota": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Time quota in minutes, after which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable."
+          },
+          "sizeQuota": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Size quota in KB beyond which the URL Filtering rule is applied. If not set, no quota is enforced. If a policy rule action is set to 'BLOCK', this field is not applicable."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the URL Filtering rule"
+          },
+          "locationGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of the location groups to which the rule must be applied.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "The URL Filtering rule's label. Rule labels allow you to logically group your organization's policy rules. Policy rules that are not associated with a rule label are grouped under the Untagged label.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "validityStartTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "If enforceTimeValidity is set to true, the URL Filtering rule is valid starting on this date and time."
+          },
+          "validityEndTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "If enforceTimeValidity is set to true, the URL Filtering rule ceases to be valid on this end date and time."
+          },
+          "validityTimeZoneId": {
+            "type": "string",
+            "description": "If enforceTimeValidity is set to true, the URL Filtering rule date and time is valid based on this time zone ID.  "
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "When the rule was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Who modified the rule last",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "enforceTimeValidity": {
+            "type": "boolean",
+            "description": "Enforce a set a validity time period for the URL Filtering rule. To learn more, see <a href=\"/zia/configuring-url-filtering-policy\" target=\"_blank\">Configuring the URL Filtering Policy</a>."
+          },
+          "devices": {
+            "type": "array",
+            "description": "<p>Name-ID pairs of devices for which rule must be applied. Specifies devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "<p>This field is applicable for devices that are managed using Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "<p>List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your <a href=\"/client-connector/adding-zia-posture-profiles\" target=\"_blank\">posture configurations</a> in the Zscaler Client Connector Portal. If no value is set, this field  is ignored during the policy evaluation.</p>",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "groups2": {
+            "type": "array",
+            "description": "<p>Name-ID pairs of groups for which rule is applied.<p><p><b>Note</b>: The <b>groups</b> and <b>groups2</b> parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected groups in both the group fields. To learn more, see <a href=\"/zia/configuring-url-filtering-policy\" target=\"_blank\">Configuring the URL Filtering Policy</a>.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "groups3": {
+            "type": "array",
+            "description": "<p>Name-ID pairs of groups for which rule is applied.<p><p><b>Note</b>: The <b>groups</b> and <b>groups3</b> parameters are connected with a logical <code>AND</code> operator so that the URL Filtering policy rules are triggered when it matches the selected groups in both the group fields. To learn more, see <a href=\"/zia/configuring-url-filtering-policy\" target=\"_blank\">Configuring the URL Filtering Policy</a>.</p>",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "usersAndGroupsSet": {
+            "type": "boolean",
+            "description": "Specifies whether logical AND operation is performed on the selected users and groups"
+          },
+          "groupsAndDepartmentsSet": {
+            "type": "boolean",
+            "description": "Specifies whether logical AND operation is performed on the selected departments and groups"
+          },
+          "action": {
+            "type": "string",
+            "description": "<p>Action taken when traffic matches rule criteria.</p><p><b>Note</b>: The ISOLATE action is available only if Cloud Browser Isolation is enabled for your organization. To learn more, see <a href=\"/zia/configuring-url-filtering-policy#Action\" target=\"_blank\">Configuring the URL Filtering Policy</a>.</p>",
+            "enum": [
+              "BLOCK",
+              "CAUTION",
+              "ALLOW",
+              "ISOLATE",
+              "ICAP_RESPONSE"
+            ]
+          },
+          "cbiProfile": {
+            "description": "<p>The cloud browser isolation profile to which the ISOLATE action is applied in the <a href=\"/zia/configuring-url-filtering-policy#Action\" target=\"_blank\">URL Filtering Policy</a> rules.</p><p><b>Note</b>: This parameter is required for the ISOLATE action and is not applicable to other actions.</p>",
+            "allOf": [
+              {
+                "$ref": "#/definitions/BrowserIsolationProfile"
+              }
+            ]
+          },
+          "ciparule": {
+            "type": "boolean",
+            "description": "If set to true, the CIPA Compliance rule is enabled",
+            "default": false
+          }
+        },
+        "description": "URL Filtering Rule"
+      },
+      "TimeWindow": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string"
+          },
+          "startTime": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "endTime": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "dayOfWeek": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "NONE",
+                "EVERYDAY",
+                "SUN",
+                "MON",
+                "TUE",
+                "WED",
+                "THU",
+                "FRI",
+                "SAT"
+              ]
+            }
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      },
+      "WorkloadGroup": {
+        "type": "object",
+        "description": "Workload group information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "A unique identifier assigned to the workload group"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the workload group"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information of the workload group"
+          },
+          "expressionJson": {
+            "description": "The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
+            "$ref": "#/definitions/WorkloadTagExpression"
+          },
+          "expression": {
+            "type": "string",
+            "description": "The workload group expression containing tag types, tags, and their relationships."
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the workload group was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Information about the user that last modified the workload group",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "WorkloadTagExpression": {
+        "type": "object",
+        "properties": {
+          "expressionContainers": {
+            "type": "array",
+            "description": "Contains one or more tag types (and associated tags) combined using logical operators within a workload group",
+            "items": {
+              "$ref": "#/definitions/ExpressionContainer"
+            }
+          }
+        }
+      },
+      "ExpressionContainer": {
+        "type": "object",
+        "description": "One or more tag types (and associated tags) combined using logical operators within a workload group",
+        "properties": {
+          "tagType": {
+            "type": "string",
+            "description": "The tag type selected from a predefined list",
+            "enum": [
+              "ANY",
+              "VPC",
+              "SUBNET",
+              "VM",
+              "ENI",
+              "ATTR"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "description": "The operator (either AND or OR) used to create logical relationships among tag types",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          },
+          "tagContainer": {
+            "description": "Contains one or more tags and the logical operator used to combine the tags within a tag type",
+            "$ref": "#/definitions/TagContainer"
+          }
+        }
+      },
+      "TagContainer": {
+        "type": "object",
+        "description": "One or more tags combined using logical operators within a tag type",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "description": "<p>One or more tags, each consisting of a key-value pair, selected within a tag type. If multiple tags are present within a tag type, they are combined using a logical operator.</p><p><b>Note</b>: A maximum of 8 tags can be added to a workload group, irrespective of the number of tag types present.</p>",
+            "items": {
+              "$ref": "#/definitions/Tag"
+            }
+          },
+          "operator": {
+            "type": "string",
+            "description": "The logical operator (either AND or OR) used to combine the tags within a tag type",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "description": "The list of tags (key-value pairs) selected within a tag type",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The <i>key</i> component present in the key-value pair contained in a tag"
+          },
+          "value": {
+            "type": "string",
+            "description": "The <i>value</i> component present in the key-value pair contained in a tag"
+          }
+        }
+      },
+      "BrowserIsolationProfile": {
+        "type": "object",
+        "description": "<p>Information about browser isolation profile. To learn more, see <a href=\"/isolation/what-isolation\" target=\"_blank\">What Is Isolation?</a> and <a href=\"/isolation/creating-zia-isolation-profile-isolation\" target=\"_blank\">Creating Isolation Profiles for ZIA</a>.</p>",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "<p>The universally unique identifier (UUID) for the browser isolation profile</p>"
+          },
+          "name": {
+            "type": "string",
+            "description": "<p>Name of the browser isolation profile</p>"
+          },
+          "url": {
+            "type": "string",
+            "description": "<p>The browser isolation profile URL</p>"
+          },
+          "defaultProfile": {
+            "type": "boolean",
+            "description": "<p>(Optional) Indicates whether this is a default browser isolation profile. Zscaler sets this field.</p>  "
+          }
+        }
+      }
+    }
+  }
+}

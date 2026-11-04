@@ -1,0 +1,699 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Admin Single Sign-On Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/admin-single-sign-management",
+    "node": "1532086",
+    "revision": "3221084",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Admin%20Single%20Sign-On%20Management_6.json?VersionId=k2zbmY0NjxQpOq6iMjlrkcIetV4YFrxV",
+    "updated": "2026-07-31",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Zscaler Private Access API Portal",
+      "description": "To access detailed ZPA API documentation, including references and use cases, refer to the [Zscaler Help Portal](/zpa/about-zpa-api).",
+      "version": "1.0"
+    },
+    "extensions": {
+      "x-original-swagger-version": "2.0"
+    },
+    "tags": [
+      {
+        "name": "Admin Single Sign-On Management"
+      }
+    ],
+    "paths": {
+      "/mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes": {
+        "post": {
+          "tags": [
+            "Admin Single Sign-On Management"
+          ],
+          "description": "Adds a user code for the specified customer.",
+          "operationId": "verifyUserCodes",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "associationType",
+              "in": "path",
+              "description": "Specifies the provisioning key type for App Connectors, ZPA Private Service Edges, or Private Cloud Controllers. The supported values are CONNECTOR_GRP, NP_ASSISTANT_GRP, SITE_CONTROLLER_GRP, and SERVICE_EDGE_GRP.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserCodeVerificationRequestDto"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserCodeVerificationResponseDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/mgmtconfig/v1/admin/customers/{customerId}/{associationType}/usercodes/status": {
+        "post": {
+          "tags": [
+            "Admin Single Sign-On Management"
+          ],
+          "description": "Adds a provisioning key for the specified customer.",
+          "operationId": "getUserCodeStatus",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "associationType",
+              "in": "path",
+              "description": "Specifies the provisioning key type for App Connectors, ZPA Private Service Edges, or Private Cloud Controller. The supported values are CONNECTOR_GRP, NP_ASSISTANT_GRP, SITE_CONTROLLER_GRP, and SERVICE_EDGE_GRP.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/UserStatusDtoString"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/UserStatusDtoUserCodeDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/mgmtconfig/v1/admin/customers/{customerId}/v2/ssoLoginOptions": {
+        "get": {
+          "tags": [
+            "Admin Single Sign-On Management"
+          ],
+          "description": "Gets the single sign-on (SSO) login configuration details for the specified customer.",
+          "operationId": "getSSOLogin_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "description": "The ZPA tenant ID of the customer.",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SSOLoginResource"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin Single Sign-On Management"
+          ],
+          "description": "Updates the SSO login configuration details for the specified customer.",
+          "operationId": "updateSSOLogin_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "description": "The ZPA tenant ID of the customer.",
+              "in": "path",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SSOLoginResource"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "204": {
+              "description": "No Content"
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "UserCodeVerificationRequestDto": {
+          "required": [
+            "componentGroupId",
+            "zcomponentId"
+          ],
+          "properties": {
+            "componentGroupId": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "configCloudName": {
+              "type": "string"
+            },
+            "enrollmentServer": {
+              "type": "string"
+            },
+            "nonceAssociationType": {
+              "type": "string",
+              "enum": [
+                "ASSISTANT_GRP",
+                "NP_ASSISTANT_GRP",
+                "BROKER_GRP",
+                "ZNF_GRP",
+                "EDGE_CONNECTOR_GRP",
+                "MACHINE_GRP",
+                "BRANCH_CONNECTOR_GRP",
+                "SITE_CONTROLLER_GRP",
+                "ZVPN_GRP",
+                "EXPORTER_GRP"
+              ]
+            },
+            "tenantId": {
+              "type": "integer",
+              "format": "int64"
+            },
+            "userCodes": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "zcomponentId": {
+              "type": "integer",
+              "format": "int64"
+            }
+          }
+        },
+        "UserCodeVerificationResponseDto": null,
+        "ZPathAPIError": {
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "The reason for the cause of the error status code. To learn more, see <a href=\"/zpa/api-response-codes-and-error-messages\" target= _blank>API Response Codes and Error Messages</a>."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the error status code."
+            },
+            "params": {
+              "type": "array",
+              "description": "The parameters that were sent in the request body.",
+              "items": {
+                "type": "object"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "description": "The client server address or domain name."
+            }
+          }
+        },
+        "UserStatusDtoString": {
+          "properties": {
+            "userCodes": {
+              "type": "array",
+              "description": "The status of the user code.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "UserStatusDtoUserCodeDto": {
+          "properties": {
+            "userCodes": {
+              "type": "array",
+              "description": "The user code of the user.",
+              "items": {
+                "$ref": "#/components/schemas/UserCodeDto"
+              }
+            }
+          }
+        },
+        "SSOLoginResource": {
+          "required": [
+            "ssologinonly"
+          ],
+          "properties": {
+            "ssologinonly": {
+              "type": "boolean"
+            }
+          }
+        },
+        "UserCodeDto": null
+      }
+    }
+  }
+}

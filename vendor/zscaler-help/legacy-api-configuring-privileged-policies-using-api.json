@@ -1,0 +1,1874 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Privileged Policies Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-privileged-policies-using-api",
+    "node": "1485911",
+    "revision": "3160727",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) Privileged Remote Access (PRA) policies using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "To get the policySetId by policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the policyType, the value for differentiating the policy types, in the request endpoint. The supported values are:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 0
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 0
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 0
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 0
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 0
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 0
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 0
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 0
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 0
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 0
+    },
+    {
+      "text": "To get a privileged credential policy set ID, provide the CREDENTIAL_POLICY policy type in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/CREDENTIAL_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"73186051597800563\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1672160223\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"73186051597795329\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Credential_Policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Credential policies.\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"8\",",
+      "depth": 0
+    },
+    {
+      "item": "\"sorted\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "To get a privileged capabilities policy set ID, provide the CAPABILITIES_POLICY policy type in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/CAPABILITIES_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303026842\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1670367805\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303026835\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Capabilities_Policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Capabilities Policies\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"7\",",
+      "depth": 0
+    },
+    {
+      "item": "\"sorted\":true",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "To get a privileged portals policy set ID, provide the PRIVILEGED_PORTAL_POLICY policy type in the request endpoint. For example:"
+    },
+    {
+      "text": "/mgmtconfig/v1/admin/customers/144118148382064640/policySet/policyType/PRIVILEGED_PORTAL_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"144118148382065763\", \"modifiedTime\": \"1737667616\", \"creationTime\": \"1737667616\", \"modifiedBy\": \"144118148382065745\", \"name\": \"Privilege_Portal_Policy\", \"enabled\": true, \"description\": \"Privilege Portal Policies\", \"policyType\": \"11\", \"sorted\": true }",
+      "depth": 0
+    },
+    {
+      "text": "To get the privileged portals policy set ID for a privileged portal within a Microtenant, pass ?microtenantId=<microtenantId> in the request endpoint. For example: /mgmtconfig/v1/admin/customers/144118148382064640/policySet/policyType/PRIVILEGED_PORTAL_POLICY?microtenantId=0144118148382065713."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"144118148382065766\", \"modifiedTime\": \"1738793896\", \"creationTime\": \"1738793896\", \"modifiedBy\": \"144118148382065745\", \"name\": \"Privilege_Portal_Policy-144118148382065713\", \"enabled\": true, \"description\": \"Privilege Portal Policies\", \"policyType\": \"11\", \"sorted\": true, \"microtenantId\": \"144118148382065713\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/rules/policyType/CREDENTIAL_POLICY?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"145248664305009730\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1671047708\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1669145498\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ssh-sample\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"4\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"8\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"21812856\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1669145498\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1669145498\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"21812857\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1669145498\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"CONSOLE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"145248664305009340\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"sample-site1-ssh\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"INJECT_CREDENTIALS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"credential\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"228\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ssh-sample-passwd\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"145248664305009659\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1666652678\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1666652678\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"rdp-test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"8\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"21778372\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1666652678\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1666652678\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"21778373\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1666652678\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038060431\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"CONSOLE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"145248664305009526\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"sample-site1-rdp.com\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"INJECT_CREDENTIALS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"credential\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"390\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"rdp-sample-1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting the Required Policy Criteria Details",
+      "level": 2
+    },
+    {
+      "text": "Before creating a new privileged rule, you must get the following required details for the policy criteria:"
+    },
+    {
+      "item": "Application segment. To learn more, see Configuring Application Segments Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Credential ID. To learn more, see Configuring Privileged Credentials Using API.",
+      "depth": 0
+    },
+    {
+      "item": "IdP. To learn more, see Obtaining IdP Configuration Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SAML attribute. To learn more, see Obtaining SAML Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Segment group. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute value. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM group. To learn more, see Obtaining SCIM Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Privileged Capabilities Rule",
+      "level": 1
+    },
+    {
+      "text": "To create a new privileged capabilities rule:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in Prerequisite API Calls.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/289370814522851328/policySet/289370814522851333/rule?microtenantId=145260601092866116."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload and provide the following parameters in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "action: The rule action for the capabilities rule (CHECK_CAPABILITIES).",
+      "depth": 0
+    },
+    {
+      "item": "capabilities: The type of capabilities for the privileged policy. This field must be passed in the request body when creating a privileged capabilities policy. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "CLIPBOARD_COPY: Indicates the PRA Clipboard Copy function.",
+      "depth": 1
+    },
+    {
+      "item": "CLIPBOARD_PASTE: Indicates the PRA Clipboard Paste function.",
+      "depth": 1
+    },
+    {
+      "item": "FILE_UPLOAD: Indicates the PRA File Transfer capabilities that enable the File Upload function.",
+      "depth": 1
+    },
+    {
+      "item": "FILE_DOWNLOAD: Indicates the PRA File Transfer capabilities that enable the File Download function.",
+      "depth": 1
+    },
+    {
+      "item": "INSPECT_FILE_UPLOAD: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and uploads the file following the inspection.",
+      "depth": 1
+    },
+    {
+      "item": "INSPECT_FILE_DOWNLOAD: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and downloads the file following the inspection.",
+      "depth": 1
+    },
+    {
+      "item": "MONITOR_SESSION: Indicates the PRA Monitoring Capabilities to enable the PRA Session Monitoring function.",
+      "depth": 1
+    },
+    {
+      "item": "RECORD_SESSION: Indicates the PRA Session Recording capabilities to enable PRA Session Recording.",
+      "depth": 1
+    },
+    {
+      "item": "SHARE_SESSION: Indicates the PRA Session Control and Monitoring capabilities to enable PRA Session Monitoring.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policy set ID>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<application ID>\" ] } ] } ], \"name\": \"<example policy rule name>\", \"description\": \"<example description>\", \"action\": \"CHECK_CAPABILITIES\", \"privilegedCapabilities\": { \"capabilities\": [ \"FILE_UPLOAD\" ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145260601092866511\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"name\":\"Scope A Policy-3\", \"microtenantId\":\"145260601092866116\", \"description\":\"Micro tenant A\", \"ruleOrder\":\"5\", \"priority\":\"1\", \"policyType\":\"7\", \"operator\":\"AND\", \"conditions\":[ { \"id\":\"25240454\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"microtenantId\":\"145260601092866116\", \"operator\":\"OR\", \"negated\":false, \"operands\":[ { \"id\":\"25240455\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"microtenantId\":\"145260601092866116\", \"objectType\":\"APP\", \"lhs\":\"id\", \"rhs\":\"145260601092866051\", \"name\":\"Internal Application\" }, { \"id\":\"25240456\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"microtenantId\":\"145260601092866116\", \"objectType\":\"APP_GROUP\", \"lhs\":\"id\", \"rhs\":\"145260601092866489\", \"name\":\"test-simha-sg\" } ] }, { \"id\":\"25240457\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"microtenantId\":\"145260601092866116\", \"operator\":\"OR\", \"negated\":false, \"operands\":[ { \"id\":\"25240458\", \"modifiedTime\":\"1704898052\", \"creationTime\":\"1704898052\", \"modifiedBy\":\"72057594038606761\", \"microtenantId\":\"145260601092866116\", \"objectType\":\"IDP\", \"lhs\":\"id\", \"rhs\":\"145260601092866079\", \"name\":\"Contractors SSO\" } ] } ], \"action\":\"CHECK_CAPABILITIES\", \"policySetId\":\"145260601092866124\", \"privilegedCapabilities\":{ \"capabilities\":[ \"FILE_UPLOAD\", \"FILE_DOWNLOAD\", \"INSPECT_FILE_UPLOAD\", \"INSPECT_FILE_DOWNLOAD\", \"CLIPBOARD_COPY\", \"CLIPBOARD_PASTE\", \"RECORD_SESSION\", \"SHARE_SESSION\", \"MONITOR_SESSION\" ] }, \"defaultRule\":false, \"defaultRuleName\":\"null-145260601092866116\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a New Privileged Credentials Rule",
+      "level": 1
+    },
+    {
+      "text": "To create a new privileged credentials rule for a given policy set and for a given customerId:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in Prerequisite API Calls.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/289370814522851328/policySet/289370814522851333/rule?microtenantId=145260601092866116."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload and provide the following parameters in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "action: The rule action (INJECT_CREDENTIALS).",
+      "depth": 0
+    },
+    {
+      "item": "id: The ID of the privileged credential. To learn more, see Configuring Privileged Credentials Using API.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"72057594038624156\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"CONSOLE\", \"values\": [ \"72057594038071247\" ] } ] } ], \"name\": \"credential-policy\", \"description\": \"Credential Policy\", \"action\": \"INJECT_CREDENTIALS\", \"disabled\": \"0\", \"credential\": { \"id\": \"47\", \"name\": \"test\" } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145260601092866557\", \"modifiedTime\":\"1705987890\", \"creationTime\":\"1705987890\", \"modifiedBy\":\"72057594038606761\", \"name\":\"Testing-user\", \"scopeId\":\"145260601092866116\", \"description\":\"testing\", \"ruleOrder\":\"4\", \"priority\":\"1\", \"policyType\":\"8\", \"operator\":\"AND\", \"conditions\":[ { \"id\":\"25243672\", \"modifiedTime\":\"1705987890\", \"creationTime\":\"1705987890\", \"modifiedBy\":\"72057594038606761\", \"scopeId\":\"145260601092866116\", \"operator\":\"OR\", \"negated\":false, \"operands\":[ { \"id\":\"25243673\", \"modifiedTime\":\"1705987890\", \"creationTime\":\"1705987890\", \"modifiedBy\":\"72057594038606761\", \"scopeId\":\"145260601092866116\", \"objectType\":\"CONSOLE\", \"lhs\":\"id\", \"rhs\":\"145260601092866269\", \"name\":\"ExampleUser-approval-rdp.com\" } ] } ], \"action\":\"INJECT_CREDENTIALS\", \"credential\":{ \"id\":\"11534\", \"name\":\".116 RDP Credentials\" }, \"policySetId\":\"145260601092866125\", \"privilegedCapabilities\":{ }, \"defaultRule\":false, \"defaultRuleName\":\"null-145260601092866116\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a New Privileged Portals Rule",
+      "level": 1
+    },
+    {
+      "text": "To create a new privileged portals policy rule for a given policy set and for a given customerId:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in Prerequisite API Calls.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/145255689797763072/policySet/145255689797875541/rule?microtenantId=0."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the entire JSON payload and provide the following parameters in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "action: The rule action (CHECK_PRIVILEGED_PORTAL_POLICIES).",
+      "depth": 0
+    },
+    {
+      "item": "The ID of the privileged portal. To learn more, see Configuring Privileged Portals Using API.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"<policy Set ID>\", \"conditions\":[ { \"operands\":[ { \"objectType\":\"IDP\", \"values\":[ \"<IdP ID>\" ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"PRIVILEGE_PORTAL\", \"values\":[ \"<privileged portal ID>\" ] } ] }, { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"US\", \"rhs\":true } ] } ], \"operator\":\"OR\" } ], \"name\":\"<name>\", \"description\":\"<description>\", \"disabled\":0, \"action\":\"CHECK_PRIVILEGED_PORTAL_CAPABILITIES\", \"privilegedPortalCapabilities\":{ \"capabilities\":[ \"DELETE_FILE\", \"ACCESS_UNINSPECTED_FILE\", \"UPLOAD_INSPECTED_SCAN\", \"REQUEST_APPROVALS\", \"REVIEW_APPROVALS\" ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"145255689797875541\", \"conditions\":[ { \"operands\":[ { \"objectType\":\"IDP\", \"values\":[ \"145255689797763136\" ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"PRIVILEGE_PORTAL\", \"values\":[ \"145255689797787884\" ] } ] }, { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"US\", \"rhs\":true } ] } ], \"operator\":\"OR\" } ], \"name\":\"Example Privileged Portals Policy\", \"description\":\"Example description\", \"disabled\":0, \"action\":\"CHECK_PRIVILEGED_PORTAL_CAPABILITIES\", \"privilegedPortalCapabilities\":{ \"capabilities\":[ \"DELETE_FILE\", \"ACCESS_UNINSPECTED_FILE\", \"UPLOAD_INSPECTED_SCAN\", \"REQUEST_APPROVALS\", \"REVIEW_APPROVALS\" ] } }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145255689797892137\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"name\": \"Example Privileged Portals Policy\", \"description\": \"Example description\", \"ruleOrder\": \"1509\", \"priority\": \"1\", \"policyType\": \"11\", \"operator\": \"AND\", \"action\": \"CHECK_PRIVILEGED_PORTAL_CAPABILITIES\", \"disabled\": \"0\", \"extranetEnabled\": false, \"policySetId\": \"145255689797875541\", \"privilegedCapabilities\": {}, \"privilegedPortalCapabilities\": { \"capabilities\": [ \"DELETE_FILE\", \"UPLOAD_INSPECTED_SCAN\", \"ACCESS_UNINSPECTED_FILE\", \"REQUEST_APPROVALS\", \"REVIEW_APPROVALS\" ] }, \"conditions\": [ { \"id\": \"40703255\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"40703256\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"objectType\": \"IDP\", \"lhs\": \"id\", \"rhs\": \"145255689797763136\", \"name\": \"Idp_saml\" } ] }, { \"id\": \"40703257\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"40703258\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"objectType\": \"PRIVILEGE_PORTAL\", \"lhs\": \"id\", \"rhs\": \"145255689797787884\", \"name\": \"test_portal\" } ] }, { \"id\": \"40703259\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"40703260\", \"modifiedTime\": \"1738787787\", \"creationTime\": \"1738787787\", \"modifiedBy\": \"72057594038006701\", \"objectType\": \"COUNTRY_CODE\", \"lhs\": \"US\", \"rhs\": \"true\", \"name\": \"US\" } ] } ], \"defaultRule\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting a Particular Privileged Rule Details",
+      "level": 1
+    },
+    {
+      "text": "Before you get details for a particular privileged rule, you must get the policySetId captured in Prerequisite API Calls."
+    },
+    {
+      "text": "To get details for a particular privileged rule:"
+    },
+    {
+      "item": "Send a GET request to to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in either Creating a New Privileged Capabilities Rule or Creating a New Privileged Credential Rule.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/policySet/rules/policyType/CREDENTIAL_POLICY?microtenantId=145260601092866116."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"totalCount\":\"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"145260601092866378\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038068982\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Scope A Ssh policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"8\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"25157962\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038068982\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"25157963\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038068982\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"CONSOLE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"145260601092866270\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ExampleUser-ssh.com\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"25157964\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1699520116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038068982\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"CONSOLE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"145260601092866374\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ExampleUser-ssh.com\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"INJECT_CREDENTIALS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"credential\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"11608\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example User SSH\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRuleName\":\"null-145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"restrictedEntity\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"145260601092866507\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038073668\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Scope A RDP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"8\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"25240409\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038073668\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"25240410\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1704878956\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594038073668\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\":\"145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"CONSOLE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"145260601092866269\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"ExampleUser-approval-rdp.com\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"INJECT_CREDENTIALS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"credential\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"11534\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\".116 RDP Credentials\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRuleName\":\"null-145260601092866116\",",
+      "depth": 0
+    },
+    {
+      "item": "\"restrictedEntity\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Privileged Capabilities Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a privileged capabilities policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId captured in the prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the entire JSON payload from Creating a New Privileged Capabilities Rule and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Privileged Capabilities Rule.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/policySet/289370814522851333/rule/289370814522851657?microtenantId=145260601092866116."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policy set ID>\", \"id\": \"<rule ID>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<application ID>\" ] } ] } ], \"name\": \"capabilities-policy\", \"description\": \"Capabilities Policy\", \"action\": \"CHECK_CAPABILITIES\", \"privilegedCapabilities\": { \"capabilities\": [ \"FILE_UPLOAD\", \"FILE_DOWNLOAD\" ] } }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged credential rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Privileged Credentials Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a privileged credentials policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId captured in the prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the entire JSON payload from Creating a New Privileged Credentials Rule and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Privileged Credentials Rule.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/289370814522851328/policySet/289370814522851333/rule/289370814522851657?microtenantId=145260601092866116."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policy set ID>\", \"id\": \"<rule ID>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"CONSOLE\", \"values\": [ \"<privileged console ID>\" ] } ] } ], \"name\": \"<privileged console name>\", \"description\": \"<example description>\", \"action\": \"INJECT_CREDENTIALS\", \"disabled\": \"0\", \"credential\": { \"id\": \"<privileged credential ID>\", \"name\": \"<privileged credential name>\" } }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the access rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Privileged Portals Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a privileged portals policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId captured in the prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Using the entire JSON payload from Creating a New Privileged Portals Rule, make the necessary updates, and then send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Privileged Portals Rule.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v2/admin/customers/145255689797763072/policySet/145255689797875541/rule/145255689797892137?microtenantId=0."
+    },
+    {
+      "item": "Ensure the following is passed in the request body:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the rule.",
+      "depth": 1
+    },
+    {
+      "item": "action: The rule action (CHECK_PRIVILEGED_PORTAL_POLICIES).",
+      "depth": 1
+    },
+    {
+      "item": "The ID of the privileged portal. To learn more, see Configuring Privileged Portals Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"<policy Set ID>\", \"conditions\":[ { \"operands\":[ { \"objectType\":\"IDP\", \"values\":[ \"<IdP ID>\" ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"PRIVILEGE_PORTAL\", \"values\":[ \"<privileged portal ID>\" ] } ] }, { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"US\", \"rhs\":true } ] } ], \"operator\":\"OR\" } ], \"name\":\"<name>\", \"description\":\"<description>\", \"disabled\":0, \"action\":\"CHECK_PRIVILEGED_PORTAL_CAPABILITIES\", \"privilegedPortalCapabilities\":{ \"capabilities\":[ \"DELETE_FILE\", \"ACCESS_UNINSPECTED_FILE\", \"UPLOAD_INSPECTED_SANDBOX\", \"UPLOAD_INSPECTED_SCAN\", \"REQUEST_APPROVALS\", \"REVIEW_APPROVALS\" ] } }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the access rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Rule Order",
+      "level": 1
+    },
+    {
+      "text": "To update a rule order:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following parameters in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the policy set.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "newOrder: The new order of the rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594037938994/rule/72057615512764641/reorder/4."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rule order is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "The ability to update the rule order for all rules in a policy set is also available. To learn more, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Deleting a Privileged Rule",
+      "level": 1
+    },
+    {
+      "text": "To delete a privileged rule:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following key-value pairs in the request body:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Privileged Rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764594."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the privileged policy rule is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a privileged policy is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Getting Details of All Client Types",
+      "level": 1
+    },
+    {
+      "text": "To get details of all client types:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientTypes.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/clientTypes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter\": \"Web Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter_noauth\": \"Web Browser Unauthenticated\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_machine_tunnel\": \"Machine Tunnel\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_edge_connector\": \"Cloud Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zia_inspection\": \"ZIA Inspection\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp\": \"Client Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_slogger\": \"ZPA LSS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_browser_isolation\": \"Cloud Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_ip_anchoring\": \"ZIA Service Edge\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp_partner\": \"Client Connector Partner\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_branch_connector\": \"Branch Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_vdi\":\"Client Connector for VDI\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Platform Types for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To get the platform types for a customer:"
+    },
+    {
+      "item": "Send a GET request to the endpoint /mgmtconfig/v1/admin/customers/{customerId}/platform.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/platform.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"linux\":\"Linux\",",
+      "depth": 0
+    },
+    {
+      "item": "\"android\":\"Android\",",
+      "depth": 0
+    },
+    {
+      "item": "\"windows\":\"Windows\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ios\":\"iOS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"mac\":\"Mac\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the privileged policy use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This is the name of the rule",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This is the description of the rule",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "This is for providing the rule action",
+          "Yes",
+          "String Supported values: CHECK_CAPABILITIES: The rule action to create a privileged capabilities policy. INJECT_CREDENTIALS: The rule action to create a privileged credentials policy. CHECK_PRIVILEGED_PORTAL_POLICIES: The rule action to create a privileged portals policy."
+        ],
+        [
+          "capabilties",
+          "Indicates the type of capabilities for the privileged policy",
+          "Yes",
+          "String Supported values: CLIPBOARD_COPY: Indicates the PRA Clipboard Copy function. CLIPBOARD_PASTE: Indicates the PRA Clipboard Paste function. FILE_UPLOAD: Indicates the PRA File Transfer capabilities that enable the File Upload function. FILE_DOWNLOAD: Indicates the PRA File Transfer capabilities that enable the File Download function. INSPECT_FILE_UPLOAD: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and uploads the file following the inspection. INSPECT_FILE_DOWNLOAD: Inspects the file via ZIA sandbox (if you have set up the ZIA cloud and the Integrations settings) and downloads the file following the inspection. MONITOR_SESSION: Indicates the PRA Monitoring Capabilities to enable the PRA Session Monitoring function. RECORD_SESSION: Indicates the PRA Session Recording capabilities to enable PRA Session Recording. SHARE_SESSION: Indicates the PRA Session Control and Monitoring capabilities to enable PRA Session Monitoring."
+        ],
+        [
+          "privilegedPortalCapabilities",
+          "Indicates the type of capabilities for the privileged portals policy",
+          "Yes",
+          "String The supported values are: ACCESS_UNINSPECTED_FILE: Allows uninspected files to be displayed in the PRA Portal. DELETE_FILE: Allows the deletion of files. REQUEST_APPROVALS: Allows privileged approval requests to be created in the PRA Portal. REVIEW_APPROVALS: Allow privileged approval requests to be reviewed, approved, and rejected. UPLOAD_INSPECTED_SANDBOX: Allows ZIA Sandbox integration inspection of the file. UPLOAD_INSPECTED_SCAN: Allows inspection via another format other than ZIA Sandbox."
+        ],
+        [
+          "customerMsg",
+          "This is for providing a customer message for the user",
+          "No",
+          "String"
+        ],
+        [
+          "conditions",
+          "This is for providing the set of conditions for the policy",
+          "No",
+          "Array of operands"
+        ],
+        [
+          "operands",
+          "This signifies the various policy criteria",
+          "No",
+          "Array of attributes (objectType, lhs, rhs, name)"
+        ],
+        [
+          "objectType",
+          "This is for specifying the policy criteria",
+          "No",
+          "Supported values: APP APP_GROUP CONSOLE IDP SAML SCIM SCIM_GROUP"
+        ],
+        [
+          "lhs",
+          "This signifies the key for the object type",
+          "No",
+          "String ID example: \"id\""
+        ],
+        [
+          "rhs",
+          "This denotes the value for the given object type. Its value depends upon the key.",
+          "No",
+          "For APP, APP_GROUP, IDP, SAML, SCIM, and SCIM_GROUP, the supported value is <entity id>."
+        ],
+        [
+          "operator",
+          "This denotes the operation type",
+          "No",
+          "Supported values: AND, OR"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "text": "For a comprehensive table of LHS and RHS values, see Configuring Access Policies Using API."
+    }
+  ]
+}

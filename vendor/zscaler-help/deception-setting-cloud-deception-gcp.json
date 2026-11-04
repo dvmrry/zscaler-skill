@@ -1,0 +1,351 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Setting Up Cloud Deception with GCP",
+  "source": {
+    "url": "https://help.zscaler.com/deception/setting-cloud-deception-gcp",
+    "node": "1542595",
+    "revision": "3221519",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This integration guide provides information on prerequisites and how to integrate Google Cloud Platform (GCP) with Zscaler Deception to set up Cloud Deception by deploying various GCP-specific decoy resources."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you set up Cloud Deception with GCP, ensure that you have access to a GCP project with an Administrator role."
+    },
+    {
+      "heading": "Setting Up Cloud Deception with GCP",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to set up Cloud Deception with GCP:"
+    },
+    {
+      "item": "Step 1: Configure the Integration Between GCP and Deception",
+      "depth": 0
+    },
+    {
+      "item": "To integrate GCP with Deception:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zscaler Deception Admin Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > GCP > Settings.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "On the Settings page, click Add Project.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the GCP Project Setting drawer:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Select Enabled.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Project ID: Enter the project ID of the GCP project to which you want to deploy the decoys.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region where you want to deploy the resources (i.e., health check function and logging bucket).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Locate the GCP project you added, and click the Download icon in the Actions column.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 1
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the gcp-decoys.tf.json file in a text editor.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Locate the backend block in the gcp-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "The following example shows a backend block of a Google Cloud Storage bucket-based Terraform back end:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"gcs\": { \"bucket\": \"your-terraform-state-bucket\", \"prefix\": \"deception/terraform\" } } } }",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same GCP project.",
+      "depth": 1
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and set the user agent for Terraform:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a new workspace:",
+      "depth": 1,
+      "number": 11
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "terraform apply",
+      "depth": 1
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 1,
+      "number": 13
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to export the state file as JSON:",
+      "depth": 1,
+      "number": 14
+    },
+    {
+      "item": "terraform output -json gcp_terraform_output > deployment-output.json",
+      "depth": 1
+    },
+    {
+      "item": "The JSON file containing the details of the state is downloaded.",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings, locate the GCP project you added, and click the Upload icon in the Actions column.",
+      "depth": 1,
+      "number": 15,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 1,
+      "number": 16
+    },
+    {
+      "item": "Upon successful deployment, all necessary resources are created in GCP, and the information is updated in the Deception Admin Portal. The deployment also includes a health function app that polls the GCP account every 15 minutes to check and update the health status of the deployed decoys. The following table lists all resources created in the GCP cloud:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Resource",
+          "Description"
+        ],
+        [
+          "Service Account Email",
+          "Created for logging resources."
+        ],
+        [
+          "Logging Bucket",
+          "Created for gathering logs."
+        ],
+        [
+          "Health Check Function",
+          "A cloud function created for the health check."
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Configure the GCP Decoys",
+      "depth": 0
+    },
+    {
+      "item": "After successful integration of GCP with Deception, you can deploy various GCP-specific decoy resources. To learn how to configure the GCP decoys, see:",
+      "depth": 0
+    },
+    {
+      "item": "Service Account Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Storage Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Cloud SQL Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Secret Manager Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Artifact Registry Decoys",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Configure Lures Using GCP Decoys",
+      "depth": 0
+    },
+    {
+      "item": "After deploying the necessary decoys based on your requirements, you can configure the lures for the decoys. To learn how to configure lures using GCP decoys, see Configuring Lures Using GCP Decoys.",
+      "depth": 0
+    }
+  ]
+}

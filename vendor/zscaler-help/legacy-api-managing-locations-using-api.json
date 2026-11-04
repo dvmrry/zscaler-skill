@@ -1,0 +1,186 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Locations Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-locations-using-api",
+    "node": "1401566",
+    "revision": "3108547",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Locations identify the various networks from which your organization sends its internet traffic. When an organization forwards its traffic to the Zscaler service through a GRE or IPSec tunnel, Zscaler provisions your organization's IP addresses, which you then add as locations. Sublocations enable an organization to create new locations that reference IP addresses that are encapsulated within a GRE or IPSec tunnel, or that are passed to the Zscaler service through X-Forwarded-For (XFF) headers. You can add locations and sublocations using the cloud service API or the ZIA Admin Portal. To learn more about the API endpoints used for these configurations, see API Reference."
+    },
+    {
+      "text": "If your locations and sublocations are managed by a Software-Defined Wide Area Networking (SD-WAN) partner, see SD-WAN API Integration for IPSec VPN Tunnel Provisioning. The following information only provides details on how to use Location Management resources to set up locations and sublocations if they are not managed by an SD-WAN partner."
+    },
+    {
+      "heading": "Getting a List of Locations and Sublocations",
+      "level": 1
+    },
+    {
+      "text": "Location Management resources allow you to export all attributes of a Zscaler service-defined location as a request. Calling GET /locations retrieves a list of location objects managed by you. For example, in Python, a GET request would appear as follows:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/locations\", headers=headers)"
+    },
+    {
+      "text": "So the response would be:"
+    },
+    {
+      "text": "[ { \"name\": \"nyc-2\", \"id\": 4562809, \"managedBy\": { \"id\": 1, \"name\": \"Self\" }, \"vpnCredentials\": [ { \"id\": 4562807, \"type\": \"UFQDN\", \"fqdn\": \"nyc-1-37@yourcompany.com\", \"comments\": \"created automatically\" } ] }, { \"name\": \"sjc-1\", \"id\": 4562808, \"managedBy\": { \"id\": 1, \"name\": \"Self\" }, \"vpnCredentials\": [ { \"id\": 4562805, \"type\": \"UFQDN\", \"fqdn\": \"sjc-1-37@yourcompany.com\", \"comments\": \"created automatically\" } ] } ]"
+    },
+    {
+      "text": "If you have locations and sublocations that you manage and others that an SD-WAN partner manages, then calling GET /locations retrieves a list of location objects managed by you (i.e., Self) and your specified SD-WAN partner. However, SD-WAN partners cannot retrieve objects that are managed by you (i.e., Self). To learn more, see Understanding the managedBy Attribute."
+    },
+    {
+      "text": "Calling GET /locations/{locationId}/sublocations retrieves a list of sublocation objects for the specified locationId. For example, in Python, a GET request would appear as follows:"
+    },
+    {
+      "text": "conn.request(\"GET \", \"/api/v1/locations/6793981/sublocations\", headers=headers)"
+    },
+    {
+      "text": "So the response would be:"
+    },
+    {
+      "text": "[ { \"id\": 6793982, \"name\": \"guest-wifi\", \"parentId\": 6793981, \"ipAddresses\": [\"10.131.2.128-10.131.3.255\"], \"surrogateRefreshTimeInMinutes\": 0 }, { \"id\": 6793983, \"name\": \"other\", \"parentId\": 6793981, \"otherSubLocation\": true, \"surrogateRefreshTimeInMinutes\": 0 } ]"
+    },
+    {
+      "text": "If used, Zscaler recommends changing the pageSize query parameter to more than 100, or iterating through all results using the page query parameter, until the last page has less than 100 results."
+    },
+    {
+      "heading": "Adding Locations and Sublocations",
+      "level": 1
+    },
+    {
+      "text": "To add a location with VPN credentials or a static IP address, make sure that the following prerequisites are met:"
+    },
+    {
+      "item": "If you want to add a location with VPN credentials, you need the ID and other details of the VPN credentials. You can retrieve the list of VPN credentials available for associating with a location by sending a GET request to /vpnCredentials with the includeOnlyWithoutLocation query parameter set to true. If the VPN credentials don't already exist, you need to add them by sending a POST request to /vpnCredentials.",
+      "depth": 0
+    },
+    {
+      "item": "If you want to add a location with a static IP address, ensure that you have a self-provisioned static IP address or one that has been provisioned for your organization by Zscaler.",
+      "depth": 0
+    },
+    {
+      "text": "To add a location:"
+    },
+    {
+      "item": "Send a POST request to /locations and use the following key-value pairs in the Body:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "name: A string (e.g., \"nyc-4\").",
+      "depth": 1
+    },
+    {
+      "item": "vpnCredentials: If you are adding a location with VPN credentials, then this parameter and its key-value pairs are required in the request:",
+      "depth": 1
+    },
+    {
+      "item": "id: Specify the VPN ID as an integer (e.g., \"4562873\").",
+      "depth": 2
+    },
+    {
+      "item": "type: Specify the authentication type as a string (e.g., \"UFQDN\").",
+      "depth": 2
+    },
+    {
+      "item": "fqdn: This parameter is only required if you are using the UFQDN or XAUTH authentication type. Specify the fully qualified domain name as a string (e.g., \"nyc-1-38@yourcompany.com\").",
+      "depth": 2
+    },
+    {
+      "text": "To learn more, see Configuring VPN Credentials for IPSec Tunnels Using API."
+    },
+    {
+      "item": "ipAddresses: If you are adding a location with a static IP address, then this parameter is required in the request (e.g., [\"50.60.70.80\"]).",
+      "depth": 0
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "To add a sublocation:"
+    },
+    {
+      "item": "Send a POST request to /locations and use the following key-value pairs in the Body:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "parentId: The parent location's ID. A string (e.g., \"6793981\").",
+      "depth": 1
+    },
+    {
+      "item": "name: A string (e.g., \"guest-wifi\").",
+      "depth": 1
+    },
+    {
+      "item": "ipAddresses: The IP address for the sublocation. You can also specify IP addresses in a range (e.g., [\"10.131.2.128-10.131.3.255\"]).",
+      "depth": 1
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Updating Locations and Sublocations",
+      "level": 1
+    },
+    {
+      "text": "To update a location or sublocation based on a specified location ID:"
+    },
+    {
+      "item": "Get information about a specific location by sending a GET request to /locations/{locationId} or /locations/{locationId}/sublocations.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "If you send a GET request to /locations, the pre-shared key (PSK) for the associated VPN credential is not included in the response for security reasons."
+    },
+    {
+      "item": "Modify the location or sublocation's information by sending a PUT request to /locations/{locationId}, and including all the required key-value pairs in the Body.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "You cannot update a location or sublocation's fully qualified domain name (fqdn) by sending a PUT request to /locations/{locationId}. If the fqdn is modified in the request, the change is ignored."
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Deleting Locations and Sublocations",
+      "level": 1
+    },
+    {
+      "text": "If you delete a location, then any sublocations associated with it are also deleted."
+    },
+    {
+      "text": "To delete a location or sublocation based on a specified location ID:"
+    },
+    {
+      "item": "Send a DELETE request to /locations/{locationId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "You can also bulk delete locations, up to a maximum of 100 locations per request, by calling DELETE /locations/bulkDelete."
+    },
+    {
+      "item": "Activate the changes to your configuration.",
+      "depth": 0,
+      "number": 2
+    }
+  ]
+}

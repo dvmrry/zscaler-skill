@@ -1,0 +1,844 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "SSL Inspection Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/ssl-inspection-policy",
+    "node": "1517221",
+    "revision": "3020751",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/SSL%20Inspection%20Policy_2.json?VersionId=6AKDNgZXuSDgd_kz_WiqwE61doZE5oMU",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "SSL Inspection Policy"
+      }
+    ],
+    "paths": {
+      "/sslInspectionRules": {
+        "get": {
+          "tags": [
+            "SSL Inspection Policy"
+          ],
+          "description": "Retrieves all SSL inspection rules",
+          "operationId": "SSLInspectionRuleResource_getSSLInspectionRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/SSLInspectionRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "SSL Inspection Policy"
+          ],
+          "description": "Creates a new SSL inspection rule",
+          "operationId": "SSLInspectionRuleResource_addSSLInspectionRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The SSL inspection rule information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/SSLInspectionRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SSLInspectionRule"
+              }
+            }
+          }
+        }
+      },
+      "/sslInspectionRules/{ruleId}": {
+        "get": {
+          "tags": [
+            "SSL Inspection Policy"
+          ],
+          "description": "Retrieves the SSL inspection rule based on the specified ID",
+          "operationId": "SSLInspectionRuleResource_getRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Unique identifier for the SSL inspection rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SSLInspectionRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "SSL Inspection Policy"
+          ],
+          "description": "Updates the SSL inspection rule based on the specified ID",
+          "operationId": "SSLInspectionRuleResource_updateRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Unique identifier for the SSL inspection rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The SSL inspection rule information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/SSLInspectionRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/SSLInspectionRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "SSL Inspection Policy"
+          ],
+          "description": "Deletes an existing SSL inspection rule based on the specified ID",
+          "operationId": "SSLInspectionRuleResource_deleteRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ruleId",
+              "in": "path",
+              "description": "Unique identifier for the SSL inspection rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "SSLInspectionRule": {
+        "type": "object",
+        "description": "SSL inspection rule information",
+        "required": [
+          "action",
+          "name",
+          "order",
+          "rank"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System generated identifier for the SSL inspection rule",
+            "readOnly": true
+          },
+          "accessControl": {
+            "type": "string",
+            "description": "Access privilege to this rule based on the admin's RBA",
+            "readOnly": true,
+            "enum": [
+              "NONE",
+              "READ_ONLY",
+              "READ_WRITE"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Rule name"
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Order of rule execution with respect to other SSL inspection rules."
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank assigned to this rule"
+          },
+          "locations": {
+            "type": "array",
+            "description": "Name-ID pairs of location for which the rule is applied. If not set, rule is applied for all locations.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "locationGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of locations groups for which the rule must be applied.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments for which the rule is applied. If not set, rule is applied for all departments.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of groups for which the rule is applied. If not set, rule is applied for all groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users for which the rule is applied. If not set, user criteria is not considered in rule enforcement.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "platforms": {
+            "type": "array",
+            "description": "Zscaler Client Connector device platforms for which the rule must be applied. If not set, rule is applied to all device platforms",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SCAN_IOS",
+                "SCAN_ANDROID",
+                "SCAN_MACOS",
+                "SCAN_WINDOWS",
+                "NO_CLIENT_CONNECTOR",
+                "SCAN_LINUX"
+              ]
+            }
+          },
+          "roadWarriorForKerberos": {
+            "type": "boolean",
+            "description": "When set to true, the rule is applied to remote users that use PAC with Kerberos authentication. Otherwise, it is a don't care."
+          },
+          "urlCategories": {
+            "type": "array",
+            "description": "List of URL categories for which rule must be applied",
+            "items": {
+              "$ref": "#/definitions/SslUrlCategory"
+            }
+          },
+          "cloudApplications": {
+            "type": "array",
+            "description": "Cloud applications for which the SSL inspection rule is applied. When this attribute is not set, it implies ANY applications.",
+            "items": {
+              "$ref": "#/definitions/SslPolicyWebApplication"
+            },
+            "maxItems": 12000,
+            "minItems": 0
+          },
+          "action": {
+            "description": "Action taken when the traffic matches policy",
+            "$ref": "#/definitions/SSLAction"
+          },
+          "state": {
+            "type": "string",
+            "description": "State whether it is enabled, disabled, or just set to monitoring",
+            "enum": [
+              "DISABLED",
+              "ENABLED"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Description provided by the administrator."
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp when the rule was last modified. Ignore if the request is POST or PUT. For GET, ignore if the rule is for the current version."
+          },
+          "lastModifiedBy": {
+            "description": "Admin user that last modified the rule. Ignore if the request is POST or PUT. For GET, ignore if the rule is for the current version.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "destIpGroups": {
+            "type": "array",
+            "description": "User-defined destination IP address groups on which the rule is applied. If not set, rule is not restricted to specific destination IP address groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "sourceIpGroups": {
+            "type": "array",
+            "description": "User-defined source IP address groups on which the rule is applied. If not set, rule is not restricted to specific source IP address groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "proxyGateways": {
+            "type": "array",
+            "description": "The proxy chaining gateway for which this rule is applicable. Ignore if the forwarding method is not Proxy Chaining.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "userAgentTypes": {
+            "type": "array",
+            "description": "User agent type list",
+            "items": {
+              "type": "string",
+              "enum": [
+                "OPERA",
+                "FIREFOX",
+                "MSIE",
+                "MSEDGE",
+                "CHROME",
+                "SAFARI",
+                "OTHER",
+                "MSCHREDGE",
+                "BRAVE"
+              ]
+            }
+          },
+          "devices": {
+            "type": "array",
+            "description": "Name-ID pairs of devices for which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of device groups for which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "List of device trust levels for which the rule must be applied. While the High Trust, Medium Trust, or Low Trust evaluation is applicable only to Zscaler Client Connector traffic, Unknown evaluation applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in the Zscaler Client Connector Portal. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of rule labels associated with the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "zpaAppSegments": {
+            "type": "array",
+            "description": "List of Source IP Anchoring-enabled ZPA Application Segments for which this rule is applicable",
+            "items": {
+              "$ref": "#/definitions/AppSegment"
+            }
+          },
+          "workloadGroups": {
+            "type": "array",
+            "description": "List of workload groups for which this rule is applicable",
+            "items": {
+              "$ref": "#/definitions/WorkloadGroup"
+            }
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "The time intervals during which the rule applies",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "predefined": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the rule is a predefined SSL inspection rule or not",
+            "readOnly": true
+          },
+          "defaultRule": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the rule is the default rule or not"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "SslUrlCategory": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "mask": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "urlSupercategory": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "ADVANCED_SECURITY",
+              "ENTERTAINMENT_AND_RECREATION",
+              "NEWS_AND_MEDIA",
+              "USER_DEFINED",
+              "EDUCATION",
+              "BUSINESS_AND_ECONOMY",
+              "JOB_SEARCH",
+              "INFORMATION_TECHNOLOGY",
+              "INTERNET_COMMUNICATION",
+              "OFFICE_365",
+              "CUSTOM_SUPERCATEGORY",
+              "CUSTOM_BP",
+              "CUSTOM_BW",
+              "MISCELLANEOUS",
+              "TRAVEL",
+              "VEHICLES",
+              "GOVERNMENT_AND_POLITICS",
+              "GLOBAL_INT",
+              "GLOBAL_INT_BP",
+              "GLOBAL_INT_BW",
+              "GLOBAL_INT_OFC365",
+              "ADULT_MATERIAL",
+              "DRUGS",
+              "GAMBLING",
+              "VIOLENCE",
+              "WEAPONS_AND_BOMBS",
+              "TASTELESS",
+              "MILITANCY_HATE_AND_EXTREMISM",
+              "ILLEGAL_OR_QUESTIONABLE",
+              "SOCIETY_AND_LIFESTYLE",
+              "HEALTH",
+              "SPORTS",
+              "SPECIAL_INTERESTS_SOCIAL_ORGANIZATIONS",
+              "GAMES",
+              "SHOPPING_AND_AUCTIONS",
+              "SOCIAL_AND_FAMILY_ISSUES",
+              "RELIGION",
+              "SECURITY"
+            ]
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "userConfiguredName": {
+            "type": "string"
+          },
+          "comments": {
+            "type": "string"
+          }
+        }
+      },
+      "SslPolicyWebApplication": {
+        "type": "object",
+        "properties": {
+          "val": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "webApplicationClass": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "WEB_MAIL",
+              "SOCIAL_NETWORKING",
+              "STREAMING",
+              "P2P",
+              "INSTANT_MESSAGING",
+              "WEB_SEARCH",
+              "GENERAL_BROWSING",
+              "ADMINISTRATION",
+              "ENTERPRISE_COLLABORATION",
+              "BUSINESS_PRODUCTIVITY",
+              "SALES_AND_MARKETING",
+              "SYSTEM_AND_DEVELOPMENT",
+              "CONSUMER",
+              "FILE_SHARE",
+              "HOSTING_PROVIDER",
+              "IT_SERVICES",
+              "DNS_OVER_HTTPS",
+              "HUMAN_RESOURCES",
+              "LEGAL",
+              "HEALTH_CARE",
+              "FINANCE",
+              "CUSTOM_CAPP",
+              "AI_ML"
+            ]
+          },
+          "backendName": {
+            "type": "string"
+          },
+          "originalName": {
+            "type": "string"
+          },
+          "name": {
+            "type": "string"
+          },
+          "deprecated": {
+            "type": "boolean"
+          },
+          "misc": {
+            "type": "boolean"
+          },
+          "appNotReady": {
+            "type": "boolean"
+          },
+          "appCatModified": {
+            "type": "boolean"
+          }
+        }
+      },
+      "SSLAction": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": [
+              "DECRYPT",
+              "DO_NOT_DECRYPT",
+              "BLOCK"
+            ]
+          },
+          "decryptSubActions": {
+            "$ref": "#/definitions/DecryptSubActions"
+          },
+          "doNotDecryptSubActions": {
+            "$ref": "#/definitions/DoNotDecryptSubActions"
+          },
+          "showEUN": {
+            "type": "boolean"
+          },
+          "showEUNATP": {
+            "type": "boolean"
+          },
+          "overrideDefaultCertificate": {
+            "type": "boolean"
+          },
+          "sslInterceptionCert": {
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "DecryptSubActions": {
+        "type": "object",
+        "properties": {
+          "serverCertificates": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "PASS_THRU"
+            ]
+          },
+          "ocspCheck": {
+            "type": "boolean"
+          },
+          "minClientTLSVersion": {
+            "type": "string",
+            "enum": [
+              "CLIENT_TLS_1_0",
+              "CLIENT_TLS_1_1",
+              "CLIENT_TLS_1_2",
+              "CLIENT_TLS_1_3"
+            ]
+          },
+          "minServerTLSVersion": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "blockUndecrypt": {
+            "type": "boolean"
+          },
+          "http2Enabled": {
+            "type": "boolean"
+          },
+          "blockSslTrafficWithNoSniEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "DoNotDecryptSubActions": {
+        "type": "object",
+        "properties": {
+          "bypassOtherPolicies": {
+            "type": "boolean"
+          },
+          "serverCertificates": {
+            "type": "string",
+            "enum": [
+              "ALLOW",
+              "BLOCK"
+            ]
+          },
+          "ocspCheck": {
+            "type": "boolean"
+          },
+          "minTLSVersion": {
+            "type": "string",
+            "enum": [
+              "SERVER_TLS_1_0",
+              "SERVER_TLS_1_1",
+              "SERVER_TLS_1_2",
+              "SERVER_TLS_1_3"
+            ]
+          },
+          "blockSslTrafficWithNoSniEnabled": {
+            "type": "boolean"
+          }
+        }
+      },
+      "AppSegment": {
+        "type": "object",
+        "description": "Application Segment information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "A unique identifier assigned to the Application Segment",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the Application Segment"
+          },
+          "externalId": {
+            "type": "integer",
+            "description": "Indicates the external ID. Applicable only when this reference is of an external entity.",
+            "format": "int64"
+          },
+          "zpaTenantId": {
+            "type": "integer",
+            "description": "ID of the ZPA tenant where the Application Segment is configured",
+            "format": "int64"
+          }
+        }
+      },
+      "WorkloadGroup": {
+        "type": "object",
+        "description": "Workload group information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "A unique identifier assigned to the workload group"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the workload group"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the workload group"
+          },
+          "expressionJson": {
+            "description": "The workload group expression containing tag types, tags, and their relationships represented in a JSON format.",
+            "$ref": "#/definitions/WorkloadTagExpression"
+          },
+          "expression": {
+            "type": "string",
+            "description": "The workload group expression containing tag types, tags, and their relationships."
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp when the workload group was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Information about the admin that last modified the workload group",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "WorkloadTagExpression": {
+        "type": "object",
+        "properties": {
+          "expressionContainers": {
+            "type": "array",
+            "description": "Contains one or more tag types (and associated tags) combined using logical operators within a workload group",
+            "items": {
+              "$ref": "#/definitions/ExpressionContainer"
+            }
+          }
+        }
+      },
+      "ExpressionContainer": {
+        "type": "object",
+        "description": "One or more tag types (and associated tags) combined using logical operators within a workload group",
+        "properties": {
+          "tagType": {
+            "type": "string",
+            "description": "The tag type selected from a predefined list",
+            "enum": [
+              "ANY",
+              "VPC",
+              "SUBNET",
+              "VM",
+              "ENI",
+              "ATTR"
+            ]
+          },
+          "operator": {
+            "type": "string",
+            "description": "The operator (either AND or OR) used to create logical relationships among tag types",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          },
+          "tagContainer": {
+            "description": "Contains one or more tags and the logical operator used to combine the tags within a tag type",
+            "$ref": "#/definitions/TagContainer"
+          }
+        }
+      },
+      "TagContainer": {
+        "type": "object",
+        "description": "One or more tags combined using logical operators within a tag type",
+        "properties": {
+          "tags": {
+            "type": "array",
+            "description": "<p>One or more tags, each consisting of a key-value pair, selected within a tag type. If multiple tags are present within a tag type, they are combined using a logical operator.</p><p><b>Note</b>: A maximum of 8 tags can be added to a workload group, irrespective of the number of tag types present.</p>",
+            "items": {
+              "$ref": "#/definitions/Tag"
+            }
+          },
+          "operator": {
+            "type": "string",
+            "description": "The logical operator (either AND or OR) used to combine the tags within a tag type",
+            "enum": [
+              "AND",
+              "OR",
+              "OPEN_PARENTHESES",
+              "CLOSE_PARENTHESES"
+            ]
+          }
+        }
+      },
+      "Tag": {
+        "type": "object",
+        "description": "The list of tags (key-value pairs) selected within a tag type",
+        "properties": {
+          "key": {
+            "type": "string",
+            "description": "The <i>key</i> component present in the key-value pair contained in a tag"
+          },
+          "value": {
+            "type": "string",
+            "description": "The <i>value</i> component present in the key-value pair contained in a tag"
+          }
+        }
+      }
+    }
+  }
+}

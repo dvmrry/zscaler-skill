@@ -1,0 +1,2557 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Zscaler Incident Receiver for Azure VMs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-zscaler-incident-receiver-azure-vms",
+    "node": "1455536",
+    "revision": "3248248",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Before you can use a Zscaler Incident Receiver, you must configure the virtual machine (VM) image for the Incident Receiver on an Azure VM, an Amazon Web Services (AWS) EC2 instance, or an on-premises VM. To learn more, see Configuring the Zscaler Incident Receiver for Amazon Web Services EC2 VMs and Configuring the Zscaler Incident Receiver for On-Premises VMs."
+    },
+    {
+      "text": "Before you begin deployment, contact Zscaler Support to obtain the Incident Receiver virtual hard disk (VHD) shared access signature (SAS) token. Without it, you cannot set up the Incident Receiver."
+    },
+    {
+      "heading": "Deploying a Zscaler Incident Receiver VM on Azure",
+      "level": 1
+    },
+    {
+      "text": "To deploy a Zscaler Incident Receiver VM on Azure:"
+    },
+    {
+      "item": "1. Ensure you meet the prerequisites.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Zscaler Incident Receiver on an Azure VM, make sure the following prerequisites are met:",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler Incident Receiver VHD SAS token.",
+      "depth": 1
+    },
+    {
+      "item": "An Azure VM with a minimum of two CPUs and 8 GB of RAM (e.g., a D2as v4 Azure instance) to host the Incident Receiver VM.",
+      "depth": 1
+    },
+    {
+      "item": "Access to a storage server that supports Secure File Transfer Protocol (SFTP)/Secure Copy Protocol (SCP) and public key authentication. You must also have a preconfigured account that allows write access to the server’s intended directory. You link the SFTP server to the Incident Receiver VM when you configure storage options later in the process.",
+      "depth": 1
+    },
+    {
+      "item": "The VHD file includes minimum specifications for various settings (e.g., disk size and network interface). You can increase those specifications as needed.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) A static public IP address for the Incident Receiver VM.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends using a static IP address to ensure that the IP address does not change when the VM reboots. Alternatively, you can associate the IP address with a FQDN and then use the FQDN when configuring the Incident Receiver in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "A security group configured on the Azure instance to allow inbound Internet Content Adaptation Protocol (ICAP) messages from the Feed Central Cloud (FCC) cloud to the correct TCP port on the Incident Receiver VM (e.g., port 1344).",
+      "depth": 1
+    },
+    {
+      "item": "A Zscaler Incident Receiver added in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1
+    },
+    {
+      "item": "For Zscaler Incident Receiver to check your network connectivity and get access to and from your IP address, your firewalls must be enabled for the appropriate location. To understand the needed access requirements, see DLP Incident Receiver Connections.",
+      "depth": 1
+    },
+    {
+      "item": "You must allow a direct IP-based connection to the Zscaler Hub IPs so the Incident Receiver can connect to the IP directly. To learn more, see Zscaler Hub IP Addresses.",
+      "depth": 1
+    },
+    {
+      "item": "2. Create a resource group and storage account in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "Before you can deploy an Incident Receiver in Azure, you must first create a resource group to hold all resources for the Incident Receiver VM, as well as a storage account for the Incident Receiver VHD file.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a resource group.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Azure services section, click Resource groups.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Resource groups page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create. The Create a resource group page appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "On the Create a resource group page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the Azure subscription for the resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Enter a name for the resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the geographical Azure location for the resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "All resources that you create for the Incident Receiver must use the region you select here.",
+      "depth": 1
+    },
+    {
+      "item": "Select the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          26
+        ],
+        [
+          45,
+          62
+        ],
+        [
+          93,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You return to the Resource groups page, and the resource group you created is displayed in the list of resource groups.",
+      "depth": 2,
+      "strong": [
+        [
+          18,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "b. Create a storage account.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Azure services section, click Storage accounts.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Storage accounts page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create. The Create a storage account page appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Create a storage account page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the Azure subscription for the storage account.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select the resource group for the Incident Receiver.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Storage account name: Enter a name for the storage account.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the same geographical Azure region used for the Incident Receiver resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Keep the default selections for the rest of the options on the Basics tab, then click the Networking tab.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          63,
+          69
+        ],
+        [
+          90,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Networking tab, ensure that the Enable public access from all networks option is selected.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          39,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Select the Review tab, review your selections, then click Create.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          11,
+          17
+        ],
+        [
+          58,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After the storage account deployment is complete, a confirmation page appears.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "3. Use Azure Storage Explorer to copy the Incident Receiver VHD file to your Azure storage account.",
+      "depth": 0
+    },
+    {
+      "item": "To copy the Incident Receiver VHD file to your Azure storage account using Azure Storage Explorer:",
+      "depth": 0
+    },
+    {
+      "item": "To ensure the fastest copy time, select the appropriate URL for your region:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "USA: https://zirsvrazureprod.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Europe: https://zirsvrazureprodeu.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Australia: https://zirsvrazureprodau.blob.core.windows.net/",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Download and launch Azure Storage Explorer.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Click the Add Account icon (plug icon).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Select Resource window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "In the Select Resource window, select Storage account or service.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select Shared access signature URL (SAS).",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Enter Connection Info page, in the Service URL field, enter the Service URL and SAS token received from the Zscaler Support team.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          42,
+          53
+        ],
+        [
+          59,
+          60
+        ],
+        [
+          71,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The other fields automatically fill in.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "A connection summary appears. Review it and click Connect.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          50,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "After the connection is successful, in the left-side navigation, go to Storage Accounts > zirsvrstorageprod > Blob Containers > zir-image. The VHD file is located here.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          71,
+          87
+        ],
+        [
+          90,
+          107
+        ],
+        [
+          110,
+          125
+        ],
+        [
+          128,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Highlight the VHD file and click Copy.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          33,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to the storage account you created and click Paste to add the VHD to your blob containers. The transfer can take some time. The Activities tab at the bottom lets you know when the transfer is complete.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          77,
+          82
+        ],
+        [
+          160,
+          170
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 1,
+      "number": 14
+    },
+    {
+      "item": "Go to your destination blob container. The VHD file appears in the blob container.",
+      "depth": 1,
+      "number": 15
+    },
+    {
+      "item": "4. Create and configure a security group in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a security group.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Azure services section, click Network security groups.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Network security groups page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Create. The Create network security group page appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          18,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In another tab, browse to config.zscaler.com. The Zscaler Config page appears.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          50,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "From the Cloud drop-down menu at the top left of the page, select your organization's Zscaler cloud.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          9,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Go to DLP Incident Receiver. In the Source column of the table, click Zscaler Hub IP Addresses. The Hub IP Addresses page appears, listing all of the outbound connections that you must configure for the Zscaler Incident Receiver to communicate with the Zscaler cloud.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          36,
+          42
+        ],
+        [
+          70,
+          94
+        ],
+        [
+          100,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "As needed, click Copy IPs in the Required, Recommended, and Combined columns so you can add those IP addresses to the security group.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          17,
+          25
+        ],
+        [
+          33,
+          41
+        ],
+        [
+          43,
+          54
+        ],
+        [
+          60,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Return to the Create network security group page in the Azure portal.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          14,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "On the Create network security group page:",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the Azure subscription for the security group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select the resource group for the Incident Receiver.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the security group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the same geographical Azure region used for the Incident Receiver resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          11,
+          26
+        ],
+        [
+          45,
+          62
+        ],
+        [
+          93,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the confirmation page that appears, click Go to resource.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Add inbound security rules.",
+      "depth": 1
+    },
+    {
+      "item": "Return to the Azure portal. In the left-side navigation, click Inbound security rules.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          63,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Inbound security rules page, click Add. The Add inbound security rule panel appears.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          45
+        ],
+        [
+          51,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add inbound security rule panel:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Source: From the drop-down menu, select IP Addresses.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Source IP addresses/CIDR ranges: Add the incoming traffic IPs for the Zscaler Incident Receiver VM. Ensure that you add the IPs that you copied from the Zscaler Hub IP Addresses page earlier.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          161,
+          177
+        ]
+      ]
+    },
+    {
+      "item": "Source port ranges: Enter the source port ranges to use for inbound traffic.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select the destination from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Service: From the drop-down menu, select Custom.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          41,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Destination port ranges: Enter the TCP port 1344 for inbound traffic for the Incident Receiver.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select TCP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select Allow.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter a priority ranking for the inbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the inbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the inbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The rule you created is displayed in the list on the Inbound security rules page.",
+      "depth": 2,
+      "strong": [
+        [
+          53,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "c. Add outbound security rules.",
+      "depth": 1
+    },
+    {
+      "item": "Return to the Azure portal. In the left-side navigation, click Outbound security rules.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          63,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Outbound security rule page, click Add. The Add outbound security rule panel appears.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          42,
+          45
+        ],
+        [
+          51,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add outbound security rule panel:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Source: From the drop-down menu, select IP Addresses.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Source IP addresses/CIDR ranges: Add the outgoing traffic IPs for the Zscaler Incident Receiver VM.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Source port ranges: Enter the source port ranges to use for outbound traffic.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select the destination from the drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Service: From the drop-down menu, select Custom.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          41,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Destination port ranges: Enter the TCP port to use for outbound traffic for the Incident Receiver.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select TCP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Action: Select Allow.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter a priority ranking for the outbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the outbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the outbound security rule.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The rule you created is displayed in the list on the Outbound security rules page.",
+      "depth": 2,
+      "strong": [
+        [
+          53,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To learn more, refer to the Microsoft Azure documentation.",
+      "depth": 0
+    },
+    {
+      "item": "5. Launch an Azure VM to Host the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "To create the Incident Receiver VM, you must first create a managed disk that you then use to launch the Azure VM instance that hosts the Incident Receiver.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a managed disk.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click Create a resource, then use the search bar to find Managed Disks.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the search results page, click Create > Managed Disks.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          34,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create a managed disk page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create a managed disk page, select the Basics tab if needed.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          46,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "On the Basics tab:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: From the drop-down menu, select the Azure subscription for the managed disk.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: From the drop-down menu, select the resource group you are using for the Incident Receiver.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Disk name: Enter a name for the managed disk.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select the same geographical Azure region used for the Incident Receiver resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Availability zone: From the drop-down menu, select an Azure availability zone, as needed for your organization.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Source type: From the drop-down menu, select Storage blob.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          45,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Under the Source blob, click Browse, then go to the storage account where the Incident Receiver VHD file is stored.",
+      "depth": 3,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Select the VHD file, then click Select.",
+      "depth": 3,
+      "strong": [
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Create a managed disk page, for the OS type option, select Linux.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          43,
+          50
+        ],
+        [
+          66,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler supports only Linux as the operating system for Azure instances of the Incident Receiver.",
+      "depth": 2
+    },
+    {
+      "item": "From the Security type drop-down menu, select Standard.",
+      "depth": 3,
+      "strong": [
+        [
+          9,
+          22
+        ],
+        [
+          46,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "For the VM generation option, select Generation 1.",
+      "depth": 3,
+      "strong": [
+        [
+          8,
+          21
+        ],
+        [
+          37,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler supports only Generation 1 VMs for Azure instances of the Incident Receiver.",
+      "depth": 2
+    },
+    {
+      "item": "For the Size option, click Change size. The Select a disk size page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          8,
+          12
+        ],
+        [
+          27,
+          38
+        ],
+        [
+          44,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "From the Storage type drop-down menu, select Premium SSD (locally-redundant storage).",
+      "depth": 3,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          45,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "In the Custom disk size (GiB) field, enter 500.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Create a managed disk page, select the Networking tab.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          46,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Select Disable public and private access.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Select the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          26
+        ],
+        [
+          45,
+          62
+        ],
+        [
+          93,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the confirmation page that appears, click Go to resource.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "b. Create a VM to host the Incident Receiver.",
+      "depth": 1
+    },
+    {
+      "item": "On the overview page for the managed disk you created, click Create VM.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Create a virtual machine page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that the Subscription and Resource group options match the options you selected when creating the managed disk.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          16,
+          28
+        ],
+        [
+          33,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Virtual machine name field, enter a name for the VM.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "From the Size drop-down menu, select See all sizes. The Select a VM size page appears.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          37,
+          50
+        ],
+        [
+          56,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Select D2as_v4 from the list, then click Select.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          41,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Create a virtual machine page, in the Public inbound ports section, select None.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          36
+        ],
+        [
+          45,
+          65
+        ],
+        [
+          82,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "From the License type drop-down menu, select Other.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          45,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Select the Networking tab. Then, for the NIC network security group option, select Advanced.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          21
+        ],
+        [
+          41,
+          67
+        ],
+        [
+          83,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "From the Configure network security group drop-down menu, select the network security group you created earlier.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          9,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Select the Review + Create tab, wait for the Validation passed message to appear, then click Create.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          11,
+          26
+        ],
+        [
+          45,
+          62
+        ],
+        [
+          93,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the confirmation page that appears, click Go to resource.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          45,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the resource page that appears, click Serial console.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          41,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Serial console page for the VM appears, showing the console output for the Incident Receiver.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The VM deployment takes several minutes. When a prompt to change the zsroot password appears in the serial console output, the Incident Receiver is ready to be configured.",
+      "depth": 1
+    },
+    {
+      "item": "6. Configure the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have added a Zscaler Incident Receiver in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Log in to the VM as user zsroot. The initial root password for this user is randomly generated.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Change the root password:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr change-password",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the initial root password, which was randomly generated for you.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter a new root password.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Re-enter the new root password.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Data Security> Common Resources > DLP Incident Receiver.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          62,
+          75
+        ],
+        [
+          77,
+          93
+        ],
+        [
+          96,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "Select the Zscaler Incident Receiver tab.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Zscaler Incident Receiver you added previously. In the Certificate column, click Download.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          66,
+          77
+        ],
+        [
+          92,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Copy the certificate ZIP file to the VM and install it:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The following example uses scpto copy the file:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "scp <certificate_zip_filename> zsroot@<ip>:/home/zsroot",
+      "depth": 0
+    },
+    {
+      "item": "For example: scp IncidentReceiverCertificate.zip zsroot@10.66.108.100:/home/zsroot",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install the SSL certificate:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr configure ~/<certificate_zip_filename>",
+      "depth": 0
+    },
+    {
+      "item": "For example: sudo zirsvr configure ~/IncidentReceiverCertifcate.zip",
+      "depth": 0
+    },
+    {
+      "item": "For icaps_port, enter the Zscaler Incident Receiver port number that you previously added to the Zscaler Incident Receiver URI in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "(Optional) You can enter a different port number to change the Incident Receiver’s port number. However, you must also update the Incident Receiver’s URI in the Zscaler Admin Console to include the new port number. To learn more, see Adding a Zscaler Incident Receiver.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Specify that your Azure Incident Receiver uses SFTP storage, then configure the storage server and public key authentication:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Configuring SFTP storage",
+      "depth": 2
+    },
+    {
+      "item": "When you are using your Incident Receiver with Workflow Automation, use the information for your Filewatcher VM when configuring the SFTP storage. To learn more, see Configuring the DLP Application Integration Using Azure.",
+      "depth": 2
+    },
+    {
+      "item": "To specify that the Incident Receiver forwards data to the SFTP storage, enter SFTP.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "For storage_sftp_fqdn, enter the FQDN for the storage server.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "For storage_sftp_port, enter the upload port of the SFTP server.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "For storage_dir, enter the storage server directory.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "For storage_sftp_username, enter a username for storage server login.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "To set up the public key, enter a password for the username. This password is used temporarily and is not saved.",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If the SFTP server doesn't allow password-based authentication, you receive an error that the service is unable to update the public key on the server. If you receive that error, add the contents of the public key to the authorized_keys file on the SFTP server:",
+      "depth": 2
+    },
+    {
+      "item": "Copy the contents from the file /.ssh/id_ed25519.pub.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "On the SFTP server, add the copied content to the end of the following file: /.ssh/authorized_keys.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "On the Incident Receiver VM, enter the following command:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "sudo zirsvr configure ~/<certificate_zip_filename>",
+      "depth": 2
+    },
+    {
+      "item": "By default, the Incident Receiver Health Check is enabled. The health check notes if there are any changes in behavior and is set to 5 minute intervals. To verify the health check is working, you receive the Health Status JSON file <systmld>_<iphash>_ir_health_status_timestamp.json in your evidence folder. If you would like to disable the health check, contact Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Example of health check file",
+      "depth": 1
+    },
+    {
+      "item": "{ \"ipAddress\":\"10.66.103.169\", \"version\":\"6.3.2404\", \"updatedAt\":\"1726848892\", \"systemId\":\"65533\", \"lastIncidentReceivedAt\":\"1726828921\", \"lastFileUploadSuccessAt\":\"1726828921\", \"storageType\": \"SFTP\", \"storageLocation\":\"/sc/temp\", \"healthcheckIntervalInSec\":\"300\" }",
+      "depth": 1
+    },
+    {
+      "item": "After Zscaler Incident Receiver is configured properly, it performs the following actions:",
+      "depth": 0
+    },
+    {
+      "item": "Downloads the latest build",
+      "depth": 1
+    },
+    {
+      "item": "Installs the certificate you specified",
+      "depth": 1
+    },
+    {
+      "item": "Checks whether the service is configured correctly",
+      "depth": 1
+    },
+    {
+      "item": "Starts the service",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "After the Zscaler Incident Receiver service has started, you can add it to the Data Loss Prevention (DLP) policy rule. To learn more, see Configuring DLP Policy Rules with Content Inspection, Configuring DLP Policy Rules without Content Inspection, and Configuring the SaaS Security API DLP Policy.",
+      "depth": 0
+    },
+    {
+      "item": "You can log in to the storage server to see information about DLP policy violations. For each policy violation, the storage server creates a directory containing the policy-violating file and a JSON file for the DLP policy scan metadata. The policy-violating files can be a maximum of 100 MB.",
+      "depth": 0
+    },
+    {
+      "item": "Download a sample JSON file for Endpoint DLP policy",
+      "depth": 0
+    },
+    {
+      "item": "Download a sample JSON file for DLP policy with and without content inspection",
+      "depth": 0
+    },
+    {
+      "item": "Download a sample JSON file for DLP policy with Evaluate All Rules mode enabled",
+      "depth": 0
+    },
+    {
+      "item": "Download a sample JSON file for Data at Rest Scanning DLP policy",
+      "depth": 0
+    },
+    {
+      "heading": "Updating and Customizing a Deployed Zscaler Incident Receiver VM",
+      "level": 1
+    },
+    {
+      "text": "With your Incident Receiver VM running, you can update and customize the VM based on your organization's needs."
+    },
+    {
+      "item": "Update the Incident Receiver VM",
+      "depth": 0
+    },
+    {
+      "item": "If you have successfully configured the service, the service automatically downloads the latest build before it starts. To manually update the service:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr stop",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to install the update:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr update-now",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to start the service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zirsvr start",
+      "depth": 0
+    },
+    {
+      "item": "Run the Incident Receiver VM in Explicit Proxy Mode",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr configure-proxy",
+      "depth": 1
+    },
+    {
+      "item": "For Do you require a proxy server configuration? enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For proxyserver enter the IP address of your proxy server (e.g., proxy.zscaler.net) and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For proxyport enter your proxy port number (e.g., 1344) and press Enter.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The VM then tests the connection. When it is successful, the configuration is complete.",
+      "depth": 0
+    },
+    {
+      "item": "To remove the explicit proxy configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require proxy server configuration? enter n and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For Do you want to delete current proxy configuration? enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Requirements for Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "If you're using explicit proxy mode, DNS and Network Time Protocol (NTP) connections are not tunneled, meaning you need an internal DNS server to run in this mode. The Zscaler Incident Receiver must have DNS resolution for the current Master Certificate Authority (CA) IP, the update server, and the NTP server. The Zscaler Incident Receiver host also must be able to query a DNS server to resolve the following:",
+      "depth": 0
+    },
+    {
+      "item": "smcacluster.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update1.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update2.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "The NTP server. By default, the VM has the following FQDNs for NTP servers configured:",
+      "depth": 1
+    },
+    {
+      "item": "0.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "1.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "2.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+      "depth": 0
+    },
+    {
+      "item": "In addition, since the proxy configuration doesn't allow authentication, you must configure the proxy server to allow specific IP/MAC addresses without user and password authentication.",
+      "depth": 0
+    },
+    {
+      "item": "Run the Incident Receiver VM with Mutual Transport Security Enabled",
+      "depth": 0
+    },
+    {
+      "item": "You can use the Mutual Transport Layer Security (MTLS) method to support client authentication for the Zscaler Incident Receiver. MTLS is a method for mutual authentication. It ensures that parties at each end of the connection are who they claim to be. Zscaler provides the MTLS CA Certificate for the Zscaler Incident Receiver, and you have the option to enable mutual authentication for the Zscaler Incident Receiver, which then uses this certificate for client authentication.",
+      "depth": 0
+    },
+    {
+      "item": "To run the Incident Receiver VM with mutual transport security enabled:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enable MTLS by updating the icap_mtls_enabled parameter to 1 (icap_mtls_enabled=1). By default, this parameter is disabled.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Zscaler Incident Receiver service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zirsvr restart",
+      "depth": 0
+    },
+    {
+      "item": "Configure the Zscaler Incident Receiver VM to Allow Multiple SFTP Connections",
+      "depth": 0
+    },
+    {
+      "item": "If you notice that SFTP upload is slower than expected, or if you notice that the Zscaler Incident Receiver internal queue is full, you can configure the Zscaler Incident Receiver VM to allow multiple simultaneous SFTP connections. You can find the logs for the Incident Receiver internal queue at /sc/log/zirsvr.log.",
+      "depth": 0
+    },
+    {
+      "item": "To configure this setting:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Specify the number of simultaneous SFTP connections by updating the storage_sftp_conn_max parameter to a value from one to 16 (e.g., storage_sftp_conn_max=2). By default, this parameter has a value of 1.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Zscaler Incident Receiver service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "scp sudo zirsvr restart",
+      "depth": 0
+    },
+    {
+      "item": "Before enabling this setting in your production environment, be sure to conduct thorough end-to-end testing.",
+      "depth": 1
+    },
+    {
+      "item": "If changing this setting does not solve the problem of the Zscaler Incident Receiver internal queue filling up, you might also need to change the specifications on your SFTP server to ensure faster throughput, or you might need to configure multiple incident receivers with load balancing.",
+      "depth": 1
+    },
+    {
+      "item": "If you need assistance enabling this setting in your environment, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "Upgrade SSH Key to ED25519",
+      "depth": 0
+    },
+    {
+      "item": "If your organization requires you to update your SSH key, upgrade to the ED25519 key. To upgrade:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr troubleshoot",
+      "depth": 1
+    },
+    {
+      "item": "If you see the following warning, you must update your SSH key:",
+      "depth": 1
+    },
+    {
+      "item": "Checking SFTP server connection External SFTP server is configured as ... SFTP server is setup correctly, connection, read, and write are all successful. However, disk quota is not checked. Warning: SFTP is configured with older key type \"rsa\", consider upgrading it to newer keytype \"ed25519\" using command \"sudo zirsvr update-sshkey\". If your SFTP server is a Windows based server, please read SFTP server's Admin Guide.",
+      "depth": 1
+    },
+    {
+      "item": "You can do a snapshot of your VM before executing the following command.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr update-sshkey",
+      "depth": 1
+    },
+    {
+      "item": "If the SSH key was migrated correctly:",
+      "depth": 1
+    },
+    {
+      "item": "It creates an SSH key with ED25519 to the file authorized_keys under the directory /home/zsroot/.ssh.",
+      "depth": 2
+    },
+    {
+      "item": "It adjusts the file /sc/conf/sc.conf to use the new ED25519 key.",
+      "depth": 2
+    },
+    {
+      "item": "On a Linux-based SFTP server, it uses a new public key.",
+      "depth": 2
+    },
+    {
+      "item": "If your SFTP server doesn't support ssh-copy-id, you receive a message that the operation was unsuccessful. To update the SSH public key with the new ED25519 key, contact Zscaler Support.",
+      "depth": 2
+    },
+    {
+      "item": "Install a New Server Certificate",
+      "depth": 0
+    },
+    {
+      "item": "If you receive an error for an expired certificate, you must install a new server certificate. To do so:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to verify your server certificate is expired:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr troubleshoot",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a certificate signing request:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr create-server-cert-csr",
+      "depth": 1
+    },
+    {
+      "item": "Send the certificate to a well-known CA for signing.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command to install the server certificate:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo zirsvr install-server-cert",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to restart the Incident Receiver and update the server certificate:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sudo zirsvr restart",
+      "depth": 1
+    },
+    {
+      "heading": "Zscaler Incident Receiver Commands",
+      "level": 1
+    },
+    {
+      "text": "You can use the following commands to configure, update, and troubleshoot your VM."
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo zirsvr stop",
+          "Stops the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr start",
+          "Starts the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr update-now",
+          "Updates the Zscaler Incident Receiver service. The service must be stopped before you can run this command."
+        ],
+        [
+          "sudo zirsvr configure-sftp",
+          "Updates the SFTP server that the Incident Receiver uses."
+        ],
+        [
+          "sudo zirsvr restart",
+          "Restarts the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr status",
+          "Displays whether the Zscaler Incident Receiver service is running or stopped."
+        ],
+        [
+          "sudo zirsvr force-update-now",
+          "Forces the Zscaler Incident Receiver service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins."
+        ],
+        [
+          "sudo zirsvr troubleshoot",
+          "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the Zscaler cloud server configuration, all services, and whether or not an update is needed."
+        ],
+        [
+          "sudo zirsvr collect-diagnostics",
+          "Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes."
+        ],
+        [
+          "sudo zirsvr configure-syslog-server",
+          "Configures external syslog server forwarding on the Zscaler Incident Receiver to forward file SFTP events and to log any critical changes to the configuration files monitored by the Incident Receiver. The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+        ],
+        [
+          "sudo zirsvr create-server-cert-csr",
+          "Creates a new server certificate to be downloaded to the Incident Receiver."
+        ],
+        [
+          "sudo zirsvr install-server-cert",
+          "Installs server certificates."
+        ],
+        [
+          "sudo zirsvr update-sshkey",
+          "Creates a new SSH key and updates Zscaler Incident Receiver to use the new SSH key as authentication."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ]
+      ]
+    }
+  ]
+}

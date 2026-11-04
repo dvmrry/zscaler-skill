@@ -1,0 +1,1828 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring DLP Cloud-to-Cloud Incident Forwarding for Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-dlp-cloud-cloud-incident-forwarding-microsoft-azure",
+    "node": "1546220",
+    "revision": "3246792",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Cloud-to-Cloud Incident Forwarding allows you to send evidence data and metadata from Data Loss Prevention (DLP) violations directly to your public cloud storage without deploying appliances."
+    },
+    {
+      "text": "Cloud-to-Cloud Incident Forwarding does not support using the same public cloud account to onboard multiple tenants that are hosted on the same Zscaler cloud. For example, suppose your pre-production and production tenants are hosted on the same Zscaler cloud. In that case, you cannot use the same Azure account to onboard both tenants. To use the same Azure account, you must ensure that each tenant is hosted on a separate Zscaler cloud."
+    },
+    {
+      "text": "To configure Cloud-to-Cloud Incident Forwarding:"
+    },
+    {
+      "item": "1. Create a resource group and storage account in Azure.",
+      "depth": 0
+    },
+    {
+      "item": "Before you can deploy a Cloud-to-Cloud Incident Receiver in Azure, you must first create a resource group to hold all resources for the Incident Receiver VM, as well as a storage account for the Incident Receiver files.",
+      "depth": 0
+    },
+    {
+      "item": "a. Create a storage account.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure portal with your Global Administrator account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Storage accounts.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Create to create the storage account.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Basics tab enter the following information:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Click Create new and create a new resource group.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Storage account name: Enter a name for the storage account.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: From the drop-down menu, select a region.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Primary service: From the drop-down menu, select a primary service.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Performance: Select either Standard or Premium.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          27,
+          35
+        ],
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Redundancy: From the drop-down menu, select a redundancy.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Review + create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The Create a storage account page opens. Click Create.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          4,
+          28
+        ],
+        [
+          47,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "You need to make sure your storage account is accessible to the necessary IP addresses. To do so, go to Security + networking > Networking.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          104,
+          138
+        ]
+      ]
+    },
+    {
+      "item": "To learn which IP addresses to connect to, see Zscaler Hub IP Addresses.",
+      "depth": 2
+    },
+    {
+      "item": "b. Add evidence and metadata buckets.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Storage Account you just created.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Go to Data storage > Containers and click Add container. The New Container pane appears.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          31
+        ],
+        [
+          42,
+          55
+        ],
+        [
+          61,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the New Container pane, enter the name for your evidence data container as <bucketNamePrefix>-data then click Create. No periods can be used in the name.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          113,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "In the same storage account, click Add container. The New Container pane appears.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          48
+        ],
+        [
+          54,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the New Container pane, enter the name for your metadata container as <bucketNamePrefix>-metadata then click Create. No periods can be used in the name.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          112,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "You need the names of the containers you created to enter them in the Zscaler Admin Console.",
+      "depth": 2
+    },
+    {
+      "item": "2. Begin onboarding the SaaS application.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, from the navigation menu, go to Data Security > Common Resources > DLP Incident Receiver.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          75
+        ],
+        [
+          78,
+          94
+        ],
+        [
+          97,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "Select the Cloud-to-Cloud Incident Forwarding tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Choose Microsoft Azure for the SaaS Application Provider and click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          31,
+          56
+        ],
+        [
+          67,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Tenant Name for the SaaS application tenant and click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          8,
+          19
+        ],
+        [
+          62,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Ensure the Cloud-to-Cloud Incident Forwarding checkbox is checked and click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          45
+        ],
+        [
+          76,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) To onboard with Workflow Automation, select the Workflow Automation checkbox.",
+      "depth": 1,
+      "strong": [
+        [
+          59,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you are configuring your Azure account with Workflow Automation, you already created the resources needed for configuration. You do not need to create additional resources at this time. See Configuring the Azure DLP Application Integration Using Cloud-to-Cloud Incident Forwarding.",
+      "depth": 1
+    },
+    {
+      "item": "3. Authorize the SaaS application.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, on the Add page, select the functionality you want to enable:",
+      "depth": 0,
+      "strong": [
+        [
+          37,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Defined",
+      "depth": 1
+    },
+    {
+      "item": "Click Provide Admin Credentials, and sign in with your Microsoft Azure account credentials.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the Zscaler SaaS Connector ID.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the Azure portal with your Global Administrator account. Go to Azure Active Directory > Enterprise Applications.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          73,
+          95
+        ],
+        [
+          98,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the application name matching the Zscaler SaaS Connector ID.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go back to the Azure portal home page, then go to Subscriptions and select your subscription.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          50,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select Access Control (IAM) > Role Assignments > Add > Add role assignment.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          30,
+          46
+        ],
+        [
+          49,
+          52
+        ],
+        [
+          55,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Search for Storage Blob Data Contributor.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Select Storage Blob Data Contributor then click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          36
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Search for Storage Blob Data Contributor.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "Select Storage Account Contributor and then click Next.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          34
+        ],
+        [
+          50,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Select members and add the application name as a member to Storage Blob Data Contributor and Storage Account Contributor.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          65,
+          94
+        ],
+        [
+          99,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select Review + assign.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Zscaler Admin Console, under Enter Bucket Configuration, select Add Bucket.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          36,
+          62
+        ],
+        [
+          71,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Add the following details:",
+      "depth": 2,
+      "number": 14
+    },
+    {
+      "item": "Configuration Name",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Evidence",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Metadata JSON",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 2,
+      "number": 15
+    },
+    {
+      "item": "Custom",
+      "depth": 1
+    },
+    {
+      "item": "a. Create the custom connector",
+      "depth": 2
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the Azure Services section, click App registrations.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The App registrations page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click New registration.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Register an application window opens.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Register an application window:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the application that is representative of the Zscaler connection you are creating (e.g., Zscaler Storage Account).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Ensure that this option is set to the Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant) value.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          63,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI (optional): Select Web as the platform, then provide the URL of the Zscaler account (e.g., https://admin.zscalertwo.net/). Save the URL for later use.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          32,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Register.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The application is registered and the application's Overview page is displayed. Copy the Application (client) ID and Directory (tenant) ID values from the Overview page and save them to enter your Client ID and Tenant ID into the Zscaler Admin Console to complete the configuration process.",
+      "depth": 3,
+      "strong": [
+        [
+          52,
+          60
+        ],
+        [
+          89,
+          112
+        ],
+        [
+          117,
+          138
+        ],
+        [
+          155,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "b. Provide Zscaler access to the application.",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, on the Add page, select the Application Type you would like to integrate with:",
+      "depth": 2,
+      "strong": [
+        [
+          37,
+          40
+        ],
+        [
+          58,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Client Secret",
+      "depth": 3
+    },
+    {
+      "item": "In the Azure portal, in the left-side navigation, go to Manage > Certificates & Secrets.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          56,
+          62
+        ],
+        [
+          65,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Client secrets tab, click New client secret.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          33,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "The Add a client secret pane appears.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Add a client secret pane:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter information about the client secret.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: From the drop-down menu, select the appropriate expiration time.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Add.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The client secret value is generated and displayed.",
+      "depth": 4
+    },
+    {
+      "item": "Copy the secret value and save it for later use. You need the client secret to enter it into the Zscaler Admin Console to complete the configuration process.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "The client secret value is displayed only once and cannot be retrieved after you navigate away from the page.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Private Key",
+      "depth": 3
+    },
+    {
+      "item": "Generate a private key PEM file:",
+      "depth": 3
+    },
+    {
+      "item": "For Windows users",
+      "depth": 4
+    },
+    {
+      "item": "Generate a certificate, private key, and combined PEM file.",
+      "depth": 5
+    },
+    {
+      "item": "For additional information about the files you need to create, refer to the following table:",
+      "depth": 5
+    },
+    {
+      "table": [
+        [
+          "File Name",
+          "Description",
+          "Usage"
+        ],
+        [
+          "private_key.pem",
+          "AES-256 encrypted RSA private key",
+          "Used to create combined.pem."
+        ],
+        [
+          "certificate.pem",
+          "Self-signed certificate",
+          "Upload on Azure portal."
+        ],
+        [
+          "combined.pem",
+          "Combined PEM file containing the private key and certificate",
+          "Upload on Internet & SaaS onboarding page."
+        ]
+      ]
+    },
+    {
+      "item": "To generate a certificate on a Windows device, copy the following code and run the commands using OpenSSL:",
+      "depth": 5
+    },
+    {
+      "item": "<# .SYNOPSIS Generate AES-encrypted RSA key and a self-signed certificate with an interactive pause. .DESCRIPTION - Prompts for a passphrase (masked). - Generates encrypted private key using OpenSSL. - Pauses so operator can choose interactive subject prompts or provide a subject string. - Decrypts the private key, combines key + certificate into a single PEM. - Cleans up temporary passfile and clears sensitive memory. #> [CmdletBinding()] param( [string]$OpenSSL = 'C:\\Program Files\\OpenSSL-Win64\\bin\\openssl.exe', [string]$WorkingDir = \"$env:USERPROFILE\\Downloads\", [int]$Days = 365 ) Set-StrictMode -Version Latest $ErrorActionPreference = 'Stop' # Paths $EncryptedKey = Join-Path $WorkingDir \"private_encrypted.pem\" $DecryptedKey = Join-Path $WorkingDir \"private_decrypted.pem\" $Certificate = Join-Path $WorkingDir \"certificate.pem\" $CombinedPEM = Join-Path $WorkingDir \"combined.pem\" # Validate OpenSSL if (-not (Test-Path -Path $OpenSSL)) { Write-Error \"OpenSSL not found at '$OpenSSL'. Update the path or install OpenSSL.\" exit 1 } # Ensure working directory exists if (-not (Test-Path -Path $WorkingDir)) { New-Item -ItemType Directory -Path $WorkingDir -Force | Out-Null } # Prompt for passphrase (masked) $passwordSecure = Read-Host -AsSecureString \"Enter passphrase to encrypt the private key (masked)\" if ($null -eq $passwordSecure) { Write-Error \"No passphrase provided. Aborting.\" exit 1 } # Prompt for passphrase (masked) $Days = Read-Host -AsString \"Enter cert days expiry\" if ($null -eq $days) { Write-Error \"invalid days\" exit 1 } # Convert SecureString to plain in memory briefly $BSTR = [System.Runtime.InteropServices.Marshal]::SecureStringToBSTR($passwordSecure) try { $PlainPassword = [System.Runtime.InteropServices.Marshal]::PtrToStringAuto($BSTR) } finally { # Zero and free the BSTR immediately [System.Runtime.InteropServices.Marshal]::ZeroFreeBSTR($BSTR) } # Create a temporary passfile for OpenSSL to read (avoids exposing passphrase in process args) $passFile = [System.IO.Path]::GetTempFileName() try { # Write passphrase without newline Set-Content -Path $passFile -Value $PlainPassword -NoNewline -Encoding UTF8 # Best-effort: restrict ACL to current user try { $currentUser = (whoami) $acl = Get-Acl -Path $passFile $acl.SetAccessRuleProtection($true, $false) $rule = New-Object System.Security.AccessControl.FileSystemAccessRule($currentUser, \"FullControl\", \"Allow\") $acl.SetAccessRule($rule) Set-Acl -Path $passFile -AclObject $acl } catch { Write-Warning \"Could not tighten ACL on passfile: $_\" } Write-Host \"\" Write-Host \"Step 1: Generating AES-256 encrypted RSA private key...\" & $OpenSSL genpkey -algorithm RSA -aes256 -pass file:\"$passFile\" -out \"$EncryptedKey\" -pkeyopt rsa_keygen_bits:2048 Write-Host \"Encrypted key created at: $EncryptedKey\" Write-Host \"\" Write-Host \"Step 2: Prepare to create the self-signed certificate.\" Write-Host \" Option A: Press Enter to let OpenSSL prompt you interactively for subject fields.\" Write-Host \" Option B: Paste a subject string now to run non-interactive (example: /C=US/ST=State/L=City/O=Org/OU=Unit/CN=example.com)\" $userInput = Read-Host \"Press Enter for interactive prompts, or paste subject and press Enter\" if ([string]::IsNullOrWhiteSpace($userInput)) { Write-Host \"\" Write-Host \"Running OpenSSL in interactive mode. You will be prompted for subject fields.\" & $OpenSSL req -new -x509 -key \"$EncryptedKey\" -passin file:\"$passFile\" -out \"$Certificate\" -days $Days } else { $subj = $userInput.Trim() Write-Host \"\" Write-Host \"Creating certificate non-interactively with subject: $subj\" & $OpenSSL req -new -x509 -key \"$EncryptedKey\" -passin file:\"$passFile\" -out \"$Certificate\" -days $Days -subj $subj } Write-Host \"Certificate created at: $Certificate\" Start-Sleep -Seconds 1 Write-Host \"\" Write-Host \"Step 3: Decrypting private key to plain PEM...\" & $OpenSSL pkey -in \"$EncryptedKey\" -passin file:\"$passFile\" -out \"$DecryptedKey\" Write-Host \"Decrypted key written to: $DecryptedKey\" Start-Sleep -Seconds 1 Write-Host \"\" Write-Host \"Step 4: Combining decrypted key and certificate into combined PEM...\" # Ensure private key first, then certificate Get-Content -Path $EncryptedKey -Raw | Out-File -FilePath $CombinedPEM -Encoding ascii Get-Content -Path $Certificate -Raw | Out-File -FilePath $CombinedPEM -Encoding ascii -Append Write-Host \"Combined PEM created at: $CombinedPEM\" Write-Host \"\" Write-Host \"Certificate expiry:\" & $OpenSSL x509 -in \"$Certificate\" -noout -enddate } finally { # Cleanup: remove passfile and clear sensitive variables if (Test-Path $passFile) { try { # Overwrite with zeros (best-effort) then delete $zero = [byte[]]::new(1024) $fs = [System.IO.File]::Open($passFile, [System.IO.FileMode]::Open, [System.IO.FileAccess]::Write) try { $fs.Write($zero, 0, $zero.Length) } catch {} finally { $fs.Close() } } catch {} Remove-Item -Path $passFile -Force -ErrorAction SilentlyContinue } # Clear sensitive variables if ($null -ne $PlainPassword) { $PlainPassword = $null } if ($null -ne $passwordSecure) { $passwordSecure.Dispose() } [System.GC]::Collect(); [System.GC]::WaitForPendingFinalizers() } Write-Host \"\" Write-Host \"Done. Files created in: $WorkingDir\"",
+      "depth": 5
+    },
+    {
+      "item": "Upload the certificate file to the created client connector.",
+      "depth": 5
+    },
+    {
+      "item": "In the Azure portal, in the left-side navigation, go to App registrations and click on the client connector you created.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          56,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Certificates & secrets.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          41
+        ],
+        [
+          44,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click the Certificates tab and then click Upload certificate.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          42,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Description field, enter a description for the certificate.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Upload the public certificate PEM file and click Add.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          49,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "For Mac users",
+      "depth": 4
+    },
+    {
+      "item": "Generate a certificate, private key, and combined PEM file.",
+      "depth": 5
+    },
+    {
+      "item": "For additional information about the files you need to create, refer to the following table:",
+      "depth": 5
+    },
+    {
+      "table": [
+        [
+          "File Name",
+          "Description",
+          "Usage"
+        ],
+        [
+          "private_key.pem",
+          "AES-256 encrypted RSA private key",
+          "Used to create combined.pem."
+        ],
+        [
+          "certificate.pem",
+          "Self-signed certificate",
+          "Upload on Azure Portal."
+        ],
+        [
+          "combined.pem",
+          "Combined PEM file containing the private key and certificate",
+          "Upload on Internet & SaaS onboarding page."
+        ]
+      ]
+    },
+    {
+      "item": "To generate a certificate on a Mac device, copy the following code block, paste it into OpenSSL, and run.",
+      "depth": 5
+    },
+    {
+      "item": "#!/bin/bash set -e # Exit the script if any command fails # Prompt for missing values read_if_missing() { local varname=\"$1\"; local prompt=\"$2\"; local default=\"${3:-}\" if [[ -z \"${!varname:-}\" ]]; then if [[ -n \"$default\" ]]; then read -rp \"$prompt [$default]: \" val val=\"${val:-$default}\" else read -rp \"$prompt: \" val fi printf -v \"$varname\" '%s' \"$val\" fi } read_if_missing DAYS \"Certificate validity in days\" \"$DAYS\" # File definitions ENCRYPTED_PRIVATE_KEY=\"private_key.pem\" # AES-encrypted private key CERTIFICATE=\"certificate.pem\" # Self-signed certificate COMBINED_PEM=\"combined.pem\" # Final combined PEM file # Step 1: Generate an AES-encrypted RSA private key echo \"🔐 Generating an AES-256 encrypted RSA private key...\" openssl genpkey -algorithm RSA -aes256 -out \"$ENCRYPTED_PRIVATE_KEY\" -pkeyopt rsa_keygen_bits:2048 if [[ $? -ne 0 ]]; then echo \"❌ Failed to generate AES-encrypted private key.\" exit 1 fi echo \"✅ Successfully created AES-encrypted private key: '$ENCRYPTED_PRIVATE_KEY'.\" # Step 2: Create a self-signed certificate using the encrypted private key echo \"📜 Generating a self-signed certificate...\" openssl req -new -x509 -key \"$ENCRYPTED_PRIVATE_KEY\" -out \"$CERTIFICATE\" -days $DAYS if [[ $? -ne 0 ]]; then echo \"❌ Failed to create certificate.\" exit 1 fi echo \"✅ Successfully created self-signed certificate: '$CERTIFICATE'.\" # Step 3: Combine encrypted private key and certificate into a single PEM file echo \"📦 Combining encrypted private key and certificate into '$COMBINED_PEM'...\" cat \"$ENCRYPTED_PRIVATE_KEY\" \"$CERTIFICATE\" > \"$COMBINED_PEM\" if [[ $? -ne 0 ]]; then echo \"❌ Failed to combine files into PEM.\" exit 1 fi echo \"✅ Successfully created combined PEM file: '$COMBINED_PEM'.\" # Step 5: Confirm Encryption Details in the Encrypted Key echo \"🔍 Confirming encryption type used in the private key...\" openssl asn1parse -in \"$ENCRYPTED_PRIVATE_KEY\" echo \"🎉 All steps completed successfully! The combined PEM file is located at '$COMBINED_PEM'.\"",
+      "depth": 5
+    },
+    {
+      "item": "Upload the certificate file to the created client connector.",
+      "depth": 5
+    },
+    {
+      "item": "In the Azure portal, go to App registrations and click on the client connector you created.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Certificates & secrets.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          41
+        ],
+        [
+          44,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "Click the Certificates tab and then click Upload certificate.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          42,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 6
+    },
+    {
+      "item": "In the Description field, enter a description for the certificate.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Upload the public certificate PEM file and click Add.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          49,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "c. Create API permissions for the connector.",
+      "depth": 2
+    },
+    {
+      "item": "In the Azure portal, in the left-side navigation, go to Manage > API permissions.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          56,
+          62
+        ],
+        [
+          65,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Configured permissions then Add a permission.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          34,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Request API permissions page is displayed.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Microsoft APIs tab, click an API to assign permissions. You need to assign two permissions: Azure Storage and Azure Service Management. Each one maps to the user_impersonation permission.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Request API permissions list, select Azure Service Management.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          44,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Select the permission user_impersonation and then click Add permissions.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          56,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Microsoft APIs tab, in the Select permissions list, select Azure Storage.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          34,
+          52
+        ],
+        [
+          66,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Select the permission user_impersonation and then click Add permissions.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          56,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "The permissions appear in the Configured permissions list on the API permissions page.",
+      "depth": 3,
+      "strong": [
+        [
+          30,
+          52
+        ],
+        [
+          65,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "d. Add role assignments.",
+      "depth": 2
+    },
+    {
+      "item": "In the Azure portal, in the left-side navigation, go to Azure Services > Enterprise Applications.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          56,
+          70
+        ],
+        [
+          73,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select a storage account and the Overview page appears.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Copy the Name, Application ID, and the Object ID.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          15,
+          29
+        ],
+        [
+          39,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go back to the Azure portal home page, and in the Azure Services section, click Subscriptions.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          50,
+          64
+        ],
+        [
+          80,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Select your subscription.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The page for the selected subscription appears.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-hand menu, click Access Control (IAM).",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          29,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The Access Control (IAM) page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click the Role Assignments tab, then click Add > Add role assignment.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          26
+        ],
+        [
+          43,
+          46
+        ],
+        [
+          49,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Search for Storage Blob Data Contributor. Select Storage Blob Data Contributor then click Next.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          49,
+          78
+        ],
+        [
+          90,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Search for Storage Account Contributor. Select Storage Account Contributor then click Next.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          47,
+          74
+        ],
+        [
+          86,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "On the Add role assignment page, click Select members.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select or search for the application you created when creating the custom connector, then add it as a member to Storage Blob Data Contributor. .",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          112,
+          141
+        ],
+        [
+          143,
+          144
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "e. Authorize the custom connector.",
+      "depth": 2
+    },
+    {
+      "item": "In the Zscaler Admin Console, on the Add page:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "If you selected Client Secret:",
+      "depth": 4
+    },
+    {
+      "item": "Enter the Client ID, Client Secret, and the Tenant ID.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          21,
+          34
+        ],
+        [
+          44,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Bucket.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enter the bucket configuration information:",
+      "depth": 5,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Configuration Name: Enter a name for the configuration.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Evidence: Enter the evidence data bucket name by following these steps:",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Azure portal.",
+      "depth": 7,
+      "number": 1
+    },
+    {
+      "item": "Select your storage account.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "Go to the containers section and select the storage account name container to copy its URL:",
+      "depth": 7,
+      "number": 3
+    },
+    {
+      "item": "https://<storage_account>.blob.core.windows.net/<container_name>",
+      "depth": 7
+    },
+    {
+      "item": "Bucket Name for Metadata JSON: Enter the metadata JSON bucket name by following these steps:",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Azure portal.",
+      "depth": 7,
+      "number": 1
+    },
+    {
+      "item": "Select your storage account.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "Go to the containers section and select the storage account name container to copy its URL:",
+      "depth": 7,
+      "number": 3
+    },
+    {
+      "item": "https://<storage_account>.blob.core.windows.net/<container_name>",
+      "depth": 7
+    },
+    {
+      "item": "Click Authorize.",
+      "depth": 5,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "If you selected Private Key:",
+      "depth": 4
+    },
+    {
+      "item": "Upload the Private Key Certificate File.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Enter the Client ID and Tenant ID.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          24,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Bucket.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Enter the bucket configuration information:",
+      "depth": 5,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Configuration Name: Enter a name for the configuration.",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Name for Evidence: Enter the evidence data bucket name by following these steps:",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Azure portal.",
+      "depth": 7,
+      "number": 1
+    },
+    {
+      "item": "Select your storage account.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "Go to the containers section and select the storage account name container to copy its URL:",
+      "depth": 7,
+      "number": 3
+    },
+    {
+      "item": "https://<storage_account>.blob.core.windows.net/<container_name>",
+      "depth": 7
+    },
+    {
+      "item": "Bucket Name for Metadata JSON: Enter the metadata JSON bucket name by following these steps:",
+      "depth": 6,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Azure portal.",
+      "depth": 7,
+      "number": 1
+    },
+    {
+      "item": "Select your storage account.",
+      "depth": 7,
+      "number": 2
+    },
+    {
+      "item": "Go to the containers section and select the storage account name container to copy its URL:",
+      "depth": 7,
+      "number": 3
+    },
+    {
+      "item": "https://<storage_account>.blob.core.windows.net/<container_name>",
+      "depth": 7
+    },
+    {
+      "item": "Click Authorize.",
+      "depth": 5,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "If you have onboarded the Azure application tenant for Workflow Automation, and used a private key, a new DLP Azure integration in disabled state is automatically added for you in Workflow Automation. To learn more, see Configuring the Azure DLP Application Integration Using Cloud-to-Cloud Incident Forwarding.",
+      "depth": 3
+    },
+    {
+      "text": "After onboarding is complete, you can configure DLP Policy rules and settings. You can also configure Cloud-to-Cloud Incident Forwarding for AWS and Google Cloud Platform."
+    }
+  ]
+}

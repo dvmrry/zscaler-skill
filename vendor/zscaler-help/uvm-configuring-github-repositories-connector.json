@@ -1,0 +1,815 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the GitHub Repositories Connector",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-github-repositories-connector",
+    "node": "1538516",
+    "revision": "3219677",
+    "updated": "2026-10-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "GitHub Repositories is GitHub's core workspace for hosting and managing code projects. It helps teams collaborate by tracking changes, reviewing work through pull requests, managing issues, and controlling access and workflows."
+    },
+    {
+      "text": "The GitHub Repositories connector retrieves repository metadata (e.g., name, owner and organization, visibility, URL, and timestamps) for the specified repositories and organizations. It can also enrich each repository record with custom properties when enabled."
+    },
+    {
+      "text": "The GitHub Repositories connector is in limited availability. To learn more, contact Zscaler Support."
+    },
+    {
+      "text": "For the GitHub Advanced Security connector, see Configuring the GitHub Advanced Security Connector."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure the GitHub Repositories connector, you need the source authentication configuration. Choose one of the following authentication types and retrieve the required parameters for it:"
+    },
+    {
+      "item": "Personal Token Authentication",
+      "depth": 0
+    },
+    {
+      "item": "Use this option to authenticate the connector using a fine-grained personal access token (PAT) associated with a GitHub user. This is a quick way to get started, but access is tied to the user account and the token must be rotated when it expires.",
+      "depth": 0
+    },
+    {
+      "item": "To generate a fine-grained Personal Access Token (PAT):",
+      "depth": 0
+    },
+    {
+      "item": "In the GitHub platform, go to Settings > Developer settings > Personal access tokens.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          38
+        ],
+        [
+          41,
+          59
+        ],
+        [
+          62,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Fine-grained tokens.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate new token.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "The New fine-grained personal access token page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the New fine-grained personal access token page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Token name: Enter a name for the token.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Description: (Optional) Enter a description for the token.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Resource owner: Select the organization.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Expiration: Set an expiration date for the token.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Make sure to refresh the key when it expires.",
+      "depth": 2
+    },
+    {
+      "item": "Repository access: Select All repositories or specify the required repositories.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Permissions: Click Add permissions, and select Metadata.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          19,
+          34
+        ],
+        [
+          47,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "The minimum required access level setting is Read-only, which appears automatically for the selected permission. Click the drop-down menu to change the access level setting.",
+      "depth": 2,
+      "strong": [
+        [
+          45,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Generate token.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Fine-grained personal access tokens page appears displaying the access token.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Copy the generated token to be used in the connector setup process.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Save the token securely. It is not available again after you leave this page.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, refer to the GitHub documentation.",
+      "depth": 0
+    },
+    {
+      "item": "GitHub App Token",
+      "depth": 0
+    },
+    {
+      "item": "Use this option to authenticate the connector using a GitHub App installation access token (recommended for organization-managed access and better control than user PATs).",
+      "depth": 0
+    },
+    {
+      "item": "The App Token authentication method requires creating a GitHub app to retrieve the App ID, Installation ID, private key (PEM), and organization you want to ingest data for.",
+      "depth": 0
+    },
+    {
+      "heading": "GitHub App ID, Installation ID, and PEM",
+      "level": 2
+    },
+    {
+      "item": "To configure GitHub App authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the GitHub platform, click the Profile menu.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          34,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Go to the app settings in one of the following ways:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For an app owned by a personal account, click Settings.",
+      "depth": 2,
+      "strong": [
+        [
+          46,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "For an app owned by an organization:",
+      "depth": 2
+    },
+    {
+      "item": "Click Organizations.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "To the right of the organization, click Settings.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Developer Settings.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          35,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click GitHub Apps.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click New GitHub App.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "The Create GitHub App page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the Create GitHub App page:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "GitHub App name: Enter a name for the app.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Write: (Optional) Enter a short description of the app.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Homepage URL: Enter any valid URL (required by GitHub; not used by the connector).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Callback URL: (Optional) Leave blank. This is only needed for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Expire user authorization tokens: (Optional) Deselect this option. This is only required for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Request user authorization (OAuth) during installation: (Optional) Leave as default. This is only required for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Enable Device Flow: (Optional) Leave as default. This is only required for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Setup URL: (Optional) Leave as default. This is only required for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Redirect on update: (Optional) Leave as default. This is only required for OAuth-based user authorization, which is not supported.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Webhook: (Optional) Deselect the Active checkbox to disable the webhook.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Permissions: Select at least Repository permissions > Metadata > Read-only. If you scope the app to specific repositories, ensure access includes the required repositories.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          29,
+          51
+        ],
+        [
+          54,
+          62
+        ],
+        [
+          65,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Where can this GitHub App be installed?: Select Only on this account.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          39
+        ],
+        [
+          48,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Click Create GitHub App.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the app's settings (General) page, collect the required parameters:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          23,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Copy the App ID.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Under Private keys, click Generate a private key, then download and save the .pem file.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          26,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Save the PEM file securely as you cannot copy or view it later.",
+      "depth": 2
+    },
+    {
+      "item": "Install the app and collect the Installation ID:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "In the left-side navigation, click Install App.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Install next to the target organization and complete the installation (choose All repositories or Only select repositories, as needed).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          84,
+          100
+        ],
+        [
+          104,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Under Install App, click Configure for the installation you created, then copy the number from the URL: .../settings/installations/<Installation ID>.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          25,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, refer to the GitHub documentation.",
+      "depth": 0
+    },
+    {
+      "heading": "Organization",
+      "level": 2
+    },
+    {
+      "item": "The GitHub Organization value can be found in the following locations:",
+      "depth": 0
+    },
+    {
+      "item": "In the GitHub platform, click the Profile menu and select Organizations, then open the target organization.",
+      "depth": 1,
+      "strong": [
+        [
+          34,
+          41
+        ],
+        [
+          58,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "In your browser URL address, copy the organization login/slug from the URL: https://github.com/<Organization>.",
+      "depth": 1
+    },
+    {
+      "item": "Use the App ID, Installation ID, private key (PEM), and organization when creating the GitHub authentication in the connector.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Connector",
+      "level": 1
+    },
+    {
+      "text": "To create the GitHub Repositories data source in the Agentic Security Operations Platform (SecOps Platform):"
+    },
+    {
+      "item": "Go to Configure > Sources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the connector tile from the available data sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Retrieval Filters and Specifications",
+      "level": 2
+    },
+    {
+      "text": "After you create the GitHub Repositories data source, enter the following information in the source setup Retrieval section:"
+    },
+    {
+      "item": "Authentication",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the Authentication section, click Create New.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The GitHub Authentication window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the GitHub Authentication window, select an authentication type and enter the information from the Prerequisites section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Personal Token Authentication",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "GitHub App Token",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Authentications and Managing Authentications.",
+      "depth": 0
+    },
+    {
+      "item": "Start Date",
+      "depth": 0
+    },
+    {
+      "item": "Enter the date and time that the connector starts syncing repository data. Use the format YYYY-MM-DDT:hh:mm:ssZ (e.g., 2025-08-15T00:00:00Z). Only repository records with updated_at on or after this time are synced.",
+      "depth": 0
+    },
+    {
+      "item": "Repositories",
+      "depth": 0
+    },
+    {
+      "item": "Enter a space-delimited list of repository selectors to sync (e.g., org/repo1 org/repo2). To sync all repositories in an organization, use org/*. You can also combine specific repositories and organizations in the same list (e.g., org1/repo1 org1/repo2 org2/*).",
+      "depth": 0
+    },
+    {
+      "item": "Branch (Optional)",
+      "depth": 0
+    },
+    {
+      "item": "Enter the branch name that the connector should use for the specified repositories. You can find the branch name in GitHub by opening the repository and checking the branch selector above the file list (it also shows the default branch).",
+      "depth": 0
+    },
+    {
+      "item": "Fetch Custom Properties (Optional)",
+      "depth": 0
+    },
+    {
+      "item": "Select the Fetch Custom Properties checkbox to include repository custom properties configured in your GitHub organization in the scope of the ingested data (in addition to standard repository metadata). Use this option to add business context to repositories, such as data classification (Public/Internal/Confidential) or service owner (team name).",
+      "depth": 0
+    },
+    {
+      "text": "For complete configuration instructions, see Creating Data Sources."
+    }
+  ]
+}

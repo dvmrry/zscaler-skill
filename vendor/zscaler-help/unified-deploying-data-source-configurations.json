@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Data Source Configurations",
+  "source": {
+    "url": "https://help.zscaler.com/unified/deploying-data-source-configurations",
+    "node": "1545188",
+    "revision": "3250352",
+    "updated": "2026-10-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Agentic Security Operations Platform (Agentic SecOps Platform) collects and correlates security data and business context from a wide array of external tools, including vulnerability scanners, asset inventories, and cloud platforms. Connecting these external sources to your account establishes a continuous Extract, Transform, and Load (ETL) pipeline, ensuring raw telemetry is normalized and made available across the applications available in your account."
+    },
+    {
+      "text": "Agentic SecOps Platform data sources range from API-driven cloud services and Endpoint Protection Platforms (EPP) to Identity and Access Management (IAM) directories, SIEMs, and other third-party tools. If a data source is not available for a specific tool, you can use the AnySource connector to ingest proprietary or unsupported data feeds (e.g., through an AWS S3 bucket)."
+    },
+    {
+      "text": "The specific data sources you need depend on the external tools you work with and the applications available in your account:"
+    },
+    {
+      "item": "Unified Vulnerability Management (UVM): Requires telemetry from vulnerability scanners and Cloud Security Posture Management (CSPM) tools to correlate vulnerabilities with asset context and drive remediation workflows.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Asset Exposure Management (AEM): Requires telemetry from CMDBs (e.g., ServiceNow), IT asset management tools, and cloud inventories to maintain a comprehensive, continuous view of your asset inventory, coverage, and attack surface; EASM augments this by discovering internet-facing assets.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Identity Protection: Requires signals from IAM directories (e.g., Active Directory, Entra ID, Okta) and endpoint telemetry (via Zscaler Client Connector) to detect risky identity posture, anomalous behavior, and exposed credentials.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Agentic SOC: Ingests and correlates alerts from EDR, identity, and Zscaler network telemetry (e.g., Internet & SaaS), enriching them with asset and identity context to triage and investigate threats.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "To learn more about the available data sources, see Agentic Security Operations Platform Configurations by Data Source."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before configuring a data source in the Agentic SecOps Platform, verify the following prerequisites:"
+    },
+    {
+      "item": "Confirm you have sufficient privileges within the third-party vendor's console to generate authentication credentials (e.g., API tokens, OAuth keys) and define access scopes. Depending on the vendor, this might require full administrative access or specific role-based permissions.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that your third-party license permits data export or API access. Ensure the credentials you generate possess the correct read-only permissions for the targeted data streams.",
+      "depth": 0
+    },
+    {
+      "item": "Determine if the vendor requires Agentic SecOps Platform public IP addresses to be allowlisted. Review API rate limits that might impact large-scale data extractions.",
+      "depth": 0
+    },
+    {
+      "item": "All API keys, secrets, and tokens entered into the Agentic SecOps Platform are securely encrypted. Ensure you have a secure method for transferring these credentials from the vendor portal to the Agentic SecOps Platform during setup.",
+      "depth": 0
+    },
+    {
+      "heading": "Standard Deployment Flow",
+      "level": 1
+    },
+    {
+      "text": "Deploying a data source as a fully operational, continuously syncing configuration involves a defined sequence of setup and validation steps. Zscaler recommends following this standard deployment flow:"
+    },
+    {
+      "item": "Collect required parameters from the vendor: Before configuring the data source in the Agentic SecOps Platform, log in to your third-party vendor's portal. Configure the necessary access permissions, allowlist IP addresses if required, and generate the authentication credentials. To learn more, see Source Configuration Guides.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Create the data source: Log in to the Agentic SecOps Platform and create the new source. Enter the credentials gathered previously to establish a secure handshake, and select the specific data streams (e.g., Assets, Vulnerabilities, Alerts) you want to ingest. To learn more, see Creating Data Sources.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Run the data source: After the source is created, you must trigger the initial extraction. Running the source prompts the Agentic SecOps Platform to pull in the first batch of raw telemetry. To learn more, see Managing Data Sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Map your data source: Because every third-party vendor labels their data differently, you must map the ingested external fields to the Agentic SecOps Platform's standardized data model (e.g., telling the platform that the vendor's host_name field equals the Agentic SecOps Platform's Asset Name field). To learn more, see Mapping Data Sources.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Rerun the data source: After your field mappings are saved, run the data source a second time. This applies your mapping rules to the extracted data, completing the transformation process. When this is done, your data source is fully operational and enters a state of continuous, scheduled synchronization. To learn more, see Managing Data Sources.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "(Recommended) Set scheduling: Use auto‑scheduling to coordinate source runs as a single process for consistent, in‑sync ingestion across related sources. This setting is enabled by default and can be adjusted to your data windows. If you schedule at the individual source level, follow the Agentic SecOps Platform's guidance for full and incremental refresh cadence. To learn more, see Managing Data Sources.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "heading": "Maintenance and Monitoring",
+      "level": 1
+    },
+    {
+      "text": "After a data source is successfully deployed, you should monitor source activity to verify that telemetry is being retrieved and processed as expected. Ongoing monitoring helps ensure successful ingestion, supports accurate correlation across data sources, and helps identify issues before they affect downstream workflows."
+    },
+    {
+      "text": "You can monitor source activity by reviewing source run history, validating completed runs, and investigating failed or canceled runs. Run details can help identify issues such as invalid credentials, missing permissions, or other configuration problems. To learn more, see Tracking Data Source Runs."
+    },
+    {
+      "text": "To reduce the need for manual monitoring, you can enable email notifications for failures related to source runs and ETL processing. To learn more, see Enabling Email Notifications for Errors."
+    },
+    {
+      "text": "If a source behaves unexpectedly, you can also review audit logs to track changes to data source instances, mappings, and scheduling settings. Audit logs are useful for troubleshooting and confirming when configuration changes were introduced. To learn more, see Viewing Audit Logs."
+    }
+  ]
+}

@@ -1,0 +1,1001 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ZDX Integration on ServiceNow",
+  "source": {
+    "url": "https://help.zscaler.com/zdx/zdx-integration-servicenow",
+    "node": "1461996",
+    "revision": "3249794",
+    "updated": "2026-10-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "With your Incident Management service user role and webhook configured, you can integrate ServiceNow with Digital Experience (ZDX) to:"
+    },
+    {
+      "item": "Create Deep Tracing sessions to provide deeper granularity and process-level information for a user.",
+      "depth": 0
+    },
+    {
+      "item": "Run a Root Cause Analysis to help detect and identify the root cause of a drop in an application's ZDX Score.",
+      "depth": 0
+    },
+    {
+      "item": "Map the categories and subcategories for incoming alerts or created incidents.",
+      "depth": 0
+    },
+    {
+      "text": "Deep Tracing is a type of Diagnostics session. In ServiceNow, you can only configure for Deep Tracing."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "There are different prerequisites based on which ZDX integration you are implementing. Depending on which service user role is assigned access, you might get different ZDX information."
+    },
+    {
+      "heading": "Assign an Incident Management Service User Role",
+      "level": 2
+    },
+    {
+      "text": "Depending on which ZDX integration your service user must access, you are required to have one of the Incident Management roles assigned to your service user. Optionally, you can assign both roles to a service user if they require access to Root Cause Analysis, Alerts, and Deep Tracing."
+    },
+    {
+      "table": [
+        [
+          "ZDX Integration",
+          "Incident Management Service User Role"
+        ],
+        [
+          "Root Cause Analysis Alerts",
+          "x_zsca2_zdx_manage.zdx_management"
+        ],
+        [
+          "Deep Tracing",
+          "x_zsca2_zdx_manage.zdx_dt_management"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          15
+        ],
+        [
+          0,
+          1,
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "text": "To learn more about how to assign the role, see ServiceNow Webhook Configuration Guide."
+    },
+    {
+      "heading": "Required ZDX Information for Deep Tracing and Root Cause Analysis",
+      "level": 2
+    },
+    {
+      "text": "To start using ZDX integration for Deep Tracing or Root Cause Analysis, you must have:"
+    },
+    {
+      "item": "A ZDX Role with the correct permissions to create an API Key",
+      "depth": 0
+    },
+    {
+      "item": "To create an API Key:",
+      "depth": 0
+    },
+    {
+      "item": "Add a ZDX Role with the following permissions to create an API Key:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Dashboard Access: View Only",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          18,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Deep Tracing: Full",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          14,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Device and User Information: Visible",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "After creating the ZDX Role, create an API Key on the API Key Management page.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Save the API Key ID and Secret for the ServiceNow Settings Module.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "A Zscaler Admin Console URL",
+      "depth": 0
+    },
+    {
+      "item": "Your Zscaler Admin Console URL is where you run Deep Tracing Sessions and Root Cause Analysis.",
+      "depth": 0
+    },
+    {
+      "item": "The format must be: [subdomain].[second-level-domain].[top-level-domain] (e.g., admin.zdxcloud.net). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "item": "A ZDX Public API URL",
+      "depth": 0
+    },
+    {
+      "item": "Your ZDX Public API URL is where the public API has access.",
+      "depth": 0
+    },
+    {
+      "item": "The format must be: [subdomain].[second-level-domain].[top-level-domain] (e.g., api.zdxcloud.net). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Settings Module on ServiceNow for ZDX Integration",
+      "level": 1
+    },
+    {
+      "text": "You must configure the ZDX application fields to enable Deep Tracing and Root Cause Analysis."
+    },
+    {
+      "text": "To configure the Settings Module on ServiceNow for ZDX integration:"
+    },
+    {
+      "item": "Go to the Settings module of your Zscaler Digital Experience application on ServiceNow.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          34,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "In the Settings module:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "ZDX PORTAL URL: Enter your Zscaler Admin Console URL.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "ZDX API URL: Enter your ZDX Public API URL.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Key ID: Enter your Key ID from your ZDX API Key.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Key Secret: Enter your Key Secret from your ZDX API Key.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Deep Tracing Integration on ServiceNow",
+      "level": 2
+    },
+    {
+      "text": "To start a new Deep Tracing session on the Incident Management page of your ServiceNow console:"
+    },
+    {
+      "item": "Select the incident assigned to you based on your user's Caller name.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click the Deep Tracing button.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Deep Tracing page:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of the Deep Tracing session. This includes the current incident number by default.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Run Session For: Select the duration of the Deep Tracing session. You can select from 5 minutes, 15 minutes, 30 minutes, or 60 minutes.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          86,
+          95
+        ],
+        [
+          97,
+          107
+        ],
+        [
+          109,
+          119
+        ],
+        [
+          124,
+          134
+        ]
+      ]
+    },
+    {
+      "item": "User: Select the impacted user.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Device: Select the impacted user's device.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Device Probing: Enable to gather device data for Deep Tracing.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Application: Select the impacted application.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Web Probe: Select the application's Web probe.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Path Probe: Select the application's Cloud Path probe to configure the Cloud Path Probe Thresholds.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          77,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Cloud Path Probe Thresholds: Enter the following information:",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          11,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Packet Loss (%): Enter a percentage of packet loss for Deep Tracing.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Latency (ms): Enter the latency to measure for Deep Tracing.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "After completing a Deep Tracing session, you can view a list of Deep Tracing sessions in the Incident's Deep Tracing section with the following information:"
+    },
+    {
+      "item": "ZDX Link: A link to the Deep Tracing session in the Zscaler Admin Console.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Name: The name of the Deep Tracing session on the Zscaler Admin Console.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "User: The impacted user.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Device: The impacted user's device.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Created Time: The time the session was created by the ZDX Admin.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Start Time: The time that the Zscaler Client Connector accepted the request and started collecting data.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "End Time: The time the session ended.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Web Probe: The application's Web probe that is monitored for the session.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Path: The application's Cloud Path probe that is monitored for the session.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Status: The current session status differs depending on the table in which the session is listed. To learn more, see Understanding the Diagnostics Session Status.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Root Cause Analysis Integration on ServiceNow",
+      "level": 2
+    },
+    {
+      "text": "To run a Root Cause Analysis on the Incident Management page of your ServiceNow console:"
+    },
+    {
+      "item": "Select the incident assigned to you based on your user's Caller name.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click the ZDX Summary tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "On the ZDX Summary page:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "From: Select when the Root Cause Analysis starts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "To: Select when the Root Cause Analysis stops.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Under the Application section, you can click Analyze Score on one of the existing applications if a low score is detected (less than or equal to 34).",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          45,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "A progress bar for the Root Cause Analysis appears.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When the Root Cause Analysis is completed, view a list of factors that determined the ZDX Score.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Mapping the ZDX Alert Types to ServiceNow Categories and Subcategories",
+      "level": 1
+    },
+    {
+      "text": "To map the ZDX Alert types to ServiceNow Categories and Subcategories:"
+    },
+    {
+      "item": "Open an existing ServiceNow instance.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "In the Global Application scope, enter sys_choice.list in the Filter Navigator type.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          62,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Click New.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Configure the following properties to create a new record:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Table: Select Incident.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          14,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Element: Enter category or subcategory.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Label: Enter the name of the label (e.g., ZDX Alert Category).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter a code to access the label record. For example, if you create the label, ZDX Alert Category, then you can create the code value, zdx_alert_category, to associate them together.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Dependent Value: If you are creating a subcategory, enter the value of the root category as required.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "You can now view the Alert Impact and Impacted Users pages. You can also configure the Mappings module. To learn more, see Understanding the ZDX Application Fields on ServiceNow."
+    },
+    {
+      "heading": "Alert Impact",
+      "level": 2
+    },
+    {
+      "text": "The Alert Impact page provides an overview of the impacted devices that meet the alert rule's criteria. The impacted devices are sorted by Departments, Geolocations, and Zscaler Locations."
+    },
+    {
+      "text": "To access Alert Impact:"
+    },
+    {
+      "item": "Select an Incident.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click Alert Impact.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "You see results except for Alert Impact or Impacted Users if the ZDX Score is an alert type based on Public API support."
+    },
+    {
+      "heading": "Impacted Users",
+      "level": 2
+    },
+    {
+      "text": "The Impacted Users page displays a list of impacted devices and their users that meet the alert rule's criteria. The maximum number of devices displayed is 100."
+    },
+    {
+      "text": "You can view:"
+    },
+    {
+      "item": "Device: The device name.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "User Name: The user's name.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "User Email: The user's email address.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Link: A link to the impacted device page in the Zscaler Admin Console.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "You see results except for Alert Impact or Impacted Users if the ZDX Score is an alert type based on Public API support."
+    },
+    {
+      "heading": "User Domain Settings",
+      "level": 1
+    },
+    {
+      "text": "If your users have emails or usernames that differ from the Zscaler Client Connector login, you can configure the User Domain Settings to append or replace the domain as needed. By configuring the User Domain Settings, the user has continued access to basic operations (e.g., fetching a ZDX Summary or starting a Deep Tracing)."
+    },
+    {
+      "text": "To configure the User Domain Settings on ServiceNow:"
+    },
+    {
+      "item": "Go to Zscaler Digital Experience > User Domain Settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          32
+        ],
+        [
+          35,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Under Choose Domain Modification type, select one of the following:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "None: No modifications to the domain settings are required. This is the default selection.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Append: Indicates you want to append a domain to the user identity.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Replace: Indicates you want to replace the user identity domain to match the new domain string.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Depending on what you selected, enter the following:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Append Domain to user identify: If you previously selected Append, enter the domain you want to associate with the user identity (e.g., @gmail.com).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Domain to be replaced in user identity: If you previously selected Replace, enter the domain that replaces the domain identity (e.g., yahoo.com).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          38
+        ],
+        [
+          67,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "New Domain String to match user identity: If you previously selected Replace, enter the domain that matches the previously entered domain with the user identity in Zscaler Client Connector (e.g., google.com).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          40
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "Configuring user domain settings does not manipulate the existing data in the ServiceNow user record."
+    }
+  ]
+}

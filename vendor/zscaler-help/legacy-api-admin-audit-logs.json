@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Admin Audit Logs",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/admin-audit-logs",
+    "node": "1402441",
+    "revision": "3185958",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Admin%20Audit%20Logs_9.json?VersionId=KWIOzAMuCgar.cNJfjWxIB2O1GDATzjQ",
+    "updated": "2026-03-27",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Admin Audit Logs"
+      }
+    ],
+    "paths": {
+      "/auditlogEntryReport": {
+        "get": {
+          "tags": [
+            "Admin Audit Logs"
+          ],
+          "description": "<p>Retrieves the audit log report generation status based on the specified report status ID (retrieved from POST <code>/auditlogEntryReport</code> response). You need to continue polling for the report status until a terminal status is reached (e.g., <code>COMPLETE</code>) to download the report subsequently.</p><p>To learn more, see <a href=\"/legacy-apis/downloading-audit-logs-event-logs-using-api\" target=\"_blank\">Downloading Audit Logs and Event Logs Using API</a>.</p>\n",
+          "operationId": "getAuditReportEntryCsvExportStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "statusId",
+              "description": "The status ID for the report obtained from the response of the POST /auditlogEntryReport request that was used to create the report",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/TaskInfo"
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Admin Audit Logs"
+          ],
+          "description": "<p>Generates an audit log report for the specified time period. The report includes audit information for every call made to the cloud service API during the specified time period. Creating a new audit log report overwrites a previously generated report.</p><p>After making this POST request, you need to poll for the report status by sending GET requests to <code>/auditlogEntryReport</code> along with the status ID obtained from the POST request. Continue polling until the report reaches a terminal status (e.g., <code>COMPLETE</code> or <code>CANCELLED</code>). When the status is <code>COMPLETE</code>, you can download the report as a CSV file by sending a GET request to <code>/auditlogEntryReport/download</code>. To learn more, see <a href=\"/legacy-apis/downloading-audit-logs-event-logs-using-api\" target=\"_blank\">Downloading Audit Logs and Event Logs Using API</a>.</p>\n",
+          "operationId": "startAuditReportEntryCsvExport",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "request",
+              "description": "<p>Criteria used for generating the audit log report, such as time range, filters, pagination, etc. To learn more, see <a href=\"/zia/about-audit-logs\" target=\"_blank\">About Audit Logs</a>.</p>",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AuditLogEntryRequest"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/ReportingStatusResponse"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Admin Audit Logs"
+          ],
+          "description": "<p>Cancels the request previously made to create an audit log report</p>\n",
+          "operationId": "cancelAuditReportEntryCsvExport",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "statusId",
+              "description": "The status ID for the report obtained from the response of the POST /auditlogEntryReport request that was used to create the report",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/auditlogEntryReport/download": {
+        "get": {
+          "tags": [
+            "Admin Audit Logs"
+          ],
+          "description": "<p>Downloads the most recently created audit log report based on the specified report status ID.</p><p>Before sending this request, ensure that you generate a report using <code>POST /auditlogEntryReport</code> and poll for report status using <code>GET /auditlogEntryReport</code> until the status indicates the report is completed (i.e., status is <code>COMPLETE</code>). To learn more, see <a href=\"/legacy-apis/downloading-audit-logs-event-logs-using-api\" target=\"_blank\">Downloading Audit Logs and Event Logs Using API</a>.</p>\n",
+          "operationId": "getAuditReportEntryCsvData",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "text/csv"
+          ],
+          "parameters": [
+            {
+              "name": "statusId",
+              "description": "The status ID for the report obtained from the response of the POST /auditlogEntryReport request that was used to create the report",
+              "in": "query",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "TaskInfo": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "Status of running task",
+            "enum": [
+              "INIT",
+              "EXECUTING",
+              "COMPLETE",
+              "CANCELLED",
+              "ERRORED",
+              "VALIDATING",
+              "STOP"
+            ]
+          },
+          "progressItemsComplete": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Number of items processed"
+          },
+          "progressEndTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "End time"
+          },
+          "errorMessage": {
+            "type": "string",
+            "description": "Error message if present"
+          },
+          "errorCode": {
+            "type": "string",
+            "description": "Error code if present",
+            "enum": [
+              "CONFIGURATION",
+              "INVALID_API_KEY",
+              "DISABLED_API_KEY",
+              "ORGANIZATION_ACCESS_DISABLED",
+              "INVALID_USERNAME_OR_PASSWORD",
+              "AUTHENTICATION_FAILED",
+              "INVALID_SAML_RESPONSE",
+              "SAML_USER_MISSING",
+              "PARTNER_SSO_DISABLED",
+              "ADMIN_SSO_LOGIN_DISABLED",
+              "REMOTE_ASSISTANCE_DISABLED",
+              "NOT_SUBSCRIBED",
+              "TRIAL_EXPIRED",
+              "NOT_AUTHORIZED",
+              "PWD_EXPIRED",
+              "SUBSCRIPTION_EXPIRED",
+              "RBA_LIMITED",
+              "SCOPE_LIMITED",
+              "TEMPORARILY_UNAVAILABLE_DUE_TO_MAINTENANCE",
+              "CLOUD_INFRASTRUCTURE_ERROR",
+              "NANOLOG_SERVER_REQUEST_FAILURE",
+              "CLOUD_INFRASTRUCTURE_REQUEST_TIMEOUT",
+              "HADOOP_CONNECTION_UNAVAILABLE",
+              "HADOOP_SERVER_DOWN",
+              "HADOOP_SERVER_REQUEST_FAILURE",
+              "CONFIGURATION_NOT_FOUND",
+              "DOMAIN_NOT_FOUND",
+              "NANOLOG_SERVER_REQUEST_TIMEOUT",
+              "CLOUD_INFRASTRUCTURE_CONNECTION_CLOSED",
+              "NANOLOG_SERVER_CONNECTION_CLOSED",
+              "CENTRAL_AUTHORITY_CONNECTION_CLOSED",
+              "BA_CONNECTION_CLOSED",
+              "SMBA_CLUSTER_NOT_REACHABLE",
+              "EDIT_LOCK_NOT_AVAILABLE",
+              "OUT_OF_RANGE_PAGE_NUMBER",
+              "OUT_OF_RANGE_PAGE_SIZE",
+              "INVALID_INPUT_ARGUMENT",
+              "INVALID_OPERATION",
+              "INVALID_EMAIL_ADDRESS",
+              "SAML_AUTHENTICATION_NOT_ENABLED",
+              "SHOW_AUP_FREQUENCY_SET_TO_NEVER",
+              "SAML_PUBLICCERT_INVALID_EXTENSION",
+              "ADMIN_SAML_PUBLICCERT_INVALID_EXTENSION",
+              "SAML_PUBLICCERT_MISSING",
+              "SAML_PUBLICCERT_VALIDATION_FAILED",
+              "SAML_ISSUER_VALIDATION_FAILED",
+              "LIMIT_EXCEEDED",
+              "EMPTY_OLD_PASSWORD",
+              "EMPTY_NEW_PASSWORD",
+              "INVALID_PASSWORD_COMBINATION",
+              "DUPLICATE_ITEM",
+              "DUPLICATE_IGNORED",
+              "IDENTICAL_NEW_PASSWORD",
+              "SUPPORT_EMAIL_NOT_SET",
+              "MALFORMED_EMAIL_ADDRESS",
+              "CLOUD_MISMATCH",
+              "EDIT_INTERNAL_DATA_NOT_ALLOWED",
+              "AUDITOR_DIRECT_LOGIN_NOT_ALLOWED",
+              "FILE_LIMIT_EXCEEDED",
+              "RESOURCE_IN_USE",
+              "RESOURCE_NOT_FOUND",
+              "CSV_FORMAT_INVALID",
+              "INVALID_NAME",
+              "PASSWORD_NOT_STRONG",
+              "INVALID_TEMPAUTHEMAIL",
+              "OTP_OR_OTL_DISABLED",
+              "FEATURE_NOT_YET_ENABLED",
+              "FEATURE_NOT_ENABLED",
+              "DEPARTMENT_ALREADY_DELETED",
+              "NON_SUPER_ADMIN_FORCED_ACTIVATE_NOT_ALLOWED",
+              "UNEXPECTED_ERROR",
+              "UNMODIFIABLE",
+              "IMPORT_LIMIT_EXCEEDED",
+              "FILE_TYPE_NOT_SUPPORTED",
+              "INVALID_FILE_SIZE",
+              "SPLUNK_SERVER_DOWN",
+              "CERTIFICATE_CONTENT_INVALID",
+              "ACTIVATION_FAILED",
+              "AGREEMENT_PENDING",
+              "SUCCESS",
+              "MALFORMED_URL",
+              "INVALID_SWITCH",
+              "INVALID_PASSWORD",
+              "USER_ACCOUNT_LOCKED",
+              "NOT_IMPLEMENTED",
+              "NO_CHANGE_DETECTED",
+              "VM_IMAGE_NOT_FOUND",
+              "SIZE_LIMIT_EXCEEDED",
+              "CA_SME_CONNECTION_FAILED",
+              "IDP_LOCATION_MAPPING_ALREADY_EXISTS",
+              "IDP_DOMAIN_MAPPING_ALREADY_EXISTS",
+              "IDP_SWITCHING_WARNING",
+              "RESTRICTED",
+              "CROWDSTRIKE_RESOURCE_NOT_FOUND",
+              "CROWDSTRIKE_CREDENTIALS_NOT_FOUND"
+            ]
+          }
+        }
+      },
+      "AuditLogEntryRequest": {
+        "type": "object",
+        "properties": {
+          "startTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The start time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation"
+          },
+          "endTime": {
+            "type": "integer",
+            "format": "int64",
+            "description": "The end time (Unix timestamp in milliseconds) in a specific time frame to be used for report generation"
+          },
+          "page": {
+            "type": "integer",
+            "description": "Specifies the page offset",
+            "format": "int32"
+          },
+          "pageSize": {
+            "type": "integer",
+            "description": "Specifies the page size",
+            "format": "int32"
+          },
+          "actionTypes": {
+            "type": "array",
+            "description": "The action performed by the admin in the Zscaler Admin Console for Internet & SaaS (ZIA) or the action that occurred through the API",
+            "items": {
+              "type": "string",
+              "enum": [
+                "SIGN_IN",
+                "SIGN_OUT",
+                "CREATE",
+                "UPDATE",
+                "DELETE",
+                "PATCH",
+                "AUDIT_OPERATION",
+                "ACTIVATE",
+                "FORCED_ACTIVATE",
+                "IMPORT",
+                "REPORT",
+                "DOWNLOAD"
+              ]
+            }
+          },
+          "category": {
+            "type": "string",
+            "description": "The location in the Zscaler Admin Console where the action was performed by the admin or API"
+          },
+          "subcategories": {
+            "type": "array",
+            "description": "The subject under the selected category where the action was performed",
+            "items": {
+              "type": "string"
+            }
+          },
+          "actionResult": {
+            "type": "string",
+            "description": "The outcome (i.e., success or failture) of an action"
+          },
+          "actionInterface": {
+            "type": "string",
+            "description": "The interface (i.e., Admin UI or API) where the action was performed"
+          },
+          "objectName": {
+            "type": "string",
+            "description": "The object name for the audit log entry"
+          },
+          "clientIP": {
+            "type": "string",
+            "description": "The source IP address of the admin or the client application's IP address that executed the API"
+          },
+          "adminName": {
+            "type": "string",
+            "description": "The admin's login ID or the internal API user (<code>oauth-<rolename>$@<orgid>.<cloud-domain></code>) if an API action was authenticated by an external OAuth 2.0 authentication server"
+          },
+          "targetOrgId": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "traceId": {
+            "type": "string",
+            "description": "A trace ID is generated and logged for transactions associated with ZIA API requests made via <a href=\"/oneapi/understanding-oneapi\" target=\"_blank\">Zscaler OneAPI</a>. The trace ID helps admins correlate API transactions with the OneAPI platform and you can use the trace ID for debugging purposes."
+          }
+        },
+        "description": "Audit log report details"
+      },
+      "ReportingStatusResponse": {
+        "type": "object",
+        "description": "Report status information",
+        "properties": {
+          "status": {
+            "type": "string",
+            "enum": [
+              "INIT",
+              "EXECUTING",
+              "COMPLETE",
+              "CANCELLED",
+              "ERRORED",
+              "VALIDATING",
+              "STOP",
+              "IMPLICITLY_CANCELLED",
+              "BG_SWITCHED"
+            ],
+            "description": "Report generation status"
+          },
+          "statusId": {
+            "type": "string",
+            "description": "<p>Status ID</p><p><b>Note</b>: This status ID must be captured and sent in subsequent requests to poll for the report status and download the report respectively.</p>"
+          },
+          "errorName": {
+            "type": "string",
+            "description": "Indicates any error that occurred with report generation"
+          },
+          "reportType": {
+            "type": "string",
+            "description": "Report type"
+          },
+          "markedServer": {
+            "type": "string",
+            "description": "This attribute is for Zscaler internal use only"
+          },
+          "reportingMessage": {
+            "type": "object",
+            "description": "Any additional information about the report generation request",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,2413 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Server Group Management",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/server-group-management",
+    "node": "1485326",
+    "revision": "3220787",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Server%20Group%20Management_4.json?VersionId=k7rAXq.8E9mvjR1bhFn_QNkcuwSGJOzV",
+    "updated": "2026-07-31",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Zscaler Private Access API Portal",
+      "description": "To access detailed ZPA API documentation, including references and use cases, refer to the [Zscaler Help Portal](/zpa/about-zpa-api).",
+      "version": "1.0"
+    },
+    "extensions": {
+      "x-original-swagger-version": "2.0"
+    },
+    "tags": [
+      {
+        "name": "Server Group Management"
+      }
+    ],
+    "paths": {
+      "/mgmtconfig/v1/admin/customers/{customerId}/serverGroup": {
+        "get": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Gets all configured server groups for the specified customer.",
+          "operationId": "getAllServerGroups_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to support search by features and fields for the API.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page number.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "1"
+            },
+            {
+              "name": "pagesize",
+              "in": "query",
+              "description": "Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "20"
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PageListServerGroupDTO"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Adds a new server group for the specified customer.",
+          "operationId": "addAppServerGroup_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerGroupDTO"
+                }
+              }
+            }
+          },
+          "responses": {
+            "201": {
+              "description": "Created",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ServerGroupDTO"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/mgmtconfig/v1/admin/customers/{customerId}/serverGroup/{groupId}": {
+        "get": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Gets the server group details for the specified ID.",
+          "operationId": "getServerGroup_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "The unique identifier of the server group.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ServerGroupDTO"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Updates the server group for the specified ID.",
+          "operationId": "updateAppServerGroup_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "The unique identifier of the server group.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ServerGroupDTO"
+                }
+              }
+            }
+          },
+          "responses": {
+            "204": {
+              "description": "No Content"
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Deletes the server group for the specified ID.",
+          "operationId": "deleteAppServerGroup_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "The unique identifier of the server group.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content"
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/mgmtconfig/v1/admin/customers/{customerId}/serverGroup/summary": {
+        "get": {
+          "tags": [
+            "Server Group Management"
+          ],
+          "description": "Gets a summary of server groups for the specified customer.",
+          "operationId": "getAllServerGroupNameIds_1",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "description": "The unique identifier of the ZPA tenant.",
+              "required": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to support search by features and fields for the API.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page number.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "1"
+            },
+            {
+              "name": "pagesize",
+              "in": "query",
+              "description": "Specifies the page size. If not provided, the default page size is 20. The max page size is 500.",
+              "required": false,
+              "allowEmptyValue": true,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "example": "20"
+            },
+            {
+              "name": "microtenantId",
+              "in": "query",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "required": false,
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/PageListNameIdDto"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "PageListServerGroupDTO": {
+          "properties": {
+            "totalPages": {
+              "type": "integer",
+              "description": "The total number of pages per the pagination attribute.",
+              "format": "int32"
+            },
+            "currentCount": {
+              "type": "integer",
+              "description": "The current count of resources per the search feature.",
+              "format": "int64"
+            },
+            "totalCount": {
+              "type": "integer",
+              "description": "The total count of resources per the search feature.",
+              "format": "int64"
+            },
+            "list": {
+              "type": "array",
+              "description": "The total list of server group resources.",
+              "items": {
+                "$ref": "#/components/schemas/ServerGroupDTO"
+              }
+            }
+          }
+        },
+        "ZPathAPIError": {
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "The reason for the cause of the error status code. To learn more, see <a href=\"/zpa/api-response-codes-and-error-messages\" target= _blank>API Response Codes and Error Messages</a>."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the error status code."
+            },
+            "params": {
+              "type": "array",
+              "description": "The parameters that were sent in the request body.",
+              "items": {
+                "type": "object"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "description": "The client server address or domain name."
+            }
+          }
+        },
+        "ServerGroupDTO": {
+          "required": [
+            "configSpace",
+            "name"
+          ],
+          "properties": {
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the server group is modified. This field is only applicable in GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "format": "int32",
+              "readOnly": true
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the server group is created. This field is only applicable in a GET request, and is ignored in PUT, POST, and DELETE requests.",
+              "format": "int32",
+              "readOnly": true
+            },
+            "modifiedBy": {
+              "type": "string",
+              "description": "The unique identifier of the tenant who modified the server group. This field is only applicable in GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the server group. This field is only applicable in GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "microtenantName": {
+              "type": "string",
+              "description": "The name of the Microtenant."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Indicates if the server group is enabled (true) or not (false)."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the server group."
+            },
+            "dynamicDiscovery": {
+              "type": "boolean",
+              "description": "Controls dynamic discovery of the servers. By default, this value for this field is false."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the server group."
+            },
+            "appConnectorGroups": {
+              "type": "array",
+              "description": "The list of App Connectors in the server group.",
+              "items": {
+                "$ref": "#/components/schemas/AppConnectorGroup"
+              }
+            },
+            "applications": {
+              "type": "array",
+              "description": "The list of applications in the server group.",
+              "items": {
+                "$ref": "#/components/schemas/NameIdDto"
+              }
+            },
+            "ipAnchored": {
+              "type": "boolean",
+              "description": "Whether Source IP Anchoring for use with ZIA is enabled (true) or disabled (false) for the application."
+            },
+            "configSpace": {
+              "type": "string",
+              "description": "Indicates if the configuration is created as part of the SIEM or application resource.",
+              "enum": [
+                "DEFAULT",
+                "SIEM"
+              ]
+            },
+            "inconsistentConfigDetails": {
+              "$ref": "#/components/schemas/InconsistentConfigDetails"
+            },
+            "extranetDTO": {
+              "$ref": "#/components/schemas/ExtranetDTO"
+            },
+            "extranetEnabled": {
+              "type": "boolean",
+              "description": "Indicates if the application is designated for Extranet Application Support (true) or not (false). Extranet applications connect to a partner site or offshore development center that is not directly available on your organization’s network."
+            },
+            "servers": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ApplicationServer"
+              }
+            }
+          }
+        },
+        "PageListNameIdDto": {
+          "properties": {
+            "currentCount": {
+              "type": "integer",
+              "description": "The current count of names for the entity type.",
+              "format": "int64"
+            },
+            "list": {
+              "type": "array",
+              "description": "The list of names for the entity type.",
+              "items": {
+                "$ref": "#/components/schemas/NameIdDto"
+              }
+            },
+            "message": {
+              "type": "string",
+              "description": "The message of the entity type."
+            },
+            "totalCount": {
+              "type": "integer",
+              "description": "The total count of entity types.",
+              "format": "int64"
+            },
+            "totalPages": {
+              "type": "integer",
+              "description": "The total number of pages per the pagination attribute. ",
+              "format": "int32"
+            }
+          }
+        },
+        "AppConnectorGroup": {
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector group.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the App Connector group is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the App Connector group is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the App Connector group.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the App Connector group."
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "microtenantName": {
+              "type": "string",
+              "description": "The name of the Microtenant."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether or not this App Connector group is enabled."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the App Connector group."
+            },
+            "geoLocationId": {
+              "type": "integer",
+              "description": "The unique identifier of the geographic location.",
+              "format": "int64"
+            },
+            "versionProfileId": {
+              "type": "integer",
+              "description": "The unique identifier of the version profile.",
+              "format": "int64"
+            },
+            "overrideVersionProfile": {
+              "type": "boolean",
+              "description": "Whether or not the default version profile of the App Connector group is applied."
+            },
+            "siteId": {
+              "type": "string",
+              "description": "The unique identifier of the Private Cloud to which this App Connector group belongs to."
+            },
+            "versionProfileName": {
+              "type": "string",
+              "description": "The name of the version profile. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true
+            },
+            "upgradePriority": {
+              "type": "string",
+              "description": "The upgrade priority for the App Connector group. This field is only applicable  GET requests, and is ignored in PUT, POST, or DELETE requests.",
+              "readOnly": true,
+              "enum": [
+                "WEEK",
+                "DAY",
+                "FORCE_NOW",
+                "NOW"
+              ]
+            },
+            "versionProfileVisibilityScope": {
+              "type": "string",
+              "description": "Whether or not the version profile is visible to all of the tenants, none of the tenants, or a custom set of tenants. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true,
+              "enum": [
+                "ALL",
+                "NONE",
+                "CUSTOM"
+              ]
+            },
+            "upgradeTimeInSecs": {
+              "type": "string",
+              "description": "App Connectors in this group attempt to update to a newer version of the software during this specified time."
+            },
+            "upgradeDay": {
+              "type": "string",
+              "description": "Indicates the day the App Connectors in this group attempt to update to a newer version of the software."
+            },
+            "siteName": {
+              "type": "string",
+              "description": "The name of the Private Cloud."
+            },
+            "connectors": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/Connector"
+              }
+            },
+            "location": {
+              "type": "string",
+              "description": "The location of the App Connector group."
+            },
+            "latitude": {
+              "type": "string",
+              "description": "The latitude of the App Connector group."
+            },
+            "city": {
+              "type": "string",
+              "description": "The city of the App Connector group."
+            },
+            "longitude": {
+              "type": "string",
+              "description": "The longitude of the App Connector group."
+            },
+            "serverGroups": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/AppServerGroup"
+              }
+            },
+            "dnsQueryType": {
+              "type": "string",
+              "description": "Whether IPv4, IPv6, or both are enabled for DNS resolution of all applications in the App Connector group.",
+              "enum": [
+                "IPV4_IPV6",
+                "IPV4",
+                "IPV6"
+              ]
+            },
+            "cityCountry": {
+              "type": "string",
+              "description": "The city and country of the App Connector group."
+            },
+            "countryCode": {
+              "type": "string",
+              "description": "The country code of the App Connector group."
+            },
+            "tcpQuickAckApp": {
+              "type": "boolean",
+              "description": "Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values."
+            },
+            "tcpQuickAckAssistant": {
+              "type": "boolean",
+              "description": "Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values."
+            },
+            "tcpQuickAckReadAssistant": {
+              "type": "boolean",
+              "description": "Whether TCP Quick Acknowledgement is enabled or disabled for the application. The <code>tcpQuickAckApp</code>, <code>tcpQuickAckAssistant</code>, and <code>tcpQuickAckReadAssistant</code> fields must share all the same values."
+            },
+            "ipAcl": {
+              "type": "array",
+              "description": "The IP Access List (IP ACL) to allow App Connectors on a specific IP address or subnet.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "praEnabled": {
+              "type": "boolean",
+              "description": "Whether or not Privileged Remote Access is enabled on the App Connector group."
+            },
+            "useInDrMode": {
+              "type": "boolean",
+              "description": "Whether or not the App Connector group is designated for disaster recovery."
+            },
+            "connectorGroupType": {
+              "type": "string",
+              "description": "Indicates if the App Connector group is an App Connector (APP) or Network Connector (NP).",
+              "enum": [
+                "APP",
+                "NP"
+              ]
+            },
+            "dcHostingInfo": {
+              "type": "string",
+              "description": "Indicates the host data center information using a maximum of 64 characters. The Data Center Hosting information is used for the Quarterly Business Review Insights."
+            },
+            "wafDisabled": {
+              "type": "boolean",
+              "description": "Whether or not AppProtection is disabled for the App Connector group."
+            },
+            "npAssistantGroup": {
+              "$ref": "#/components/schemas/NPAssistantGroup"
+            },
+            "lssAppConnectorGroup": {
+              "type": "boolean",
+              "description": "Whether or not the App Connector group is configured to stream logs to a log receiver."
+            }
+          }
+        },
+        "Connector": {
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the App Connector is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the App Connector is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the App Connector.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the App Connector."
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "microtenantName": {
+              "type": "string",
+              "description": "The name of the Microtenant."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the App Connector."
+            },
+            "fingerprint": {
+              "type": "string",
+              "description": "The hardware fingerprint associated with the App Connector."
+            },
+            "issuedCertId": {
+              "type": "integer",
+              "description": "The unique identifier of the issued certificate.",
+              "format": "int64"
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether or not this App Connector is enabled."
+            },
+            "ipAcl": {
+              "type": "array",
+              "description": "The IP Access List (IP ACL) to allow App Connectors on a specific IP address or subnet.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "provisioningKeyId": {
+              "type": "integer",
+              "description": "The unique identifier of the provisioning key.",
+              "format": "int64"
+            },
+            "connectorType": {
+              "type": "string",
+              "description": "Indicates if the App Connector is an App Connector (APP) or Network Connector (NP).",
+              "enum": [
+                "APP",
+                "NP"
+              ]
+            },
+            "provisioningKeyName": {
+              "type": "string",
+              "description": "The name of the provisioning key."
+            },
+            "enrollmentCert": {
+              "type": "object",
+              "description": "The enrollment certificate for the App Connector.",
+              "additionalProperties": {
+                "type": "string"
+              }
+            },
+            "appConnectorGroupId": {
+              "type": "string",
+              "description": "The unique identifier of the App Connector group."
+            },
+            "appConnectorGroupName": {
+              "type": "string",
+              "description": "The name of the App Connector group."
+            },
+            "assistantVersion": {
+              "$ref": "#/components/schemas/AssistantVersion"
+            },
+            "expectedVersion": {
+              "type": "string",
+              "description": "The expected version of the App Connector. This field is read only and is ignored in PUT and POST requests."
+            },
+            "currentVersion": {
+              "type": "string",
+              "description": "The current version of the App Connector. This field is read only and is ignored in PUT and POST requests."
+            },
+            "previousVersion": {
+              "type": "string",
+              "description": "The previous version of the App Connector. This field is read only and is ignored in PUT and POST requests."
+            },
+            "lastUpgradeTime": {
+              "type": "integer",
+              "description": "The time the App Connector last upgraded. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int64"
+            },
+            "expectedUpgradeTime": {
+              "type": "integer",
+              "description": "The expected upgrade time for the App Connector. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int64"
+            },
+            "upgradeStatus": {
+              "type": "string",
+              "description": "The status of the App Connector upgrade. Only applicable in a GET request. This field is read only and is ignored in PUT and POST requests.",
+              "enum": [
+                "COMPLETE",
+                "IN_PROGRESS",
+                "FAILED",
+                "UNKNOWN",
+                "RESTARTING",
+                "PARTIAL_FAILURE",
+                "REMOVAL_IN_PROGRESS"
+              ]
+            },
+            "controlChannelStatus": {
+              "type": "string",
+              "description": "The status of the control channel. This field is read only and is ignored in PUT and POST requests. The expected values are UNKNOWN (0), ZPN_STATUS_AUTHENTICATED (1), and ZPN_STATUS_DISCONNECTED (2).",
+              "enum": [
+                "UNKNOWN",
+                "ZPN_STATUS_AUTHENTICATED",
+                "ZPN_STATUS_DISCONNECTED"
+              ]
+            },
+            "upgradeAttempt": {
+              "type": "integer",
+              "description": "The number of attempts the App Connector takes to upgrade. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int32"
+            },
+            "ctrlBrokerName": {
+              "type": "string",
+              "description": "The name of the Control Public Service Edge. This field is read only and is ignored in PUT and POST requests."
+            },
+            "lastBrokerConnectTime": {
+              "type": "integer",
+              "description": "The time the ZPA Public Service Edge last connected. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int64"
+            },
+            "lastBrokerConnectTimeDuration": {
+              "type": "string",
+              "description": "The last connection time duration of the ZPA Public Service Edge. This field is read only and is ignored in PUT and POST requests."
+            },
+            "sargeVersion": {
+              "type": "string",
+              "description": "The Manager software version for App Connector. To learn more, see <a href=\"/zpa/understanding-manager-software\" target= _blank>Understanding the Manager Software</a>."
+            },
+            "lastBrokerDisconnectTime": {
+              "type": "integer",
+              "description": "The time the ZPA Public Service Edge last disconnected. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int64"
+            },
+            "lastBrokerDisconnectTimeDuration": {
+              "type": "string",
+              "description": "The duration of time when the ZPA Public Service Edge last disconnected. This field is read only and is ignored in PUT and POST requests."
+            },
+            "privateIp": {
+              "type": "string",
+              "description": "The private IP address of the App Connector."
+            },
+            "publicIp": {
+              "type": "string",
+              "description": "The public IP address of the App Connector."
+            },
+            "platform": {
+              "type": "string",
+              "description": "The host OS the App Connector is deployed on."
+            },
+            "runtimeOS": {
+              "type": "string",
+              "description": "The run time OS on which the App Connector is running."
+            },
+            "applicationStartTime": {
+              "type": "integer",
+              "description": "The start time of the App Connector.",
+              "format": "int64"
+            },
+            "latitude": {
+              "type": "number",
+              "format": "double",
+              "description": "The latitude of the App Connector. This field is read only and is ignored in PUT and POST requests."
+            },
+            "longitude": {
+              "type": "number",
+              "format": "double",
+              "description": "The longitude of the App Connector."
+            },
+            "location": {
+              "type": "string",
+              "description": "The location of the App Connector."
+            },
+            "platformDetail": {
+              "type": "string",
+              "description": "The platform the App Connector is deployed on."
+            },
+            "zpnSubModuleUpgradeList": {
+              "type": "array",
+              "readOnly": true,
+              "items": {
+                "$ref": "#/components/schemas/ZpnSubModuleUpgrade"
+              }
+            },
+            "npAssistant": {
+              "$ref": "#/components/schemas/NPAssistant"
+            }
+          }
+        },
+        "AssistantVersion": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector version.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the App Connector version is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the App Connector version is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the App Connector version.",
+              "format": "int64"
+            },
+            "expectedVersion": {
+              "type": "string",
+              "description": "The expected version of the App Connector."
+            },
+            "currentVersion": {
+              "type": "string",
+              "description": "The current version of the App Connector."
+            },
+            "systemStartTime": {
+              "type": "integer",
+              "description": "The start time for the system of the App Connector.",
+              "format": "int64"
+            },
+            "applicationStartTime": {
+              "type": "integer",
+              "description": "The start time of the App Connector.",
+              "format": "int64"
+            },
+            "lastBrokerConnectTime": {
+              "type": "integer",
+              "description": "The time the ZPA Public Service Edge last connected.",
+              "format": "int64"
+            },
+            "lastBrokerDisconnectTime": {
+              "type": "integer",
+              "description": "The time the ZPA Public Service Edge last disconnected.",
+              "format": "int64"
+            },
+            "brokerId": {
+              "type": "integer",
+              "description": "The unique identifier of the ZPA Public Service Edge.",
+              "format": "int64"
+            },
+            "restartTimeInSec": {
+              "type": "integer",
+              "description": "The time in seconds the App Connector restarted.",
+              "format": "int64"
+            },
+            "disableAutoUpdate": {
+              "type": "boolean",
+              "description": "Indicates if automatic updates are disabled (true) or not (false)."
+            },
+            "appConnectorGroupId": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector group.",
+              "format": "int64"
+            },
+            "platform": {
+              "type": "string",
+              "description": "The host OS the App Connector is deployed on."
+            },
+            "runtimeOS": {
+              "type": "string",
+              "description": "The run time OS on which the App Connector is running."
+            },
+            "upgradeStatus": {
+              "type": "string",
+              "description": "The status of the App Connector upgrade. This field is only applicable in GET requests. This field is read only and is ignored in PUT and POST requests.",
+              "enum": [
+                "COMPLETE",
+                "IN_PROGRESS",
+                "FAILED",
+                "UNKNOWN",
+                "RESTARTING",
+                "PARTIAL_FAILURE",
+                "REMOVAL_IN_PROGRESS"
+              ]
+            },
+            "ctrlChannelStatus": {
+              "type": "string",
+              "description": "The status of the control channel.",
+              "enum": [
+                "UNKNOWN",
+                "ZPN_STATUS_AUTHENTICATED",
+                "ZPN_STATUS_DISCONNECTED"
+              ]
+            },
+            "latitude": {
+              "type": "number",
+              "description": "The latitude of the App Connector.",
+              "format": "double"
+            },
+            "longitude": {
+              "type": "number",
+              "description": "The longitude of the App Connector.",
+              "format": "double"
+            },
+            "privateIp": {
+              "type": "string",
+              "description": "The private IP address of the App Connector."
+            },
+            "publicIp": {
+              "type": "string",
+              "description": "The public IP address of the App Connector."
+            },
+            "loneWarrior": {
+              "type": "boolean",
+              "description": "When true, indicates to the App Connector that it's the sole remaining App Connector in a group. If true, the App Connector in the group attempts to run up until the last moment rather than gracefully shedding users."
+            },
+            "mtunnelId": {
+              "type": "string",
+              "description": "The unique identifier of the Microtunnel (M-Tunnel) communication channel between Zscaler Client Connector and the ZPA Private Service Edge."
+            },
+            "previousVersion": {
+              "type": "string",
+              "description": "The previous version of the App Connector."
+            },
+            "lastUpgradedTime": {
+              "type": "integer",
+              "description": "The time the App Connector last upgraded.",
+              "format": "int64"
+            },
+            "upgradeNowOnce": {
+              "type": "boolean",
+              "description": "Whether or not the App Connector is upgraded to a new version only once. If set to <code>true</code>, the App Connector upgrades to the new version and then resets this field to <code>false</code>."
+            },
+            "upgradeAttempt": {
+              "type": "integer",
+              "description": "The number of attempts the App Connector takes to upgrade. This field is read only and is ignored in PUT and POST requests.",
+              "format": "int32"
+            },
+            "sargeVersion": {
+              "type": "string",
+              "description": "The Manager software version for App Connector. To learn more, see <a href=\"/zpa/understanding-manager-software\" target= _blank>Understanding the Manager Software</a>."
+            },
+            "platformDetail": {
+              "type": "string",
+              "description": "The platform the App Connector is deployed on."
+            }
+          }
+        },
+        "ZpnSubModuleUpgrade": {
+          "required": [
+            "entityGid",
+            "role"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the supporting file.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the supporting file is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the supporting file is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the supporting file.",
+              "format": "int64"
+            },
+            "entityGid": {
+              "type": "integer",
+              "description": "The GID of the entity.",
+              "format": "int64"
+            },
+            "entityType": {
+              "type": "string",
+              "description": "The group ID of the entity for the supporting file.",
+              "enum": [
+                "ASSISTANT",
+                "PRIVATE_BROKER",
+                "MMDB_GEOIP",
+                "MMDB_ISP",
+                "GUACD",
+                "SITE_CONTROLLER"
+              ]
+            },
+            "role": {
+              "type": "string",
+              "description": "The role of the supporting file.",
+              "enum": [
+                "ASSISTANT",
+                "PRIVATE_BROKER",
+                "MMDB_GEOIP",
+                "MMDB_ISP",
+                "GUACD",
+                "SITE_CONTROLLER"
+              ]
+            },
+            "expectedVersion": {
+              "type": "string",
+              "description": "The expected version of the supporting file."
+            },
+            "currentVersion": {
+              "type": "string",
+              "description": "The current version of the supporting file."
+            },
+            "previousVersion": {
+              "type": "string",
+              "description": "The previous version of the supporting file."
+            },
+            "upgradeStatus": {
+              "type": "string",
+              "description": "The upgrade status of the supporting file.",
+              "enum": [
+                "COMPLETE",
+                "IN_PROGRESS",
+                "FAILED",
+                "UNKNOWN",
+                "RESTARTING",
+                "PARTIAL_FAILURE",
+                "REMOVAL_IN_PROGRESS"
+              ]
+            },
+            "upgradeTime": {
+              "type": "integer",
+              "description": "The time the supporting file is upgraded.",
+              "format": "int64"
+            }
+          }
+        },
+        "NPAssistant": {
+          "required": [
+            "connectorId"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the Network Connector.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the Network Connector is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the Network Connector is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the Network Connector.",
+              "format": "int64"
+            },
+            "publicKey": {
+              "type": "string",
+              "description": "The public key of the Network Connector."
+            },
+            "publicKeyExpiry": {
+              "type": "integer",
+              "description": "The expiration time of the public key.",
+              "format": "int64"
+            },
+            "connectorState": {
+              "type": "integer",
+              "description": "The status of the App Connector assigned to the Network Connector.",
+              "format": "int32"
+            },
+            "connectorId": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector assigned to the Network Connector.",
+              "format": "int64"
+            }
+          }
+        },
+        "AppServerGroup": {
+          "required": [
+            "configSpace",
+            "enabled",
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the server group.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the server group is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the server group is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the resource.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the server group."
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "microtenantName": {
+              "type": "string",
+              "description": "The name of the Microtenant."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Whether or not the server group is enabled."
+            },
+            "dynamicDiscovery": {
+              "type": "boolean",
+              "description": "Controls dynamic discovery of the servers."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the server group."
+            },
+            "configSpace": {
+              "type": "string",
+              "description": "Indicates if the configuration is created as part of the SIEM or application resource.",
+              "enum": [
+                "DEFAULT",
+                "SIEM"
+              ]
+            },
+            "weight": {
+              "type": "integer",
+              "description": "The weight of the load balancing configuration. Weights with a lower value indicate that a lesser number of requests are served by the App Connectors linked to the server group. Weights with a higher value than other server groups indicate that the App Connectors linked to the server group serve a greater number of requests. Server groups with weights set to 0 do not route requests.",
+              "format": "int32"
+            },
+            "passive": {
+              "type": "boolean",
+              "description": "Indicates if the server groups are in an active state and can load balance (false), or if the server groups stay passive (true)."
+            },
+            "extranetEnabled": {
+              "type": "boolean",
+              "description": "indicates if Extranet Application Support is enabled for the server group. These field is only applicable for server group endpoints, and is not applicable for Policy Set or Policy Rule endpoints."
+            },
+            "zpnErId": {
+              "$ref": "#/components/schemas/ZpnExtranetResource"
+            }
+          }
+        },
+        "ZpnExtranetResource": {
+          "required": [
+            "ziaCloud",
+            "ziaErId",
+            "ziaErName",
+            "ziaOrgId"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the extranet resource.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the extranet resource is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the extranet resource is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the extranet resource.",
+              "format": "int64"
+            },
+            "ziaErId": {
+              "type": "integer",
+              "description": "The unique identifier of the extranet resource created in ZIA.",
+              "format": "int64"
+            },
+            "ziaErName": {
+              "type": "string",
+              "description": "The name of the extranet resource created in ZIA."
+            },
+            "ziaCloud": {
+              "type": "string",
+              "description": "The ZIA cloud of the extranet resource."
+            },
+            "ziaOrgId": {
+              "type": "integer",
+              "description": "The unique identifier of the organization for the extranet resource.",
+              "format": "int64"
+            },
+            "ziaModifiedTime": {
+              "type": "integer",
+              "description": "The time the extranet resource was modified in ZIA.",
+              "format": "int64"
+            }
+          }
+        },
+        "NPAssistantGroup": {
+          "required": [
+            "appConnectorGroupId"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the Network Connector group.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the Network Connector group is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the Network Connector group is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the Network Connector group.",
+              "format": "int64"
+            },
+            "appConnectorGroupId": {
+              "type": "integer",
+              "description": "The unique identifier of the App Connector group that is assigned to the Network Connector group.",
+              "format": "int64"
+            },
+            "lanSubnets": {
+              "type": "array",
+              "description": "The list of Network segments for the Network Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/NpLanSubnet"
+              }
+            }
+          }
+        },
+        "NpLanSubnet": {
+          "required": [
+            "appConnectorGroupId",
+            "name",
+            "subnet"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the Network segment.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the Network segment is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the Network segment is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the Network segment.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the Network segment."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the Network segment."
+            },
+            "subnet": {
+              "type": "string",
+              "description": "The IP subnet associated with the Network segment."
+            },
+            "appConnectorGroupId": {
+              "minimum": "1",
+              "type": "integer",
+              "description": "The unique identifier of the App Connector group that is mapped to the Network Connector group.",
+              "format": "int64"
+            },
+            "npDnsNsRecord": {
+              "$ref": "#/components/schemas/NpDnsNsRecord",
+              "description": "The Network segment record."
+            },
+            "fqdns": {
+              "type": "array",
+              "description": "The list of FQDNs assigned to the Network segment.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "npserverips": {
+              "type": "array",
+              "description": "The list of IP addresses associated with the Network segment.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "oldAuditString": {
+              "type": "string"
+            }
+          }
+        },
+        "NpDnsNsRecord": {
+          "required": [
+            "fqdn",
+            "name",
+            "nameserverIps"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the Network segment.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the Network segment is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the Network segment is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the Network segment.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the Network segment."
+            },
+            "nameserverIps": {
+              "type": "array",
+              "description": "The DNS server or subnet that resolves to the configured FQDNs.",
+              "items": {
+                "type": "string"
+              }
+            },
+            "fqdn": {
+              "type": "array",
+              "description": "The FQDN for the Network segment. Ensure the IP addresses that these FQDNs resolve to are included in the <code>nameserverIps</code> address field configuration.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "NameIdDto": {
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The list of unique identifiers for the entity type.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The list of names for the entity type."
+            }
+          }
+        },
+        "InconsistentConfigDetails": {
+          "properties": {
+            "application": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the application.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "sraApplication": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the Privileged Remote Access application.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "segmentGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the segment group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "serverGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the server group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "appConnectorGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the App Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "baCertificate": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the Browser Access certificate.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "postureProfile": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the posture profile.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "trustedNetwork": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the trusted network.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "branchConnectorGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the Branch Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "cloudConnectorGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the Cloud Connector group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "samlAttributes": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the SAML attributes.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "scimAttributes": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the SCIM attributes.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "machineGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the machine group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "idp": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the IdP.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "location": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the location.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "workloadTagGroup": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the workload group.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            },
+            "userPortal": {
+              "type": "array",
+              "description": "The inconsistent configuration details for the user portal.",
+              "items": {
+                "$ref": "#/components/schemas/InconsistentConfigNameReasonDto"
+              }
+            }
+          }
+        },
+        "InconsistentConfigNameReasonDto": {
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the inconsistent configuration."
+            },
+            "reason": {
+              "type": "string",
+              "description": "The reason for the inconsistent configuration."
+            }
+          }
+        },
+        "ExtranetDTO": {
+          "required": [
+            "locationDTO",
+            "locationGroupDTO",
+            "zpnErId"
+          ],
+          "properties": {
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the extranet resource is modified. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "format": "int32",
+              "readOnly": true
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the extranet resource is created. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "format": "int32",
+              "readOnly": true
+            },
+            "modifiedBy": {
+              "type": "string",
+              "description": "The unique identifier of the tenant who modified the extranet resource. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the extranet resource. This field is only applicable for GET requests, and is ignored in PUT, POST, and DELETE requests.",
+              "readOnly": true
+            },
+            "ziaErName": {
+              "type": "string",
+              "description": "The name of the extranet resource that is configured in ZIA. To learn more, see <a href=\"/zia/about-extranet\" target= _blank>About Extranet</a>."
+            },
+            "zpnErId": {
+              "type": "integer",
+              "description": "The unique identifier of the extranet resource that is configured in ZIA. To learn more, see <a href=\"/zia/about-extranet\" target= _blank>About Extranet</a>.",
+              "format": "int64"
+            },
+            "locationGroupDTO": {
+              "type": "array",
+              "description": "The extranet location groups configured in ZIA.",
+              "items": {
+                "$ref": "#/components/schemas/LocationGroupDTO"
+              }
+            },
+            "locationDTO": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/NameIdDto"
+              }
+            }
+          }
+        },
+        "LocationGroupDTO": {
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "The name of the extranet location group."
+            },
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the extranet location group.",
+              "format": "int64"
+            },
+            "ziaLocations": {
+              "type": "array",
+              "description": "The extranet locations that can reach the application via an IPSec tunnel.",
+              "items": {
+                "$ref": "#/components/schemas/NameIdDto"
+              }
+            }
+          }
+        },
+        "ApplicationServer": {
+          "required": [
+            "enabled",
+            "name"
+          ],
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the server.",
+              "format": "int64"
+            },
+            "modifiedTime": {
+              "type": "integer",
+              "description": "The time the server is modified.",
+              "format": "int32"
+            },
+            "creationTime": {
+              "type": "integer",
+              "description": "The time the server is created.",
+              "format": "int32"
+            },
+            "modifiedBy": {
+              "type": "integer",
+              "description": "The unique identifier of the tenant who modified the server.",
+              "format": "int64"
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the server."
+            },
+            "microtenantId": {
+              "type": "integer",
+              "description": "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant.",
+              "format": "int64"
+            },
+            "microtenantName": {
+              "type": "string",
+              "description": "The name of the Microtenant."
+            },
+            "address": {
+              "type": "string",
+              "description": "The domain or IP address of the server."
+            },
+            "enabled": {
+              "type": "boolean",
+              "description": "Indicates whether or not the server is enabled."
+            },
+            "description": {
+              "type": "string",
+              "description": "The description of the server."
+            },
+            "appServerGroupIds": {
+              "uniqueItems": true,
+              "description": "The list of unique identifiers for the server group.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "configSpace": {
+              "type": "string",
+              "description": "Indicates if the configuration is created as part of the SIEM or application resource.",
+              "enum": [
+                "DEFAULT",
+                "SIEM"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

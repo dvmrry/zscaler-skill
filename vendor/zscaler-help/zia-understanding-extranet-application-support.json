@@ -1,0 +1,106 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Extranet Application Support",
+  "source": {
+    "url": "https://help.zscaler.com/zia/understanding-extranet-application-support",
+    "node": "1508696",
+    "revision": "3223549",
+    "updated": "2026-08-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Extranet Application Support leverages both Internet & SaaS (ZIA) and Private Access (ZPA) to provide organizations with a secure way to access resources that are not secured with the Zscaler service. It also allows your business partners to access applications secured with the Zscaler service on your organization's network. This is typically accomplished by building site-to-site VPN tunnels that present several challenges including:"
+    },
+    {
+      "item": "Preventing lateral threat movement.",
+      "depth": 0
+    },
+    {
+      "item": "Limiting access to authorized apps.",
+      "depth": 0
+    },
+    {
+      "item": "Multiple solutions are needed for on-premises and remote employees.",
+      "depth": 0
+    },
+    {
+      "item": "Organizations looking to access resources from multiple partners face additional organizational and financial difficulty.",
+      "depth": 0
+    },
+    {
+      "text": "Zscaler Extranet Application Support enables bidirectional resource access between your organization and a partner through secure IPSec tunnels without requiring partners to install any additional hardware or software."
+    },
+    {
+      "text": "Extranets are created on the Extranet page in the Zscaler Admin Console and then assigned to locations. Each extranet has traffic selectors and DNS servers specified for it. A traffic selector is an IPSec traffic-steering rule for forwarding traffic between tunnels. Each traffic selector can contain multiple IP address ranges and uses the industry standard IKEv2 protocol. You can select specific traffic selectors and DNS servers when assigning an extranet to a location or use defaults that are designated during configuration."
+    },
+    {
+      "text": "Extranet Application Support does not support NULL encryption for IPSec IKE Phase 2 configuration. Zscaler recommends using the AES-GCM-based encryption algorithm instead."
+    },
+    {
+      "text": "The Zscaler service facilitates the creation and management of extranets, and Private Access manages user access to extranet resources. Extranet resources can be designated in Private Access when configuring server groups and application segments. You can configure access policies to manage extranet applications."
+    },
+    {
+      "heading": "Traffic Flow for Extranet Application Support",
+      "level": 1
+    },
+    {
+      "text": "This is the typical traffic flow for users accessing extranet resources:"
+    },
+    {
+      "item": "A user with Zscaler Client Connector initiates their connection to an extranet application. User eligibility is checked by a Public Service Edge for Private Access.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "After the user is authorized, the Public Service Edge for Private Access sends a request to a Public Service Edge for Internet & SaaS which forwards the request through an IPSec tunnel to the extranet partner's IPSec gateway.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The request is forwarded to the designated DNS server and then sent through the right tunnel to the partner data center based on the designated traffic selector.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "After DNS resolution, the application payload is sent by the Public Service Edge for Internet & SaaS back to the Public Service Edge for Private Access.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Private Access forwards the application payload to the Zscaler Client Connector user.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "This is the typical traffic flow for partners accessing resources on your organization's network:"
+    },
+    {
+      "item": "The partner user initiates a DNS resolution request over the IPSec tunnel.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If the DNS request is valid, the Public Service Edge for Internet & SaaS sends an ephemeral DNS response back to the partner user.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "The partner user's traffic is forwarded to the Zero Trust Exchange (ZTE) through the IPSec tunnel.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The partner user's traffic is inspected by Internet & SaaS policies and validated by the Private Access access policy.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The application is delivered to the partner from your organization's data center through the App Connector, ZTE, and IPSec tunnel.",
+      "depth": 0,
+      "number": 5
+    }
+  ]
+}

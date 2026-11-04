@@ -1,0 +1,451 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Defining a Browser Access Application with Multiple Ports on the Same Domain",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/defining-browser-access-application-multiple-ports-same-domain",
+    "node": "1484161",
+    "revision": "3243349",
+    "updated": "2026-10-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "In many cases, the applications you want to make available via Browser Access are running on a single web server. Because it's not necessary for the externally advertised DNS hostnames to match the internal ones, unmatched hostnames can be used to handle scenarios where one host is serving web applications on multiple ports."
+    },
+    {
+      "text": "For Browser Access-enabled applications, Service Edges only listen on ports 80 and 443 for inbound connections from web browsers. So, a port 80 connection is automatically redirected to port 443, while a port 443 connection does domain virtualization through the provided Server Name Indication (SNI)."
+    },
+    {
+      "text": "As a consequence, Private Access (ZPA) only receives one domain name and one port, and mapping that domain with port combination to multiple ports is not possible. However, you can map ports through multiple domain names using one of the following methods."
+    },
+    {
+      "heading": "Using Unique Hostnames",
+      "level": 1
+    },
+    {
+      "text": "You can use unique hostnames per application by using your internal DNS or by explicitly defining static servers in Private Access. This allows the advertising of a unique external hostname that matches an internal hostname and port combination. For example, you can configure:"
+    },
+    {
+      "item": "The hostname web.corp.com (advertised externally), and map to web.corp.com:80 (configured internally)",
+      "depth": 0
+    },
+    {
+      "item": "The hostname crm.corp.com (advertised externally), and map to crm.corp.com:443 (configured internally)",
+      "depth": 0
+    },
+    {
+      "item": "The hostname webadmin.corp.com (advertised externally), and map to webadmin.corp.com:1000 (configured internally)",
+      "depth": 0
+    },
+    {
+      "text": "Using this method, as long as an internal DNS for these three hostnames is configured, then dynamic server discovery for all three applications works. However, if an internal DNS doesn't exist for these three hostnames, then dynamic server discovery doesn't work and you must explicitly define static servers within the Zscaler Admin Console for them."
+    },
+    {
+      "heading": "Configuring Private Access to Use Unique Hostnames",
+      "level": 2
+    },
+    {
+      "text": "To configure Private Access using hostnames, let's assume that you have an application that has an FQDN of example.corp.com, which uses ports 80, 443, and 1000:"
+    },
+    {
+      "item": "If your internal DNS can resolve the hostnames, then proceed to step 2f and specify a server group that has Dynamic Server Discovery set to On. Make sure that you specify a server group that includes the proper App Connector groups for your servers. To learn more, see Enabling Dynamic Server Discovery.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          108,
+          132
+        ],
+        [
+          140,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "If your internal DNS cannot resolve the hostnames, then you must:",
+      "depth": 0
+    },
+    {
+      "item": "Explicitly define the static servers. In this example, you need to explicitly define the web.corp.com, crm.corp.com, and webadmin.corp.com servers.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the defined servers to a server group that has Dynamic Server Discovery set to Off.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          51,
+          75
+        ],
+        [
+          83,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Configure an application segment using the FQDNs you associated to the main application on your internal DNS:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Define the application (i.e., example.corp.com) using the FQDNs you associated to it on your internal DNS, with the proper port numbers applied. For example, for:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "web.corp.com:80 - Select HTTP and 80.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          25,
+          29
+        ],
+        [
+          34,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "crm.corp.com:443 - Select HTTPS and 443.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          31
+        ],
+        [
+          36,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "webadmin.corp.com:1000 - Select HTTPS and 1000.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          37
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "FQDNs that are defined in an application segment must map to the Browser Access (web server) certificate selected for Private Access to maintain the chain trust. In this example, crm.corp.com and webadmin.corp.com don't match with the web server certificate, so select Use Untrusted Certificates for both.",
+      "depth": 1,
+      "strong": [
+        [
+          269,
+          295
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Define Applications tab, then click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Segment Group tab, then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Groups tab:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "If your internal DNS can resolve the hostnames, you can use an existing server group that has Dynamic Server Discovery set to On.",
+      "depth": 2,
+      "strong": [
+        [
+          94,
+          118
+        ],
+        [
+          126,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "If your internal DNS cannot resolve the hostnames, make sure that you select the server group you created in step 1.",
+      "depth": 2
+    },
+    {
+      "item": "Review your application segment configuration settings on the Review tab, and review and edit any policies as needed on the Policies tab.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Publish the CNAMEs for the FQDNs you defined in step 2c.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Defining Applications in an Application Segment",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends using the unique hostname method, as defining applications does not provide a satisfactory usability experience for your end users."
+    },
+    {
+      "text": "You can define the applications within an application segment internally to point to a specific hostname or IP address. For example, you can configure:"
+    },
+    {
+      "item": "The hostname web.corp.com (advertised externally), and map to linux.corp.com:80 (configured internally)",
+      "depth": 0
+    },
+    {
+      "item": "The hostname crm.corp.com (advertised externally), and map to linux.corp.com:443 (configured internally)",
+      "depth": 0
+    },
+    {
+      "item": "The hostname webadmin.corp.com (advertised externally), and map to linux.corp.com:1000 (configured internally)",
+      "depth": 0
+    },
+    {
+      "text": "However, this causes certificate validation problems because the hostname check fails. As a result, users see web server certificate errors when connecting to any of the three applications in the previous example."
+    },
+    {
+      "text": "Like the previous method, as long as the internal DNS for these hostnames are configured, then dynamic server discovery for all applications works. If an internal DNS doesn't exist for these hostnames, then dynamic server discovery doesn't work and you must explicitly define a static server within the Zscaler Admin Console and map it to the appropriate server group. In this example, server group linux.corp.com maps to server linux.corp.com. However, the server can be also specified by IP address if necessary (i.e., server group linux.corp.com maps to server 172.31.23.203). You can then have all three applications use the same server group, but you would not be able to verify web server certificates."
+    },
+    {
+      "heading": "Configuring Private Access by Defining Applications",
+      "level": 2
+    },
+    {
+      "text": "To configure Private Access by defining applications, let's assume that you have an application that has an FQDN of linux.corp.com, which uses ports 80, 443, and 1000:"
+    },
+    {
+      "item": "If your internal DNS can resolve the hostnames, then proceed to step 2f and specify a server group that has Dynamic Server Discovery set to On. Make sure that you specify a server group that includes the proper App Connector groups for your server. To learn more, see Enabling Dynamic Server Discovery.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          108,
+          132
+        ],
+        [
+          140,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "If your internal DNS cannot resolve the hostnames, then you must:",
+      "depth": 0
+    },
+    {
+      "item": "Explicitly define the static servers. In this example, you need to explicitly define the linux.corp.com server.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Add the defined server to a server group that has Dynamic Server Discovery set to Off.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          74
+        ],
+        [
+          82,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Configure an application segment using the fully qualified domain names (FQDNs) you associated to the application on your internal DNS:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segments.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Application Segment.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Define the application (i.e., linux.corp.com) using the FQDNs you associated to it on your internal DNS, with the proper port numbers applied. For example, for:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "web.corp.com:80 - Select HTTP and 80.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          25,
+          29
+        ],
+        [
+          34,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "crm.corp.com:443 - Select HTTPS and 443.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          31
+        ],
+        [
+          36,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "webadmin.corp.com:1000 - Select HTTPS and 1000.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          32,
+          37
+        ],
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Define Applications tab, then click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          70,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration on the Segment Group tab, then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          64,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "On the Server Groups tab:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "If your internal DNS can resolve the hostnames, you can use an existing server group that has Dynamic Server Discovery set to On.",
+      "depth": 2,
+      "strong": [
+        [
+          94,
+          118
+        ],
+        [
+          126,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "If your internal DNS cannot resolve the hostnames, make sure that you select the server group you created in step 1.",
+      "depth": 2
+    },
+    {
+      "item": "Review your application segment configuration settings on the Review tab, and review and edit any policies as needed on the Policies tab.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Publish the CNAMEs for the FQDNs you defined in step 2c.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "To learn more, see Explicitly Defining Servers and Configuring Defined Application Segments."
+    }
+  ]
+}

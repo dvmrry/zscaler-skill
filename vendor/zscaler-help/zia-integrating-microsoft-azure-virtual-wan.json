@@ -1,0 +1,867 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating with Microsoft Azure Virtual WAN",
+  "source": {
+    "url": "https://help.zscaler.com/zia/integrating-microsoft-azure-virtual-wan",
+    "node": "1400936",
+    "revision": "3249864",
+    "updated": "2026-10-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler's integration leverages Microsoft's Azure Virtual WAN (VWAN) APIs to discover and configure Azure hubs, including querying and configuring Azure VWAN. When the integration is configured, the Zscaler service can sync hub information from Azure. After hub information is synced to Zscaler, outbound IPSec tunnels from any of the hubs to the nearest Zscaler data center can be created using a one-click configuration process. The one-click process automatically configures the Azure hubs, and provisions Locations and VPN Credentials for these hubs, within the Zscaler Admin Console."
+    },
+    {
+      "text": "Zscaler and Microsoft are technology partners. For more information on integrating Zscaler and Azure Traffic Forwarding, see the Zscaler and Azure Traffic Forwarding Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before you begin the Azure VWAN integration setup, make sure that you have:"
+    },
+    {
+      "item": "A valid subscription for Azure VWAN which is an additional cost. To learn more, refer to the Microsoft Azure pricing.",
+      "depth": 0
+    },
+    {
+      "item": "At least one Azure hub configured.",
+      "depth": 0
+    },
+    {
+      "item": "Added Zscaler as a Security Partner Provider. To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "text": "You must configure the Zscaler VWAN Hub as a Security Partner Provider in Microsoft Azure, or it fails to sync with the Zscaler Admin Console."
+    },
+    {
+      "heading": "Limitations of Zscaler integration to Azure VWAN",
+      "level": 1
+    },
+    {
+      "text": "There are some limitations to keep in mind while integrating Zscaler with your Azure VWAN:"
+    },
+    {
+      "item": "Redundant tunnels are not supported. Only one outbound tunnel from an Azure VWAN hub to a Zscaler tenant is supported.",
+      "depth": 0
+    },
+    {
+      "item": "Azure Government isn't supported.",
+      "depth": 0
+    },
+    {
+      "item": "No failover to another Zscaler data center based on unavailability or load. This is due to redundant tunnels not being supported.",
+      "depth": 0
+    },
+    {
+      "item": "No support for sublocations. Only Zscaler locations are supported.",
+      "depth": 0
+    },
+    {
+      "item": "No multi-tenancy. Traffic from multiple VNETs belonging to the same organization goes through the same VWAN hub to the Zscaler tenant.",
+      "depth": 0
+    },
+    {
+      "item": "Support for one Zscaler cloud per Azure VWAN hub. Multiple clouds, including beta and production, need additional VWAN hubs. The current VWAN hub limit is one hub per region, per subscription. Refer to the Azure documentation for any updates to this.",
+      "depth": 0
+    },
+    {
+      "item": "Support for one Azure tenant per Zscaler cloud. You cannot terminate tunnels to multiple Azure VWAN hubs across multiple subscriptions.",
+      "depth": 0
+    },
+    {
+      "item": "In Azure VWAN environments, a limitation exists for static routes where routes defined statistically in the default route table do not propagate as expected. To avoid this limitation, use Border Gateway Protocol (BGP) peering instead of static route configurations. This ensures better route propagation.",
+      "depth": 0
+    },
+    {
+      "heading": "Step 1: Create an Azure Service Principal for Azure VWAN",
+      "level": 1
+    },
+    {
+      "item": "Log in to the Azure portal.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Create a service principal in Azure Active Directory (AD). During setup, you must obtain the Application ID, Application Key, Tenant ID, and Subscription ID to complete Step 2 of the integration procedure:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          93,
+          107
+        ],
+        [
+          109,
+          124
+        ],
+        [
+          126,
+          135
+        ],
+        [
+          141,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "Create a new application registration for Zscaler and obtain the Application ID",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click Azure Active Directory.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the panel that appears, under Manage, click App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          33,
+          39
+        ],
+        [
+          47,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Click New registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Register an application panel that appears:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Name for the application (e.g., Zscaler API).",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "For Supported account types, select Accounts in this organizational directory only.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          27
+        ],
+        [
+          36,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "For Redirect URI, enter the sign-on URL for the application. This is the Cloud Portal URL for your Zscaler cloud.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Click Register.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Copy the Application ID for the registered Zscaler application you created in the previous step. This is the Application ID you need to complete the integration within the Zscaler Admin Console for Step 2 of the integration procedure.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          109,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You must assign the registered Zscaler application to a role to access resources in Azure VWAN.",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click All services.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          37,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the panel that appears, click General, then Resource groups.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          33,
+          40
+        ],
+        [
+          47,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Find and select the resource group that you set up for Azure VWAN. If you do not have a resource group, refer to the Microsoft Azure Virtual WAN documentation.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Zscaler recommends that you use a separate resource group for Azure VWAN to reduce the scope of the changes that can be performed by the service principal.",
+      "depth": 0
+    },
+    {
+      "item": "Click Access control (IAM).",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Add role assignment.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "In the Add role assignment panel that appears:",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "For Role, select Contributor.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          8
+        ],
+        [
+          17,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "For Assign access to, select Azure AD user, group, or service principal.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          29,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "For Select, select the registered Zscaler application you created previously (e.g., Zscaler API).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          4,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Create a service principal authentication key and obtain the key value (i.e., Application Key)",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click Azure Active Directory.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the panel that appears, under Manage, click App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          33,
+          39
+        ],
+        [
+          47,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Find and click on the Zscaler application registration (e.g., Zscaler API). To learn more, see Create a New App Registration for Zscaler and Obtain the Application ID above.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Certificates & secrets.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the panel that appears, under Client secrets, click New client secret.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          33,
+          47
+        ],
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret panel:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Description for the key.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For Expires, select an expiration period for the key (e.g., 1 year).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The key’s Value appears within the panel after you save. You must copy the key value now. You can't retrieve the key later. The Zscaler service uses the Application ID and the key Value to authenticate to Azure. This is the Application Key you need to complete the integration within the Zscaler Admin Console for Step 2 of the integration procedure.",
+      "depth": 0,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          153,
+          167
+        ],
+        [
+          180,
+          185
+        ],
+        [
+          224,
+          239
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Obtain the Tenant ID (i.e., Directory ID)",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click Azure Active Directory.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "In the panel that appears, under Manage, click Properties.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          33,
+          39
+        ],
+        [
+          47,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Under Directory properties, copy the Directory ID. This is the Tenant ID you need to complete the integration within the ZIA Admin Portal for Step 2 of the integration procedure.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          26
+        ],
+        [
+          37,
+          49
+        ],
+        [
+          63,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Obtain the Subscription ID",
+      "depth": 0
+    },
+    {
+      "item": "From the left-side navigation, click All services.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "In the panel that appears, under General, click Subscriptions.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          33,
+          40
+        ],
+        [
+          48,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Find the role you associated with the registered Zscaler application within the table and copy the Subscription ID. This is the Subscription ID you need to complete the integration within the Zscaler Admin Console for Step 2 of the integration procedure.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          99,
+          114
+        ],
+        [
+          128,
+          143
+        ]
+      ]
+    },
+    {
+      "heading": "Step 2: Set up your Azure VWAN integration on Zscaler",
+      "level": 1
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Partner Integrations - SDWAN.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          70
+        ],
+        [
+          73,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "In the Azure Virtual WAN tab, under Azure AD Authentication Credentials:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          36,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Enter your Application ID.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Enter your Application Key.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Enter your Tenant ID (i.e., Directory ID).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Enter your Subscription ID.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Test to be notified if your Azure integration with Zscaler succeeded or not.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If your Azure AD authentication credentials are valid, you can proceed to Step 3 of the integration procedure."
+    },
+    {
+      "text": "If the test was unsuccessful, ensure that Zscaler VWAN Hub is properly configured as a Security Partner Provider to avoid any sync failures with the Zscaler Admin Console. To learn more, refer to the Microsoft documentation."
+    },
+    {
+      "heading": "Step 3: Sync and Configure your Azure Hubs on Zscaler",
+      "level": 1
+    },
+    {
+      "text": "When your Azure AD authentication credentials are validated, click Sync. This syncs your Azure hubs to the Zscaler service. The Azure Hub Locations Sync section updates, showing the last sync timestamp and the number of hub sites that were successfully synced.",
+      "strong": [
+        [
+          67,
+          71
+        ],
+        [
+          128,
+          152
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Clicking on the hub sites hyperlink takes you to the Infrastructure > Location Management > Azure Virtual WAN Locations. On the Azure Virtual WAN Locations tab, all Azure Hub locations, along with the associated Azure Region, are displayed. Initially, the tunnel configuration is set to Not Configured, and the Azure Sites, Zscaler Location, IP Address, and VPN Connection columns are empty.",
+      "strong": [
+        [
+          53,
+          67
+        ],
+        [
+          70,
+          89
+        ],
+        [
+          92,
+          119
+        ],
+        [
+          165,
+          174
+        ],
+        [
+          212,
+          224
+        ],
+        [
+          287,
+          301
+        ],
+        [
+          311,
+          322
+        ],
+        [
+          324,
+          340
+        ],
+        [
+          342,
+          352
+        ],
+        [
+          358,
+          372
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Review the table and then edit each location to start the tunnel configuration. To learn more, see Configuring Azure VWAN Locations."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "During the Azure Virtual WAN authentication, you might see one of the following errors:"
+    },
+    {
+      "item": "INVALID CREDENTIALS: Tenant ID, Subscription ID, Application ID, and Application Secret are all required. If one of these is not configured, you see this error.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "DUPLICATE ITEM: The entered Subscription ID is already associated with another organization.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "ACCESS FAILURE: The Subscription ID is not available for this account. This likely means that the Subscription ID was entered incorrectly.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "NOT AUTHORIZED: Got 401 or 403 from an Azure API that is called by Zscaler UI. Contact your Azure support representative for assistance.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "ACCESS FAILURE: Got 404 when authenticating with Azure portal. Contact your Azure support representative for assistance.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "UNEXPECTED ERROR: Contact your Zscaler Support Engineer for assistance.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    }
+  ]
+}

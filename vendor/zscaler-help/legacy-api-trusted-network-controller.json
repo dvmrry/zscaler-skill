@@ -1,0 +1,402 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Trusted Network Controller",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/trusted-network-controller",
+    "node": "1546782",
+    "revision": "3245517",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/trusted-network-controller_2.json?VersionId=WwNMRfWI0ZmyMmT2oESvGsaTPc9a1KCS",
+    "updated": "2026-10-14",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.1.0",
+    "info": {
+      "title": "Api Documentation",
+      "description": "Api Documentation",
+      "termsOfService": "urn:tos",
+      "contact": {},
+      "license": {
+        "name": "Apache 2.0",
+        "url": "http://www.apache.org/licenses/LICENSE-2.0"
+      },
+      "version": "v2"
+    },
+    "servers": [
+      {
+        "url": "http://localhost:8080/papi",
+        "description": "Generated server url"
+      }
+    ],
+    "tags": [
+      {
+        "name": "trusted-network-controller"
+      }
+    ],
+    "paths": {
+      "/public/v2/trusted-networks/{id}": {
+        "get": {
+          "summary": "Get trusted network",
+          "description": "Retrieves a specific trusted network by its ID.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "getTrustedNetwork",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier of the trusted network.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object containing trusted network details.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "summary": "Update trusted network",
+          "description": "Updates an existing trusted network with the provided configuration. This operation replaces the entire trusted network resource.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "putTrustedNetwork",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier of the trusted network to update.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Trusted network configuration payload containing the updated network details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedNetworkContractV2"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object containing the updated trusted network details.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "delete": {
+          "summary": "Delete trusted network",
+          "description": "Deletes a specific trusted network by its ID.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "deleteTrustedNetwork",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier of the trusted network to delete.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "DELETED",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object confirming the deletion.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "patch": {
+          "summary": "Partially update trusted network",
+          "description": "Partially updates a trusted network with the provided configuration. Only specified fields are updated.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "patchTrustedNetwork",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "The unique identifier of the trusted network to update.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Trusted network configuration payload containing the fields to be updated.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedNetworkContractV2"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object containing the updated trusted network details.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      },
+      "/public/v2/trusted-networks": {
+        "get": {
+          "summary": "List trusted networks",
+          "description": "Retrieves a list of trusted networks with optional filtering by keyword, type, and pagination.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "listTrustedNetwork",
+          "parameters": [
+            {
+              "name": "keyword",
+              "description": "Search keyword to filter trusted networks by name or other attributes.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string"
+              }
+            },
+            {
+              "name": "type",
+              "description": "Type of trusted network to filter by.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "enum": [
+                  "NAME",
+                  "DNS_SERVERS",
+                  "DNS_SEARCH_DOMAINS",
+                  "HOST_NAME_IP",
+                  "TRUSTED_SUBNETS",
+                  "TRUSTED_GATEWAYS",
+                  "TRUSTED_DHCP_SERVERS",
+                  "TRUSTED_EGRESS_IPS",
+                  "SSID"
+                ]
+              }
+            },
+            {
+              "name": "offset",
+              "description": "Number of results to skip for pagination.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 0
+              }
+            },
+            {
+              "name": "limit",
+              "description": "Maximum number of results to return per page.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "default": 50
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object containing an array of trusted networks and pagination metadata.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "summary": "Create trusted network",
+          "description": "Creates a new trusted network with specified configuration.",
+          "tags": [
+            "trusted-network-controller"
+          ],
+          "operationId": "createTrustedNetwork",
+          "requestBody": {
+            "description": "Trusted network configuration payload.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/TrustedNetworkContractV2"
+                }
+              }
+            },
+            "required": true
+          },
+          "responses": {
+            "201": {
+              "description": "CREATED",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "description": "Response object containing the newly created trusted network details.",
+                    "type": "object"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "TrustedNetworkContractV2": {
+          "type": "object",
+          "description": "Trusted network contract containing configuration for network trust validation.",
+          "properties": {
+            "id": {
+              "description": "Unique identifier of the trusted network.",
+              "type": "integer",
+              "format": "int64"
+            },
+            "companyId": {
+              "description": "Identifier of the company that owns this trusted network.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "zpaId": {
+              "description": "Private Access (ZPA) identifier associated with the trusted network.",
+              "type": "string"
+            },
+            "createdBy": {
+              "description": "User who created this trusted network.",
+              "type": "string"
+            },
+            "editedBy": {
+              "description": "User who last edited this trusted network.",
+              "type": "string"
+            },
+            "name": {
+              "description": "Name of the trusted network.",
+              "type": "string"
+            },
+            "conditionType": {
+              "description": "Condition type for evaluating trusted network criteria. 'ALL' requires all conditions to be met, 'ANY' requires at least one condition to be met.",
+              "type": "string",
+              "enum": [
+                "ALL",
+                "ANY"
+              ]
+            },
+            "dnsServerIps": {
+              "description": "List of trusted DNS server IP addresses.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "dnsSearchDomains": {
+              "description": "List of DNS search domains associated with the trusted network.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "hostname": {
+              "description": "Hostname of the trusted network.",
+              "type": "string"
+            },
+            "resolvedIpsForHostname": {
+              "description": "List of IP addresses resolved for the hostname.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "trustedSubnetIps": {
+              "description": "List of trusted subnet IP ranges in CIDR notation.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "trustedGatewayIps": {
+              "description": "List of trusted gateway IP addresses.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "trustedDhcpServersIps": {
+              "description": "List of trusted DHCP server IP addresses.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "trustedEgressIps": {
+              "description": "List of trusted egress IP addresses.",
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "active": {
+              "description": "Indicates whether the trusted network is active or inactive.",
+              "type": "boolean"
+            }
+          }
+        }
+      }
+    }
+  }
+}

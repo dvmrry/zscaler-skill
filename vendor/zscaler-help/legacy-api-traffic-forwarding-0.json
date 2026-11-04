@@ -1,0 +1,3276 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Traffic Forwarding",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/traffic-forwarding-0",
+    "node": "1402501",
+    "revision": "3091646",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Traffic%20Forwarding_22.json?VersionId=8RPTM_iyS8b6NwJ1rJuGc8swZjPbL6.N",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Traffic Forwarding"
+      }
+    ],
+    "paths": {
+      "/datacenters": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves the list of Zscaler data centers (DCs) that can be excluded from service to your organization",
+          "operationId": "DataCenterResource_getDatacenters",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "description": "Specifies the page offset",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 250.",
+              "required": false,
+              "type": "integer",
+              "default": 250,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Datacenter"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dcExclusions": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves the list of Zscaler data centers (DCs) that are currently excluded from service to your organization based on configured exclusions in the ZIA Admin Portal",
+          "operationId": "TenantDCExclusionResource_getDatacenterExclusions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantDCExclusion"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Adds a data center (DC) exclusion to disable the tunnels terminating at a virtual IP address of a Zscaler DC, triggering a failover from primary to secondary tunnels in the event of service disruptions, <a href=\"https://trust.zscaler.com\" target=\"_blank\">Zscaler Trust Portal</a> incidents, disasters, etc. You can configure to exclude a specific DC based on the traffic forwarding method for a designated time period.</p><p><b>Note</b>: Currently, only the IPSec VPN tunnel forwarding method is supported for DC exclusion. To learn more, see <a href=\"/zia/excluding-data-center-based-traffic-forwarding-method\" target=\"_blank\">Excluding a Data Center Based on Traffic Forwarding Method</a>.</p>",
+          "operationId": "TenantDCExclusionResource_createDatacenterExclusions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "description": "Information about the DC exclusion configuration",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantDCExclusion"
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantDCExclusion"
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Updates a Zscaler data center (DC) exclusion configuration based on the specified ID. To learn more about the DC exclusion configuration, see <a href=\"/zia/excluding-data-center-based-traffic-forwarding-method\" target=\"_blank\">Excluding a Data Center Based on Traffic Forwarding Method</a>.",
+          "operationId": "TenantDCExclusionResource_updateDataCenterExclusions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The unique identifier for the DC exclusion configuration",
+              "required": false,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantDCExclusion"
+                }
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantDCExclusion"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dcExclusions/{dcId}": {
+        "delete": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Deletes a Zscaler data center (DC) exclusion configuration based on the specified ID. The DC exclusion configuration ID can be obtained by sending a GET request to <code>/dcExclusions</code>.",
+          "operationId": "TenantDCExclusionResource_deleteDataCentreExclusion",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "dcId",
+              "description": "The unique identifier for the DC exclusion configuration",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/subclouds": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves all the subclouds and the excluded data centers that are associated with the subcloud",
+          "operationId": "TenantSubCloudResource_getAllSubClouds",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Page size",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/TenantSubCloudSummary"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/subclouds/isLastDcInCountry/{id}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves the list of all the excluded data centers in a country",
+          "operationId": "TenantSubCloudResource_getCountryDCExclusionInfo",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Unique identifier for the country",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "dcId",
+              "in": "query",
+              "description": "Data center ID",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/SubCloudCountryDCExclusionInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/subclouds/{id}": {
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Updates the subcloud and excluded data centers based on the specified ID",
+          "operationId": "TenantSubCloudResource_updateTenantSubCloudExclusions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Unique identifier for the excluded data center",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the excluded data center",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/TenantSubCloudExclusions"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operationabout-tenant-profiles",
+              "schema": {
+                "$ref": "#/definitions/TenantSubCloudExclusions"
+              }
+            }
+          }
+        }
+      },
+      "/extranet": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Retrieves the list of extranets configured for the organization. Extranets are configured as part of Zscaler Extranet Application Support which allows an organization to connect its internal network with another organization’s network (e.g., partners, third-party vendors, etc.) that does not use the Zscaler service. Extranet Application Support enables Zscaler-managed organization users to securely access extranet resources through an IPSec VPN tunnel established between the Zscaler data center and the external organization’s data center, without requiring additional hardware or software installations.</p><p>To learn more, see <a href=\"/zia/understanding-extranet-application-support\" target=\"_blank\">Understanding Extranet Application Support</a> and <a href=\"/zia/about-extranet\" target=\"_blank\">About Extranet</a>.</p>",
+          "operationId": "ExtranetResource_getAllExtranet",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 200.",
+              "required": false,
+              "type": "integer",
+              "default": 200,
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 0,
+              "format": "int32"
+            },
+            {
+              "name": "orderBy",
+              "in": "query",
+              "description": "The field used to sort the list in a specific order",
+              "required": false,
+              "type": "string",
+              "default": "name"
+            },
+            {
+              "name": "order",
+              "in": "query",
+              "description": "The arrangement of the list in ascending or descending order",
+              "required": false,
+              "type": "string",
+              "default": "ASC"
+            },
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against specific extranets",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/Extranet"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Adds a new extranet for the organization. Extranets are configured as part of Zscaler Extranet Application Support which allows an organization to connect its internal network with another organization’s network (e.g., partners, third-party vendors, etc.) that does not use the Zscaler service. Extranet Application Support enables Zscaler-managed organization users to securely access extranet resources through an IPSec VPN tunnel established between the Zscaler data center and the external organization’s data center, without requiring additional hardware or software installations.</p><p>To learn more, see <a href=\"/zia/understanding-extranet-application-support\" target=\"_blank\">Understanding Extranet Application Support</a> and <a href=\"/zia/configuring-extranet\" target=\"_blank\">Configuring an Extranet</a>.</p>",
+          "operationId": "ExtranetResource_addExtranet",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the extranet",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Extranet"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Extranet"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Updates an extranet based on the specified ID",
+          "operationId": "ExtranetResource_updateExtranet",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the extranet",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/Extranet"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Extranet"
+              }
+            }
+          }
+        }
+      },
+      "/extranet/lite": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves the name-ID pairs of all extranets configured for an organization",
+          "operationId": "ExtranetResource_getAllExtranetsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EntityReference"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/extranet/{id}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Retrieves information about an extranet based on the specified ID",
+          "operationId": "ExtranetResource_getExtranetWithID",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The ID of the extranet that can be obtained by sending a GET request to <code>/extranet/lite</code> or <code>/extranet</code>",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/Extranet"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Deletes an extranet based on the specified ID",
+          "operationId": "ExtranetResource_deleteExtranet",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The ID of the extranet that can be obtained by sending a GET request to <code>/extranet/lite</code> or <code>/extranet</code>",
+              "required": true,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/greTunnels": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets all provisioned GRE tunnel information.",
+          "operationId": "GreTunnelResource_getAllGreTunnels",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/GreTunnel"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Adds a GRE tunnel configuration.</p><p><b>Note:</b> Specifying  <code>withinCountryOnly</code> or <code>subcloud</code> parameter is  mandatory if this endpoint uses a virtual IP address (VIP) retrieved by  passing either of these parameters in <code>GET /vips/recommendedList</code>.</p>",
+          "operationId": "GreTunnelResource_addGreTunnel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/GreTunnel"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/GreTunnel"
+              }
+            }
+          }
+        }
+      },
+      "/greTunnels/availableInternalIpRanges": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets the next available GRE tunnel internal IP address ranges.",
+          "operationId": "GreTunnelResource_validateAndGetAvailableInternalIpRanges",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "internalIpRange",
+              "in": "query",
+              "description": "Internal IP range information.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "staticIp",
+              "in": "query",
+              "description": "Static IP information.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "limit",
+              "in": "query",
+              "description": "The maximum number of GRE tunnel IP ranges that can be added.",
+              "required": false,
+              "type": "integer",
+              "default": 10,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/GreTunnelIPRange"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/greTunnels/{Id}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets the GRE tunnel information for the specified ID.",
+          "operationId": "GreTunnelResource_getGreTunelById",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the GRE tunnel.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/GreTunnel"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Updates the GRE tunnel information for the specified ID.",
+          "operationId": "GreTunnelResource_updateGreTunnel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the GRE tunnel.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "GRE tunnel information.",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/GreTunnel"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/GreTunnel"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Deletes the GRE tunnel information for the specified ID.",
+          "operationId": "GreTunnelResource_deleteGreTunnel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the GRE tunnel.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/ipv6config": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets the <a href=\"/zia/configuring-ipv6-settings\" target=\"_blank\">IPv6 configuration</a> details for the organization. For information about IPv6 support, see <a href=\"/zia/understanding-ipv6-support\" target=\"_blank\" >Understanding IPv6 Support</a>.</p>",
+          "operationId": "IPv6ConfigResource_getIPv6Configuration",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/IPv6Configuration"
+              }
+            }
+          }
+        }
+      },
+      "/ipv6config/dns64prefix": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets the list of NAT64 prefixes configured as the DNS64 prefix for the organization. To learn more, see <a href=\"/zia/about-dns64-prefix\" target =\"_blank\">About the DNS64 Prefix</a>.",
+          "operationId": "IPv6ConfigResource_getDns64Prefixes",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "description": "The search string used to match against a DNS64 prefix’s <code>name</code>, <code>description</code>, or <code>prefixMask</code> attributes.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IPv6PrefixMask"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/ipv6config/nat64prefix": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets the list of NAT64 prefixes configured for the organization. The  prefix which has the <code>dnsPrefix</code> field set to <code>true</code> is identified as the DNS64 prefix. To learn more, see <a href=\"/zia/about-nat64-prefixes\" target=\"_blank\">About NAT64 Prefixes</a>.</p>",
+          "operationId": "IPv6ConfigResource_getNat64Prefixes",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "description": "The search string used to match against a NAT64 prefix’s <code>name</code>, <code>description</code>, or <code>prefixMask</code> attributes.",
+              "in": "query",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "description": "Specifies the page offset.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "description": "Specifies the page size. The default size is 100 and the maximum size  is 1000.",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 500,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IPv6PrefixMask"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/orgProvisioning/ipGreTunnelInfo": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets a list of IP addresses with GRE tunnel details.</p>",
+          "operationId": "getIPGWDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ipAddresses",
+              "in": "query",
+              "description": "Filter based on an IP address range.",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "string"
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IpDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/region/byGeoCoordinates": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Retrieves the geographical data of the region or city that is located in the specified latitude and longitude coordinates. The geographical data includes the city name, state, country, geographical ID of the city and state, etc.</p>",
+          "operationId": "RegionInfoResource_getRegionByGeoCoordinates",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "latitude",
+              "in": "query",
+              "required": true,
+              "type": "number",
+              "format": "double",
+              "description": "The latitude coordinate of the city or region"
+            },
+            {
+              "name": "longitude",
+              "in": "query",
+              "required": true,
+              "type": "number",
+              "format": "double",
+              "description": "The longitude coordinate of the city or region"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/RegionInfo"
+              }
+            }
+          }
+        }
+      },
+      "/region/byIPAddress/{ip}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Retrieves information about the geo-location of the specified IP address, including the city, state, and country of location, geographical ID of the city and state, postal code, etc.</p>",
+          "operationId": "RegionInfoResource_getRegionBySrcIPAddress",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "ip",
+              "in": "path",
+              "required": true,
+              "type": "string",
+              "description": "The IP address for which you want to retrieve the geo-location and other geographical data."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/RegionInfo"
+              }
+            }
+          }
+        }
+      },
+      "/region/search": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Retrieves the list of cities (along with their geographical data) that match the prefix search. The geographical data includes the latitude and longitude coordinates of the city, geographical ID of the city and state, country, postal code, etc.</p>",
+          "operationId": "RegionInfoResource_getRegionsByPrefix",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "prefix",
+              "in": "query",
+              "required": false,
+              "type": "string",
+              "description": "<p>The string used in the prefix search of the city or region. The prefix can contain names of city, state, country in the following format: <code>city name, state name, country name</code>. A phrase for city name is mandatory, whereas the state and country names can be optionally provided to narrow down the search results.</p>"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32",
+              "description": "Specifies the page offset"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32",
+              "description": "Specifies the page size. The default size is 100 and the maximum size is 1,000."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/RegionInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/staticIP": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets all provisioned static IP addresses.",
+          "operationId": "StaticIPResource_getAllStaticIPs",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "availableForGreTunnel",
+              "in": "query",
+              "description": "Set to true to get only the static IP addresses that are not yet associated to a GRE tunnel.",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "ipAddress",
+              "in": "query",
+              "description": "Filter based on IP address",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/StaticIP"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Adds a static IP address.",
+          "operationId": "StaticIPResource_addStaticIP",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Static IP address information.",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          }
+        }
+      },
+      "/staticIP/validate": {
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Validates the static IP address.",
+          "operationId": "StaticIPResource_validateIPAddress",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "body",
+              "in": "body",
+              "description": "The static IP address information.",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "string"
+              }
+            }
+          }
+        }
+      },
+      "/staticIP/{Id}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets static IP address for the specified ID",
+          "operationId": "StaticIPResource_getStaticIPById",
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the provisioned static IP address.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Updates the static IP address for the specified ID.",
+          "operationId": "StaticIPResource_updateStaticIP",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the provisioned static IP address.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The static IP address information.",
+              "required": true,
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/StaticIP"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Deletes the static IP address for the specified ID.",
+          "operationId": "StaticIPResource_deleteStaticIP",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "Id",
+              "in": "path",
+              "description": "The unique identifier for the provisioned static IP address.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/vips": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets a paginated list of the virtual IP addresses (VIPs) available in the Zscaler cloud, including region and data center information. By default, the request gets all public VIPs in the cloud, but you can also include private or all VIPs in the request, if necessary.</p>\n",
+          "operationId": "getZscalerNodesDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "dc",
+              "in": "query",
+              "description": "Filter based on data center.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "region",
+              "in": "query",
+              "description": "Filter based on region.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int64"
+            },
+            {
+              "name": "include",
+              "in": "query",
+              "description": "Include all, private, or public VIPs in the list.",
+              "required": false,
+              "type": "string",
+              "default": "public",
+              "enum": [
+                "all",
+                "private",
+                "public"
+              ]
+            },
+            {
+              "name": "subcloud",
+              "in": "query",
+              "description": "Filter based on the subcloud for the VIP. To learn more see, <a href=\"/zia/what-subcloud\" target=\"_blank\">About Subcloud</a>.",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/PublicNode"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vips/groupByDatacenter": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets a list of recommended GRE tunnel virtual IP addresses (VIPs), grouped by data center, based on source IP address or latitude/longitude coordinates.",
+          "operationId": "CloudVipsResource_getRecommendedVipsGroupedByDC",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "routableIP",
+              "in": "query",
+              "description": "The routable IP address.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "withinCountryOnly",
+              "in": "query",
+              "description": "Search within country only.",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "includePrivateServiceEdge",
+              "in": "query",
+              "description": "Include ZIA Private Service Edge VIPs.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "includeCurrentVips",
+              "in": "query",
+              "description": "Include currently assigned VIPs.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "sourceIp",
+              "in": "query",
+              "description": "The source IP address.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "latitude",
+              "in": "query",
+              "description": "The latitude coordinate of the GRE tunnel source.",
+              "required": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "longitude",
+              "in": "query",
+              "description": "The longitude coordinate of the GRE tunnel source.",
+              "required": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "subcloud",
+              "in": "query",
+              "description": "The subcloud for the VIP. To learn more see, <a href=\"/zia/what-subcloud\" target=\"_blank\">About Subcloud</a>.",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/DatacenterVips"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vips/recommendedList": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "Gets a list of recommended GRE tunnel virtual IP addresses (VIPs), based on source IP address or latitude/longitude coordinates.",
+          "operationId": "CloudVipsResource_getRecommendedGreVips",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "routableIP",
+              "in": "query",
+              "description": "The routable IP address.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "withinCountryOnly",
+              "in": "query",
+              "description": "Search within country only.",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            },
+            {
+              "name": "includePrivateServiceEdge",
+              "in": "query",
+              "description": "Include ZIA Private Service Edge VIPs.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "includeCurrentVips",
+              "in": "query",
+              "description": "Include currently assigned VIPs.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "sourceIp",
+              "in": "query",
+              "description": "The source IP address.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "latitude",
+              "in": "query",
+              "description": "The latitude coordinate of the GRE tunnel source.",
+              "required": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "longitude",
+              "in": "query",
+              "description": "The longitude coordinate of the GRE tunnel source.",
+              "required": false,
+              "type": "number",
+              "format": "double"
+            },
+            {
+              "name": "subcloud",
+              "in": "query",
+              "description": "The subcloud for the VIP. To learn more see, <a href=\"/zia/what-subcloud\" target=\"_blank\">About Subcloud</a>.",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/GreVirtualIp"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/vpnCredentials": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets VPN credentials that can be associated to locations. To learn more, see <a href=\"/zia/about-vpn-credentials\" target=\"_blank\">About VPN Credentials</a>.</p>\n",
+          "operationId": "getVpnCredentials",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "<p>The search string used to match against a VPN credential's commonName, fqdn, ipAddress, comments, or locationName attributes.</p>\n",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "type",
+              "in": "query",
+              "description": "<p>Only gets VPN credentials for the specified type. This parameter is not supported for partner API keys.</p>\n",
+              "required": false,
+              "type": "string",
+              "enum": [
+                "CN",
+                "IP",
+                "UFQDN",
+                "XAUTH"
+              ]
+            },
+            {
+              "name": "includeOnlyWithoutLocation",
+              "in": "query",
+              "description": "Include VPN credential only if not associated to any location.",
+              "required": false,
+              "type": "boolean",
+              "default": true
+            },
+            {
+              "name": "locationId",
+              "in": "query",
+              "description": "Gets the VPN credentials for the specified location ID.",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "managedBy",
+              "in": "query",
+              "description": "<p>Gets the VPN credentials that are managed by the given partner. This filter is automatically applied when called with a partner API key, and it cannot be overridden.</p>",
+              "required": false,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset.",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. The default size is 100, but the maximum size is 1000.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/VPNCredential"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Adds VPN credentials that can be associated to locations. When invoked with a partner API key, it automatically sets the managedBy attribute to the partner associated with the key. To learn more, see <a href=\"/zia/adding-vpn-credentials\" target=\"_blank\">Adding VPN Credentials</a>.</p>\n",
+          "operationId": "addVpnCredential",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "vpnCred",
+              "description": "<p>VPN credential information.</p>\n",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/VPNCredential"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/VPNCredential"
+              }
+            }
+          }
+        }
+      },
+      "/vpnCredentials/bulkDelete": {
+        "post": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Bulk delete VPN credentials up to a maximum of 100 credentials per request. The response returns the VPN IDs that were successfully deleted.</p>\n",
+          "operationId": "bulkDeleteVpnCredentials",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "ids",
+              "description": "The VPN IDs to bulk delete",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/IdListInteger"
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation"
+            },
+            "404": {
+              "description": "<p>If the payload includes VPN IDs that are invalid a <a href=\"/zia/about-error-handling\" target=\"_blank\">'Resource does not exist' error</a> is returned, but information about the invalid IDs is not included.</p>\n"
+            }
+          }
+        }
+      },
+      "/vpnCredentials/{vpnId}": {
+        "get": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Gets the VPN credentials for the specified ID.</p>\n",
+          "operationId": "getVpnCredential",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "vpnId",
+              "in": "path",
+              "description": "The unique identifier for the VPN credential.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/VPNCredential"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Updates the VPN credentials for the specified ID.</p>\n",
+          "operationId": "updateVpnCredential",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "vpnId",
+              "in": "path",
+              "description": "The unique identifier for the VPN credential.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "vpnCred",
+              "description": "VPN credential information.",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/VPNCredential"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/VPNCredential"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Traffic Forwarding"
+          ],
+          "description": "<p>Deletes the VPN credentials for the specified ID.</p>\n",
+          "operationId": "deleteVpnCredential",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "vpnId",
+              "in": "path",
+              "description": "The unique identifier for the VPN credential.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "Successful Operation. No Content Returned."
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "Datacenter": {
+        "type": "object",
+        "properties": {
+          "datacenter": {
+            "type": "string",
+            "description": "Zscaler data center name.",
+            "readOnly": true
+          }
+        },
+        "description": "Zscaler data center information."
+      },
+      "TenantDCExclusion": {
+        "type": "object",
+        "description": "Information about the Zscaler DC exclusion configuration",
+        "properties": {
+          "dcid": {
+            "type": "integer",
+            "description": "The unique identifier for the DC exclusion configuration",
+            "format": "int32"
+          },
+          "expired": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether the DC exclusion has expired"
+          },
+          "startTime": {
+            "type": "integer",
+            "description": "The timestamp (in epoch) when the DC exclusion is set to begin and tunnels are disabled for the data center. The exclusion can be set to begin within a month from the current date and it must be at least 5 minutes from the current time (e.g., if the current time is 11:30 AM UTC, set the startTime to 11:35 AM UTC after converting it to Unix time.)",
+            "format": "int32"
+          },
+          "endTime": {
+            "type": "integer",
+            "description": "The timestamp (in epoch) when the DC exclusion is set to expire and tunnels are re-enabled for the data center. The expiration can be set to happen within 15 days from the start time and it must be at least 2 hours from the start time (e.g., if the startTime Time is 11:30 AM UTC, set the endTime to 1:30 PM UTC after converting it to Unix time.)",
+            "format": "int32"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the DC exclusion"
+          },
+          "dcName": {
+            "description": "The name of the data center. The list of Zscaler DCs that can be excluded can be obtained using the <code>GET /datacenters</code> request.",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "TenantSubCloudSummary": {
+        "type": "object",
+        "description": "Summary of the subcloud associated with an organization. This also represents the data centers that are excluded and associated with the subcloud.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier for the subcloud"
+          },
+          "name": {
+            "type": "string",
+            "description": "Subcloud name"
+          },
+          "dcs": {
+            "type": "array",
+            "uniqueItems": true,
+            "description": "List of data centers",
+            "items": {
+              "$ref": "#/definitions/DatacenterCountry"
+            }
+          },
+          "exclusions": {
+            "type": "array",
+            "description": "List of data centers that are excluded from the subcloud",
+            "items": {
+              "$ref": "#/definitions/SubCloudDCExclusion"
+            }
+          }
+        }
+      },
+      "SubCloudCountryDCExclusionInfo": {
+        "type": "object",
+        "description": "Information about all the data centers excluded for a country",
+        "properties": {
+          "country": {
+            "type": "string",
+            "description": "Country where the data center is located",
+            "enum": [
+              "NONE",
+              "AFGHANISTAN",
+              "ALAND",
+              "ALBANIA",
+              "ALGERIA",
+              "AMERICAN_SAMOA",
+              "ANDORRA",
+              "ANGOLA",
+              "ANGUILLA",
+              "ANTARCTICA",
+              "ANTIGUA_AND_BARBUDA",
+              "ARGENTINA",
+              "ARMENIA",
+              "ARUBA",
+              "AUSTRALIA",
+              "AUSTRIA",
+              "AZERBAIJAN",
+              "BAHAMAS",
+              "BAHRAIN",
+              "BANGLADESH",
+              "BARBADOS",
+              "BELARUS",
+              "BELGIUM",
+              "BELIZE",
+              "BENIN",
+              "BERMUDA",
+              "BHUTAN",
+              "BOLIVIA",
+              "BOSNIA_AND_HERZEGOVINA",
+              "BOTSWANA",
+              "BRAZIL",
+              "BRITISH_INDIAN_OCEAN_TERRITORY",
+              "BRUNEI",
+              "BULGARIA",
+              "BURKINA_FASO",
+              "BURUNDI",
+              "CAMBODIA",
+              "CAMEROON",
+              "CANADA",
+              "CABO_VERDE",
+              "CAYMAN_ISLANDS",
+              "CENTRAL_AFRICAN_REPUBLIC",
+              "CHAD",
+              "CHILE",
+              "CHINA",
+              "CHRISTMAS_ISLAND",
+              "COCOS_KEELING_ISLANDS",
+              "COLOMBIA",
+              "COMOROS",
+              "DR_CONGO",
+              "CONGO_REPUBLIC",
+              "COOK_ISLANDS",
+              "COSTA_RICA",
+              "IVORY_COAST",
+              "CROATIA",
+              "CUBA",
+              "CYPRUS",
+              "CZECHIA",
+              "DENMARK",
+              "DJIBOUTI",
+              "DOMINICAN_REPUBLIC",
+              "DOMINICA",
+              "ECUADOR",
+              "EGYPT",
+              "EL_SALVADOR",
+              "EQUATORIAL_GUINEA",
+              "ERITREA",
+              "ESTONIA",
+              "ETHIOPIA",
+              "FALKLAND_ISLANDS",
+              "FAROE_ISLANDS",
+              "FIJI",
+              "FINLAND",
+              "FRANCE",
+              "FRENCH_GUIANA",
+              "FRENCH_POLYNESIA",
+              "FRENCH_SOUTHERN_TERRITORIES",
+              "GABON",
+              "THE_GAMBIA",
+              "GEORGIA",
+              "GERMANY",
+              "GHANA",
+              "GIBRALTAR",
+              "GREECE",
+              "GREENLAND",
+              "GRENADA",
+              "GUADELOUPE",
+              "GUAM",
+              "GUATEMALA",
+              "GUERNSEY",
+              "GUINEA_BISSAU",
+              "GUINEA",
+              "GUYANA",
+              "HAITI",
+              "HONDURAS",
+              "HONG_KONG",
+              "HUNGARY",
+              "ICELAND",
+              "INDIA",
+              "INDONESIA",
+              "IRAN",
+              "IRAQ",
+              "IRELAND",
+              "ISLE_OF_MAN",
+              "ISRAEL",
+              "ITALY",
+              "JAMAICA",
+              "JAPAN",
+              "JERSEY",
+              "JORDAN",
+              "KAZAKHSTAN",
+              "KENYA",
+              "KIRIBATI",
+              "NORTH_KOREA",
+              "SOUTH_KOREA",
+              "KUWAIT",
+              "KYRGYZSTAN",
+              "LAOS",
+              "LATVIA",
+              "LEBANON",
+              "LESOTHO",
+              "LIBERIA",
+              "LIBYA",
+              "LIECHTENSTEIN",
+              "LITHUANIA",
+              "LUXEMBOURG",
+              "MACAO",
+              "NORTH_MACEDONIA",
+              "MADAGASCAR",
+              "MALAWI",
+              "MALAYSIA",
+              "MALDIVES",
+              "MALI",
+              "MALTA",
+              "MARSHALL_ISLANDS",
+              "MARTINIQUE",
+              "MAURITANIA",
+              "MAURITIUS",
+              "MAYOTTE",
+              "MEXICO",
+              "MICRONESIA",
+              "MOLDOVA",
+              "MONACO",
+              "MONGOLIA",
+              "MONTENEGRO",
+              "MONTSERRAT",
+              "MOROCCO",
+              "MOZAMBIQUE",
+              "MYANMAR",
+              "NAMIBIA",
+              "NAURU",
+              "NEPAL",
+              "NETHERLANDS_ANTILLES",
+              "THE_NETHERLANDS",
+              "NEW_CALEDONIA",
+              "NEW_ZEALAND",
+              "NICARAGUA",
+              "NIGERIA",
+              "NIGER",
+              "NIUE",
+              "NORFOLK_ISLAND",
+              "NORTHERN_MARIANA_ISLANDS",
+              "NORWAY",
+              "PALESTINE",
+              "OMAN",
+              "PAKISTAN",
+              "PALAU",
+              "PANAMA",
+              "PAPUA_NEW_GUINEA",
+              "PARAGUAY",
+              "PERU",
+              "PHILIPPINES",
+              "PITCAIRN_ISLANDS",
+              "POLAND",
+              "PORTUGAL",
+              "PUERTO_RICO",
+              "QATAR",
+              "REUNION",
+              "ROMANIA",
+              "RUSSIA",
+              "RWANDA",
+              "SAINT_BARTHELEMY",
+              "ST_KITTS_AND_NEVIS",
+              "SAINT_LUCIA",
+              "SAINT_MARTIN",
+              "ST_VINCENT_AND_THE_GRENADINES",
+              "SAMOA",
+              "SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE",
+              "SAUDI_ARABIA",
+              "SENEGAL",
+              "SERBIA",
+              "SEYCHELLES",
+              "SIERRA_LEONE",
+              "SINGAPORE",
+              "SLOVAKIA",
+              "SLOVENIA",
+              "SOLOMON_ISLANDS",
+              "SOMALIA",
+              "SOUTH_AFRICA",
+              "SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS",
+              "SPAIN",
+              "SRI_LANKA",
+              "SAINT_HELENA",
+              "SAINT_PIERRE_AND_MIQUELON",
+              "SUDAN",
+              "SURINAME",
+              "SVALBARD_AND_JAN_MAYEN",
+              "SWAZILAND",
+              "SWEDEN",
+              "SWITZERLAND",
+              "SYRIA",
+              "TAIWAN",
+              "TAJIKISTAN",
+              "TANZANIA",
+              "THAILAND",
+              "TIMOR_LESTE",
+              "TOGO",
+              "TOKELAU",
+              "TONGA",
+              "TRINIDAD_AND_TOBAGO",
+              "TUNISIA",
+              "TURKEY",
+              "TURKMENISTAN",
+              "TURKS_AND_CAICOS_ISLANDS",
+              "TUVALU",
+              "UGANDA",
+              "UKRAINE",
+              "UNITED_ARAB_EMIRATES",
+              "UNITED_KINGDOM",
+              "US_OUTLYING_ISLANDS",
+              "UNITED_STATES",
+              "URUGUAY",
+              "UZBEKISTAN",
+              "VANUATU",
+              "VATICAN_CITY",
+              "VENEZUELA",
+              "VIETNAM",
+              "BRITISH_VIRGIN_ISLANDS",
+              "US_VIRGIN_ISLANDS",
+              "WALLIS_AND_FUTUNA",
+              "WESTERN_SAHARA",
+              "YEMEN",
+              "ZAMBIA",
+              "ZIMBABWE"
+            ]
+          },
+          "dcIds": {
+            "type": "array",
+            "description": "List of data centers IDs requested for exclusion from the subcloud",
+            "uniqueItems": true,
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "lastDCExclusion": {
+            "type": "boolean",
+            "description": "If set to true, all the data centers of the given country are excluded"
+          }
+        }
+      },
+      "TenantSubCloudExclusions": {
+        "type": "object",
+        "description": "The organization's subcloud containing the list of excluded data centers",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Subcloud ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "Subcloud name"
+          },
+          "exclusions": {
+            "type": "array",
+            "description": "List of data centers that are excluded from subcloud",
+            "items": {
+              "$ref": "#/definitions/SubCloudDCExclusion"
+            }
+          }
+        }
+      },
+      "Extranet": {
+        "type": "object",
+        "description": "Information about the extranet",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The unique identifier for the extranet",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the extranet"
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the extranet"
+          },
+          "extranetDNSList": {
+            "description": "Information about the DNS servers specified for the extranet",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/Extranet_DNS"
+            }
+          },
+          "extranetIpPoolList": {
+            "description": "Information about the traffic selectors specified for the extranet. Type: Array"
+          },
+          "createdAt": {
+            "type": "integer",
+            "description": "The Unix timestamp when the extranet was created",
+            "format": "int32"
+          },
+          "modifiedAt": {
+            "type": "integer",
+            "description": "The Unix timestamp when the extranet was last modified",
+            "format": "int32"
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "GreTunnel": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the static IP address that is associated to a GRE tunnel",
+            "readOnly": true
+          },
+          "sourceIp": {
+            "type": "string",
+            "description": "The source IP address of the GRE tunnel. This is typically a static IP address in the organization or SD-WAN. This IP address must be provisioned within the Zscaler service using the /staticIP endpoint."
+          },
+          "primaryDestVip": {
+            "description": "The primary destination data center and virtual IP address (VIP) of the GRE tunnel",
+            "allOf": [
+              {
+                "$ref": "#/definitions/GreVirtualIp"
+              }
+            ]
+          },
+          "secondaryDestVip": {
+            "description": "The secondary destination data center and virtual IP address (VIP) of the GRE tunnel",
+            "allOf": [
+              {
+                "$ref": "#/definitions/GreVirtualIp"
+              }
+            ]
+          },
+          "internalIpRange": {
+            "type": "string",
+            "description": "The start of the internal IP address in /29 CIDR range"
+          },
+          "managedBy": {
+            "description": "<p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p>",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ],
+            "x-applicableTo": "BOTH"
+          },
+          "lastModificationTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "When the GRE tunnel information was last modified"
+          },
+          "lastModifiedBy": {
+            "description": "Who modified the GRE tunnel information last",
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "withinCountry": {
+            "type": "boolean",
+            "description": "Restrict the data center virtual IP addresses (VIPs) only to those within the same country as the source IP address"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Additional information about this GRE tunnel"
+          },
+          "ipUnnumbered": {
+            "type": "boolean",
+            "description": "This is required to support the automated SD-WAN provisioning of GRE tunnels, when set to true gre_tun_ip and gre_tun_id are set to null"
+          },
+          "subcloud": {
+            "type": "string",
+            "description": "<p>Restrict the data center virtual IP addresses (VIPs) only to those part of the subcloud</p>"
+          }
+        },
+        "description": "GRE tunnel information"
+      },
+      "GreTunnelIPRange": {
+        "type": "object",
+        "properties": {
+          "startIPAddress": {
+            "type": "string",
+            "description": "Starting IP address in the range"
+          },
+          "endIPAddress": {
+            "type": "string",
+            "description": "Ending IP address in the range"
+          }
+        }
+      },
+      "IPv6Configuration": {
+        "type": "object",
+        "description": "IPv6 configuration details.",
+        "properties": {
+          "ipV6Enabled": {
+            "type": "boolean",
+            "description": "If set to true, IPv6 support is enabled for your organization. You can forward IPv6 traffic to the Zscaler service and enforce security  policies. If set to false, IPv6 support is disabled for your organization."
+          },
+          "natPrefixes": {
+            "type": "array",
+            "description": "NAT64 prefix information.",
+            "items": {
+              "$ref": "#/definitions/IPv6PrefixMask"
+            }
+          },
+          "dnsPrefix": {
+            "description": "DNS64 prefix information.",
+            "items": {
+              "$ref": "#/definitions/IPv6PrefixMask"
+            }
+          }
+        }
+      },
+      "IPv6PrefixMask": {
+        "type": "object",
+        "description": "NAT64/DNS64 prefix information.",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "A unique identifier for the NAT64 prefix.",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the NAT64 prefix."
+          },
+          "description": {
+            "type": "string",
+            "description": "The description of the NAT64 prefix."
+          },
+          "prefixMask": {
+            "type": "string",
+            "description": "The subnet mask for the NAT64 prefix."
+          },
+          "dnsPrefix": {
+            "type": "boolean",
+            "description": "Indicates whether or not this NAT64 prefix is the DNS64 prefix."
+          },
+          "nonEditable": {
+            "type": "boolean",
+            "description": "Indicates whether or not this NAT64 prefix is editable."
+          }
+        }
+      },
+      "IpDetails": {
+        "type": "object",
+        "properties": {
+          "ipAddress": {
+            "type": "string"
+          },
+          "greEnabled": {
+            "type": "boolean",
+            "default": false
+          },
+          "greTunnelIP": {
+            "type": "string"
+          },
+          "primaryGW": {
+            "type": "string"
+          },
+          "secondaryGW": {
+            "type": "string"
+          },
+          "tunID": {
+            "type": "integer",
+            "format": "int32"
+          },
+          "greRangePrimary": {
+            "type": "string"
+          },
+          "greRangeSecondary": {
+            "type": "string"
+          }
+        }
+      },
+      "RegionInfo": {
+        "type": "object",
+        "description": "Information about a region or a city",
+        "properties": {
+          "cityGeoId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The geographical ID of the city"
+          },
+          "stateGeoId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The geographical ID of the state"
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The latitude coordinate of the city"
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "The longitude coordinate of the city"
+          },
+          "cityName": {
+            "type": "string",
+            "description": "The name of the city"
+          },
+          "stateName": {
+            "type": "string",
+            "description": "The name of the state, province, or territory of a country"
+          },
+          "countryName": {
+            "type": "string",
+            "description": "The name of the country"
+          },
+          "countryCode": {
+            "type": "string",
+            "description": "The ISO standard two-letter country code"
+          },
+          "postalCode": {
+            "type": "string",
+            "description": "The postal code"
+          },
+          "continentCode": {
+            "type": "string",
+            "description": "The ISO standard two-letter continent code"
+          }
+        }
+      },
+      "StaticIP": {
+        "type": "object",
+        "required": [
+          "latitude",
+          "longitude"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The unique identifier for the static IP address",
+            "readOnly": true
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "The static IP address"
+          },
+          "geoOverride": {
+            "type": "boolean",
+            "description": "If not set, geographic coordinates and city are automatically determined from the IP address. Otherwise, the latitude and longitude coordinates must be provided."
+          },
+          "latitude": {
+            "type": "number",
+            "format": "double",
+            "description": "Required only if the geoOverride attribute is set. Latitude with 7 digit precision after decimal point, ranges between -90 and 90 degrees."
+          },
+          "longitude": {
+            "type": "number",
+            "format": "double",
+            "description": "Required only if the geoOverride attribute is set. Longitude with 7 digit precision after decimal point, ranges between -180 and 180 degrees."
+          },
+          "routableIP": {
+            "type": "boolean",
+            "description": "Indicates whether a non-RFC 1918 IP address is publicly routable. This attribute is ignored if there is no ZIA Private Service Edge associated to the organization. "
+          },
+          "managedBy": {
+            "description": "<p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p>",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference",
+            "x-applicableTo": "BOTH"
+          },
+          "lastModificationTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "When the static IP address was last modified",
+            "readOnly": true
+          },
+          "lastModifiedBy": {
+            "description": "Who modified the static IP address last",
+            "readOnly": true,
+            "$ref": "#/definitions/EntityReference"
+          },
+          "comment": {
+            "type": "string",
+            "description": "Additional information about this static IP address"
+          }
+        },
+        "description": "Static IP address information"
+      },
+      "PublicNode": {
+        "type": "object",
+        "properties": {
+          "cloudName": {
+            "type": "string",
+            "description": "The Zscaler cloud name."
+          },
+          "region": {
+            "type": "string",
+            "description": "The region."
+          },
+          "country": {
+            "type": "string",
+            "description": "The country."
+          },
+          "city": {
+            "type": "string",
+            "description": "The city."
+          },
+          "dataCenter": {
+            "type": "string",
+            "description": "Data center name."
+          },
+          "location": {
+            "type": "string",
+            "description": "The location coordinates."
+          },
+          "vpnIps": {
+            "type": "array",
+            "description": "The VPN IP addresses.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "vpnDomainName": {
+            "type": "string",
+            "description": "The VPN server domain name."
+          },
+          "greIps": {
+            "type": "array",
+            "description": "The GRE IP addresses.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "greDomainName": {
+            "type": "string",
+            "description": "The proxy host name."
+          },
+          "pacIps": {
+            "type": "array",
+            "description": "The PAC IP addresses.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "pacDomainName": {
+            "type": "string",
+            "description": "The PAC server domain name."
+          },
+          "svpnIps": {
+            "type": "array",
+            "description": "The PAC IP addresses.",
+            "items": {
+              "type": "string"
+            }
+          },
+          "svpnDomainName": {
+            "type": "string",
+            "description": "The PAC server domain name."
+          }
+        },
+        "description": "Public node details"
+      },
+      "DatacenterVips": {
+        "type": "object",
+        "properties": {
+          "datacenter": {
+            "description": "Zscaler data center details.",
+            "allOf": [
+              {
+                "$ref": "#/definitions/Datacenter"
+              }
+            ]
+          },
+          "greVips": {
+            "type": "array",
+            "description": "GRE cluster virtual IP addresses (VIPs).",
+            "items": {
+              "$ref": "#/definitions/GreVirtualIp"
+            }
+          }
+        },
+        "description": "GRE cluster virtual IP addresses (VIPs) that belong to a Zscaler data center."
+      },
+      "GreVirtualIp": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifer of the GRE virtual IP address (VIP)"
+          },
+          "virtualIp": {
+            "type": "string",
+            "description": "GRE cluster virtual IP address (VIP)"
+          },
+          "privateServiceEdge": {
+            "type": "boolean",
+            "description": "Set to true if the virtual IP address (VIP) is a ZIA Private Service Edge",
+            "readOnly": true
+          },
+          "datacenter": {
+            "type": "string",
+            "description": "Data center information",
+            "readOnly": true
+          }
+        },
+        "description": "GRE cluster virtual IP address (VIP) and data center information"
+      },
+      "VPNCredential": {
+        "type": "object",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "VPN credential id",
+            "readOnly": true
+          },
+          "type": {
+            "type": "string",
+            "description": "<p>VPN authentication type (i.e., how the VPN credential is sent to the server). It is not modifiable after VpnCredential is created.</p><p> <b>Note:</b> Zscaler no longer supports adding a new XAUTH VPN  credential, but existing entries can be edited or deleted using the  respective endpoints.</p>",
+            "enum": [
+              "CN",
+              "IP",
+              "UFQDN",
+              "XAUTH"
+            ]
+          },
+          "fqdn": {
+            "type": "string",
+            "description": "Fully Qualified Domain Name. Applicable only to UFQDN or XAUTH (or HOSTED_MOBILE_USERS) auth type."
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "<p>Static IP address for VPN that is <a href=\"/zia/self-provisioning-static-ip-addresses\" target=\"_blank\">self-provisioned</a> or provisioned by  Zscaler. This is a required field for IP auth type and is not applicable to other auth types.</p><p><b>Note:</b> If you want Zscaler to provision static IP addresses for your organization, contact Zscaler Support.</p>"
+          },
+          "preSharedKey": {
+            "type": "string",
+            "description": "Pre-shared key. This is a required field for UFQDN and IP auth type."
+          },
+          "comments": {
+            "type": "string",
+            "description": "Additional information about this VPN credential."
+          },
+          "location": {
+            "description": "Location that is associated to this VPN credential. Non-existence means not associated to any location.",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          },
+          "managedBy": {
+            "description": "<p>SD-WAN Partner that manages the location. If a partner does not manage the location, this is set to Self.</p>",
+            "readOnly": true,
+            "allOf": [
+              {
+                "$ref": "#/definitions/EntityReference"
+              }
+            ]
+          }
+        },
+        "description": "VPN is one way to route traffic from customer locations to the cloud. Site-to-site IPSec VPN credentials can be identified by the cloud through one of the following methods:\n\n  1. Common Name (CN) of IPSec Certificate\n\n  2. VPN User FQDN - requires VPN_SITE_TO_SITE subscription\n\n  3. VPN IP Address - requires VPN_SITE_TO_SITE subscription\n\n  4. Extended Authentication (XAUTH) or hosted mobile UserID - requires VPN_MOBILE subscription\n\n Notes:\n\n IPs must be created in Static IP first\n\n CN type (certificate) is created automatically, when a CN is provisioned by Zscaler.\n\n The 'psk' field is not applicable for this VPN type.\n\n The most common type is UFQDN."
+      },
+      "IdListInteger": {
+        "type": "object",
+        "properties": {
+          "ids": {
+            "type": "array",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        }
+      },
+      "DatacenterCountry": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "Data center ID for the country",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "Data center name"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country name",
+            "enum": [
+              "NONE",
+              "AFGHANISTAN",
+              "ALAND",
+              "ALBANIA",
+              "ALGERIA",
+              "AMERICAN_SAMOA",
+              "ANDORRA",
+              "ANGOLA",
+              "ANGUILLA",
+              "ANTARCTICA",
+              "ANTIGUA_AND_BARBUDA",
+              "ARGENTINA",
+              "ARMENIA",
+              "ARUBA",
+              "AUSTRALIA",
+              "AUSTRIA",
+              "AZERBAIJAN",
+              "BAHAMAS",
+              "BAHRAIN",
+              "BANGLADESH",
+              "BARBADOS",
+              "BELARUS",
+              "BELGIUM",
+              "BELIZE",
+              "BENIN",
+              "BERMUDA",
+              "BHUTAN",
+              "BOLIVIA",
+              "BOSNIA_AND_HERZEGOVINA",
+              "BOTSWANA",
+              "BRAZIL",
+              "BRITISH_INDIAN_OCEAN_TERRITORY",
+              "BRUNEI",
+              "BULGARIA",
+              "BURKINA_FASO",
+              "BURUNDI",
+              "CAMBODIA",
+              "CAMEROON",
+              "CANADA",
+              "CABO_VERDE",
+              "CAYMAN_ISLANDS",
+              "CENTRAL_AFRICAN_REPUBLIC",
+              "CHAD",
+              "CHILE",
+              "CHINA",
+              "CHRISTMAS_ISLAND",
+              "COCOS_KEELING_ISLANDS",
+              "COLOMBIA",
+              "COMOROS",
+              "DR_CONGO",
+              "CONGO_REPUBLIC",
+              "COOK_ISLANDS",
+              "COSTA_RICA",
+              "IVORY_COAST",
+              "CROATIA",
+              "CUBA",
+              "CYPRUS",
+              "CZECHIA",
+              "DENMARK",
+              "DJIBOUTI",
+              "DOMINICAN_REPUBLIC",
+              "DOMINICA",
+              "ECUADOR",
+              "EGYPT",
+              "EL_SALVADOR",
+              "EQUATORIAL_GUINEA",
+              "ERITREA",
+              "ESTONIA",
+              "ETHIOPIA",
+              "FALKLAND_ISLANDS",
+              "FAROE_ISLANDS",
+              "FIJI",
+              "FINLAND",
+              "FRANCE",
+              "FRENCH_GUIANA",
+              "FRENCH_POLYNESIA",
+              "FRENCH_SOUTHERN_TERRITORIES",
+              "GABON",
+              "THE_GAMBIA",
+              "GEORGIA",
+              "GERMANY",
+              "GHANA",
+              "GIBRALTAR",
+              "GREECE",
+              "GREENLAND",
+              "GRENADA",
+              "GUADELOUPE",
+              "GUAM",
+              "GUATEMALA",
+              "GUERNSEY",
+              "GUINEA_BISSAU",
+              "GUINEA",
+              "GUYANA",
+              "HAITI",
+              "HONDURAS",
+              "HONG_KONG",
+              "HUNGARY",
+              "ICELAND",
+              "INDIA",
+              "INDONESIA",
+              "IRAN",
+              "IRAQ",
+              "IRELAND",
+              "ISLE_OF_MAN",
+              "ISRAEL",
+              "ITALY",
+              "JAMAICA",
+              "JAPAN",
+              "JERSEY",
+              "JORDAN",
+              "KAZAKHSTAN",
+              "KENYA",
+              "KIRIBATI",
+              "NORTH_KOREA",
+              "SOUTH_KOREA",
+              "KUWAIT",
+              "KYRGYZSTAN",
+              "LAOS",
+              "LATVIA",
+              "LEBANON",
+              "LESOTHO",
+              "LIBERIA",
+              "LIBYA",
+              "LIECHTENSTEIN",
+              "LITHUANIA",
+              "LUXEMBOURG",
+              "MACAO",
+              "NORTH_MACEDONIA",
+              "MADAGASCAR",
+              "MALAWI",
+              "MALAYSIA",
+              "MALDIVES",
+              "MALI",
+              "MALTA",
+              "MARSHALL_ISLANDS",
+              "MARTINIQUE",
+              "MAURITANIA",
+              "MAURITIUS",
+              "MAYOTTE",
+              "MEXICO",
+              "MICRONESIA",
+              "MOLDOVA",
+              "MONACO",
+              "MONGOLIA",
+              "MONTENEGRO",
+              "MONTSERRAT",
+              "MOROCCO",
+              "MOZAMBIQUE",
+              "MYANMAR",
+              "NAMIBIA",
+              "NAURU",
+              "NEPAL",
+              "NETHERLANDS_ANTILLES",
+              "THE_NETHERLANDS",
+              "NEW_CALEDONIA",
+              "NEW_ZEALAND",
+              "NICARAGUA",
+              "NIGERIA",
+              "NIGER",
+              "NIUE",
+              "NORFOLK_ISLAND",
+              "NORTHERN_MARIANA_ISLANDS",
+              "NORWAY",
+              "PALESTINE",
+              "OMAN",
+              "PAKISTAN",
+              "PALAU",
+              "PANAMA",
+              "PAPUA_NEW_GUINEA",
+              "PARAGUAY",
+              "PERU",
+              "PHILIPPINES",
+              "PITCAIRN_ISLANDS",
+              "POLAND",
+              "PORTUGAL",
+              "PUERTO_RICO",
+              "QATAR",
+              "REUNION",
+              "ROMANIA",
+              "RUSSIA",
+              "RWANDA",
+              "SAINT_BARTHELEMY",
+              "ST_KITTS_AND_NEVIS",
+              "SAINT_LUCIA",
+              "SAINT_MARTIN",
+              "ST_VINCENT_AND_THE_GRENADINES",
+              "SAMOA",
+              "SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE",
+              "SAUDI_ARABIA",
+              "SENEGAL",
+              "SERBIA",
+              "SEYCHELLES",
+              "SIERRA_LEONE",
+              "SINGAPORE",
+              "SLOVAKIA",
+              "SLOVENIA",
+              "SOLOMON_ISLANDS",
+              "SOMALIA",
+              "SOUTH_AFRICA",
+              "SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS",
+              "SPAIN",
+              "SRI_LANKA",
+              "SAINT_HELENA",
+              "SAINT_PIERRE_AND_MIQUELON",
+              "SUDAN",
+              "SURINAME",
+              "SVALBARD_AND_JAN_MAYEN",
+              "SWAZILAND",
+              "SWEDEN",
+              "SWITZERLAND",
+              "SYRIA",
+              "TAIWAN",
+              "TAJIKISTAN",
+              "TANZANIA",
+              "THAILAND",
+              "TIMOR_LESTE",
+              "TOGO",
+              "TOKELAU",
+              "TONGA",
+              "TRINIDAD_AND_TOBAGO",
+              "TUNISIA",
+              "TURKEY",
+              "TURKMENISTAN",
+              "TURKS_AND_CAICOS_ISLANDS",
+              "TUVALU",
+              "UGANDA",
+              "UKRAINE",
+              "UNITED_ARAB_EMIRATES",
+              "UNITED_KINGDOM",
+              "US_OUTLYING_ISLANDS",
+              "UNITED_STATES",
+              "URUGUAY",
+              "UZBEKISTAN",
+              "VANUATU",
+              "VATICAN_CITY",
+              "VENEZUELA",
+              "VIETNAM",
+              "BRITISH_VIRGIN_ISLANDS",
+              "US_VIRGIN_ISLANDS",
+              "WALLIS_AND_FUTUNA",
+              "WESTERN_SAHARA",
+              "YEMEN",
+              "ZAMBIA",
+              "ZIMBABWE"
+            ]
+          }
+        }
+      },
+      "SubCloudDCExclusion": {
+        "type": "object",
+        "description": "Information about data center excluded from the subcloud",
+        "properties": {
+          "datacenter": {
+            "description": "The data center associated with the subcloud",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "country": {
+            "type": "string",
+            "description": "Country where the data center is located",
+            "enum": [
+              "NONE",
+              "AFGHANISTAN",
+              "ALAND",
+              "ALBANIA",
+              "ALGERIA",
+              "AMERICAN_SAMOA",
+              "ANDORRA",
+              "ANGOLA",
+              "ANGUILLA",
+              "ANTARCTICA",
+              "ANTIGUA_AND_BARBUDA",
+              "ARGENTINA",
+              "ARMENIA",
+              "ARUBA",
+              "AUSTRALIA",
+              "AUSTRIA",
+              "AZERBAIJAN",
+              "BAHAMAS",
+              "BAHRAIN",
+              "BANGLADESH",
+              "BARBADOS",
+              "BELARUS",
+              "BELGIUM",
+              "BELIZE",
+              "BENIN",
+              "BERMUDA",
+              "BHUTAN",
+              "BOLIVIA",
+              "BOSNIA_AND_HERZEGOVINA",
+              "BOTSWANA",
+              "BRAZIL",
+              "BRITISH_INDIAN_OCEAN_TERRITORY",
+              "BRUNEI",
+              "BULGARIA",
+              "BURKINA_FASO",
+              "BURUNDI",
+              "CAMBODIA",
+              "CAMEROON",
+              "CANADA",
+              "CABO_VERDE",
+              "CAYMAN_ISLANDS",
+              "CENTRAL_AFRICAN_REPUBLIC",
+              "CHAD",
+              "CHILE",
+              "CHINA",
+              "CHRISTMAS_ISLAND",
+              "COCOS_KEELING_ISLANDS",
+              "COLOMBIA",
+              "COMOROS",
+              "DR_CONGO",
+              "CONGO_REPUBLIC",
+              "COOK_ISLANDS",
+              "COSTA_RICA",
+              "IVORY_COAST",
+              "CROATIA",
+              "CUBA",
+              "CYPRUS",
+              "CZECHIA",
+              "DENMARK",
+              "DJIBOUTI",
+              "DOMINICAN_REPUBLIC",
+              "DOMINICA",
+              "ECUADOR",
+              "EGYPT",
+              "EL_SALVADOR",
+              "EQUATORIAL_GUINEA",
+              "ERITREA",
+              "ESTONIA",
+              "ETHIOPIA",
+              "FALKLAND_ISLANDS",
+              "FAROE_ISLANDS",
+              "FIJI",
+              "FINLAND",
+              "FRANCE",
+              "FRENCH_GUIANA",
+              "FRENCH_POLYNESIA",
+              "FRENCH_SOUTHERN_TERRITORIES",
+              "GABON",
+              "THE_GAMBIA",
+              "GEORGIA",
+              "GERMANY",
+              "GHANA",
+              "GIBRALTAR",
+              "GREECE",
+              "GREENLAND",
+              "GRENADA",
+              "GUADELOUPE",
+              "GUAM",
+              "GUATEMALA",
+              "GUERNSEY",
+              "GUINEA_BISSAU",
+              "GUINEA",
+              "GUYANA",
+              "HAITI",
+              "HONDURAS",
+              "HONG_KONG",
+              "HUNGARY",
+              "ICELAND",
+              "INDIA",
+              "INDONESIA",
+              "IRAN",
+              "IRAQ",
+              "IRELAND",
+              "ISLE_OF_MAN",
+              "ISRAEL",
+              "ITALY",
+              "JAMAICA",
+              "JAPAN",
+              "JERSEY",
+              "JORDAN",
+              "KAZAKHSTAN",
+              "KENYA",
+              "KIRIBATI",
+              "NORTH_KOREA",
+              "SOUTH_KOREA",
+              "KUWAIT",
+              "KYRGYZSTAN",
+              "LAOS",
+              "LATVIA",
+              "LEBANON",
+              "LESOTHO",
+              "LIBERIA",
+              "LIBYA",
+              "LIECHTENSTEIN",
+              "LITHUANIA",
+              "LUXEMBOURG",
+              "MACAO",
+              "NORTH_MACEDONIA",
+              "MADAGASCAR",
+              "MALAWI",
+              "MALAYSIA",
+              "MALDIVES",
+              "MALI",
+              "MALTA",
+              "MARSHALL_ISLANDS",
+              "MARTINIQUE",
+              "MAURITANIA",
+              "MAURITIUS",
+              "MAYOTTE",
+              "MEXICO",
+              "MICRONESIA",
+              "MOLDOVA",
+              "MONACO",
+              "MONGOLIA",
+              "MONTENEGRO",
+              "MONTSERRAT",
+              "MOROCCO",
+              "MOZAMBIQUE",
+              "MYANMAR",
+              "NAMIBIA",
+              "NAURU",
+              "NEPAL",
+              "NETHERLANDS_ANTILLES",
+              "THE_NETHERLANDS",
+              "NEW_CALEDONIA",
+              "NEW_ZEALAND",
+              "NICARAGUA",
+              "NIGERIA",
+              "NIGER",
+              "NIUE",
+              "NORFOLK_ISLAND",
+              "NORTHERN_MARIANA_ISLANDS",
+              "NORWAY",
+              "PALESTINE",
+              "OMAN",
+              "PAKISTAN",
+              "PALAU",
+              "PANAMA",
+              "PAPUA_NEW_GUINEA",
+              "PARAGUAY",
+              "PERU",
+              "PHILIPPINES",
+              "PITCAIRN_ISLANDS",
+              "POLAND",
+              "PORTUGAL",
+              "PUERTO_RICO",
+              "QATAR",
+              "REUNION",
+              "ROMANIA",
+              "RUSSIA",
+              "RWANDA",
+              "SAINT_BARTHELEMY",
+              "ST_KITTS_AND_NEVIS",
+              "SAINT_LUCIA",
+              "SAINT_MARTIN",
+              "ST_VINCENT_AND_THE_GRENADINES",
+              "SAMOA",
+              "SAN_MARINO",
+              "SAO_TOME_AND_PRINCIPE",
+              "SAUDI_ARABIA",
+              "SENEGAL",
+              "SERBIA",
+              "SEYCHELLES",
+              "SIERRA_LEONE",
+              "SINGAPORE",
+              "SLOVAKIA",
+              "SLOVENIA",
+              "SOLOMON_ISLANDS",
+              "SOMALIA",
+              "SOUTH_AFRICA",
+              "SOUTH_GEORGIA_AND_SOUTH_SANDWICH_ISLANDS",
+              "SPAIN",
+              "SRI_LANKA",
+              "SAINT_HELENA",
+              "SAINT_PIERRE_AND_MIQUELON",
+              "SUDAN",
+              "SURINAME",
+              "SVALBARD_AND_JAN_MAYEN",
+              "SWAZILAND",
+              "SWEDEN",
+              "SWITZERLAND",
+              "SYRIA",
+              "TAIWAN",
+              "TAJIKISTAN",
+              "TANZANIA",
+              "THAILAND",
+              "TIMOR_LESTE",
+              "TOGO",
+              "TOKELAU",
+              "TONGA",
+              "TRINIDAD_AND_TOBAGO",
+              "TUNISIA",
+              "TURKEY",
+              "TURKMENISTAN",
+              "TURKS_AND_CAICOS_ISLANDS",
+              "TUVALU",
+              "UGANDA",
+              "UKRAINE",
+              "UNITED_ARAB_EMIRATES",
+              "UNITED_KINGDOM",
+              "US_OUTLYING_ISLANDS",
+              "UNITED_STATES",
+              "URUGUAY",
+              "UZBEKISTAN",
+              "VANUATU",
+              "VATICAN_CITY",
+              "VENEZUELA",
+              "VIETNAM",
+              "BRITISH_VIRGIN_ISLANDS",
+              "US_VIRGIN_ISLANDS",
+              "WALLIS_AND_FUTUNA",
+              "WESTERN_SAHARA",
+              "YEMEN",
+              "ZAMBIA",
+              "ZIMBABWE"
+            ]
+          },
+          "expired": {
+            "type": "boolean",
+            "description": "The subcloud data center exclusion is disabled"
+          },
+          "disabledByOps": {
+            "type": "boolean",
+            "description": "If set to true, this data center exclusion is disabled by Zscaler CloudOps"
+          },
+          "createTime": {
+            "type": "integer",
+            "description": "Timestamp when the data center exclusion was created",
+            "format": "int32"
+          },
+          "startTime": {
+            "type": "integer",
+            "description": "Timestamp when the data center exclusion was started",
+            "format": "int32"
+          },
+          "endTime": {
+            "type": "integer",
+            "description": "Timestamp when the data center exclusion was stopped",
+            "format": "int32"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "description": "Timestamp when the data center exclusion entry was last modified",
+            "format": "int32"
+          },
+          "lastModifiedUser": {
+            "description": "Last user that modified the data center",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "Extranet_DNS": {
+        "type": "object",
+        "description": "Information about the DNS servers specified for the extranet",
+        "required": [
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "description": "The ID generated for the DNS server configuration",
+            "format": "int32"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the DNS server"
+          },
+          "primaryDNSServer": {
+            "type": "string",
+            "description": "The IP address of the primary DNS server"
+          },
+          "secondaryDNSServer": {
+            "type": "string",
+            "description": "The IP address of the secondary DNS server"
+          },
+          "useAsDefault": {
+            "type": "boolean",
+            "description": "A Boolean value indicating that the DNS servers specified in the extranet are the designated default servers "
+          }
+        }
+      }
+    }
+  }
+}

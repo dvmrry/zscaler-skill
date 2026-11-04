@@ -1,0 +1,243 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Logging and Monitoring",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/understanding-logging-and-monitoring",
+    "node": "1533597",
+    "revision": "3157327",
+    "updated": "2026-04-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Logging and monitoring are essential to maintaining secure, reliable, and well-managed branch networks. These activities provide the visibility required to detect anomalies, ensure compliance, and troubleshoot issues before they cause disruption. Zscaler's Zero Trust Branch provides comprehensive logging and monitoring capabilities to help admins visualize traffic, analyze branch activity, and maintain operational control. Built on scalable, cloud-native Analytics Data Lake, the Zero Trust Branch logging framework supports real-time log ingestion, high-throughput data streaming, and interactive analytics dashboards."
+    },
+    {
+      "text": "This article explains how Zero Trust Branch collects, stores, and presents logging data. It also describes the log formats, retention policies, throttling mechanisms, and integration options that enhance visibility across your Zero Trust Branch environment."
+    },
+    {
+      "text": "The Zero Trust Branch logging and monitoring system helps you:"
+    },
+    {
+      "item": "Gain real-time visibility into branch-level traffic, device activity, and policy enforcement.",
+      "depth": 0
+    },
+    {
+      "item": "Troubleshoot faster using packet and flow logs streamed to the Analytics Data Store for rapid search and visualization.",
+      "depth": 0
+    },
+    {
+      "item": "Protect performance through built-in throttling, structured JSON log formats, and tiered retention options.",
+      "depth": 0
+    },
+    {
+      "item": "Stay audit-ready with isolated per-tenant data stores and integrations with third-party security information and event management (SIEM) platforms.",
+      "depth": 0
+    },
+    {
+      "heading": "Architecture Overview",
+      "level": 1
+    },
+    {
+      "text": "The Zero Trust Branch appliance logging and monitoring frameworks are designed to handle large volumes of branch network telemetry with cloud-scale performance and reliability. It is built on scalable, cloud-native Analytics Data Lake that collects, processes, analyzes, and stores network telemetry from distributed branch environments. This design ensures high-volume log ingestion, real-time analytics, multi-tenant isolation, and reliable long-term visibility across branch gateways."
+    },
+    {
+      "text": "The Analytics Data Lake comprises two core subsystems:"
+    },
+    {
+      "item": "Ingestion and Analytics Engine: The ingestion, processing, and analytics layer",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Analytics Data Store: The searchable, query-ready storage and visualization layer",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "text": "Together, these components deliver real-time observability for east–west traffic, device activity, asset discovery, and security events."
+    },
+    {
+      "heading": "Ingestion and Analytics Engine",
+      "level": 2
+    },
+    {
+      "text": "The Ingestion and Analytics Engine collects and processes all traffic logs and asset metadata from branch gateways. It normalizes incoming data, manages load and throttling, and generates the analytics used for traffic charts and device discovery."
+    },
+    {
+      "text": "The key functions of the Ingestion and Analytics Engine include:"
+    },
+    {
+      "item": "Traffic logs and asset discovery: Zero Trust Branch gateway clusters forward traffic logs and asset discovery metadata to the management plane, which streams this data into the Ingestion and Analytics Engine.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Data visualization: The log analyzer microservice consumes incoming data and is responsible for device discovery and building detailed traffic charts, including east–west traffic visualizations.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Scalability: Designed to handle very high throughput and process millions of log records per second, ensuring support for large enterprise deployments without bottlenecks.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Load balancing and throttling: Applies automatic load balancing and can throttle or rate-limit ingestion to protect downstream services. Throttling and built-in retry logic help to manage bursts in log volume.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Per-environment deployment: One engine instance is deployed per Zero Trust Branch management instance, isolating log flows for each environment.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Traffic charts: Logs processed by the engine enable dynamic, interactive traffic charts and device maps. Each node in a chart can represent up to 200 neighboring connections.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "heading": "Analytics Data Store",
+      "level": 2
+    },
+    {
+      "text": "The Analytics Data Store retains structured packet and flow logs in dedicated tenant spaces. It supports real-time search, visualization, and short-term analytics for troubleshooting and operational monitoring."
+    },
+    {
+      "text": "The key functions of the Analytics Data Store include:"
+    },
+    {
+      "item": "Real-time debugging: A near real-time copy of logs processed by the engine is written to the Analytics Data Store, enabling immediate access to raw traffic logs for troubleshooting.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Multi-tenancy: Each management instance connects to a shared Analytics Data Store cluster. When a new customer tenant is onboarded, a dedicated space is created to ensure data isolation and secure access.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Retention: Logs are retained for up to 7 days, supporting short-term analytics and rapid incident response.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Access: Admins can query, filter, and visualize their traffic data using dashboards backed by the Analytics Data Store with no additional agents.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Log types: The Analytics Data Store retains both packet logs and flow logs, providing full context for traffic analysis and troubleshooting.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see Understanding Log Types, Levels, and Formats."
+    },
+    {
+      "heading": "Monitoring Capabilities",
+      "level": 1
+    },
+    {
+      "text": "Zero Trust Branch provides built-in monitoring tools that give admins real-time visibility into branch activity and system behavior. These capabilities help admins track traffic trends, device status, and security events, and quickly identify issues that require attention. Zero Trust Branch supports the following monitoring capabilities:"
+    },
+    {
+      "item": "Real-time dashboards: Live dashboards display traffic insights, device health, and security events, allowing admins to monitor branch activity as it happens. To learn more, see Viewing Traffic Flow Charts.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Alerts and notifications: The system generates alerts for anomalies, failures, or policy violations, helping operators detect and respond to issues quickly. To learn more, see Understanding Alarms and Notifications.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Third-party integrations: Logs can be exported to external SIEM platforms, such as Splunk or QRadar, via the API for broader visibility, longer retention, and centralized analysis. To learn more, see Configuring SIEM Integration.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    }
+  ]
+}

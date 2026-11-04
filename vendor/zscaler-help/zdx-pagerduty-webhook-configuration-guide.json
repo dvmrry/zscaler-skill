@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "PagerDuty Webhook Configuration Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zdx/pagerduty-webhook-configuration-guide",
+    "node": "1376326",
+    "revision": "3249948",
+    "updated": "2026-10-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides information on using PagerDuty for configuring webhooks for Digital Experience (ZDX) alerts. These instructions provide a sample configuration that you can use based on user requirements."
+    },
+    {
+      "item": "Create a PagerDuty account at www.pagerduty.com.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "On your PagerDuty account page:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Click Developer Mode.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create New App.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Build App window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "App Name: Enter a name for the application.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Brief Description: Enter a description.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Category: Select Error Tracking.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "We would like to help you publish a public app for all PagerDuty users. Do you intend to publish the app for all PagerDuty users and the app ecosystem?: Select No, I am not interested.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          151
+        ],
+        [
+          160,
+          183
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "When the Configure App page appears, go to Events Integration > Manage.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          22
+        ],
+        [
+          43,
+          61
+        ],
+        [
+          64,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Yes for Event Integration and enter the event transformation script.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          15,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Script for Event Transformation",
+      "depth": 2
+    },
+    {
+      "item": "export function transform(PD) { // Sample Event Transformation let body = PD.inputRequest.body; let zdxLinkURL = body.zdxUrl; let emitEv = true; let ruleName = body.ruleName; if (ruleName.toLowerCase() == \"test\") emitEv = false; let payloadCount = \"\\n\\n\"; if ( body.status == \"STARTED\" ) { payloadCount += \"Affected: \\nGeolocations: \" + body.geolocationCount + \"\\nDepartments: \" + body.deptCount + \"\\nImpacted Devices: \" + body.impactedDeviceCount + \"\\nOS Versions: \" + body.osverCount } let normalized_event = { event_action: PD.Trigger, // optionally include a key to prevent creating duplicate // incidents when the same event is sent more than once // dedup_key: body.event_key, payload: { summary: `Rule: ${body.ruleName}, Severity: ${body.severity} ${body.status}`, source: 'ZDX', severity: PD.Critical, custom_details: `AlertId: ${body.alertId}\\nRule Name: ${body.ruleName}\\nSeverity: ${body.severity}\\nCriteria: ${body.criteriaString}\\nLink: ${zdxLinkURL} ${payloadCount}` }, dedup_key: \"\", // optionally display links or images on web and mobile links: [{ \"href\": zdxLinkURL, \"text\": \"Alert Details\" }], }; if ( emitEv) PD.emitEventsV2([normalized_event]); }",
+      "depth": 2
+    },
+    {
+      "item": "Copy the Events API Endpoint address as the URL to use when configuring a webhook in the Zscaler Admin Console.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Configure a webhook in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "From the navigation menu, go to Digital Experience > Settings & Configurations > Webhooks.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          50
+        ],
+        [
+          53,
+          78
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Webhook.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Webhook window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name of the webhook for PagerDuty.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Select Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "URL: Enter the URL you copied from the previous step.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select Token.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Bearer Token: PagerDuty does not generate a bearer token. To meet webhook configuration requirements, enter any text for the bearer token (e.g., 1234).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Click Test Webhook to confirm the webhook configuration works.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          17,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Verify the incident within PagerDuty if an alert is raised from the Test Webhook.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Activate your changes.",
+      "depth": 1,
+      "number": 7
+    }
+  ]
+}

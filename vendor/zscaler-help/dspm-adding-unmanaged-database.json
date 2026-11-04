@@ -1,0 +1,1430 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Adding Unmanaged Databases",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/adding-unmanaged-database",
+    "node": "1517566",
+    "revision": "3243192",
+    "updated": "2026-09-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can add an unmanaged database server to DSPM. DSPM scans the unmanaged databases for sensitive data and identifies any potential security posture risks."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before adding unmanaged databases to DSPM, ensure the following prerequisites are met:"
+    },
+    {
+      "item": "1. Onboard the account using a custom model to establish network connectivity between DSPM and the unmanaged database.",
+      "depth": 0
+    },
+    {
+      "item": "2. Modify security groups to allow connections from the scanner or orchestrator subnets.",
+      "depth": 0
+    },
+    {
+      "item": "3. Create a custom role with required permissions to configure SQL authentication.",
+      "depth": 0
+    },
+    {
+      "item": "4. Provide SQL connection strings and authentication credentials to allow DSPM to access the unmanaged database.",
+      "depth": 0
+    },
+    {
+      "item": "5. If the database uses a self-hosted HashiCorp Vault:",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the network policies allow inbound connectivity from the DSPM scanner subnets to the HashiCorp Vault and unmanaged databases.",
+      "depth": 1
+    },
+    {
+      "item": "Create a DSPM user in the HashiCorp Vault for authentication.",
+      "depth": 1
+    },
+    {
+      "item": "Add secrets in the HashiCorp Vault to allow DSPM to fetch the credentials and connect to the unmanaged database to scan sensitive data. To learn more, refer to the HashiCorp documentation.",
+      "depth": 1
+    },
+    {
+      "item": "6. Store credentials in the correct secret provider and location.",
+      "depth": 0
+    },
+    {
+      "item": "AWS: Create and store the password or key‑pair in AWS Secrets Manager, and have the ARNs ready for use.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "On-premises resources: Store the secret in the orchestrator account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Unmanaged database: Store the secret in the target account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Open the AWS Secrets Manager in the AWS Management Console.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select Store a new secret.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose secret type page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Secret type: Select Other type of secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Key/value pairs: Select the Plaintext tab and enter the generated secret.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          28,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure secret page:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Secret name: Enter a name for the secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description (optional): Enter a description if required.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure rotation page, click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Review page, review your secret details, and then click Store.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          63,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Azure: Create and store the secret in the Azure Key Vault of the worker plane resource group in the subscription where the orchestrator account is present, and have the Key Vault URIs ready for use. To learn more, refer to the Microsoft documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "GCP: Create and store the secret in Secret Manager within the GCP project where the orchestrator account is present, and have the Secret ID paths ready for use. To learn more, refer to the GCP documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "heading": "Adding an Unmanaged Database Server",
+      "level": 1
+    },
+    {
+      "text": "To add an unmanaged database server:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Service Registration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the Service Registration page, select the Unmanaged Database tab. To add database servers, do one of the following:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          45,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Add a database server",
+      "depth": 1
+    },
+    {
+      "item": "On the Service Registration page, select the Unmanaged Database tab, and click Add Database Server.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          45,
+          63
+        ],
+        [
+          79,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Add Unmanaged Database Server drawer appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Unmanaged Database Server drawer, select the database server type:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Cloud Database",
+      "depth": 3
+    },
+    {
+      "item": "Associate Database Server with Virtual Machine: Enable the toggle to associate the database server with a virtual machine.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Type: Select the cloud service provider (AWS, Azure, or GCP) where your database server is hosted.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Account: Select the cloud account in which the database server is stored.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Region: Select the region where the database server is located.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Machine: Select the virtual machine or an EC2 instance that must be associated with the database server.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "The Virtual Machine option is only available when the Associate Database Server with Virtual Machine toggle is enabled.",
+      "depth": 4,
+      "strong": [
+        [
+          4,
+          19
+        ],
+        [
+          54,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On-Premises Database",
+      "depth": 3
+    },
+    {
+      "item": "In the Data Center Information section:",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Data Center: Select the name of the data center where the database server is located.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Location: This is automatically populated based on the selected data center.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "If the data center has on-premises scanners, then the On-Premise Scanner section is automatically populated with the available integrations. If not, integrate an on-premises scanner with the data center. To learn more, see Adding or Deleting a Scanner Integration.",
+      "depth": 4,
+      "strong": [
+        [
+          54,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Database Server section:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Database Server Name: Enter a unique name for the database server.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Database Engine: Select the database engine type (MS SQL, PostgreSQL, Oracle, MySQL, or MongoDB).",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          58,
+          68
+        ],
+        [
+          70,
+          76
+        ],
+        [
+          78,
+          83
+        ],
+        [
+          88,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Database Version: Select the version of the database server.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Type of Connection String (for Oracle Only): Select any of the following connection strings:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Container Database: A database that contains multiple, independent databases called Pluggable Databases (PDBs).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Pluggable Database: A portable collection of schemas, schema objects, and non-schema objects.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Database Instance: This is a set of memory structures and background processes to manage database files.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: Enter the connection string required to connect to the database server.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Authentication section:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The authentication type differs depending on the deployment type and database engine.",
+      "depth": 2
+    },
+    {
+      "item": "For cloud deployments, authentication is based on the cloud type.",
+      "depth": 3
+    },
+    {
+      "item": "For on-premises deployments, authentication is based on the associated cloud network.",
+      "depth": 3
+    },
+    {
+      "item": "Secret Provider Type: Select the secret provider used for authentication.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Azure Key Vault or AWS Secrets Manager",
+      "depth": 3
+    },
+    {
+      "item": "Authentication Type: Select the authentication type (SQL Authentication, Microsoft Entra Service Principal, Microsoft Entra Authentication with user-managed identity, SCRAM Authentication, or X.509 Authentication).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          53,
+          71
+        ],
+        [
+          73,
+          106
+        ],
+        [
+          108,
+          165
+        ],
+        [
+          167,
+          187
+        ],
+        [
+          192,
+          212
+        ]
+      ]
+    },
+    {
+      "item": "SQL Authentication (For Azure, AWS, and On-Premises)",
+      "depth": 5
+    },
+    {
+      "item": "Username: Enter the username for SQL authentication.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Key Vault URI: Enter the Uniform Resource Indicator (URI), a unique identifier of the Key Vault instance. In order for DSPM to read the password and connect to the database, ensure you do the following:",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "table": [
+        [
+          "Database Type",
+          "Secret Storage Details"
+        ],
+        [
+          "Unmanaged",
+          "AWS: Create and store the secret in the AWS target account. Azure: Create and store the secret in any Key Vault of the target subscription."
+        ],
+        [
+          "On-premises",
+          "AWS: Create and store the secret in the AWS account where the orchestrator account is present. Azure: Create and store the secret in the Key Vault of the worker plane resource group [integration_id_worker_plane_rg] of the subscription where the orchestrator account is present. GCP: Create and store the secret in the secret manager of the GCP project where the orchestrator account is present."
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          1,
+          0,
+          3
+        ],
+        [
+          1,
+          1,
+          60,
+          65
+        ],
+        [
+          2,
+          1,
+          0,
+          3
+        ],
+        [
+          2,
+          1,
+          95,
+          100
+        ],
+        [
+          2,
+          1,
+          278,
+          281
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "When using SQL Authentication, create a custom server reader role with the necessary permissions to scan the database.",
+      "depth": 5
+    },
+    {
+      "item": "Microsoft Entra Service Principal (for Azure only)",
+      "depth": 5
+    },
+    {
+      "item": "Application ID: Enter the application ID for Microsoft Entra authentication.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "AWS Secret Manager ARN (for AWS): Enter the ARN of the AWS Secret Manager.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "This ARN must be available in the account where the unmanaged database is located.",
+      "depth": 6
+    },
+    {
+      "item": "Key Vault URI (for Azure): Enter the Uniform Resource Indicator (URI) of the Key Vault instance.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "This URI must be available in the same account where the unmanaged database is present, and the Key Vault should follow the Azure role-based access control permission model.",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Microsoft Entra Authentication with User Managed Identity (for Azure only)",
+      "depth": 5
+    },
+    {
+      "item": "A user-managed identity in Azure that is created and managed by the user.",
+      "depth": 5
+    },
+    {
+      "item": "Azure Resource ID: Enter the Azure Resource ID for user-managed identity authentication.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "SCRAM Authentication, or X.509 Authentication (for MongoDB database engine only)",
+      "depth": 5
+    },
+    {
+      "item": "Username (for SCRAM Authentication only): Enter the MongoDB username that DSPM uses to connect to the database.",
+      "depth": 6,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password Secret (ARN or URI) (for SCRAM Authentication only): Enter the unique identifier for the secret that contains the password for the specified username.",
+      "depth": 6,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "For AWS: Secrets Manager ARN",
+      "depth": 7,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "For Azure: Key Vault URI",
+      "depth": 7,
+      "strong": [
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Certificate Authority (ARN or URI) (Optional): Enter the ARN or URI of the secret containing the Certificate Authority (CA) certificate.",
+      "depth": 6,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          30,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Client Certificate (ARN or URI) (Optional for SCRAM Authentication): Enter the ARN or URI of the secret containing the public certificate file.",
+      "depth": 6,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          27,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Client Key (ARN or URI) (Optional): Enter the ARN or URI of the secret containing the passphrase to decrypt the certificate if the uploaded certificate (PEM) file is encrypted.",
+      "depth": 6,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "This private key must correspond to the client certificate provided in the preceding steps.",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Self Hosted HashiCorp Vault",
+      "depth": 3
+    },
+    {
+      "item": "Endpoint: Enter the URL of the HashiCorp Vault.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Username: Enter the login username of the HashiCorp Vault.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Key Vault URI or AWS Secrets Manager ARN: Enter the secret URI or ARN where HashiCorp vault login password is saved.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          17,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "The label of this field changes based on the selected cloud provider:",
+      "depth": 4
+    },
+    {
+      "item": "For AWS, it appears as Secrets Manager ARN.",
+      "depth": 5,
+      "strong": [
+        [
+          23,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "For Azure, it appears as Key Vault URI.",
+      "depth": 5,
+      "strong": [
+        [
+          25,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Zscaler DSPM",
+      "depth": 3
+    },
+    {
+      "item": "Authentication Type (for MongoDB database engine only): Select SCRAM Authentication or X.509 Authentication.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          63,
+          83
+        ],
+        [
+          87,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Username: Enter the username that DSPM uses to connect to the unmanaged database.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: Enter the login password for the username to connect to the unmanaged database.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Certificate Authority (.pem) (Optional for MongoDB database engine only): Drag and drop or click to browse to provide the PEM Certificate Authority (CA) certificate file.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Client Certificate (.pem) (Optional for MongoDB database engine only): Drag and drop or click to browse to provide the PEM certificate file.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Client Key Password (Optional for MongoDB database engine only): Enter the passphrase to decrypt the certificate if the uploaded certificate (PEM) file is encrypted.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "This private key must correspond to the client certificate provided in the preceding details.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Database Authentication: This is applicable when HashiCorp Vault is selected as the Secret Provider Type.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          23
+        ],
+        [
+          84,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select the authentication type to authenticate to the unmanaged database.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Username: Enter the username that DSPM uses to connect to the unmanaged database. This should match the username stored in the HashiCorp Vault secret.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "HashiCorp Vault Secret Path: Enter the HashiCorp Vault path where the secret is stored. For example, hashicorp/vault/zscaler/password.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "HashiCorp Vault Secret Key: Enter the HashiCorp key that stores the database login password.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The unmanaged database server is added and displayed on the Unmanaged Databases page.",
+      "depth": 1
+    },
+    {
+      "item": "Download the template",
+      "depth": 1
+    },
+    {
+      "item": "Click Download Template.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file named onprem_unmanageddb is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the ZIP file. It contains the following files:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "cloud_unmanageddb.xlsx for cloud databases",
+      "depth": 3
+    },
+    {
+      "item": "onprem_unmanageddb.xlsx for on‑premises databases",
+      "depth": 3
+    },
+    {
+      "item": "Upload multiple database servers",
+      "depth": 1
+    },
+    {
+      "item": "Add the database server details to the template file you downloaded in the previous step.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On-premises",
+      "depth": 3
+    },
+    {
+      "item": "Data Center: The name of the data center where the database server is located.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Database Server Name: A unique name for the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Database Version: The version of the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: The connection string required to connect to the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "UserName: The username that DSPM uses to connect to the database.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: The login password for the username to connect to the unmanaged database.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Cloud",
+      "depth": 3
+    },
+    {
+      "item": "Cloud Type: The cloud service provider (AWS, Azure, or GCP) where your database server is hosted.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Account: The cloud account in which the database server is stored.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Region: The region where the database server is located.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Machine ID: The virtual machine ID or an EC2 instance ID that must be associated with the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Database Server Name: A unique name for the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Database Version: The version of the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Connection String: The connection string required to connect to the database server.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "UserName: The username that DSPM uses to connect to the database.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: The login password for the username to connect to the unmanaged database.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Upload Database Servers.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Upload Database Servers window, upload the template file that contains the details.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "The uploaded file name must be exactly onprem_unmanageddb.xlsx for on‑premises databases or cloud_unmanageddb.xlsx for cloud databases, to prevent errors.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Click Upload.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The unmanaged database servers are added and displayed on the Unmanaged Databases page.",
+      "depth": 1
+    },
+    {
+      "text": "After registration, verify the connection between DSPM and the database server. For on-premises unmanaged databases, DSPM runs the test automatically after registration. For cloud unmanaged databases, like Snowflake and Databricks, you must run the test manually. To learn more, see Testing Connection for Registered Services."
+    },
+    {
+      "text": "To configure the scan settings, see Configuring Scan Settings for Azure Unmanaged Databases, Configuring Scan Settings for On-Premises Unmanaged Database, and Configuring Scan Settings for AWS Unmanaged Databases."
+    }
+  ]
+}

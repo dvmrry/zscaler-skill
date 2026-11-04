@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Audit Logs",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/audit-logs",
+    "node": "1471746",
+    "revision": "3070566",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Audit%20Logs_1.json?VersionId=GuXuqxGrXNhocZDGOqfWQMPlu6_QoZni",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Workflow Automation - DLP Incident  Management API",
+      "description": "Zscaler Workflow Automation - DLP Incident Management API.",
+      "termsOfService": "http://zscaler.com/terms/",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0.0"
+    },
+    "servers": [
+      {
+        "url": "https://api.us1.zsworkflow.net"
+      }
+    ],
+    "tags": [
+      {
+        "name": "Audit Logs"
+      }
+    ],
+    "paths": {
+      "/dlp/v1/customer/audit": {
+        "post": {
+          "tags": [
+            "Audit Logs"
+          ],
+          "description": "Filters audit logs based on the specified time period and field values. The result includes audit information for every action made by the admins in the Workflow Automation Admin Portal and the actions made through APIs. The supported field values are:<ul> <li>Action</li> <li>Resource</li> <li>Admin</li> <li>Module</li></ul> The supported time range values are:<ul> <li>Start date and time</li> <li>End date and time</li></ul>",
+          "operationId": "searchAuditLogs",
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page number of the incident in a multi-paginated response. This field is not required if page ID field is used.",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 0,
+                "default": 0
+              }
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size (i.e., number of incidents per page).",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "minimum": 1,
+                "default": 10
+              }
+            },
+            {
+              "name": "pageId",
+              "in": "query",
+              "description": "Specifies the page ID of the incident in a multi-paginated response. It is a unique identifier returned in the first search request. The page ID can be used instead of the page number in subsequent search requests for faster and more efficient results.",
+              "required": false,
+              "schema": {
+                "type": "string",
+                "format": "string",
+                "default": "0"
+              }
+            }
+          ],
+          "requestBody": {
+            "description": "Search request filters for the workflow Automation aduit logs based on the field value (exact match) or the time range (start and end time).",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SearchRequestFilters"
+                }
+              }
+            },
+            "required": false
+          },
+          "responses": {
+            "200": {
+              "description": "Successful operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZSAuditLogResponseList"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad request"
+            },
+            "401": {
+              "description": "Authorization failure"
+            },
+            "500": {
+              "description": "Failed to process the request"
+            }
+          },
+          "security": [
+            {
+              "bearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "SearchRequestFilters": {
+          "type": "object",
+          "x-nullable": true,
+          "properties": {
+            "fields": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSDLPIncidentSearchFieldValue"
+              }
+            },
+            "timeRange": {
+              "$ref": "#/components/schemas/ZSDLPIncidentSearchTimeRange"
+            }
+          }
+        },
+        "ZSAuditLogResponseList": {
+          "type": "object",
+          "title": "ZSAuditLogResponseList",
+          "properties": {
+            "cursor": {
+              "$ref": "#/components/schemas/Cursor"
+            },
+            "logs": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ZSAuditLogResponse"
+              }
+            }
+          }
+        },
+        "ZSDLPIncidentSearchFieldValue": {
+          "type": "object",
+          "properties": {
+            "name": {
+              "$ref": "#/components/schemas/ZSDLPIncidentSearchableFields"
+            },
+            "value": {
+              "type": "array",
+              "description": "The field values used to filter and search an incident.",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        },
+        "ZSDLPIncidentSearchableFields": {
+          "description": "The field values that can be used to filter and search an incident.",
+          "type": "string",
+          "enum": [
+            "severity",
+            "priority",
+            "transactionId",
+            "status",
+            "source",
+            "sourceDLPType",
+            "labels"
+          ]
+        },
+        "ZSDLPIncidentSearchTimeRange": {
+          "type": "object",
+          "properties": {
+            "startTime": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            },
+            "endTime": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            }
+          }
+        },
+        "ZSDLPIncidentDate": {
+          "type": "string",
+          "description": "The associated date and time.",
+          "format": "date-time"
+        },
+        "Cursor": {
+          "required": [
+            "currentPageNumber",
+            "totalPages",
+            "currentPageSize",
+            "pageId"
+          ],
+          "type": "object",
+          "properties": {
+            "totalPages": {
+              "type": "integer",
+              "description": "The total number of pages."
+            },
+            "currentPageNumber": {
+              "type": "integer",
+              "description": "The current page number."
+            },
+            "currentPageSize": {
+              "type": "integer",
+              "description": "The current page size."
+            },
+            "pageId": {
+              "type": "string",
+              "description": "The page ID of the incident."
+            },
+            "totalElements": {
+              "type": "integer",
+              "description": "The total number of elements."
+            }
+          }
+        },
+        "ZSAuditLogResponse": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "$ref": "#/components/schemas/ZSAuditAction"
+            },
+            "module": {
+              "type": "string",
+              "description": "The module where the action was performed."
+            },
+            "resource": {
+              "type": "string",
+              "description": "The audited entity within the module."
+            },
+            "changedAt": {
+              "$ref": "#/components/schemas/ZSDLPIncidentDate"
+            },
+            "changedBy": {
+              "type": "string",
+              "description": "The admin who performed the action."
+            },
+            "oldRowJson": {
+              "type": "object",
+              "description": "The previous value of the audited entity."
+            },
+            "newRowJson": {
+              "type": "object",
+              "description": "The current or the updated value of the audited entity."
+            },
+            "changeNote": {
+              "type": "string",
+              "description": "The metadata of the configuration changes that occurred."
+            }
+          },
+          "required": [
+            "action",
+            "module",
+            "resource",
+            "changedAt"
+          ]
+        },
+        "ZSAuditAction": {
+          "type": "object",
+          "properties": {
+            "action": {
+              "type": "string",
+              "description": "The action performed by the admin or APIs.",
+              "enum": [
+                "INSERT",
+                "UPDATE",
+                "DELETE",
+                "CHECKPOINT",
+                "UNDEFINED"
+              ]
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,785 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Decoy Connector Deployment Guide for Nutanix AHV",
+  "source": {
+    "url": "https://help.zscaler.com/deception/decoy-connector-deployment-guide-nutanix-ahv",
+    "node": "1542450",
+    "revision": "3221665",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Decoy Connector on Nutanix AHV, how to configure the management network, and how to connect the Decoy Connector to the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying a Decoy Connector, Zscaler strongly recommends you read the following information and make the necessary changes to your organization's environment, where applicable."
+    },
+    {
+      "item": "Ensure that you have a virtual machine (VM) with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "2 CPU cores",
+      "depth": 1
+    },
+    {
+      "item": "4 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "50 GB disk storage. SSD-based storage is strongly recommended.",
+      "depth": 1
+    },
+    {
+      "item": "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have the following information to configure the Decoy Connector management interface:",
+      "depth": 0
+    },
+    {
+      "item": "An IP address",
+      "depth": 1
+    },
+    {
+      "item": "The subnet mask",
+      "depth": 1
+    },
+    {
+      "item": "The default gateway",
+      "depth": 1
+    },
+    {
+      "item": "The DNS server details",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have outbound access to TCP port 443 from the Decoy Connector management interface to the following hosts:",
+      "depth": 0
+    },
+    {
+      "item": "Deception Admin Portal",
+      "depth": 1
+    },
+    {
+      "item": "Aggregator",
+      "depth": 1
+    },
+    {
+      "item": "ib.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "rs.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "If required, you can configure proxy for a Decoy Connector and pass the network connections through the proxy server. However, you must turn off all inspection features for the hosts in the preceding list and also ensure that the proxy provides unfiltered access to TCP port 443 for these destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have enabled VLAN trunking on the decoy interface if you want to use more than one VLAN on a single interface.",
+      "depth": 0
+    },
+    {
+      "heading": "Deploying a Decoy Connector on Nutanix AHV",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to deploy a Decoy Connector on Nutanix AHV:"
+    },
+    {
+      "item": "Step 1: Download the VM Image File from the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "Go to Settings > Topology > Decoy Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Image and select Xen/KVM to download the compressed image file (.tar.gz).",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          32,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Use a file archiving and extraction tool to extract the .qcow2 image file from the compressed file.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Step 2: Deploy a Decoy Connector on the Nutanix AHV Server",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Decoy Connector on Nutanix AHV:",
+      "depth": 0
+    },
+    {
+      "item": "a. Create an image in Nutanix.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Nutanix Web Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Compute & Storage > Images.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Image.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Add Images wizard:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Set Image Source to Image File.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          20,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click Add File and select the .qcow2 image file extracted in Step 1.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Name and Description for the image.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          19,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Select Location step, choose the Place image directly on clusters option as the Placement Method, and select the cluster on which the image must be placed.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          40,
+          72
+        ],
+        [
+          87,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "The image is listed on Nutanix.",
+      "depth": 3
+    },
+    {
+      "item": "Before proceeding to the subsequent steps, make sure that the uploaded image appears on the list along with a value in the Size column.",
+      "depth": 3,
+      "strong": [
+        [
+          123,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "b. Deploy a Decoy Connector VM in Nutanix.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Nutanix Web Console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Compute & Storage > VMs.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Create VM.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Create VM wizard:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Configuration step, enter the Name and Description.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          37,
+          41
+        ],
+        [
+          46,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Choose a cluster from the Cluster drop-down menu.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          26,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Under VM Properties, set CPU count to 2, and set Memory to 4 GiB.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          28
+        ],
+        [
+          38,
+          39
+        ],
+        [
+          49,
+          55
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Make sure that the Enable Memory Overcommit option is not selected.",
+      "depth": 3,
+      "strong": [
+        [
+          19,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Resources step, click Attach Disk.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          29,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Type drop-down menu, select Disk.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          35,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "In the Operation drop-down menu, select Clone from Image.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          40,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "In the Image drop-down menu, choose the image uploaded in the previous step.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Leave the Capacity option to its default value, and set the Bus Type to SCSI.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          10,
+          18
+        ],
+        [
+          60,
+          68
+        ],
+        [
+          72,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To attach a management network interface, click Attach to Subnet.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          48,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select the management subnet of your choice, and set the Network Connection State to Connected.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          57,
+          81
+        ],
+        [
+          85,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "To attach subnets where you want to deploy decoys, click Attach to Subnet.",
+      "depth": 3,
+      "number": 14,
+      "strong": [
+        [
+          57,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select the subnet where you want to add decoys, and set the Network Connection State to Connected.",
+      "depth": 3,
+      "number": 15,
+      "strong": [
+        [
+          60,
+          84
+        ],
+        [
+          88,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "You can also attach multiple subnets. To do this, repeat steps 14 and 15 for each additional subnet where you want to add decoys.",
+      "depth": 3
+    },
+    {
+      "item": "Set the Boot Configuration to Legacy BIOS Mode with the default boot order priority.",
+      "depth": 3,
+      "number": 16,
+      "strong": [
+        [
+          8,
+          26
+        ],
+        [
+          30,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 17,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Management step, set Timezone to UTC, and make sure that the Use this VM as an Agent VM option is unselected.",
+      "depth": 3,
+      "number": 18,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          28,
+          36
+        ],
+        [
+          40,
+          43
+        ],
+        [
+          68,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 19,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Review step, review the settings you have configured.",
+      "depth": 3,
+      "number": 20,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Create VM.",
+      "depth": 3,
+      "number": 21,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the VMs > List page, locate the newly added VM, and click the VM's name.",
+      "depth": 3,
+      "number": 22,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          13,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the VM's page, click the More option, and select Power On.",
+      "depth": 3,
+      "number": 23,
+      "strong": [
+        [
+          28,
+          32
+        ],
+        [
+          52,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Console tab to interact with the VM's console for the subsequent configuration steps.",
+      "depth": 3,
+      "number": 24,
+      "strong": [
+        [
+          10,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Step 3: Configure the Decoy Connector Management Network",
+      "depth": 0
+    },
+    {
+      "item": "After you deploy the Decoy Connector VM, you need to configure the Decoy Connector management network.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Connect the Decoy Connector to the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "After the Decoy Connector management network is configured, you need to add the Decoy Connector and connect it to the Deception Admin Portal.",
+      "depth": 0
+    }
+  ]
+}

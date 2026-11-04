@@ -1,0 +1,394 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Resource Servers",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/resource-servers",
+    "node": "1530802",
+    "revision": "3211058",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/ZIdentity%20Service%20Resource%20Servers_7.json?VersionId=Hp9MTYVWomAGSxPq_WEpLhCg8UO_faMt",
+    "updated": "2026-06-26",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Authentication Service APIs",
+      "version": "v1"
+    },
+    "servers": [
+      {
+        "url": "https://api.zsapi.net/ziam/admin/api/v1",
+        "description": "Authentication Service Endpoint",
+        "variables": {}
+      }
+    ],
+    "tags": [
+      {
+        "name": "Resource Servers"
+      }
+    ],
+    "paths": {
+      "/resource-servers": {
+        "get": {
+          "description": "Retrieves a paginated list of resource servers with an optional query parameters for pagination.\n\n To learn more, see <a href=\"/zidentity/viewing-api-resources\">Viewing API Resources</a>.",
+          "operationId": "ResourceServersOps_list",
+          "parameters": [
+            {
+              "name": "offset",
+              "description": "The starting point for pagination, with the number of records that can be skipped before fetching results.",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0
+              },
+              "explode": false
+            },
+            {
+              "name": "limit",
+              "description": "The maximum number of records to return per request. Minimum: <code>0</code>, Maximum: <code>1000</code>",
+              "in": "query",
+              "required": false,
+              "schema": {
+                "type": "integer",
+                "format": "int32",
+                "minimum": 0,
+                "maximum": 1000
+              },
+              "explode": false
+            },
+            {
+              "$ref": "#/components/parameters/ResourceServersQueryParameter"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and a paginated list of resource servers are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "required": [
+                        "results_total",
+                        "pageOffset",
+                        "pageSize",
+                        "next_link",
+                        "prev_link",
+                        "records"
+                      ],
+                      "properties": {
+                        "results_total": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The total number of available resource servers."
+                        },
+                        "pageOffset": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The starting point of the current page in pagination. Helps determine which set of records is being displayed."
+                        },
+                        "pageSize": {
+                          "type": "integer",
+                          "format": "int64",
+                          "description": "The number of records included in a single response page."
+                        },
+                        "next_link": {
+                          "type": "string",
+                          "description": "URL link to the next page of resource servers, if available. Helps to navigate through paginated results."
+                        },
+                        "prev_link": {
+                          "type": "string",
+                          "description": "URL link to the previous page of resource servers, if available."
+                        },
+                        "records": {
+                          "type": "array",
+                          "items": {
+                            "$ref": "#/components/schemas/ResourceServerRespDto"
+                          },
+                          "description": "List of resource server objects and details of each record."
+                        }
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Resource Servers"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      },
+      "/resource-servers/{id}": {
+        "get": {
+          "description": "Retrieves details about a specific resource server using the server <code>ID</code>.",
+          "operationId": "ResourceServersOps_get",
+          "parameters": [
+            {
+              "name": "id",
+              "description": "Unique identifier of the resource server to retrieve.",
+              "in": "path",
+              "required": true,
+              "schema": {
+                "type": "string"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "The request was successful, and the resource server details are returned.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ResourceServerRespDto"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Authentication failed or missing authorization credentials.\n\nThe request requires a valid Bearer Token. However, either no token was provided, or the provided token is invalid or expired.",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/Zscaler.Core.UnauthorizedError"
+                  }
+                }
+              }
+            }
+          },
+          "tags": [
+            "Resource Servers"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ]
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "ResourceServersQueryParameter": {
+          "name": "name[like]",
+          "in": "query",
+          "required": false,
+          "description": "Filters resource servers by name using a case-insensitive partial match.",
+          "schema": {
+            "type": "string"
+          },
+          "explode": false
+        }
+      },
+      "schemas": {
+        "ResourceServerRespDto": {
+          "description": "The structure for a resource server response, including basic information about the resource server, service scopes, associated services, and their scopes.",
+          "type": "object",
+          "required": [
+            "id",
+            "name",
+            "displayName",
+            "description",
+            "primaryAud",
+            "defaultApi",
+            "serviceScopes"
+          ],
+          "properties": {
+            "id": {
+              "description": "Unique identifier of the resource server.",
+              "type": "string"
+            },
+            "name": {
+              "description": "The name of the resource server.",
+              "type": "string"
+            },
+            "displayName": {
+              "description": "The display name of the resource server.",
+              "type": "string"
+            },
+            "description": {
+              "description": "A description about the resource server.",
+              "type": "string"
+            },
+            "primaryAud": {
+              "description": "The primary audience of the resource server, identifying the primary entity or context for which the server is intended.",
+              "type": "string"
+            },
+            "defaultApi": {
+              "description": "Whether this resource server is set as the default API.",
+              "type": "boolean"
+            },
+            "serviceScopes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ServiceScopePubRespDto"
+              }
+            }
+          }
+        },
+        "Zscaler.Core.UnauthorizedError": {
+          "description": "The structure of a <code>unauthorized</code> error response, indicating that the request lacks valid authorization credentials or the provided credentials do not grant sufficient permissions for the requested operation.",
+          "type": "object",
+          "required": [
+            "type",
+            "title",
+            "status",
+            "detail"
+          ],
+          "properties": {
+            "type": {
+              "type": "string",
+              "format": "uri",
+              "description": "A URI reference that identifies the problem type. See the following for common problem types. Additional types might be defined by subsystems."
+            },
+            "title": {
+              "type": "string",
+              "description": "A short message that the request is unauthorized."
+            },
+            "status": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The HTTP status code (e.g., 401)."
+            },
+            "detail": {
+              "type": "string",
+              "description": "A descriptive message explaining that the request is unauthorized."
+            }
+          }
+        },
+        "ServiceScopePubRespDto": {
+          "description": "An array of service scope objects.",
+          "type": "object",
+          "required": [
+            "service",
+            "scopes"
+          ],
+          "properties": {
+            "service": {
+              "$ref": "#/components/schemas/ServiceRefDto"
+            },
+            "scopes": {
+              "type": "array",
+              "items": {
+                "$ref": "#/components/schemas/ScopeRespDto"
+              }
+            }
+          }
+        },
+        "ServiceRefDto": {
+          "description": "Details about a service.",
+          "type": "object",
+          "required": [
+            "cloudName",
+            "orgName"
+          ],
+          "properties": {
+            "cloudName": {
+              "description": "Name of the cloud in which the service is hosted.",
+              "type": "string"
+            },
+            "orgName": {
+              "description": "Name of the organization associated with the service.",
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RefPubRespDto"
+            }
+          ]
+        },
+        "RefPubRespDto": {
+          "description": "The scope associated with the entitlement.",
+          "type": "object",
+          "required": [
+            "name",
+            "displayName"
+          ],
+          "properties": {
+            "name": {
+              "type": "string",
+              "description": "Name of the referenced entity."
+            },
+            "displayName": {
+              "type": "string",
+              "description": "Display name of the referenced entity."
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/RefPubReqDto"
+            }
+          ]
+        },
+        "RefPubReqDto": {
+          "description": "Details of the referenced entity.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "type": "string",
+              "description": "Unique identifier of the referenced entity."
+            }
+          }
+        },
+        "ScopeRespDto": {
+          "description": "Details of the scopes associated with the service.",
+          "type": "object",
+          "required": [
+            "name"
+          ],
+          "properties": {
+            "name": {
+              "description": "Unique name for the scope.",
+              "type": "string"
+            }
+          },
+          "allOf": [
+            {
+              "$ref": "#/components/schemas/ScopeReqDto"
+            }
+          ]
+        },
+        "ScopeReqDto": {
+          "description": "The structure for requesting a scope by its unique identifier.",
+          "type": "object",
+          "required": [
+            "id"
+          ],
+          "properties": {
+            "id": {
+              "description": "Unique identifier for the scope.",
+              "type": "string"
+            }
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,122 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Organizations",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/organizations",
+    "node": "1532901",
+    "revision": "3149738",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Organizations_0.json?VersionId=3eGtjCCGOds.dD8nxTsrybA9gtBkLVMb",
+    "updated": "2025-11-06",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "description": "API Reference Guide for the Zscaler EASM API",
+      "title": "Zscaler External Attack Surface Management (EASM) Public API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "1.0"
+    },
+    "host": "localhost:8080",
+    "basePath": "/easm-ui/v1",
+    "securityDefinitions": {
+      "BearerAuth": {
+        "type": "apiKey",
+        "name": "Authorization",
+        "in": "header"
+      }
+    },
+    "tags": [
+      {
+        "name": "Organizations"
+      }
+    ],
+    "paths": {
+      "/organizations": {
+        "get": {
+          "tags": [
+            "Organizations"
+          ],
+          "security": [
+            {
+              "BearerAuth": []
+            }
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "description": "Retrieves all organizations configured for a tenant in the EASM Admin Portal",
+          "parameters": [
+            {
+              "type": "string",
+              "default": "Bearer your-token",
+              "description": "API authentication token",
+              "name": "Authorization",
+              "in": "header",
+              "required": true
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "schema": {
+                "$ref": "#/definitions/organizations.GetOrganizationsResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "organizations.GetOrganizationsResponse": {
+        "type": "object",
+        "properties": {
+          "next_page": {
+            "type": "integer"
+          },
+          "prev_page": {
+            "type": "integer"
+          },
+          "results": {
+            "type": "array",
+            "description": "Details obtained for the organizations",
+            "items": {
+              "$ref": "#/definitions/administration.Organization"
+            }
+          },
+          "total_results": {
+            "type": "integer",
+            "description": "The total number of organizations present in the response",
+            "example": 1
+          }
+        }
+      },
+      "administration.Organization": {
+        "description": "Information about an organization configured in EASM",
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "string",
+            "description": "The unique identifier of an organization",
+            "example": "12345"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of an organization",
+            "example": "Default"
+          }
+        }
+      }
+    }
+  }
+}

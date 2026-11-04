@@ -1,0 +1,202 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Networking Flows for Cloud Connector",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/networking-flows-cloud-connector",
+    "node": "1452806",
+    "revision": "3250206",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Every Zscaler Cloud Connector has a minimum of two network interfaces that communicate with the Zscaler cloud for different purposes."
+    },
+    {
+      "item": "Management Interface",
+      "depth": 0
+    },
+    {
+      "item": "A management interface can manage and configure security devices. There are outbound and inbound network flows that operate with a management interface.",
+      "depth": 0
+    },
+    {
+      "item": "The outbound network flows provide:",
+      "depth": 0
+    },
+    {
+      "item": "Control plane communications with the Zscaler cloud for enrollment, service discovery, log streaming, and software updates",
+      "depth": 1
+    },
+    {
+      "item": "Retrieval of security credentials from cloud providers",
+      "depth": 1
+    },
+    {
+      "item": "Control plane DNS resolution",
+      "depth": 1
+    },
+    {
+      "item": "Control plane Network Time Protocol (NTP) traffic",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler remote support services",
+      "depth": 1
+    },
+    {
+      "item": "Inbound network flows provide Secure Socket Shell (SSH) access for troubleshooting.",
+      "depth": 0
+    },
+    {
+      "item": "Service Interfaces",
+      "depth": 0
+    },
+    {
+      "item": "Service interfaces can communicate with devices and services on a network. There are inbound and outbound network flows that operate with service interfaces.",
+      "depth": 0
+    },
+    {
+      "item": "The outbound network flows provide:",
+      "depth": 0
+    },
+    {
+      "item": "Internet & SaaS (ZIA) forwarding",
+      "depth": 1
+    },
+    {
+      "item": "Private Access (ZPA) forwarding",
+      "depth": 1
+    },
+    {
+      "item": "Direct (bypass Zscaler) forwarding",
+      "depth": 1
+    },
+    {
+      "item": "Data plane DNS resolution",
+      "depth": 1
+    },
+    {
+      "item": "The inbound network flows provide:",
+      "depth": 0
+    },
+    {
+      "item": "Load balancer health checks",
+      "depth": 1
+    },
+    {
+      "item": "Workload traffic",
+      "depth": 1
+    },
+    {
+      "item": "For Amazon Web Services (AWS) only, outbound/inbound network flow enables GENEVE Protocol.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Traffic Forwarding",
+      "level": 1
+    },
+    {
+      "text": "Cloud Connectors receive traffic from load balancers via the service network interface. They then determine where to send the traffic. There are currently four types of traffic forwarding rule types that you can configure to send traffic to different destinations. To learn more, see Configuring Traffic Forwarding Rules."
+    },
+    {
+      "item": "Internet & SaaS: Forwards internet-bound traffic that matches a Internet & SaaS rule to Internet & SaaS gateways over a configurable encrypted or unencrypted tunnel.",
+      "depth": 0
+    },
+    {
+      "item": "Private Access: Forwards the private application traffic that matches a Private Access rule to Private Access over an encrypted tunnel.",
+      "depth": 0
+    },
+    {
+      "item": "Direct: Bypasses Internet & SaaS/Private Access and forwards traffic directly to the destination server using the Zscaler service IP address.",
+      "depth": 0
+    },
+    {
+      "item": "Drop: Discards packets matching the Drop rule.",
+      "depth": 0
+    },
+    {
+      "item": "Local: Allows subnet-to-subnet or virtual private cloud (VPC)/virtual network (VNET)-to-VPC/VNET communication within a region.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "DNS Forwarding",
+      "level": 1
+    },
+    {
+      "text": "DNS forwarding operates when workloads are configured to send DNS through Cloud Connectors. However, this is not required in every instance. The following use cases describe cases where DNS is required. To learn more, see About DNS Policies."
+    },
+    {
+      "item": "Private Access App Segments Defined by DNS Hostnames, FQDNs, and Domains",
+      "depth": 0
+    },
+    {
+      "item": "When you deploy Cloud Connector with Private Access, the workload forwards DNS queries to the Cloud Connector to match against Private Access app segments. The Cloud Connector matches the DNS query against known Private Access app segments, and upon a match, the Cloud Connector queries the Zscaler service to obtain a synthetic IP address. The synthetic IP address returns to the workload as the resolved IP.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "DNS queries that do not match with a Private Access app segment can reach a direct traffic forwarding rule. Cloud Connector forwards the DNS query to an upstream DNS server for resolution. The DNS server attempts to resolve the query and responds with the resolved IP address.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Internet & SaaS DNS Controls",
+      "depth": 0
+    },
+    {
+      "item": "When you are using Internet & SaaS DNS Controls, DNS from workloads forwards through Cloud Connector. When the DNS matches a Internet & SaaS traffic forwarding rule, the DNS query is tunneled to the Internet & SaaS gateway for DNS resolution. The resolved IP is returned to the workload when the Internet & SaaS DNS Control allows it.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Synthetic IP Pools",
+      "depth": 0
+    },
+    {
+      "item": "You can configure Cloud Connector DNS rules to allocate Private Access synthetic IP pools based on various criteria. You can configure Cloud Connector DNS and traffic forwarding rules to determine where DNS requests are redirected and forwarded to.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service can support environments with overlapping IP addresses and decouple workloads from the destination application networks using a zero trust networking approach. If you define applications using DNS hostnames or domains in Private Access, the true private IP addresses of the servers are hidden from the requesting workloads through Cloud and Branch Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "The default Private Access IP pool in Zscaler connector tenants is 10.254.0.0/19. Administrators can either change the IP pool to a desired Classless Inter-Domain Routing (CIDR) range or provide different IP pools based on Cloud or Branch Connector locations.",
+      "depth": 0
+    },
+    {
+      "item": "When you register a Cloud or Branch Connector with Zscaler, it learns the private applications defined in the Private Access platform and it is permitted to process via Private Access client forwarding and access policies. When a workload or server makes a DNS query for the application, such as sharepoint.acme.net, the Cloud or Branch Connector matches it against the learned application segments. If the query matches a segment, the Cloud or Branch Connector maps or receives a new synthetic IP address from Zscaler to use for this application. The synthetic IP address is returned via the DNS response to the originating workload server, which uses the address for the application traffic. The Zero Trust Exchange (ZTE) polls all App Connectors to determine which can successfully resolve and connect to the requested application.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler saves the true IP address for troubleshooting and logging purposes, but the workload server never knows what that private IP address is. This arrangement is helpful if the workload and target application are on different networks with IP overlap, such as both applications using 10.10.0.0/24. Because the workload has a synthetic IP address and routes through the Cloud or Branch Connector, you can access the application successfully if policy configuration allows.",
+      "depth": 0
+    },
+    {
+      "item": "The synthetic IP pool must not overlap with any IP addresses used by your IP-based Private Access applications. If there is an IP address overlap, change the ephemeral IP pool range to a non-overlapping space.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

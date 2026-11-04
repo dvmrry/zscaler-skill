@@ -1,0 +1,785 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Index Tool with VMware",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-index-tool-vmware",
+    "node": "1400651",
+    "revision": "3247491",
+    "updated": "2026-09-24",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "New or clean deployment of Index Tool requires VM image running on Zscaler OS version 24."
+    },
+    {
+      "text": "Before you can create index templates for DLP dictionaries (i.e., Exact Data Match (EDM) and Indexed Document Match (IDM) templates), you must install and configure the virtual machine (VM) image for the Index Tool with Amazon Web Services (AWS), Azure, or VMware."
+    },
+    {
+      "text": "To learn more about the AWS Index Tool, see Configuring the Index Tool with Amazon Web Services and Configuring the Index Tool for Azure VMs."
+    },
+    {
+      "text": "Since the Index Tool provides access to highly sensitive information, ensure that everyone who has access to it is authorized and authenticated."
+    },
+    {
+      "heading": "Deploying a Zscaler Index Tool with VMware",
+      "level": 1
+    },
+    {
+      "text": "To deploy a Zscaler Index Tool VM with VMware:"
+    },
+    {
+      "item": "1. Ensure that you meet all the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Zscaler Index Tool on VMware:",
+      "depth": 0
+    },
+    {
+      "item": "If your index templates include less than 300 million records, Zscaler recommends the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "Hypervisor: VMware ESX/ESXi version 6.0 or later.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 16 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Disk: 600 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "VM Network: 1 Virtual NIC",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "If your index templates include more than 300 million records, Zscaler recommends the following configuration:",
+      "depth": 1
+    },
+    {
+      "item": "Hypervisor: VMware ESX/ESXi version 6.0 or later.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "CPUs: 4 CPUs. Zscaler requires 4 CPUs because the CPUs ensure that hash generation performance is not impacted.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "RAM: 64 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Disk: 1 TB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "VM Network: 1 Virtual NIC",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "A Zscaler Index Tool added in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1
+    },
+    {
+      "item": "2. Download the Index Tool VM",
+      "depth": 0
+    },
+    {
+      "item": "Before you configure the Index Tool VM, you must download it.",
+      "depth": 0
+    },
+    {
+      "item": "If your index templates include less than 300 million records, you can download the Index Tool VM image from the Zscaler Admin Console. To download the Index Tool VM:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Data Security > Common Resources > Index Tool.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          22,
+          38
+        ],
+        [
+          41,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Index Tool.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Open the downloaded index tool and verify the MD5 matches the VM image:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Official MD5 for /sc/adp/vm/adp_client.ova: f6793ec81fa7bcb3cd128ce37ced6fa9",
+      "depth": 2
+    },
+    {
+      "item": "Linux: md5sum /path/to/adp_client.ova",
+      "depth": 3
+    },
+    {
+      "item": "macOS: md5 /path/to/adp_client.ova",
+      "depth": 3
+    },
+    {
+      "item": "Windows (PowerShell): certutil -hashfile C:\\path\\to\\adp_client.ova MD5",
+      "depth": 3
+    },
+    {
+      "item": "If the values do not match, re-download the image or contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "3. Configure the Index Tool VM",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Index Tool VM:",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have added an Index Tool Configuration. You need this configuration to complete the VM setup.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In ESX/ESXi, install the Index Tool VM image you downloaded previously.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Log in to the VM as user zsroot. The initial root password for this user is randomly generated.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Change the root password:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp change-password",
+      "depth": 2
+    },
+    {
+      "item": "Enter the initial root password, the one that was randomly generated for you.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter a new root password.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Re-enter the new root password.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "After the password is changed, you need to log in to zsroot again using the new password.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) By default, the VM starts using DHCP to obtain the IP address and default router information. If there's no DHCP server available, you can configure this manually:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp configure-network",
+      "depth": 2
+    },
+    {
+      "item": "For nameserver, enter c to change the IP address and press Enter.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter the IP address and press Enter.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "If you want to add a new nameserver enter y, otherwise enter n, and press Enter.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "The VM restarts the network and checks the connection.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Go back to the Zscaler Admin Console, and go to Data Security > Common Resources > Index Tool.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          48,
+          61
+        ],
+        [
+          64,
+          80
+        ],
+        [
+          83,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Index Tool Configuration you added previously, and under the SSL Certificate column, click Download.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          72,
+          87
+        ],
+        [
+          102,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy over the SSL client certificate.zip file to the VM and install it:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "In this example, we're using scp to copy over the file:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "scp <SSL_certificate_zip_filename> zsroot@<vm_ip>:~/",
+      "depth": 2
+    },
+    {
+      "item": "For example: scp EdmClientCertificate.zip zsroo@10.66.108.100:~/",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to install the SSL certificate:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure <SSL_certificate_zip_filename>",
+      "depth": 2
+    },
+    {
+      "item": "For example: sudo zadp configure EdmClientCertificate.zip",
+      "depth": 2
+    },
+    {
+      "item": "Enter the domain namethat is used for the Index Tool's fully qualified domain name (FQDN). For example, if the Index Tool is reachable from indextool.mycompany.com, then the domain name entered here would be mycompany.com. The self-signed certificate would be generated for *.mycompany.com.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Enter a passphrase, then re-enter the passphrase to confirm it.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "You are prompted to enter the full path name to the text file where the passphrase is stored. You can also press Enter twice to accept the default location and file, /home/zsroot/zscaler_zadp_webui_certificate_pass.txt.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If the service was configured properly, the service:",
+      "depth": 2
+    },
+    {
+      "item": "Checks if the network is configured correctly.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Installs the SSL client certificate you specified.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Generates a self-signed SSL server certificate. If you need to install a custom server certificate, see the next step.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Downloads the latest install package.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "(Optional) If you need to install a self-signed or custom SSL server certificate:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Enter the following command to install the server certificate:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp install-server-cert",
+      "depth": 2
+    },
+    {
+      "item": "Enter the full path to the PEM formatted certificate file.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Index Tool service:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp restart",
+      "depth": 2
+    },
+    {
+      "item": "Go to https://<IP Address of the Index Tool VM> to access the Index Tool. After the Index Tool service has started, you can log in with your Zscaler Admin Console login credentials and create Index Templates to use when creating DLP dictionaries. To learn more, see Creating an Exact Data Match Template and Creating an Indexed Document Match Template.",
+      "depth": 0
+    },
+    {
+      "heading": "Updating and Customizing a Deployed Index Tool VM",
+      "level": 1
+    },
+    {
+      "text": "With your Index Tool VM running, you can update and customize the VM based on your organization's needs."
+    },
+    {
+      "item": "Update the Index Tool VM",
+      "depth": 0
+    },
+    {
+      "item": "If you successfully configured the Index Tool, the service automatically downloads the latest install package before it starts.",
+      "depth": 0
+    },
+    {
+      "item": "To manually update the service:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to install the update:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp update-now",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to start the service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 1
+    },
+    {
+      "item": "Run the Index Tool VM in Explicit Proxy Mode",
+      "depth": 0
+    },
+    {
+      "heading": "Run the Index Tool VM in Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp configure-network",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require a proxy server configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For proxyserver, enter the IP address of your proxy server (e.g., proxy.zscaler.net) and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "For proxyport, enter your proxy port number (e.g., 9443) and press Enter.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The VM then tests the connection and when this is successful, the configuration is complete.",
+      "depth": 1
+    },
+    {
+      "item": "To remove the explicit proxy configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zadp configure-network",
+      "depth": 1
+    },
+    {
+      "item": "For Do you require proxy server configuration?, enter n and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For Do you want to delete current proxy configuration?, enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Requirements for Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode. The Index Tool needs to have DNS resolution for the current Master CA IP, update server, and the NTP server. The Index Tool host also needs to be able to query a DNS server to resolve the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "smcacluster.<Zscaler cloud Name>",
+      "depth": 1
+    },
+    {
+      "item": "update1.<Zscaler cloud Name>",
+      "depth": 1
+    },
+    {
+      "item": "update2.<Zscaler cloud Name>",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<Zscaler cloud Name>",
+      "depth": 1
+    },
+    {
+      "item": "The NTP server. By default, the Index Tool VM has the following FQDNs for NTP servers configured:",
+      "depth": 1
+    },
+    {
+      "item": "0.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "1.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "2.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+      "depth": 0
+    },
+    {
+      "item": "In addition, since the proxy configuration doesn't allow authentication, you need to configure the proxy server to allow specific IP/MAC addresses without user and password authentication.",
+      "depth": 0
+    },
+    {
+      "item": "The proxy server must also allow SSL bypass for communication from the VM to a specific set of IP addresses. These IPs are listed at config.zscaler.com/<Zscaler cloud Name>.net/edm. You can find your cloud name in the URL that your admins use to log in to the Zscaler service. For example, if an organization logs in to admin.zscalertwo.net, then that organization's cloud name is zscalertwo. So, you would go to config.zscaler.com/zscalertwo.net. To learn more, see Understanding Zscaler cloud names.",
+      "depth": 0
+    },
+    {
+      "item": "Configure the Index Tool Service to Run without Elevated Privileges",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Index Tool service to run without elevated privileges:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to stop the service:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zadp stop",
+      "depth": 0
+    },
+    {
+      "item": "Open the /sc/conf/sc.conf file and update the value for zadp_ui_port to a port number higher than 1,000.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Enter the following command to restart the service:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo zadp start",
+      "depth": 0
+    },
+    {
+      "item": "Enable Remote Access for Zscaler Support",
+      "depth": 0
+    },
+    {
+      "item": "An admin can request remote assistance and allow Zscaler Support to log in to an Index Tool without having to open a firewall connection for inbound traffic. This feature is disabled by default and must be enabled explicitly for the duration that remote support assistance is required.",
+      "depth": 0
+    },
+    {
+      "item": "To enable Zscaler Support to access your Index Tool:",
+      "depth": 1
+    },
+    {
+      "item": "sudo zadp support-access-start",
+      "depth": 0
+    },
+    {
+      "item": "This creates a long-lived SSH tunnel to the Zscaler cloud and sets up remote port forwarding. Zscaler Support can then use this tunnel to log in to your Index Tool.",
+      "depth": 0
+    },
+    {
+      "item": "To disable Zscaler Support access to your Index Tool:",
+      "depth": 1
+    },
+    {
+      "item": "sudo zadp support-access-stop",
+      "depth": 0
+    },
+    {
+      "item": "This brings down the long-lived SSH tunnel to the Zscaler cloud and all the remote connections.",
+      "depth": 0
+    },
+    {
+      "item": "To check the status of the Zscaler Support access to your Index Tool:",
+      "depth": 1
+    },
+    {
+      "item": "sudo zadp support-access-status",
+      "depth": 0
+    },
+    {
+      "heading": "Index Tool VM Commands",
+      "level": 1
+    },
+    {
+      "text": "The following commands can be used to configure, update, and troubleshoot your VM."
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo zadp stop",
+          "Stops the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp start",
+          "Starts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp update-now",
+          "Updates the Zscaler Index Tool service. The service must be stopped before you can run this command."
+        ],
+        [
+          "sudo zadp restart",
+          "Restarts the Zscaler Index Tool service."
+        ],
+        [
+          "sudo zadp status",
+          "Displays whether the Zscaler Index Tool service is running or stopped."
+        ],
+        [
+          "sudo zadp force-update-now",
+          "Forces the Zscaler Index Tool service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins."
+        ],
+        [
+          "sudo zadp troubleshoot",
+          "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed."
+        ],
+        [
+          "sudo zadp collect-diagnostics",
+          "Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes."
+        ],
+        [
+          "sudo zadp configure-syslog-server",
+          "Configures external syslog server forwarding on the Zscaler Index Tool to forward file SFTP events and to log any critical changes to the configuration files monitored by the Index Tool. The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ]
+      ]
+    }
+  ]
+}

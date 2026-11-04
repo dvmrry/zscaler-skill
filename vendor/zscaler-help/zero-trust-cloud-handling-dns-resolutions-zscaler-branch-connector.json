@@ -1,0 +1,42 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Handling DNS Resolutions for Zscaler Branch Connector",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/handling-dns-resolutions-zscaler-branch-connector",
+    "node": "1446986",
+    "revision": "3226518",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following table provides information on how Zscaler Branch Connector handles DNS resolutions for various traffic forwarding methods:"
+    },
+    {
+      "table": [
+        [
+          "Traffic Forwarding Method",
+          "DNS Resolution Handling"
+        ],
+        [
+          "Private Access (ZPA) Traffic Forwarding",
+          "The DNS request arrives at any destination IP address for an FQDN request that matches a Private Access application. Branch Connector intercepts requests and responds with a customer-defined synthetic IP address from the customer-defined IP pool."
+        ],
+        [
+          "Internet & SaaS (ZIA) Traffic Forwarding",
+          "The DNS request arrives at Branch Connector from a workload configured with a custom DNS server destination IP address (e.g., 8.8.8.8). Branch Connector encapsulates the request with a client source IP and destination DNS IP address (e.g., 8.8.8.8) and forwards the request to Internet & SaaS. You need to configure the Internet & SaaS DNS control and firewall filtering policies to allow the DNS response back to the workload."
+        ],
+        [
+          "Direct Traffic Forwarding",
+          "The DNS request arrives at Branch Connector from a workload configured with a custom DNS server destination IP address (e.g., 8.8.8.8). Custom traffic forwarding policy matches the client source IP address, the destination IP address (e.g., 8.8.8.8), or network service (UDP 53) with the forwarding action set to direct. Branch Connector forwards this request to the destination IP address, modifying the source IP from the client to its own service IP address (Source NAT)."
+        ],
+        [
+          "Direct Traffic Forwarding with Global VIP",
+          "The DNS request arrives at Branch Connector from a workload configured with a custom DNS server destination that matches a Zscaler Global Public Service Edge IP (e.g., 185.46.212.88). Custom traffic forwarding policy matches the client source IP address, the destination IP address, or network service (UDP 53) with the forwarding action set to direct. Branch Connector performs both source and destination NAT on the DNS request. The source IP is replaced with Branch Connector's own service IP address and the destination IP is replaced with the current DNS server configured on the Branch Connector."
+        ]
+      ]
+    }
+  ]
+}

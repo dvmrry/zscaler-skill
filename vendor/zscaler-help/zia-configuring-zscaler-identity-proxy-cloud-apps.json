@@ -1,0 +1,2380 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Zscaler Identity Proxy for Cloud Apps",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-zscaler-identity-proxy-cloud-apps",
+    "node": "1399331",
+    "revision": "3251724",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler Identity Proxy forces users to access cloud applications through the Zscaler service. You can configure the Zscaler service as an identity provider (IdP) for the following cloud apps:"
+    },
+    {
+      "item": "Box",
+      "depth": 0
+    },
+    {
+      "item": "Google Apps",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft 365",
+      "depth": 0
+    },
+    {
+      "item": "Salesforce",
+      "depth": 0
+    },
+    {
+      "item": "GitHub",
+      "depth": 0
+    },
+    {
+      "item": "ShareFile",
+      "depth": 0
+    },
+    {
+      "item": "ServiceNow",
+      "depth": 0
+    },
+    {
+      "item": "Slack",
+      "depth": 0
+    },
+    {
+      "text": "When users try to access the cloud apps using their corporate accounts, but without going through the Zscaler service, authentication fails, and the users aren't able to log in."
+    },
+    {
+      "text": "To configure Identity Proxy settings for cloud applications in the Zscaler Admin Console, see the first step under Configuring the Zscaler Service as an IdP Proxy."
+    },
+    {
+      "text": "Zscaler provides secure access to SaaS applications from unmanaged endpoints to ensure users can access SaaS applications securely, with all the defined Internet & SaaS policies being applied and transactions being logged."
+    },
+    {
+      "text": "The following diagram shows how the authentication process works when the Zscaler service is set up as the IdP for the cloud apps. The cloud app used in this example is Salesforce:"
+    },
+    {
+      "item": "The user accesses a SaaS application (e.g., Salesforce) from an unmanaged device.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The customer's SaaS application tenant is configured with a Zscaler Identity Proxy as the IdP. The Zscaler ID works as a proxy between the SaaS application and the customer's IdP (e.g., Okta, PingFederate, Azure).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "When the end user tries to authenticate to the SaaS application, the user is redirected to the Zscaler ID proxy. The ID proxy component then authenticates the user against the customer's IdP to ascertain the identity of the user.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "If the customer's IdP indicates the authentication request is originating from an unmanaged endpoint (based on the device identity attribute) and if the original request was not made via the Public Service Edge for Internet & SaaS, the ID proxy evaluates how the traffic is handled based on the action configured in the identity proxy configuration.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If the Action is set to Block: Traffic is blocked, ensuring that the user is unable to access the SaaS application from an unmanaged device.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "If the Action is set to Browser Isolate: User is redirected to Zero Trust Browser.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          24,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Zero Trust Browser then makes a request to a SaaS application via the Service Edge.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Zero Trust Browser is always proxied to send the traffic via the Service Edge for Internet & SaaS. All the traffic from Zero Trust Browser is enforced by the policies defined and all the transactions from Zero Trust Browser are logged.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "heading": "​​Prerequisite",
+      "level": 1
+    },
+    {
+      "text": "Ensure SSL/TLS Inspection is enabled for the organization location before configuring the Zscaler service as an IdP for the following cloud apps:"
+    },
+    {
+      "item": "Box",
+      "depth": 0
+    },
+    {
+      "item": "Google Apps",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft 365",
+      "depth": 0
+    },
+    {
+      "item": "Salesforce",
+      "depth": 0
+    },
+    {
+      "item": "GitHub",
+      "depth": 0
+    },
+    {
+      "item": "ShareFile",
+      "depth": 0
+    },
+    {
+      "item": "ServiceNow",
+      "depth": 0
+    },
+    {
+      "item": "Slack",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring the Zscaler Service as an IdP Proxy",
+      "level": 1
+    },
+    {
+      "text": "If you have configured a cloud app as an IdP for authentication, it cannot be used for Identity Proxy. For example, if Microsoft Entra ID is configured as your IdP, Office 365 cannot be configured for Identity Proxy."
+    },
+    {
+      "text": "To configure the Zscaler service as an IdP Proxy:"
+    },
+    {
+      "item": "1. Configure Identity Proxy Settings for the cloud app in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Identity > Internet & SaaS > Identity Proxy Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          31
+        ],
+        [
+          34,
+          49
+        ],
+        [
+          52,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Cloud Application to add a new cloud app instance. You can also click the Edit icon to edit a cloud app instance that is already configured. Click Add Cloud Application to add a new cloud app instance. To edit a cloud app instance that is already configured, click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ],
+        [
+          84,
+          88
+        ],
+        [
+          157,
+          178
+        ],
+        [
+          279,
+          283
+        ]
+      ]
+    },
+    {
+      "item": "You can select Other Cloud Apps for other cloud apps that support standard SAML-based authentication.",
+      "depth": 1,
+      "strong": [
+        [
+          15,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Cloud Application/Edit Cloud Application window, do the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          29,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the cloud app instance.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Enable to use the Zscaler service as the IdP proxy for the cloud app.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Application: Select the cloud app that you want the IdP for.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Domain: Applicable only to Google Apps. Enter the domain name for the Google Apps cloud application.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "ACS URL: This is the Assertion Consumer Service URL. For Box, the URL is displayed. For Office 365, the URL is auto-filled. For Google Apps, the URL is completed as you type in your domain. For the rest of the cloud apps, enter the Login URL that you copy from your cloud app.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          232,
+          241
+        ]
+      ]
+    },
+    {
+      "item": "Entity ID: This is auto-populated for most of the cloud apps. For Salesforce, enter the Entity ID that you copy from your cloud app. For Github, enter the ACS URL string without the /saml/consume string at the end of the URL.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Response Signing SSL Certificate: Choose the certificate that you want the Identity Proxy to use for signing SAML responses. Zscaler recommends choosing the certificate with the longest validation period.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "SSL Certificate Expiration Date: Displays the expiration date for the signing SAML response certificate for the Identity Proxy. You see the expiration date field if the certificate is about to expire or has expired. A Caution icon appears if the certificate expires within 30 days.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          218,
+          225
+        ]
+      ]
+    },
+    {
+      "item": "Identity Transformation: Choose one of the following transformation rules for the login attribute.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Pass-through Zscaler Identity: Passes the Zscaler login name as is.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Change Domain to: Replaces the domain part of the username with a different domain name that you choose in the Change Domain to drop-down menu.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          111,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends that you not use this option for GitHub.",
+      "depth": 3
+    },
+    {
+      "item": "Remove Domain Name: Deletes the domain part of the user name in the response and passes only the user ID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Pass-on Group Details: Enable to send all group information of the user in the response. For GitHub, select Disable because groups are not supported on GitHub.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          108,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Group Identifier Name: Enter the group attribute name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Managed Device Detection: One of the following options appears based on whether your account is Authentication Service-enabled or not:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "(With Authentication Service) Is Device Managed Attribute True: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured Is Device Managed attributes sent by the Authentication Service. This option is grayed out if the Is Device Managed attributes are not configured in the Authentication Service. To configure or edit the attribute in the Authentication Service, see Adding SAML Identity Providers.",
+      "depth": 3,
+      "strong": [
+        [
+          30,
+          62
+        ],
+        [
+          186,
+          203
+        ],
+        [
+          284,
+          301
+        ]
+      ]
+    },
+    {
+      "item": "(Without Authentication Service) Device Trust Attribute Matches the Configured Value: Enable to identify the user devices as managed devices if their traffic is proxied via Zscaler and matches the configured device trust attributes in your default IdP. Ensure that your default IdP configuration specifies the Device Trust Attribute and Device Trust Attribute Value fields to allow the Internet & SaaS service to identify your managed devices; otherwise, this option is grayed out.",
+      "depth": 3,
+      "strong": [
+        [
+          33,
+          84
+        ],
+        [
+          310,
+          332
+        ],
+        [
+          337,
+          365
+        ]
+      ]
+    },
+    {
+      "item": "Device Trust Attribute: Displays the SAML trust attribute configured on your IdP. This field can't be edited. To configure or edit the trust attribute, see Adding Identity Providers.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Device Trust Attribute Value: Displays the SAML trust attribute value configured on your IdP for managed devices. This field can't be edited. To configure or edit the trust attribute value, see Adding Identity Providers.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Action: Choose one of the following actions for when unmanaged devices try to access the cloud app:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Browser Isolate: Isolates the traffic from unmanaged devices through a remote browser based on the isolation profile selected. To learn more, see What Is Zero Trust Browser?",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Isolation Profile: Select the isolation profile from the list if you chose the Browser Isolation action. This list includes the isolation profiles that you created for your organization.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          79,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Block: Blocks access to the cloud app from an unmanaged device.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Click Save and activate the change.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "2. Download the Zscaler certificate and obtain information from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Internet & SaaS Authentication > Internet Identity Proxy.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          53
+        ],
+        [
+          56,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "The Identity Proxy Settings page displays the settings for the cloud apps.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Click Download to download the Zscaler certificate for the cloud app that you are configuring.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Identity Proxy URL and the Issuer Entity ID for the cloud app that you are configuring. Click the values to expand the URL.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          27
+        ],
+        [
+          36,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Configure Zscaler as the IdP for your cloud app.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have the following from the Zscaler Admin Console for the cloud app:",
+      "depth": 0
+    },
+    {
+      "item": "The Issuer Entity ID",
+      "depth": 1
+    },
+    {
+      "item": "The Zscaler certificate that you downloaded from the Zscaler Admin Console",
+      "depth": 1
+    },
+    {
+      "item": "The Identity Proxy URL",
+      "depth": 1
+    },
+    {
+      "item": "Configure Zscaler as the IdP for the cloud app. The following are instructions for each app:",
+      "depth": 0
+    },
+    {
+      "item": "Box",
+      "depth": 1
+    },
+    {
+      "item": "To set up Single Sign-On (SSO), submit a request with Box. Box uses the information that you provide to set up the SSO integration.",
+      "depth": 1
+    },
+    {
+      "item": "Complete the following in the request form:",
+      "depth": 1
+    },
+    {
+      "item": "Your email address: Enter your email address.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Briefly summarize your issue/question: Specify that you want to set up SSO for Box.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Who is your Identity Provider?: Select Other w/o Metadata or Other with Metadata. If you select Other with Metadata, make sure that you upload the Metadata file in the attachments.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          39,
+          57
+        ],
+        [
+          61,
+          80
+        ],
+        [
+          96,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "Give us more details: Enter the following information:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Entity/Connection ID: The Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          26,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URL: The Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          18,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider: Enter Zscaler Inc.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Attribute for User's First Name: Enter NameID.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Attribute for Groups: Provide the group attribute if you are using Groups and have added a Group Identifier Name in the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Set the priority according to your requirement.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Box Subdomain: Enter the Box subdomain of your company.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Attachments: Attach the public certificate that you downloaded from the Zscaler Admin Console. If you've selected Other with Metadata as your IdP, attach the Metadata file downloaded from the Zscaler Admin Console as well.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          114,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Office 365",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with Microsoft 365:",
+      "depth": 1
+    },
+    {
+      "item": "a. Set up SAML for Microsoft Entra Connect (formerly Azure AD Connect).",
+      "depth": 2
+    },
+    {
+      "item": "Configure federation with AD FS and connect it via Microsoft Entra Connect. To learn more, refer to the Microsoft documentation for AD FS.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Log in to the Microsoft Entra Portal via Windows PowerShell using the following command:",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Connect-MsolService",
+      "depth": 3
+    },
+    {
+      "item": "Run the following command to reset your domain authentication and prepare AD FS for setting Zscaler parameters:",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Set-MsolDomainAuthentication -DomainName <YourDomainName> -Authentication Managed",
+      "depth": 3
+    },
+    {
+      "item": "Configure your setup script file (PS1) using the following template:",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "See setup script template.",
+      "depth": 4
+    },
+    {
+      "item": "$dom=\"<Your Domain>\" $BrandName=\"<Custom Brand Name>\" $LogOnUrl=\"https://idp.<Zscaler Cloud Name>/samlsso/<Issuer Entity Id>\" $LogOffUrl=\"https://logout.<Zscaler Cloud Name>/\" $ecpUrl=\"https://idp.<Zscaler Cloud Name>/samlsso/<Issuer Entity Id>\" $MySigningCert= \"<Zscaler Certificate Content>\" $MyURI=\"<Zscaler Cloud Name>\" $uri=\"<Issuer Entity Id>\" Set-MsolDomainAuthentication -DomainName $dom -FederationBrandName $BrandName -Authentication Federated -PassiveLogOnUri $LogOnUrl -ActiveLogOnUri $ecpURL -SigningCertificate $MySigningCert -IssuerUri $uri -LogOffUri $LogOffUrl -PreferredAuthenticationProtocol \"SAMLP\"",
+      "depth": 4
+    },
+    {
+      "item": "See script parameters and descriptions.",
+      "depth": 4
+    },
+    {
+      "table": [
+        [
+          "Parameter",
+          "Description"
+        ],
+        [
+          "$dom",
+          "Name of the domain"
+        ],
+        [
+          "$Brandname",
+          "Custom brand name"
+        ],
+        [
+          "$LogOnUrl",
+          "Identity Proxy URL that you copied from the Zscaler Admin Console"
+        ],
+        [
+          "$LogOffUrl",
+          "Logout URL"
+        ],
+        [
+          "$ecpUrl",
+          "Same as the logon URL"
+        ],
+        [
+          "$MySigningCert",
+          "Text copied from the Zscaler certificate that you downloaded from the Zscaler Admin Console"
+        ],
+        [
+          "$MyURI",
+          "Zscaler cloud name"
+        ],
+        [
+          "$uri",
+          "Issuer Entity ID that you copied from the Zscaler Admin Console"
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          9
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Run the following command to execute the script:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "./<setup script name>.ps1",
+      "depth": 3
+    },
+    {
+      "item": "Run the following command to verify the parameters configured:",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "Get-MsolDomainFederationSettings -DomainName <YourDomainName>",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "b. Configure AD FS claim rule for Microsoft 365.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that the SAML 2.0 IdP for single sign-on is configured.",
+      "depth": 2
+    },
+    {
+      "item": "Select your Relying Party Trust in the AD FS Management portal.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          12,
+          31
+        ],
+        [
+          39,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Add the following custom rule to the Claim Issuance Policy:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "c:[Type == \"http://schemas.microsoft.com/ws/2008/06/identity/claims/windowsaccountname\"] => issue(store = \"Active Directory\", types = (\"http://schemas.xmlsoap.org/claims/UPN\", \"http://schemas.microsoft.com/LiveID/Federation/2008/05/ImmutableID\"), query = \"samAccountName={0};userPrincipalName,objectGUID;{1}\", param = regexreplace(c.Value, \"(?<domain>[^\\\\]+)\\\\(?<user>.+)\", \"${user}\"), param = c.Value);",
+      "depth": 3
+    },
+    {
+      "item": "Log in to Office 365 Portal and verify if login.microsoftonline.com gets redirected to IdP.<Zscaler Cloud Name> for authentication.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "If you need to reset the Microsoft 365 configuration, complete the following steps:",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to reset your domain authentication and prepare AD FS for setting Zscaler parameters:",
+      "depth": 2
+    },
+    {
+      "item": "Set-MsolDomainAuthentication -DomainName <YourDomainName> -Authentication Managed",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) Delete the AD FS claim rule that was added to the Claim Issuance Policy for the Relying Trust Party. See Configure AD FS claim rule for Office 365.",
+      "depth": 2
+    },
+    {
+      "item": "ShareFile",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with ShareFile:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to ShareFile with your admin account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "From the ShareFile dashboard, go to Settings > Admin Settings > Security > Login & Security Policy.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          44
+        ],
+        [
+          47,
+          61
+        ],
+        [
+          64,
+          72
+        ],
+        [
+          75,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Under the Basic Settings section for Single sign-on / SAML 2.0 Configuration, complete the following:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          24
+        ],
+        [
+          37,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Enable SAML: Select Yes to enable SAML authentication.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Your IDP Issuer / Entity ID: Enter the Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "X.509 Certificate: Click Change and then copy and paste the text from the Zscaler certificate you downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Login URL: Enter the Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Optional Settings, complete the following:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Require SSO Login: Select No.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "SP-Initiated SSO certificate: Choose HTTP Redirect with no signature.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          28
+        ],
+        [
+          37,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Enable Web Authentication: Select Yes.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "SP-Initiated Auth Context: Choose Username and Password and Minimum.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          55
+        ],
+        [
+          60,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "GitHub",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with GitHub:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to GitHub with your admin account. Ensure that you are logged in to the Zscaler service so that the traffic is forwarded to Zscaler.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click your profile picture and then click Your organizations.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          42,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "From the Organizations page, click the required organization link.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Go to Settings > Organization security.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under the SAML single sign-on section, select Enable SAML authentication and complete the following:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          46,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Sign on URL: Enter the Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Issuer: Enter the Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Public certificate: Copy and paste the text from the Zscaler certificate you downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Click Test SAML configuration and then click Save after your SAML SSO identity is successfully authenticated.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          45,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Teams tab and click Authenticate your account before using SSO for the first time.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          30,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Continue.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "ServiceNow",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with ServiceNow:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to your ServiceNow instance with your admin account. Ensure that you are logged in to the Zscaler service so that the traffic is forwarded to Zscaler.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On the left pane, under Multi-Provider SSO, click Identity Providers.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          24,
+          42
+        ],
+        [
+          50,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "From the Identity Providers page, click New and then click SAML.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          27
+        ],
+        [
+          40,
+          43
+        ],
+        [
+          59,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Identity Provider New Record page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the identity provider.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Identity provider URL: Enter the Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider's AuthnRequest: Enter the Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Advanced tab.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "User Field: Ensure that this is set to email.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Single Sign-On Script: Select MultiSSOv2_SAML2_custom.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Submit. The IdP is created and added to the Identity Providers page.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          50,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "From the Identity Providers page, click the identity provider record that you created. Edit the following:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the X.509 Certificate section, click the New button.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the X.509 Certificate New Record page:",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the certificate.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Format: Select the PEM format from the drop-down menu.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          19,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "PEM Certificate: Copy and paste the text from the Zscaler certificate that you downloaded from the Zscaler Admin Console, and click Submit.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          132,
+          138
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "From the X.509 Certificate section, click the Edit button. The Edit Members page appears.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          26
+        ],
+        [
+          46,
+          50
+        ],
+        [
+          63,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "From the Collection pane, select the certificate that you created and add it to the X.509 Certificates List pane and then click Save.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          19
+        ],
+        [
+          84,
+          107
+        ],
+        [
+          128,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Test Connection on the top right.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "After the connection is tested successfully, click Activate.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          51,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "From the Related Links section, click Set as Auto Redirect IdP.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          22
+        ],
+        [
+          38,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Select the Default option and click Update.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          18
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Google Apps",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with Google Apps:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Google Admin console with your admin account.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click Security. The Security page appears.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "On the Security page, click Set up single sign-on (SSO).",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          28,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Enable Setup SSO with third party identity provider.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Complete the following:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Sign-in page URL: Enter the Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Sign-out page URL: Enter the Google logout URL: https://accounts.google.com/logout.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Change password URL: (Optional) Enter a URL that allows users to change their passwords.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Verification certificate: Upload the Zscaler certificate that you downloaded from the Zscaler Admin Console.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "This configuration only applies if Identity Proxy is enabled for the whole organization. If your organization requires configuration for a specific organization unit (OU), refer to the Google documentation.",
+      "depth": 1
+    },
+    {
+      "item": "Users who are assigned administrator roles in Google cannot use SSO.",
+      "depth": 1
+    },
+    {
+      "item": "Salesforce",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with Salesforce:",
+      "depth": 1
+    },
+    {
+      "item": "a. Configure the Zscaler SAML SSO settings.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to Salesforce.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the top-right corner, click Setup. The Setup page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          36
+        ],
+        [
+          42,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Setup page, expand Security Controls in the left-hand menu, and select Single Sign-On Settings. The Single Sign-On Settings page appears.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          26,
+          43
+        ],
+        [
+          78,
+          101
+        ],
+        [
+          107,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "On the Single Sign-On Settings page, click Edit, and check SAML Enabled.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ],
+        [
+          59,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Single Sign-On Settings page, click New.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Configure the following SAML SSO settings:",
+      "depth": 3,
+      "number": 7
+    },
+    {
+      "item": "Name: Enter a name for the setting.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "API Name: Salesforce automatically uses the value you entered for Name. You can customize the name here, if you want.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          66,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Issuer: Enter the Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          18,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Entity ID: Enter https://saml.salesforce.com/.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Select your Request Signing Certificate, Request Signature Method, and Assertion Decryption Certificate as desired.",
+      "depth": 4,
+      "strong": [
+        [
+          12,
+          39
+        ],
+        [
+          41,
+          65
+        ],
+        [
+          71,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "SAML Identity Type: Select Assertion contains the User's Salesforce username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "SAML Identity Location: Select Identity is in the NameIdentifier element of the Subject statement.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          31,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Service Provider Initiated Request Binding: Select HTTP POST.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          42
+        ],
+        [
+          51,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider Certificate: Upload the certificate you downloaded from the Zscaler Admin Console.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider Login URL: Enter the Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          27
+        ],
+        [
+          39,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Configure the Custom Logout URL, Custom Error URL, and Single Logout Enabled fields as desired.",
+      "depth": 4,
+      "strong": [
+        [
+          14,
+          31
+        ],
+        [
+          33,
+          49
+        ],
+        [
+          55,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Save",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "b. Enable the Zscaler SAML SSO settings as the authentication service.",
+      "depth": 2
+    },
+    {
+      "item": "In the top-right corner, click Setup and select Setup from the drop-down menu. The Setup page appears.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          36
+        ],
+        [
+          48,
+          53
+        ],
+        [
+          83,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "On the Setup page, expand Company Settings in the left-hand menu, and select My Domain. The My Domain page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          26,
+          42
+        ],
+        [
+          77,
+          86
+        ],
+        [
+          92,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down to Authentication Configuration and click Edit. The Authentication Configuration page appears.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          15,
+          43
+        ],
+        [
+          54,
+          58
+        ],
+        [
+          64,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "On the Authentication Configuration page, select the Authentication Service that you configured in the Zscaler Admin Console. In this example, it's ZscalerExample.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          53,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "c. Obtain the Salesforce Login URL.",
+      "depth": 2
+    },
+    {
+      "item": "After you configure Zscaler as the IdP for Salesforce, you must retrieve the Login URL from the app. To obtain the Salesforce Login URL:",
+      "depth": 2
+    },
+    {
+      "item": "In the top-right corner, click Setup and select Setup from the drop-down menu. The Setup page appears.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          31,
+          36
+        ],
+        [
+          48,
+          53
+        ],
+        [
+          83,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "On the Setup page, expand Identity in the left-hand menu, and select Single Sign-On Settings. The Single Sign-On Settings page appears.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          26,
+          34
+        ],
+        [
+          69,
+          92
+        ],
+        [
+          98,
+          121
+        ]
+      ]
+    },
+    {
+      "item": "In the Single Sign-On Settings list, click the Zscaler SAML SSO setting that you configured in the Zscaler Admin Console. In this example, it's ZscalerExample.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Login URL and specify it as the ACS URL while when you configure configuring the Salesforce cloud app instance in the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          18
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Slack",
+      "depth": 1
+    },
+    {
+      "item": "To set up SSO with Slack:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to Slack with your admin account. Ensure that you are logged in to the Zscaler service so that the traffic is forwarded to Zscaler.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click Manage Organization in the upper right of the page. The Workspaces page appears.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          62,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Go to Security > SSO settings in the left-side navigation. The SSO Settings page appears.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          29
+        ],
+        [
+          63,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Configure SSO. The Configure SSO window appears.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Configure SSO window:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "SSO Name: Enter a name for the SSO.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "SAML 2.0 Endpoint URL: Paste the Zscaler Identity Proxy URL that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Identity Provider Issuer URL: Paste the Zscaler Issuer Entity ID that you copied from the Zscaler Admin Console.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Service Provider Issuer URL: Enter https://slack.com.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Public (X.509) Certificate: Open the zscaler_certificate.cer file that you downloaded from the Zscaler Admin Console with a text editor and copy and paste the entire contents.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Sign the Response: Deselect this checkbox.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Test Configuration on the bottom right of the window. The Finish SSO Configuration window appears. If the configuration tests correctly, a confirmation message appears stating that everything looks good at the top of the window. If there is a problem with the configuration, you receive either a glitch reported or a failure, and you have to start over from the beginning.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          64,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "On the Finish SSO Configuration page, click Confirm Update to activate the configuration.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          44,
+          58
+        ]
+      ]
+    },
+    {
+      "text": "After the Zscaler service is configured as the IdP Proxy, users of the specified cloud app are redirected to Zscaler Identity Proxy for authentication."
+    }
+  ]
+}

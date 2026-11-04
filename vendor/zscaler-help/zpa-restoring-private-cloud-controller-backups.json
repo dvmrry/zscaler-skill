@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Restoring Private Cloud Controller Backups",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/restoring-private-cloud-controller-backups",
+    "node": "1532003",
+    "revision": "3218032",
+    "updated": "2026-07-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When you restore configuration settings from a Private Cloud Controller backup, it overwrites all your current configurations for the Private Cloud Controller."
+    },
+    {
+      "text": "To restore a backup:"
+    },
+    {
+      "item": "Log in to the Private Cloud Controller console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command to locate the snapshot for the backup you want to restore:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py show",
+      "depth": 0
+    },
+    {
+      "item": "The output should look similar to the following:",
+      "depth": 0
+    },
+    {
+      "item": "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py show Set backup directory as \"/opt/zscaler/backup/pcc_backup\" Snapshot #0 2025-10-02-00-00-00_25.49.0-PR-11999-26-g6da7fac881 Snapshot #1 2025-10-01-00-00-00_25.49.0-PR-11999-26-g6da7fac881 Snapshot #2 2025-09-30-00-00-00_25.49.0-PR-11999-26-g6da7fac881 Snapshot #3 2025-09-29-20-56-03_25.49.0-PR-11999-26-g6da7fac881 Snapshot #4 2025-09-29-00-00-00_25.49.0-PR-11999-26-g6da7fac881 Snapshot #5 2025-09-28-00-00-00_25.49.0-PR-11999-26-g6da7fac881",
+      "depth": 0
+    },
+    {
+      "item": "Restore the backup by entering the following command:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py restore <label>",
+      "depth": 0
+    },
+    {
+      "item": "The <label> is the prefix of the snapshot in the zpa-pcc-restore.py show command (e.g., 2025-09-30, 2025-09-30-00-00) as long it can be uniquely identified as the snapshot as shown in the following example:",
+      "depth": 0
+    },
+    {
+      "item": "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py restore 2025-09-30 Set backup directory as \"/opt/zscaler/backup/pcc_backup\" Create directory \"/opt/zscaler/var/pcc\" as restore destination Service \"zpa-pcc\" will be stopped before restore",
+      "depth": 0
+    },
+    {
+      "item": "If the label isn't unique enough to determine which snapshot to use, an error similar to the following appears when you try to restore, and you must add more information to make it unique:",
+      "depth": 0
+    },
+    {
+      "item": "[admin@pcc ~]$ sudo /opt/zscaler/var/pcc/image/bin/zpa-pcc-restore.py restore -n 2025-09-2 Set backup directory as \"/opt/zscaler/backup/pcc_backup\" Create directory \"/opt/zscaler/var/pcc\" as restore destination Service \"zpa-pcc\" will be stopped before restore Start to restore from backups Request to restore \"2025-09-2\", but more than one snapshot was found with this label 2025-09-29-20-56-03_25.49.0-PR-11999-26-g6da7fac881 2025-09-29-00-00-00_25.49.0-PR-11999-26-g6da7fac881 2025-09-28-00-00-00_25.49.0-PR-11999-26-g6da7fac881",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the restore was successful.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Enter the following command to navigate to the folder that contains the debugging features:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "cd /opt/zscaler/var/pcc/image/bin",
+      "depth": 1
+    },
+    {
+      "item": "Run ./insight.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "[root@ip-172-31-13-126 bin]# ./insight pcc>",
+      "depth": 1
+    },
+    {
+      "item": "Check the integrity of the database files:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Verify the status of the database by entering the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "pcc> show status db",
+      "depth": 2
+    },
+    {
+      "item": "The output should look similar to the following example:",
+      "depth": 2
+    },
+    {
+      "item": "pcc> show status db Result: PASS /opt/zscaler/var/pcc/i.0 PASS /opt/zscaler/var/pcc/i.0.3 PASS /opt/zscaler/var/pcc/i.0.cz1.d1",
+      "depth": 2
+    },
+    {
+      "item": "Verify the outgoing connections to clients by entering the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "pcc> show connection clients",
+      "depth": 2
+    },
+    {
+      "item": "The output should look similar to the following example:",
+      "depth": 2
+    },
+    {
+      "item": "pcc> show connection clients 217329048513151239.scovd.dev.zpath.net CONNECTED :37992 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 217329048513151239.scpbstats.dev.zpath.net CONNECTED :38050 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 217329048513151239.scpblog.dev.zpath.net CONNECTED :38022 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :41464 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :41462 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :41466 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :41524 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 217329048513151239.scalog.dev.zpath.net CONNECTED :38106 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :41500 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :41490 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :38034 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :38118 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :41504 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :38024 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :38092 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 217329048513151239.sccfg.dev.zpath.net CONNECTED :41452 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 217329048513151239.sclog.dev.zpath.net CONNECTED :41512 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :41540 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 CONNECTED :38076 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 CONNECTED :41532 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 217329048513151239.scastats.dev.zpath.net CONNECTED :38066 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 217329048513151239.1.1.scuserdb.dev.zpath.net CONNECTED :41456 -> broker-co2br2b.pdx2.dev.zpath.net@54.218.32.105:443 217329048513151239.scstats.dev.zpath.net CONNECTED :38006 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443 217329048513151239.scctl.dev.zpath.net CONNECTED :37976 -> broker-co2br2b.pdx2.dev.zpath.net@44.242.16.32:443",
+      "depth": 2
+    },
+    {
+      "item": "Verify that Private Service Edges and App Connectors are actively connected to the Private Cloud Controller by entering the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "pcc> show connection servers",
+      "depth": 2
+    },
+    {
+      "item": "The output should look similar to the following example:",
+      "depth": 2
+    },
+    {
+      "item": "pcc> show connection servers 217329048513151161.aovd.mockland.site CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51388 217329048513151161.astats.mockland.site CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51338 217329048513151161.acfg.mockland.site CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51404 217329048513151161.actl.mockland.site CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51408 217329048513151161.alog.mockland.site CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51346 CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51366 CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51362 CONNECTED 217329048513151161.ast.dev.zpath.net@10.10.10.200:51382",
+      "depth": 2
+    },
+    {
+      "item": "View redirection statistics to ensure that the counters are increasing to verify that the Private Cloud Controller is redirecting users:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "pcc> show stats redirect",
+      "depth": 2
+    },
+    {
+      "item": "The output should look similar to the following example:",
+      "depth": 2
+    },
+    {
+      "item": "pcc> show stats redirect In 1 Minute In 5 Minutes In 15 Minutes In 30 Minutes In 60 Minutes Redirect to PSE - Failed 0 0 0 0 0 Redirect to IDP 0 0 0 0 0 Redirect to PSE - Successful 0 0 0 0 0",
+      "depth": 2
+    }
+  ]
+}

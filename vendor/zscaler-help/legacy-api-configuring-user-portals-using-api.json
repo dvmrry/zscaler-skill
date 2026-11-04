@@ -1,0 +1,377 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring User Portals Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-user-portals-using-api",
+    "node": "1530947",
+    "revision": "3144066",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) user portal use cases using APIs. All APIs are rate limited. To learn more, see About User Portals and Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before you create or update a user portal, you must get the certificate ID. To learn more, see Configuring Certificates Using API."
+    },
+    {
+      "heading": "Creating a User Portal",
+      "level": 1
+    },
+    {
+      "text": "To create a user portal:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortal?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortal?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "managedByZs: Indicates if the certificate type is Managed (true) or Custom (false).",
+      "depth": 1
+    },
+    {
+      "item": "domain: Enter the full URL for the portal. This is the URL that users access to view the portal. The URL must use the HTTPS protocol and be a fully qualified domain name (FQDN). A user portal's FQDN cannot be configured as an application within an application segment.",
+      "depth": 1
+    },
+    {
+      "item": "The domain field is only required if managedByZs is set to false.",
+      "depth": 1
+    },
+    {
+      "item": "certificateId: The unique identifier of the certificate. To learn more, see Configuring Certificates Using API.",
+      "depth": 1
+    },
+    {
+      "item": "The certificateId field is only required if managedByZs is set to false.",
+      "depth": 1
+    },
+    {
+      "item": "enabled: Indicates if the user portal is enabled (true) or disabled (false). If disabled, the portal is inaccessible to users.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "extLabel: The authentication domain name prefix used for the portal URL. The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31. For example, server-2.",
+      "depth": 1
+    },
+    {
+      "item": "extDomain: The authentication domain name prefix used for a Zscaler-managed certificates when creating a privileged portal. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null. Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"<example name>\", \"certManagedByZsRadio\":\"<string>\", \"domain\":\"<string>\", \"description\":\"<example description>\", \"userNotificationEnabled\":true, \"userNotification\":\"<example user notification>\", \"certificateId\":\"<certificate ID>\", \"managedByZs\":true, \"extLabel\":\"<string>\", \"extDomain\":\"<string>\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"name\":\"userportal name\", \"certManagedByZsRadio\":\"managed\", \"domain\":\"\", \"description\":\"test description\", \"userNotificationEnabled\":true, \"userNotification\":\"test message text\", \"certificateId\":\"\", \"managedByZs\":true, \"extLabel\":\"portalurl\", \"extDomain\":\"aneela.com\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145283994705985862\", \"modifiedTime\":\"1753247369\", \"creationTime\":\"1753247369\", \"modifiedBy\":\"72057594038779845\", \"name\":\"userportal name\", \"enabled\":true, \"description\":\"test description\", \"domain\":\"portalurl-aneela-com.d.zscalerportal.net\", \"userNotification\":\"test message text\", \"userNotificationEnabled\":true, \"extDomainTranslation\":\"aneela.com\", \"extLabel\":\"portalurl\", \"extDomain\":\"aneela.com\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All User Portals",
+      "level": 1
+    },
+    {
+      "text": "To get details of all user portals for a given customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortal/?microtenantId={microtenantId}&page={page}&pagesize={pageSize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortal/?microtenantId=0&page=1&pagesize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": \"145283994705985838\", \"modifiedTime\": \"1747939958\", \"creationTime\": \"1747939958\", \"modifiedBy\": \"72057594038779845\", \"name\": \"test user portal\", \"scopeName\": \"Default\", \"enabled\": true, \"domain\": \"aneela-aneela-com.d.zscalerportal.net\", \"userNotificationEnabled\": true, \"extDomainTranslation\": \"aneela.com\", \"extLabel\": \"aneela\", \"extDomain\": \"aneela.com\", \"extDomainName\": \"aneela-com.d.zscalerportal.net\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Particular User Portal",
+      "level": 1
+    },
+    {
+      "text": "To get details of a particular user portal:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{id}?microtenantId={microtenantId}&page={page}&pagesize={pageSize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortal/145283994705985862?microtenantId=0&page=1&pagesize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"145283994705985862\", \"modifiedTime\": \"1753247369\", \"creationTime\": \"1753247369\", \"modifiedBy\": \"72057594038779845\", \"name\": \"userportal name\", \"scopeName\": \"Default\", \"enabled\": true, \"description\": \"test description\", \"domain\": \"portalurl-aneela-com.d.zscalerportal.net\", \"userNotification\": \"test message text\", \"userNotificationEnabled\": true, \"extDomainTranslation\": \"aneela.com\", \"extLabel\": \"portalurl\", \"extDomain\": \"aneela.com\", \"extDomainName\": \"aneela-com.d.zscalerportal.net\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a User Portal",
+      "level": 1
+    },
+    {
+      "text": "To update a user portal:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{Id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortal/145283994705985862?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "managedByZs: Indicates if the certificate type is Managed (true) or Custom (false).",
+      "depth": 1
+    },
+    {
+      "item": "domain: Enter the full URL for the portal. This is the URL that users access to view the portal. The URL must use the HTTPS protocol and be a fully qualified domain name (FQDN). A user portal's FQDN cannot be configured as an application within an application segment.",
+      "depth": 1
+    },
+    {
+      "item": "The domain field is only required if managedByZs is set to false.",
+      "depth": 1
+    },
+    {
+      "item": "certificateId: The unique identifier of the certificate. To learn more, see Configuring Certificates Using API.",
+      "depth": 1
+    },
+    {
+      "item": "The certificateId field is only required if managedByZs is set to false.",
+      "depth": 1
+    },
+    {
+      "item": "enabled: Indicates if the user portal is enabled (true) or disabled (false). If disabled, the portal is inaccessible to users.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "extLabel: The authentication domain name prefix used for the portal URL. The supported string can include integers, lowercase characters, and hyphens (-). This field supports integers between 3 and 31. For example, server-2.",
+      "depth": 1
+    },
+    {
+      "item": "extDomain: The authentication domain name prefix used for a Zscaler-managed certificates when creating a privileged portal. If you are using Zscaler-managed certificates and pass the external domain name prefix, the certificateId field becomes null. Periods (.) are not supported since the FQDN includes a period as part of the suffix or top-level domain.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"id\":\"<id>\", \"objectType\":\"UserPortals\", \"action\":\"EDIT\", \"modifiedTime\":\"1753247369\", \"creationTime\":\"1753247369\", \"modifiedBy\":\"72057594038779845\", \"name\":\"<example user portal name>\", \"scopeName\":\"Default\", \"description\":\"<example description>\", \"domain\":\"\", \"userNotification\":\"<example user notification>\", \"userNotificationEnabled\":true, \"extDomainTranslation\":\"aneela.com\", \"extLabel\":\"portalurl\", \"extDomain\":\"aneela.com\", \"extDomainName\":\"aneela-com.d.zscalerportal.net\", \"hideInfoTooltip\":true, \"restrictedEntity\":false, \"certManagedByZsRadio\":\"managed\", \"certificateId\":\"\", \"managedByZs\":true }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"id\":\"145283994705985862\", \"objectType\":\"UserPortals\", \"action\":\"EDIT\", \"modifiedTime\":\"1753247369\", \"creationTime\":\"1753247369\", \"modifiedBy\":\"72057594038779845\", \"name\":\"userportal name updated\", \"scopeName\":\"Default\", \"description\":\"test description updated\", \"domain\":\"\", \"userNotification\":\"test message text updated\", \"userNotificationEnabled\":true, \"extDomainTranslation\":\"aneela.com\", \"extLabel\":\"portalurl\", \"extDomain\":\"aneela.com\", \"extDomainName\":\"aneela-com.d.zscalerportal.net\", \"hideInfoTooltip\":true, \"restrictedEntity\":false, \"certManagedByZsRadio\":\"managed\", \"certificateId\":\"\", \"managedByZs\":true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the user portal is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a User Portal",
+      "level": 1
+    },
+    {
+      "text": "To delete a user portal:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/userPortal/{Id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the user portal.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/userPortal/145283994705985862?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the user portal is deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

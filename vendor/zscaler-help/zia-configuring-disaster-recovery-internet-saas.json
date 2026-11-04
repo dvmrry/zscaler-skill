@@ -1,0 +1,323 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Disaster Recovery for Internet & SaaS",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-disaster-recovery-internet-saas",
+    "node": "1420071",
+    "revision": "3207654",
+    "updated": "2026-05-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Enabling disaster recovery ensures business continuity in the event of a disaster scenario that impacts the global Zscaler cloud infrastructure. Disaster recovery is for organizations that depend on the Zscaler cloud to remain operational during disaster events by providing users with access to critical applications. Zscaler provides support for disaster recovery in both Private Access (ZPA) and Internet & SaaS (ZIA)."
+    },
+    {
+      "text": "The Disaster Recovery for Internet & SaaS mode is only available to enrolled users."
+    },
+    {
+      "text": "To enable Disaster Recovery for Internet & SaaS, you must configure the following settings in your Zscaler Client Connector App Profiles:"
+    },
+    {
+      "item": "Go to Infrastructure > Connectors > Client > Windows.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          33
+        ],
+        [
+          36,
+          42
+        ],
+        [
+          45,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "On the App Profiles tab, click Add Windows Policy. The Add Windows Policy window appears.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          31,
+          49
+        ],
+        [
+          55,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "In the Traffic Steering section, under Disaster Recovery, you can configure the following to provide users access even when the Internet & SaaS service is down.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          39,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable ZIA DR.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select from the following traffic forwarding actions in the drop-down menu:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Direct Internet Access: Traffic bypasses Zscaler Client Connector, giving the user access to all applications through direct internet access.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Disable Internet Access: All traffic is dropped at the endpoint and users do not have access to the internet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Policy Based Access (Web only): You can either block or allow access to specific URLs using a custom PAC file. Insert the custom PAC file URL in the Custom Destinations field.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          149,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "Allow Zscaler Preselected Destinations (Recommended): When enabled, users can access only the URLs that are present in the Zscaler-provided global database allowlist. The rest of the URLs are blocked.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "DR Custom PAC URL: Select this option to insert a custom PAC file URL in the Custom Destinations field. You can configure a custom PAC URL (with the http:// or https:// prefix) that users can access when the Internet & SaaS service is down. When configured in conjunction with the global database URL, both URL lists are allowed. The custom destinations URL takes precedence when there are any conflicts. You can also forward the traffic to a proxy server.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          77,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "You must configure the Custom DR PAC URL pointing to the private PAC server for the private business continuity cloud (https://<private pac domain>.pac.zsbcs.net/<insert the rest of the PAC URL>. For example: http://platform-pm.pac.zsbcs.net/platform-pm.zscalerbeta.net/DRPAC. To learn more about private business continuity, see Understanding Zscaler-Managed Business Continuity Cloud.",
+      "depth": 3
+    },
+    {
+      "item": "When configuring the custom PAC file, ensure that you allow access to the Private Access IP range 100.64.0.0/16 and Private Access domains, zpath.net and zpatwo.net, to prevent blocking Private Access traffic.",
+      "depth": 4
+    },
+    {
+      "item": "If you have enabled both the Allow Zscaler Preselected Destinations and Custom Destinations fields, ensure that you remove the return drop; syntax from the custom PAC file statement because it blocks the URLs listed in the Zscaler-provided global database allowlist.",
+      "depth": 4,
+      "strong": [
+        [
+          29,
+          67
+        ],
+        [
+          72,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Use the following sample custom PAC file for users without private business continuity",
+      "depth": 4
+    },
+    {
+      "item": "function FindProxyForURL(url, host) { var drop = \"BLOCK\"; /* Return DIRECT to Allow access */ if ((localHostOrDomainIs(host, \"google.com\")) || (localHostOrDomainIs(host, \"salesforce.com\")) || (localHostOrDomainIs(host, \"microsoft.com\")) || (localHostOrDomainIs(host, \"zscaler.com\")) ) return \"DIRECT\"; /* Default Block Statement to block anything not allowed above */ return drop; }",
+      "depth": 4
+    },
+    {
+      "item": "Return DIRECT to allow destination access.",
+      "depth": 5
+    },
+    {
+      "item": "Return BLOCK (or any other return statement other than DIRECT) to block destination access.",
+      "depth": 5
+    },
+    {
+      "item": "Return PROXY to forward the selected internet traffic to a proxy server with or without a port. Applies to Zscaler Client Connector version 4.5 for Windows and macOS only.",
+      "depth": 5
+    },
+    {
+      "item": "Use the following sample custom PAC file for users with private business continuity",
+      "depth": 4
+    },
+    {
+      "item": "The private business continuity feature is in limited availability. To learn more, contact your Zscaler Account team.",
+      "depth": 4
+    },
+    {
+      "item": "function FindProxyForURL(url, host) { var drop = \"BLOCK\"; /* Return DIRECT to Allow access */ if ((localHostOrDomainIs(host, \"google.com\")) || (localHostOrDomainIs(host, \"ebay.com\"))) return \"DIRECT\"; if ((localHostOrDomainIs(host, \"yahoo.com\")) || (localHostOrDomainIs(host, \"msn.com\"))) return drop; /* Default Block Statement to block anything not allowed above */ return \"PROXY ${GATEWAY.platform-bcp.zscalerbeta.net}:80; PROXY ${SECONDARY.GATEWAY.platform-bcp.zscalerbeta.net}:80\"; }",
+      "depth": 4
+    },
+    {
+      "item": "Replace Platform-bcp with the organization name.",
+      "depth": 5
+    },
+    {
+      "item": "Replace zscalerbeta.net with the name of the cloud on which your organization is provisioned.",
+      "depth": 5
+    },
+    {
+      "item": "Return DIRECT to allow destination access.",
+      "depth": 5
+    },
+    {
+      "item": "Return BLOCK (or any other return statement other than DIRECT) to block destination access.",
+      "depth": 5
+    },
+    {
+      "item": "Return PROXY to forward the selected internet traffic to a proxy server with or without a port. Applies to Zscaler Client Connector version 4.5 and later for Windows.",
+      "depth": 5
+    },
+    {
+      "item": "Return PROXY to the Zscaler-managed business continuity subcloud to maintain your policies in the business continuity environment.",
+      "depth": 5
+    },
+    {
+      "item": "DNS Settings:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Create a DNS TXT record with the Zscaler DNS generator tool: To create an Active Domain Name and Domain Public Key, see Creating DNS TXT Records.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "If you have Internet & SaaS only, you cannot download the DNS Record Generator.",
+      "depth": 2
+    },
+    {
+      "item": "ZIA Domain name: Enter a valid domain name.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "TXT Record Signing Public Key: Click Upload to add a valid public key. You can only upload PEM files.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          37,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Activation: Activate or test disaster recovery by updating the DNS TXT record value. To learn more, see Creating DNS TXT Records.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Test Mode: Enable Activate Test Mode if the selected users or groups for the app profile are part of a group to test disaster recovery. Zscaler recommends that disaster recovery be tested periodically with just a few users.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          18,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Add.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    }
+  ]
+}

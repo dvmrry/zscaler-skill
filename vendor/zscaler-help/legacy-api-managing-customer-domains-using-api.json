@@ -1,0 +1,148 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Customer Domains Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-customer-domains-using-api",
+    "node": "1531044",
+    "revision": "3141274",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on Zscaler Private Access (ZPA) customer domain use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting and Adding DNS Search Domains."
+    },
+    {
+      "heading": "Getting All Domains for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To get all domains for a customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "type: The association type of the domain. You must pass SEARCH_SUFFIX as the value for type to retrieve details of DNS search domains.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/associationtype/SEARCH_SUFFIX/domains?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"id\": \"24493\", \"modifiedTime\": \"1753246146\", \"creationTime\": \"1753246146\", \"modifiedBy\": \"72057594038609323\", \"domain\": \"beta.co\", \"associationType\": \"SEARCH_SUFFIX\", \"capture\": true, \"name\": \"beta.co\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating or Updating a Domain for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To create or update a domain for a customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/v2/associationtype/{type}/domains?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "type: The association type of the domain. You must pass SEARCH_SUFFIX as the value for type to create a DNS search domain.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/v2/associationtype/SEARCH_SUFFIX/domains?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "assocationType: The association type of the domain. You must pass SEARCH_SUFFIX to create a DNS search domain.",
+      "depth": 1
+    },
+    {
+      "item": "domain: The domain of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"associationType\": \"SEARCH_SUFFIX\", \"capture\": true, \"domain\": \"string\", \"name\": \"<name>\", \"microtenantId\": <microtenant ID> } ]",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "[ { \"microtenantId\": 0, \"domain\": \"beta.co\", \"associationType\": \"SEARCH_SUFFIX\", \"capture\": true, \"name\": \"beta.co\" } ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the domain is created or updated. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

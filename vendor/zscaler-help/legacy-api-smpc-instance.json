@@ -1,0 +1,225 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "SMPC Instance",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/smpc-instance",
+    "node": "1541215",
+    "revision": "3211785",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/SMPC%20Instance_1.json?VersionId=KWzjJkpmsuqGP4mCJbPtIB5sBLVK0kr_",
+    "updated": "2026-06-15",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "SMPC Instance"
+      }
+    ],
+    "paths": {
+      "/smpcInstance": {
+        "get": {
+          "tags": [
+            "SMPC Instance"
+          ],
+          "description": "Retrieves the status of all Secure Message Processing Center (SMPC) instances grouped by data center",
+          "operationId": "SMPCInstanceResource_getSmpcInstanceStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/DataCenterDetailsResponse"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      },
+      "/smpcInstance/dc": {
+        "put": {
+          "tags": [
+            "SMPC Instance"
+          ],
+          "description": "Updates the data center and instance details based on the specified data center ID",
+          "operationId": "SMPCInstanceResource_updateDataCenterDetails",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "query",
+              "name": "isEnabled",
+              "description": "Set this field to <b>true</b> to enable DC isolation or <b>false</b> to disable it",
+              "required": true,
+              "type": "boolean"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "List of datacenter IDs to update",
+              "required": true,
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "integer",
+                  "format": "int32"
+                }
+              }
+            }
+          ],
+          "responses": {
+            "204": {
+              "description": "No Content"
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "403": {
+              "description": "Forbidden"
+            },
+            "500": {
+              "description": "Internal Server Error"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "DataCenterDetailsResponse": {
+        "type": "object",
+        "description": "Top-level response containing a list of data centers and their SMPC instance details",
+        "properties": {
+          "data": {
+            "type": "array",
+            "description": "List of data centers with their SMPC instance status",
+            "items": {
+              "$ref": "#/definitions/DatacenterInfo"
+            }
+          }
+        }
+      },
+      "DatacenterInfo": {
+        "type": "object",
+        "description": "Data center details",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the data center"
+          },
+          "datacenterName": {
+            "type": "string",
+            "description": "Name of the data center"
+          },
+          "city": {
+            "type": "string",
+            "description": "City where the data center is located"
+          },
+          "countryCode": {
+            "type": "string",
+            "description": "ISO country code of the data center location"
+          },
+          "zscmIsolationEnabled": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Specifies if Zscaler Security Operations (SecOps) has enabled isolation for the data center. A value of 1 indicates that SecOps has enabled isolation for this datacenter, otherwise, 0 is used."
+          },
+          "zscmIsolationEnabledApiFlag": {
+            "type": "boolean",
+            "description": "A Boolean flag for <b>zscmIsolationEnabled</b> field. <b>True</b> if the SecOps-based isolation is enabled, otherwise, <b>False</b> is used."
+          },
+          "connectionStatus": {
+            "type": "string",
+            "description": "Overall connection status of the data center",
+            "enum": [
+              "Connected",
+              "Partially Connected",
+              "Disconnected"
+            ]
+          },
+          "dcIsolationStatus": {
+            "type": "string",
+            "description": "Specifies the isolation status and whether it was enabled or disabled by SecOps, Administrator, or both",
+            "enum": [
+              "Disabled",
+              "Enabled (By Zscaler Ops)",
+              "Enabled (By Administrator)",
+              "Enabled (By Zscaler Ops and Administrator)"
+            ]
+          },
+          "nodes": {
+            "type": "array",
+            "description": "List of SMPC nodes within the data center",
+            "items": {
+              "$ref": "#/definitions/NodeInfo"
+            }
+          }
+        }
+      },
+      "NodeInfo": {
+        "type": "object",
+        "description": "Status and identity details of the SMPC node",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the node"
+          },
+          "nodeName": {
+            "type": "string",
+            "description": "Name of the SMPC node"
+          },
+          "instanceId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Instance ID of the SMPC node as reported by the Central Authority"
+          },
+          "adminIsolationEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates if isolation by administrator is enabled for the node"
+          },
+          "connectionState": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Connection state of the node. A value of 1 indicates that it is Connected."
+          },
+          "lastTimestamp": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unix timestamp of the last status update from the node"
+          }
+        }
+      }
+    }
+  }
+}

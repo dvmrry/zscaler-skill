@@ -1,0 +1,253 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "External IAM IdP Mapping",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/external-iam-idp-mapping",
+    "node": "1546149",
+    "revision": "3249181",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/External%20IAM%20IdP%20Mapping_1.json?VersionId=IhsCzc6V7qw8S.00eCcTsWbE7E1AoZSX",
+    "updated": "2026-10-09",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "openapi": "3.0.0",
+    "info": {
+      "title": "Zscaler Private Access API Portal",
+      "description": "To access detailed ZPA API documentation, including references and use cases, refer to the [Zscaler Help Portal](/zpa/about-zpa-api).",
+      "version": "1.0"
+    },
+    "extensions": {
+      "x-original-swagger-version": "2.0"
+    },
+    "tags": [
+      {
+        "name": "External IAM IdP Mapping"
+      }
+    ],
+    "paths": {
+      "/mgmtconfig/v1/admin/customers/{customerId}/iamidpmapping": {
+        "get": {
+          "tags": [
+            "External IAM IdP Mapping"
+          ],
+          "summary": "Gets the external IAM identity provider (IdP) mapping details for the specified customer.",
+          "operationId": "getIamIdpMapping",
+          "parameters": [
+            {
+              "name": "customerId",
+              "in": "path",
+              "required": true,
+              "description": "The ZPA tenant ID of the customer.",
+              "explode": false,
+              "schema": {
+                "type": "integer",
+                "format": "int64"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/IamIdpMapping"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "403": {
+              "description": "Forbidden",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "404": {
+              "description": "Not Found",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "405": {
+              "description": "Method Not Allowed",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "409": {
+              "description": "Conflict",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "oneOf": [
+                      {
+                        "$ref": "#/components/schemas/SubnetOverlapAPIError"
+                      },
+                      {
+                        "$ref": "#/components/schemas/ZPathAPIError"
+                      }
+                    ]
+                  }
+                }
+              }
+            },
+            "415": {
+              "description": "Unsupported Media Type",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "500": {
+              "description": "Internal Server Error",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            },
+            "503": {
+              "description": "Service Unavailable",
+              "content": {
+                "*/*": {
+                  "schema": {
+                    "$ref": "#/components/schemas/ZPathAPIError"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "IamIdpMapping": {
+          "properties": {
+            "iamIdpIdToIamIdMapping": {
+              "$ref": "#/components/schemas/IamIdpIdToIamIdMapping"
+            },
+            "id": {
+              "type": "integer",
+              "description": "The unique identifier of the external IAM IdP.",
+              "format": "int32"
+            },
+            "sequence": {
+              "type": "integer",
+              "description": "A monotonically increasing, database-generated sequence number that tracks record revisions and change order.",
+              "format": "int64"
+            }
+          }
+        },
+        "ZPathAPIError": {
+          "properties": {
+            "reason": {
+              "type": "string",
+              "description": "The reason for the cause of the error status code. To learn more, see <a href=\"/zpa/api-response-codes-and-error-messages\" target= _blank>API Response Codes and Error Messages</a>."
+            },
+            "id": {
+              "type": "string",
+              "description": "The unique identifier of the error status code."
+            },
+            "params": {
+              "type": "array",
+              "description": "The parameters that were sent in the request body.",
+              "items": {
+                "type": "object"
+              }
+            },
+            "hostname": {
+              "type": "string",
+              "description": "The client server address or domain name."
+            }
+          }
+        },
+        "IamIdpIdToIamIdMapping": {
+          "required": [
+            "orgId"
+          ],
+          "properties": {
+            "deliveryTag": {
+              "type": "integer",
+              "description": "The message delivery identifier assigned by the messaging system or message broker (e.g., AMQP, RabbitMQ, or Authentication Service messaging pipeline) when delivering the sync event.",
+              "format": "int64"
+            },
+            "mappings": {
+              "type": "array",
+              "description": "A list of mapping objects representing the associations between the local ZPA identity providers and external Authentication Service or IAM identity providers.",
+              "items": {
+                "$ref": "#/components/schemas/Mapping"
+              }
+            },
+            "orgId": {
+              "type": "string",
+              "description": "The customer organization or tenant ID represented as a string."
+            },
+            "syncVersion": {
+              "type": "integer",
+              "description": "A monotonically increasing version number used for optimistic concurrency ocntrol and sync ordering between Authentication Service and ZPA.",
+              "format": "int64",
+              "writeOnly": true
+            }
+          }
+        },
+        "Mapping": {
+          "properties": {
+            "iamIdpId": {
+              "type": "string",
+              "description": "The unique identifier of the external IAM IdP."
+            },
+            "idpId": {
+              "type": "integer",
+              "format": "int64",
+              "description": "The ID of the IdP."
+            },
+            "idpName": {
+              "type": "string",
+              "description": "The name of the IdP."
+            }
+          }
+        }
+      }
+    }
+  }
+}

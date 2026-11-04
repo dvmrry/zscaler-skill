@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Private Cloud Controllers Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-private-cloud-controllers-using-api",
+    "node": "1531060",
+    "revision": "3144073",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on Private Cloud Controller use cases using APIs. All APIs are rate limited. To learn more, see About Private Cloud Controllers and Understanding Rate Limiting."
+    },
+    {
+      "heading": "Updating a Private Cloud Controller",
+      "level": 1
+    },
+    {
+      "text": "To update a Private Cloud Controller:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "privateCloudControllerId: The unique identifier of the Private Cloud Controller. To learn more, see Getting Details of All Private Cloud Controllers.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/289397352052031488/privateCloudController/289397352052032375?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the Private Cloud Controller.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the Private Cloud Controller.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\":\"<Private Cloud Controller name>\", \"description\":\"\", \"enabled\":true, \"id\":\"289397352052032375\" }",
+      "depth": 0
+    },
+    {
+      "text": "Refer to Adding Field Descriptions for supported fields and values."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the Private Cloud Controller is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Private Cloud Controllers",
+      "level": 1
+    },
+    {
+      "text": "To get details of all Private Cloud Controllers:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController?page={page}&pagesize={pagesize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pagesize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/289397352052031488/privateCloudController?page=1&pagesize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"86\", \"totalCount\": \"86\", \"list\": [ { \"modifiedTime\": \"1750655686\", \"creationTime\": \"1745475250\", \"modifiedBy\": \"72057594038834533\", \"id\": \"289397352052032268\", \"scopeName\": \"Default\", \"fingerprint\": \"CqQetS4iWtuGZIRo/4guF1HvRrXazhtnZo48TmdzT4w=\", \"issuedCertId\": \"2128\", \"enabled\": true, \"name\": \"ankur-bansal-dfa3a.gcplab.dev.zpath.net\", \"nonceId\": \"933\", \"nonceName\": \"ankur-pcc-key\", \"PrivateCloudControllerGroupId\": \"289397352052032169\", \"PrivateCloudControllerGroupName\": \"ankur-pcc-group\", \"signingCert\": { \"id\": \"2526\", \"name\": \"Root\" }, \"latitude\": \"12.9715987\", \"longitude\": \"77.5945627\", \"location\": \"Bengaluru, Karnataka, India\", \"siteSpDnsName\": \"bcpsp-289397352052032268.ddiltest-od.com\", \"expectedVersion\": \"25.44.6\", \"currentVersion\": \"25.47.0-ET-90082-notific-gd6aecbef90\", \"previousVersion\": \"25.46.0-ET-87495-extendi-g3b29a7200b\", \"lastUpgradeTime\": \"1752834531\", \"expectedUpgradeTime\": \"1752244842\", \"upgradeStatus\": \"FAILED\", \"controlChannelStatus\": \"ZPN_STATUS_DISCONNECTED\", \"upgradeAttempt\": \"3\", \"lastBrokerConnectTime\": \"1752834991\", \"lastBrokerConnectTimeDuration\": \"04d 19h 46m 45s\", \"lastBrokerDisconnectTime\": \"1752852335\", \"lastBrokerDisconnectTimeDuration\": \"04d 14h 57m 41s\", \"masterLastSyncTime\": \"1752850800\", \"userdbLastSyncTime\": \"1752834508\", \"shardLastSyncTime\": \"1752835046\", \"privateIp\": \"10.10.10.147\", \"publicIp\": \"34.168.195.122\", \"platform\": \"el9\", \"runtimeOS\": \"Red Hat Enterprise Linux 9.5\", \"applicationStartTime\": \"1752834806\", \"platformDetail\": \"GCP\", \"zpnSubModuleUpgradeList\": [ { \"id\": \"289397352052032269\", \"modifiedTime\": \"1745480246\", \"creationTime\": \"1745475309\", \"modifiedBy\": \"72057594037928167\", \"entityGid\": \"289397352052032268\", \"entityType\": \"SITE_CONTROLLER\", \"role\": \"MMDB_GEOIP\", \"currentVersion\": \"20221018\" }, { \"id\": \"289397352052032270\", \"modifiedTime\": \"1745480246\", \"creationTime\": \"1745475309\", \"modifiedBy\": \"72057594037928167\", \"entityGid\": \"289397352052032268\", \"entityType\": \"SITE_CONTROLLER\", \"role\": \"MMDB_ISP\", \"currentVersion\": \"20221018\" } ], \"sargeUpgradeStatus\": \"UNKNOWN\", \"osUpgradeStatus\": \"UNKNOWN\", \"platformVersion\": \"NA\", \"readOnly\": false, \"restrictedEntity\": false, \"zscalerManaged\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Private Cloud Controller",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular Private Cloud Controller:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "privateCloudControllerId: The unique identifier of the Private Cloud Controller. To learn more, see Getting Details of All Private Cloud Controllers.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/289397352052031488/privateCloudController/289397352052032375µtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"creationTime\": \"1752761344\", \"modifiedBy\": \"3\", \"id\": \"289397352052032375\", \"scopeName\": \"Default\", \"fingerprint\": \"Test__1223\", \"enabled\": true, \"name\": \"ankur-pcc-key-1752761344576\", \"nonceId\": \"933\", \"nonceName\": \"ankur-pcc-key\", \"privateCloudControllerGroupId\": \"289397352052032169\", \"privateCloudControllerGroupName\": \"ankur-pcc-group\", \"latitude\": \"12.9715987\", \"longitude\": \"77.5945627\", \"location\": \"Bengaluru, Karnataka, India\", \"siteSpDnsName\": \"bcpsp-289397352052032375.ddiltest-od.com\", \"upgradeAttempt\": \"0\", \"readOnly\": false, \"restrictedEntity\": false, \"zscalerManaged\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Restarting a Private Cloud Controller",
+      "level": 1
+    },
+    {
+      "text": "To restart a Private Cloud Controller:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}/restart?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "privateCloudControllerId: The unique identifier of the Private Cloud Controller. To learn more, see Getting Details of All Private Cloud Controllers.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/289397352052031488/privateCloudController/289397352052032268/restart?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "text": "A successful response returns code 204, meaning the Private Cloud Controller is restarted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Private Cloud Controller",
+      "level": 1
+    },
+    {
+      "text": "To delete a Private Cloud Controller:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/privateCloudController/{privateCloudControllerId}µtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "privateCloudControllerId: The unique identifier of the Private Cloud Controller. To learn more, see Getting Details of All Private Cloud Controllers.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/289397352052031488/privateCloudController/289397352052032377µtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the Private Cloud Controller is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the Private Cloud Controller use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "description",
+          "The description of the Private Cloud Controller",
+          "No",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether or not the Private Cloud Controller is enabled",
+          "No",
+          "Default: true Supported values: true, false"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "name",
+          "The name of the Private Cloud Controller",
+          "Yes",
+          "String"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer"
+        ],
+        [
+          "pagesize",
+          "Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+          "No",
+          "Integer"
+        ]
+      ]
+    }
+  ]
+}

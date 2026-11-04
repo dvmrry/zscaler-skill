@@ -1,0 +1,1046 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Zscaler Incident Receiver for Amazon Web Services EC2 VMs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-zscaler-incident-receiver-for-ec2",
+    "node": "1449896",
+    "revision": "3248520",
+    "updated": "2026-10-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Before you can use a Zscaler Incident Receiver, you must configure the VM image for the Incident Receiver on an Amazon Web Services (AWS) EC2 instance, an Azure VM, or an on-premises VM."
+    },
+    {
+      "text": "To learn more, see Configuring the Zscaler Incident Receiver for Azure VMs and Configuring the Zscaler Incident Receiver for On-Premises VMs."
+    },
+    {
+      "heading": "Deploying a Zscaler Incident Receiver VM on AWS",
+      "level": 1
+    },
+    {
+      "text": "To deploy a Zscaler Incident Receiver VM on AWS:"
+    },
+    {
+      "item": "1. Request the Zscaler Incident Receiver AMI from Zscaler Support.",
+      "depth": 0
+    },
+    {
+      "item": "Before you can configure your Incident Receiver with AWS, you must contact Zscaler Support and request the Zscaler Incident Receiver AMI for your shared AWS account and region. Zscaler Support then provides you with the shared AMI ID and description to use when launching the EC2 instance that hosts the Zscaler Incident Receiver VM. To learn more, refer to the AWS documentation.",
+      "depth": 0
+    },
+    {
+      "item": "2. Ensure you meet the prerequisites.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the Zscaler Incident Receiver on an EC2 instance on AWS, make sure the following prerequisites are met:",
+      "depth": 0
+    },
+    {
+      "item": "Access to one of the following types of storage servers where the Incident Receiver can store files:",
+      "depth": 1
+    },
+    {
+      "item": "An Amazon S3 storage bucket",
+      "depth": 2
+    },
+    {
+      "item": "An SFTP storage server",
+      "depth": 2
+    },
+    {
+      "item": "The Zscaler Incident Receiver Amazon Machine Image (AMI).",
+      "depth": 1
+    },
+    {
+      "item": "A minimum t2.large or t3.large EC2 instance type.",
+      "depth": 1
+    },
+    {
+      "item": "The AMI deployment includes minimum specifications for various settings (e.g., disk size and network interface). You can increase those specifications as needed.",
+      "depth": 0
+    },
+    {
+      "item": "RAM: 8GB",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) A static public IP address for the VM.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends using a static IP address to ensure that the IP address does not change when the VM is rebooted. Alternatively, you can associate the IP address with a FQDN and then use the FQDN when configuring the Incident Receiver in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "A security group configured on the EC2 instance to allow inbound ICAP messages from the FCC cloud to the correct TCP port on the Incident Receiver VM (e.g., port 1344).",
+      "depth": 1
+    },
+    {
+      "item": "A Zscaler Incident Receiver added in the Zscaler Admin Console. You need this configuration to complete the VM setup.",
+      "depth": 1
+    },
+    {
+      "item": "For Zscaler Incident Receiver to check your network connectivity and get access to and from your IP address, your firewalls must be enabled for the appropriate location. To understand the needed access requirements, see DLP Incident Receiver Connections.",
+      "depth": 1
+    },
+    {
+      "item": "You must allow a direct IP-based connection to the Zscaler Hub IPs so the Incident Receiver can connect to the IP directly. To learn more, see Zscaler Hub IP Addresses.",
+      "depth": 1
+    },
+    {
+      "item": "3. Create a security group to be used in the configuration of the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AWS Management Console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Click the Services icon. The Services navigation menu is displayed.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Go to Compute > EC2. The EC2 Management Console appears, displaying the EC2 Dashboard.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          25,
+          47
+        ],
+        [
+          72,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "Open a new tab and perform the following steps:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Browse to config.zscaler.com. The Zscaler Config page is displayed.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          34,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Select your organization's Zscaler cloud from the Cloud drop-down menu at the top left of the page.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Select DLP Incident Receiver in the left-side navigation, then click the Zscaler Hub IP Addresses link in the Source column of the table. The Hub IP Addresses page is displayed listing all of the outbound connections that need to be configured for the Zscaler Incident Receiver to communicate with the Zscaler cloud.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          73,
+          97
+        ],
+        [
+          110,
+          116
+        ],
+        [
+          142,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Copy IPs in the Required, Recommended, and Combined columns as needed so you can add them to the security group.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          22,
+          30
+        ],
+        [
+          32,
+          43
+        ],
+        [
+          49,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Return to the EC2 Management Console, and go to Network & Security > Security Groups. The Security Groups page is displayed.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          14,
+          36
+        ],
+        [
+          48,
+          85
+        ],
+        [
+          90,
+          105
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Security Groups page, click Create security group in the top right of the page. The Create security group page is displayed.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          35,
+          56
+        ],
+        [
+          91,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "On the Create security group page:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Basic details: Enter a name for the security group in the Security Group Name field.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          58,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Inbound rules: Add the incoming traffic IPs for the Zscaler Incident Receiver VM. Make sure that you add the IPs that you copied from the Zscaler Hub IP Addresses page earlier.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          146,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "Outbound Rules: Add the outgoing traffic IPs for the Zscaler Incident Receiver VM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Create security group.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, refer to the AWS documentation.",
+      "depth": 0
+    },
+    {
+      "item": "4. Set up storage for data from the Incident Receiver.",
+      "depth": 0
+    },
+    {
+      "item": "Because the Zscaler Incident Receiver does not store files locally, it requires either an S3 bucket or an SFTP server to store incident data.",
+      "depth": 0
+    },
+    {
+      "item": "S3 storage",
+      "depth": 1
+    },
+    {
+      "item": "To use an S3 bucket, you should configure the EC2 VM with an Identity and Access Management (IAM) role for the Incident Receiver EC2 instance so that the instance has list and write access (ListBucket and PutObject, respectively) to the S3 storage volume.",
+      "depth": 1
+    },
+    {
+      "item": "If you are using your Incident Receiver with Zscaler Workflow Automation, two separate S3 buckets are created for you during the creation of the CloudFormation stack in AWS. If you are not using your Incident Receiver with Zscaler Workflow Automation, you can use a single S3 bucket for data and JSON files, or you can use separate buckets. The following example uses separate S3 buckets.",
+      "depth": 1
+    },
+    {
+      "item": "To create an AWS IAM role and then associate it with your EC2 Incident Receiver VM:",
+      "depth": 1
+    },
+    {
+      "item": "From the EC2 instance, go to Actions > Security > Modify IAM role. The Modify IAM role page is displayed.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          29,
+          65
+        ],
+        [
+          71,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click Create new IAM role.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The IAM Management Console Roles page is displayed in a new tab.",
+      "depth": 2,
+      "strong": [
+        [
+          27,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Create role in the upper right of the page. The Select trusted entity page is displayed.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          54,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Select AWS service as the Trusted entity type, then select EC2 in the Common use cases section.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          26,
+          45
+        ],
+        [
+          59,
+          62
+        ],
+        [
+          70,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next. The Add permissions page is displayed.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Click Create policy in the upper right of the page. The Create policy page is displayed in a new tab.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          56,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Click the JSON tab, then paste the contents of one of the following sample JSON files to create a policy with list and write access to the S3 bucket, depending on whether or not you are using AWS KMS Keys.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          10,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "S3 Without Encryption",
+      "depth": 3
+    },
+    {
+      "item": "Download a sample JSON file for AWS S3 list and write access",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the sample JSON file, replace zirsvr-s3-data-bucket and zirsvr-s3-json-bucket with the names of your S3 data and JSON buckets, respectively. If you are not using your Incident Receiver with Zscaler Workflow Automation, you can use a single bucket for data and JSON files. The sample JSON file uses separate buckets but can be adjusted to remove the entry for the second bucket.",
+      "depth": 3
+    },
+    {
+      "item": "S3 with Customer Managed AWS KMS Keys",
+      "depth": 3
+    },
+    {
+      "item": "Download a sample JSON file for AWS S3 list and write access",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the sample JSON file, replace zirsvr-s3-data-bucket and zirsvr-s3-json-bucket with the names of your S3 data and JSON buckets, respectively. If you are not using your Incident Receiver with Zscaler Workflow Automation, you can use a single bucket for data and JSON files. The sample JSON file uses separate buckets but can be adjusted to remove the entry for the second bucket.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next: Tags. The Add tags page is displayed.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Specify any optional tags, then click Next: Review. The Review policy page is displayed.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          38,
+          50
+        ],
+        [
+          56,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Specify a name and optional description for the policy, review the permissions and tags, then click Create policy.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          100,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Return to the tab where the Add permissions page is displayed.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          28,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click the Refresh button next to the Create policy button, then select the policy you created from the list.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          37,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next. The Name, review, and create page is displayed.",
+      "depth": 2,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          16,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Specify a name and optional description for the role, review the permissions for the role, then click Create role.",
+      "depth": 2,
+      "number": 14,
+      "strong": [
+        [
+          102,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Return to the tab where the Modify IAM role page is displayed.",
+      "depth": 2,
+      "number": 15,
+      "strong": [
+        [
+          28,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click the button next to the drop-down menu to refresh the list, then select the IAM role you created from the drop-down menu.",
+      "depth": 2,
+      "number": 16
+    },
+    {
+      "item": "Click Update IAM role.",
+      "depth": 2,
+      "number": 17,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To learn more, refer to the AWS documentation.",
+      "depth": 1
+    },
+    {
+      "item": "SFTP storage",
+      "depth": 1
+    },
+    {
+      "item": "5. Launch an EC2 Instance for the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "6. Configure the Incident Receiver VM.",
+      "depth": 0
+    },
+    {
+      "item": "7. (Optional) Configure a load balancer for the Incident Receiver.",
+      "depth": 0
+    },
+    {
+      "heading": "Updating and Customizing a Deployed Zscaler Incident Receiver VM",
+      "level": 1
+    },
+    {
+      "text": "With your Incident Receiver VM running, you can update and customize the VM based on your organization's needs."
+    },
+    {
+      "item": "Update the Incident Receiver VM",
+      "depth": 0
+    },
+    {
+      "item": "Run the Incident Receiver VM in Explicit Proxy Mode",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require a proxy server configuration? enter y and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For proxyserver enter the IP address of your proxy server (e.g., proxy.zscaler.net) and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "For proxyport enter your proxy port number (e.g., 1344) and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "The VM then tests the connection and when this is successful, the configuration is complete.",
+      "depth": 0
+    },
+    {
+      "item": "To remove the explicit proxy configuration:",
+      "depth": 0
+    },
+    {
+      "item": "Enter the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr configure-proxy",
+      "depth": 0
+    },
+    {
+      "item": "For Do you require proxy server configuration? enter n and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "For Do you want to delete current proxy configuration? enter y and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "heading": "Requirements for Explicit Proxy Mode",
+      "level": 2
+    },
+    {
+      "item": "If you're using explicit proxy mode, DNS and NTP connections are not tunneled, meaning, you need an internal DNS server to run in this mode. The Zscaler Incident Receiver needs to have DNS resolution for the current Master CA IP, update server, and the NTP server. The Zscaler Incident Receiver host also needs to be able to query a DNS server to resolve the following:",
+      "depth": 0
+    },
+    {
+      "item": "smcacluster.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update1.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "update2.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "zdistribute.<cloudname>",
+      "depth": 1
+    },
+    {
+      "item": "The NTP server. By default, the VM has the following FQDNs for NTP servers configured:",
+      "depth": 1
+    },
+    {
+      "item": "0.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "1.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "2.freebsd.pool.ntp.org",
+      "depth": 2
+    },
+    {
+      "item": "You can override these FQDNs to your internal IP address in your DNS server configuration or using other methods.",
+      "depth": 0
+    },
+    {
+      "item": "In addition, since the proxy configuration doesn't allow authentication, you need to configure the proxy server to allow specific IP/MAC addresses without user and password authentication.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the Mutual Transport Layer Security (MTLS) method to support client authentication for the Zscaler Incident Receiver. MTLS is a method for mutual authentication. It ensures that parties at each end of the connection are who they claim to be. Zscaler provides the MTLS CA Certificate for the Zscaler Incident Receiver and you have the option to enable mutual authentication for the Zscaler Incident Receiver, which then uses this certificate for client authentication.",
+      "depth": 0
+    },
+    {
+      "item": "To run the Incident Receiver VM with mutual transport security enabled:",
+      "depth": 0
+    },
+    {
+      "item": "sudo zirsvr restart",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enable MTLS by updating the icap_mtls_enabled parameter to 1 (icap_mtls_enabled=1). By default, this parameter is disabled.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Zscaler Incident Receiver service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "You can configure the Zscaler Incident Receiver VM to allow multiple simultaneous SFTP connections if you notice that SFTP upload is slower than expected or if you notice that the Zscaler Incident Receiver internal queue is full. You can find the logs for the Incident Receiver internal queue at /sc/log/zirsvr.log. To configure this setting:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VM as user zsroot.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Specify the number of simultaneous SFTP connections by updating the storage_sftp_conn_max parameter to a value from 1-16 (e.g., storage_sftp_conn_max=2). This parameter has a value of 1 by default.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Enter the following command to restart the Zscaler Incident Receiver service:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "scp sudo zirsvr restart",
+      "depth": 0
+    },
+    {
+      "item": "Be sure to conduct thorough end-to-end testing before enabling this setting in your production environment.",
+      "depth": 1
+    },
+    {
+      "item": "If changing this setting does not solve the problem of the Zscaler Incident Receiver internal queue filling up, you may also need to increase the specifications on your SFTP server to ensure faster throughput, or you may need to configure multiple incident receivers with load balancing.",
+      "depth": 1
+    },
+    {
+      "item": "If you need assistance enabling this setting in your environment, contact Zscaler Support.",
+      "depth": 1
+    },
+    {
+      "item": "Run the Incident Receiver VM with Mutual Transport Security Enabled",
+      "depth": 0
+    },
+    {
+      "item": "Configuring the Zscaler Incident Receiver VM to Allow Multiple SFTP Connections",
+      "depth": 0
+    },
+    {
+      "item": "Upgrade SSH Key to ED25519",
+      "depth": 0
+    },
+    {
+      "item": "If your organization requires you to update your SSH key, upgrade to the ED25519 key. To upgrade:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr troubleshoot",
+      "depth": 1
+    },
+    {
+      "item": "If you see the following warning, you must update your SSH key:",
+      "depth": 1
+    },
+    {
+      "item": "Checking SFTP server connection External SFTP server is configured as ... SFTP server is setup correctly, connection, read, and write are all successful. However, disk quota is not checked. Warning: SFTP is configured with older key type \"rsa\", consider upgrading it to newer keytype \"ed25519\" using command \"sudo zirsvr update-sshkey\". If your SFTP server is a Windows based server, please read SFTP server's Admin Guide.",
+      "depth": 1
+    },
+    {
+      "item": "You can do a snapshot of your VM before executing the following command.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr update-sshkey",
+      "depth": 1
+    },
+    {
+      "item": "If the SSH key was migrated correctly:",
+      "depth": 1
+    },
+    {
+      "item": "It creates an SSH key with ED25519 to the file authorized_keys under the directory /home/zsroot/.ssh.",
+      "depth": 2
+    },
+    {
+      "item": "It adjusts the file /sc/conf/sc.conf to use the new ED25519 key.",
+      "depth": 2
+    },
+    {
+      "item": "On a Linux-based SFTP server, it uses a new public key.",
+      "depth": 2
+    },
+    {
+      "item": "If your SFTP server doesn't support ssh-copy-id, you receive a message that the operation was unsuccessful. To update the SSH public key with the new ED25519 key, contact Zscaler Support.",
+      "depth": 2
+    },
+    {
+      "item": "Install a New Server Certificate",
+      "depth": 0
+    },
+    {
+      "item": "If you receive an error for an expired certificate, you must install a new server certificate. To do so:",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command to verify your server certificate is expired:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "sudo zirsvr troubleshoot",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a certificate signing request:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "sudo zirsvr create-server-cert-csr",
+      "depth": 1
+    },
+    {
+      "item": "Send the certificate to a well-known CA for signing.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command to install the server certificate:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "sudo zirsvr install-server-cert",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to restart the Incident Receiver and update the server certificate:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sudo zirsvr restart",
+      "depth": 1
+    },
+    {
+      "heading": "Zscaler Incident Receiver Commands",
+      "level": 1
+    },
+    {
+      "text": "You can use the following commands to configure, update, and troubleshoot your VM."
+    },
+    {
+      "table": [
+        [
+          "Command",
+          "Description"
+        ],
+        [
+          "sudo zirsvr stop",
+          "Stops the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr start",
+          "Starts the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr update-now",
+          "Updates the Zscaler Incident Receiver service. The service must be stopped before you can run this command."
+        ],
+        [
+          "sudo zirsvr configure-s3",
+          "Updates the S3 bucket used by the Incident Receiver."
+        ],
+        [
+          "sudo zirsvr configure-sftp",
+          "Updates the SFTP server used by the Incident Receiver."
+        ],
+        [
+          "sudo zirsvr restart",
+          "Restarts the Zscaler Incident Receiver service."
+        ],
+        [
+          "sudo zirsvr status",
+          "Displays whether the Zscaler Incident Receiver service is running or stopped."
+        ],
+        [
+          "sudo zirsvr force-update-now",
+          "Forces the Zscaler Incident Receiver service to update to the latest version regardless of what version is on the VM. The service is automatically stopped before the update begins."
+        ],
+        [
+          "sudo zirsvr troubleshoot",
+          "Runs a series of checks to help troubleshoot issues, such as checking the installed certificate, the zcloud server configuration, all services, and whether or not an update is needed."
+        ],
+        [
+          "sudo zirsvr collect-diagnostics",
+          "Creates a file with diagnostic information to send to Zscaler Support for troubleshooting purposes."
+        ],
+        [
+          "sudo zirsvr configure-syslog-server",
+          "Configures external syslog server forwarding on the Zscaler Incident Receiver to forward file SFTP events and to log any critical changes to the configuration files monitored by the Incident Receiver. The external syslog server forwarding happens over UDP port 514, which cannot be modified."
+        ],
+        [
+          "sudo zirsvr create-server-cert-csr",
+          "Creates a new server certificate to be downloaded to the Incident Receiver."
+        ],
+        [
+          "sudo zadp install-config",
+          "Installs config file."
+        ],
+        [
+          "sudo zirsvr install-server-cert",
+          "Installs server certificates."
+        ],
+        [
+          "sudo zirsvr update-sshkey",
+          "Creates a new SSH key and updates Zscaler Incident Receiver to use the new SSH key as authentication."
+        ],
+        [
+          "sudo zadp show-prov-blob",
+          "Retrieves provisioning blob."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          7
+        ],
+        [
+          0,
+          1,
+          0,
+          11
+        ]
+      ]
+    }
+  ]
+}

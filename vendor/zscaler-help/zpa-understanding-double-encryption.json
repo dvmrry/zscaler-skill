@@ -1,0 +1,45 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Double Encryption",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/understanding-double-encryption",
+    "node": "1483871",
+    "revision": "3250493",
+    "updated": "2026-10-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "By default, traffic between Zscaler Client Connector and an App Connector is encrypted using TLS 1.2 tunnels between Zscaler Client Connector and the Public Service Edge or Private Service Edge for Private Access (ZPA), and between the App Connector and the Public Service Edge or Private Service Edge."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "However, standard Private Access application traffic is not encrypted by Zscaler as it transits the Public Service Edge or Private Service Edge in memory, and is never written to disk. Enabling double encryption when defining an application allows an organization to add an additional layer of encryption inside the outer TLS tunnels, so that traffic is encrypted in memory as it transits the Public Service Edge or Private Service Edge."
+    },
+    {
+      "text": "Double encryption is recommended only for sensitive data transmitted over unencrypted protocols (e.g., HTTP, FTP, telnet, etc.). You do not need double encryption for applications that leverage end-to-end encrypted protocols (e.g., HTTPS, SSH, RDP, etc.) because the content of that traffic is already protected by the protocol's encryption. Use of double encryption for end-to-end protocols is strongly discouraged, since you end up with three layers of encryption (outer TLS encryption, inner double encryption, native protocol encryption) which incurs unnecessary performance cost and can cause MTU issues."
+    },
+    {
+      "text": "Double encryption is associated with the data traffic over an App Connector. Because extranet doesn't use a traditional App Connector, double encryption is not supported for it."
+    },
+    {
+      "text": "To enable double encryption on relevant applications, the certificates used to sign the connector and client certificates must share a certificate authority (CA). The CA can be either the default CA that was created within Private Access at the provisioning time, or it can be a custom public key infrastructure (PKI) CA from the customer (i.e., the default-provisioned tenants can use double encryption simply by enabling it, as the certificates adhere to the requirements stated above). Double encryption fails if the certificate of a client and a certificate of an App Connector do not share a common root CA. To learn more, see About Enrollment (CA) Certificates."
+    },
+    {
+      "text": "Double encryption occurs at the FQDN level. If double encryption is enabled for an application segment containing a FQDN, then all application segments sharing that FQDN will have double encryption enabled. For example, if there is an application segment labeled app1.company.com TCP port 80 with double encryption turned on, then a different segment with the same FQDN (e.g., app1.company.com TCP port 22) will also have double encryption turned on."
+    },
+    {
+      "text": "When double encryption is enabled on a specific application segment, traffic for the application matching that application segment is encrypted using Zscaler Client Connector and App Connector certificates signed by the intermediate signing certificates. This encrypted traffic is sent to the Public Service Edges or Private Service Edges through TLS sessions that are initially set up between the Zscaler Client Connector and the App Connector. To learn more about enabling double encryption for an application segment, see Configuring Defined Application Segments."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If you enable double encryption, additional processing by the App Connector is required. Typically, this means the traffic counts double against the App Connector's capacity, versus standard Private Access traffic. For example, 100 Mbps of double encryption traffic has the same performance cost on the App Connector as 200 Mbps of standard application traffic. To learn more about App Connector sizing requirements and throughput, see App Connector Deployment Prerequisites."
+    }
+  ]
+}

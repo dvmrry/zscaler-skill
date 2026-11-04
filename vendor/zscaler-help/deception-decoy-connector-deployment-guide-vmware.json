@@ -1,0 +1,709 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Decoy Connector Deployment Guide for VMware Platforms",
+  "source": {
+    "url": "https://help.zscaler.com/deception/decoy-connector-deployment-guide-vmware",
+    "node": "1542247",
+    "revision": "3251948",
+    "updated": "2026-11-03",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy a Decoy Connector on a VMware platform with vSphere Hypervisor (ESXi) client, how to configure the management network, and how to connect the Decoy Connector to the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying a Decoy Connector, Zscaler strongly recommends reading the following information and making the necessary changes to your organization's environment, where applicable."
+    },
+    {
+      "item": "Ensure that you have a virtual machine (VM) with the following configurations:",
+      "depth": 0
+    },
+    {
+      "item": "2 CPU cores",
+      "depth": 1
+    },
+    {
+      "item": "4 GB RAM",
+      "depth": 1
+    },
+    {
+      "item": "50 GB disk storage. An SSD-backed storage is recommended.",
+      "depth": 1
+    },
+    {
+      "item": "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have the following details to configure the Decoy Connector management interface:",
+      "depth": 0
+    },
+    {
+      "item": "An IP address",
+      "depth": 1
+    },
+    {
+      "item": "The subnet mask",
+      "depth": 1
+    },
+    {
+      "item": "The default gateway",
+      "depth": 1
+    },
+    {
+      "item": "The DNS server details",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you have outbound access to TCP port 443 from the Decoy Connector management IP address to the following hosts:",
+      "depth": 0
+    },
+    {
+      "item": "Deception Admin Portal",
+      "depth": 1
+    },
+    {
+      "item": "Aggregator",
+      "depth": 1
+    },
+    {
+      "item": "ib.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "rs.smokescreen.io",
+      "depth": 1
+    },
+    {
+      "item": "If required, you can configure proxy for a Decoy Connector and pass the network connections through the proxy server. However, you must turn off all inspection features for the hosts in the preceding list and also ensure that the proxy provides unfiltered access to TCP port 443 for these destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that you have enabled the following options in a port or port group for a distributed virtual switch or standard switch:",
+      "depth": 0
+    },
+    {
+      "item": "Promiscuous mode or MAC Learning",
+      "depth": 1
+    },
+    {
+      "item": "Forged transmits",
+      "depth": 1
+    },
+    {
+      "item": "MAC address changes",
+      "depth": 1
+    },
+    {
+      "item": "VLAN Trunking",
+      "depth": 1
+    },
+    {
+      "item": "The VLAN Trunking setting is enabled only if you are deploying decoys on more than one VLAN.",
+      "depth": 1
+    },
+    {
+      "heading": "Deploying a Decoy Connector on VMware Platform",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to deploy a Decoy Connector on VMware platform:"
+    },
+    {
+      "item": "Step 1: Download the VM Image File from the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "Go to Settings > Topology > Decoy Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          25
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Download Image and select VMware to download the image (.ova) file.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Deploy a Decoy Connector on the VMware vSphere Hypervisor (ESXi)",
+      "depth": 0
+    },
+    {
+      "item": "To deploy a Decoy Connector on vSphere Hypervisor (ESXi):",
+      "depth": 0
+    },
+    {
+      "item": "a. Add a standard port group or a distributed port group.",
+      "depth": 1
+    },
+    {
+      "item": "To add a standard port group, create a new vSphere standard switch or use an existing standard switch.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor (ESXi) with the vSphere client.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Go to Networking > Port groups > Add port group.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          19,
+          30
+        ],
+        [
+          33,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Add port group window:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Name.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Enter a VLAN ID. If VLAN trunking is required, then enter 4095.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          8,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Select a standard switch from the Virtual switch drop-down menu.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          34,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Under Security, select Accept for the following options:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          23,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Promiscuous mode",
+      "depth": 5
+    },
+    {
+      "item": "MAC address changes",
+      "depth": 5
+    },
+    {
+      "item": "Forged transmits",
+      "depth": 5
+    },
+    {
+      "item": "Click Add.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "To add a distributed port group, create a new vSphere distributed switch, or use an existing distributed switch.",
+      "depth": 2
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor(ESXi) with the vSphere client.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Go to Menu > Networking and select the distributed switch.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          13,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Right-click the distributed switch and select New Distributed Port Group from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          46,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "In the New Distributed Port Group window:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Enter a name for the port group, and then click Next.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Configure the required distributed port group settings:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "For VLAN, select None. If VLAN trunking is required, then select Trunk.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          8
+        ],
+        [
+          17,
+          21
+        ],
+        [
+          65,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "For Advanced, select Customize default policies configuration, and then click Next.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          4,
+          12
+        ],
+        [
+          21,
+          61
+        ],
+        [
+          78,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Configure one of the required security settings:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "For Promiscuous mode settings, select Accept for the following security options, and then click Next:",
+      "depth": 5,
+      "strong": [
+        [
+          38,
+          44
+        ],
+        [
+          96,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "Promiscuous mode",
+      "depth": 6
+    },
+    {
+      "item": "MAC address changes",
+      "depth": 6
+    },
+    {
+      "item": "Forged transmits",
+      "depth": 6
+    },
+    {
+      "item": "For MAC Learning settings, select Enabled or Allow for the following security options, set the MAC Limit, and then click Next:",
+      "depth": 5,
+      "strong": [
+        [
+          34,
+          41
+        ],
+        [
+          45,
+          50
+        ],
+        [
+          95,
+          104
+        ],
+        [
+          121,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "Status",
+      "depth": 6
+    },
+    {
+      "item": "Allow unicast flooding",
+      "depth": 6
+    },
+    {
+      "item": "MAC limit policy",
+      "depth": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Review the distributed port group settings, and click Finish.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          54,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "b. Deploy a Decoy Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor (ESXi) with the vSphere client.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to Virtual Machines > Create/Register VM.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          25,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The New virtual machine wizard appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Select creation type page, select Deploy a virtual machine from an OVF or OVA file, and then click Next.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          41,
+          89
+        ],
+        [
+          106,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Select OVF and VMDK files page, enter a name for the VM.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Select the image file (.ova) that you downloaded in Step 1.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Select storage page, select a datastore to save the configuration and disk files. An SSD-backed datastore is recommended.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Deployment options page, configure the following options:",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In Network mappings:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          3,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For the management interface, select the port group which corresponds to the management IP of the VM.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "For the decoy interface, select the port group with Promiscious mode, MAC address changes, and Forged transmits options enabled.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          52,
+          68
+        ],
+        [
+          70,
+          89
+        ],
+        [
+          95,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "In Disk provisioning, select Thick.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          3,
+          20
+        ],
+        [
+          29,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Ready to complete page, review the settings, and then click Finish to deploy the Decoy Connector VM.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          67,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Step 3: Configure the Decoy Connector Management Network",
+      "depth": 0
+    },
+    {
+      "item": "After you deploy the Decoy Connector VM, you must configure the Decoy Connector management network.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Connect the Decoy Connector to the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "After the Decoy Connector management network is configured, you must add the Decoy Connector and connect it to the Deception Admin Portal.",
+      "depth": 0
+    }
+  ]
+}

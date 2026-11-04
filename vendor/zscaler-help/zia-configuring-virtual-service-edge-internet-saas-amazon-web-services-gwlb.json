@@ -1,0 +1,2555 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Amazon Web Services with GWLB",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-amazon-web-services-gwlb",
+    "node": "1467091",
+    "revision": "3249116",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Amazon Web Services (AWS) with Gateway Load Balancer (GWLB). An organization can deploy the Virtual Service Edge instance on an EC2 Instance, on AWS with GWLB."
+    },
+    {
+      "text": "Before you begin deployment, contact Zscaler Support to request a share of the Virtual Service Edge AMI. Provide your AWS account ID and AWS region in which you want the AMI, except for China, as the Virtual Service Edge AMI is unavailable in this region (alternatively, you can consider China Premium Internet Access for the China region). After deployment, the Virtual Service Edge virtual machine (VM) receives automatic software updates from the Zscaler cloud."
+    },
+    {
+      "item": "1. Ensure that you meet all the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy Virtual Service Edge on AWS, you need:",
+      "depth": 0
+    },
+    {
+      "item": "A subscription to Virtual Service Edge",
+      "depth": 1
+    },
+    {
+      "item": "A VM that meets the following:",
+      "depth": 1
+    },
+    {
+      "item": "Instance Memory: 64 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Scanning large files without adversely impacting performance requires 64 GB memory on the Virtual Service Edges. For existing deployments with less than 64 GB, see Scaling up Instance Memory to 64 GB.",
+      "depth": 2
+    },
+    {
+      "item": "The system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. Starting the Virtual Service Edges spawns the third AV process on each instance.",
+      "depth": 2
+    },
+    {
+      "item": "EBS Storage Volume Type: General Purpose SSD (recommended)",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Data disk size: 501 GB",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edge requires an Elastic Network Adapter (ENA)-enabled AWS EC2 instance.",
+      "depth": 1
+    },
+    {
+      "item": "The recommended AWS EC2 instance specifications are as follows:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Instance Size",
+          "Memory",
+          "Cores",
+          "Network Bandwidth",
+          "Instance Storage (GB)"
+        ],
+        [
+          "r7i.2xlarge",
+          "64 GB",
+          "8",
+          "Up to 12.5 Gbps",
+          "EBS-Only"
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edges also support the r8i.2xlarge instance type based on regional availability.",
+      "depth": 1
+    },
+    {
+      "item": "A key pair with a public key and a private key file. AWS stores the public key, and your organization stores the private key file.",
+      "depth": 1
+    },
+    {
+      "item": "A virtual private cloud (VPC) for your AWS account",
+      "depth": 1
+    },
+    {
+      "item": "A subnet consisting of a range of IP addresses in your VPC",
+      "depth": 1
+    },
+    {
+      "item": "A network with the following specifications",
+      "depth": 1
+    },
+    {
+      "item": "Two network interfaces",
+      "depth": 2
+    },
+    {
+      "item": "The first network interface is the management IP address. It's used to control connections to the Zscaler cloud and make an SSH connection to the Virtual Service Edge VM for configuration and management.",
+      "depth": 3
+    },
+    {
+      "item": "The second network interface is the service IP address. It's used to proxy the user traffic.",
+      "depth": 3
+    },
+    {
+      "item": "Two Elastic IP addresses, to assign a public IP address with both network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "The two elastic IP addresses are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth.",
+      "depth": 2
+    },
+    {
+      "item": "Firewall Requirements: It's mandatory to deploy the Virtual Service Edge instance behind a VM network security group. The Virtual Service Edge instance requires only outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud. To view the firewall requirements for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler cloud name>/zia-v-sedge.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the <Zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​",
+      "depth": 1
+    },
+    {
+      "item": "The IP ranges are necessary to ensure that the service isn't affected by future Zscaler cloud expansion.",
+      "depth": 1
+    },
+    {
+      "item": "To create a VM instance using the Virtual Service Edge Terraform modules method, you need the following in addition to the preceding requirements:",
+      "depth": 0
+    },
+    {
+      "item": "A valid AWS account with Administrator Access to deploy required resources",
+      "depth": 1
+    },
+    {
+      "item": "An AWS access key ID",
+      "depth": 1
+    },
+    {
+      "item": "An AWS Region (e.g., us-west-2) where you want to deploy the Virtual Service Edge resources",
+      "depth": 1
+    },
+    {
+      "item": "A subscription to AWS with the acceptance of the terms for using the Zscaler Virtual Service Edge image in the AWS marketplace",
+      "depth": 1
+    },
+    {
+      "item": "Terraform CLI installed on your device",
+      "depth": 1
+    },
+    {
+      "item": "2. Add a Virtual Service Edge instance.",
+      "depth": 0
+    },
+    {
+      "item": "3. Download Virtual Service Edge certificates.",
+      "depth": 0
+    },
+    {
+      "item": "4. Create the VM instance and validate the configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Create a VM instance using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edge Using AWS Console",
+      "depth": 1
+    },
+    {
+      "item": "To create a VM instance using the AWS console:",
+      "depth": 1
+    },
+    {
+      "item": "a. Provision and configure two EC2 instances on the AWS console",
+      "depth": 2
+    },
+    {
+      "item": "To launch a new EC2 instance with a Virtual Service Edge AMI using the AWS console, configure two network interfaces with Elastic IP addresses, and configure the required security group settings:",
+      "depth": 2
+    },
+    {
+      "item": "In the top-right corner of the screen, select the region in which you want to launch the instance.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Create a new security group.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Network & Security > Security Groups.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          53
+        ],
+        [
+          56,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Security Group and configure the following fields:",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Security Group Name: Enter the name of the security group. Associate this security group with the two network interfaces you create in the EC2 Instance Provisioning Wizard.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter additional notes or information, no longer than 255 characters.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Enter the VPC to which the security group belongs.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "In the Inbound rules section, click Add Rule and configure the following connection requirements:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          36,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select the type of inbound traffic.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically populated based on the type of inbound traffic you select.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port range: Enter the port range for the inbound rule. To view the port range for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler cloud name>/zia-v-sedge. You can find the <Zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge to view the port range. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Source: Select the source type for the inbound rule and enter the source IP address.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Description - optional: Enter additional notes or information.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Outbound rules section, click Add Rule and configure the following connection requirements:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select the type of outbound traffic.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: This field is automatically populated based on the type of outbound traffic selection.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port range: Enter the port range for the outbound rule. To view the port range for your specific account, go to the following URL: https://config.zscaler.com/<Zscaler cloud name>/zia-v-sedge. You can find the <Zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge to view the port range. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Select the destination type for the outbound rule and enter the destination IP address.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description - optional: Enter additional notes or information.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Create.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Launch and complete two new EC2 Instances.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Under Create Instance, click Launch Instance.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          29,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click the My AMIs tab.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          39,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, under Ownership, check the box Shared with me.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          44
+        ],
+        [
+          60,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Locate the most recent AMI shared with your account, and select the checkbox for that AMI.",
+      "depth": 4,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Choose the EC2 instance type recommended in the Zscaler Admin Console (i.e., r7i.2xlarge).",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          77,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "The EC2 instance type that Zscaler recommends depends on the expected number of transactions and users, and the most economical option for the customer. If you cannot select the recommended type, contact Zscaler Support for further guidance.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next: Configure Instance Details.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "From the Subnet drop-down menu, select the subnet in which the instance resides.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Under Network Interfaces, click Add Device to add another network interface. Be sure to select the same subnet that you selected in the preceding step.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          32,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "By default, the EC2 instance has one network interface (eth0), but Virtual Service Edge requires an additional interface (eth1) in the same subnet. The management interface (eth0) is used for control connections to the Zscaler cloud and to make an SSH connection to the Virtual Service Edge for configuration and management. The service interface (eth1) is used for proxy services.",
+      "depth": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next: Add Storage.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Choose the specifications recommended in the Zscaler Admin Console.",
+      "depth": 4,
+      "number": 11
+    },
+    {
+      "item": "General Purpose SSD is recommended as the volume type.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next: Add Tags, and add any necessary tags.",
+      "depth": 4,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Click Next: Configure Security Group.",
+      "depth": 4,
+      "number": 13,
+      "strong": [
+        [
+          6,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Select an existing security group, and choose the security group you created earlier. Under Source, change 0.0.0.0 to a specific IP address from which you want to enable access.",
+      "depth": 4,
+      "number": 14,
+      "strong": [
+        [
+          6,
+          39
+        ],
+        [
+          98,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Review and Launch to review your information.",
+      "depth": 4,
+      "number": 15,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Launch, and select a key pair.",
+      "depth": 4,
+      "number": 16,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Click Launch Instances. The Launch Status page tells you whether the launch was successful.",
+      "depth": 4,
+      "number": 17,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          28,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Be sure to repeat the preceding steps to launch a second EC2 instance.",
+      "depth": 3
+    },
+    {
+      "item": "Create and associate two Elastic IP addresses.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Network & Security > Network Interfaces.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          53
+        ],
+        [
+          56,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Note down the Network Interface IDs of the network interfaces you created in the previous step. You need one of the IDs when associating an Elastic IP to the network interfaces.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Go to Network & Security > Elastic IPs.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Allocate new address to allocate a new Elastic IP address.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Allocate. Repeat the preceding step and this step to have two Elastic IP addresses.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Right-click one of the Elastic IP addresses, and click Associate Address.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          55,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "On the Associate Address page:",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Resource Type: Select the Network Interface option.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          26,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Network interface: Choose one of the Network Interface IDs you noted earlier.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "You can choose to either fill in the Network interface field or the Private IP field.",
+      "depth": 4,
+      "strong": [
+        [
+          37,
+          54
+        ],
+        [
+          68,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Associate.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the last three steps for the other Elastic IP address.",
+      "depth": 3
+    },
+    {
+      "item": "b. Create a target group with the Virtual Service Edge service IP address.",
+      "depth": 2
+    },
+    {
+      "item": "To create a target group with the Virtual Service Edge's service IP address:",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to EC2 > Target Groups.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Create target group.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Choose the IP addresses target type.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Configure the following:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "Target Group Name: Enter a name for the target group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select GENEVE.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Port: Ensure that the port is set to 6081.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Select the Virtual Service Edge's VPC.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Health check protocol: Select TCP.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Advanced health check settings:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Health check port: Choose the Override option, and configure it to any unknown port (e.g., 50000).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          30,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Healthy threshold: Enter a healthy threshold as per your organization's requirement.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Unhealthy threshold: Enter an unhealthy threshold as per your organization's requirement.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Timeout: Enter time in seconds as per your organization's requirement, during which no response means a failed health check.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Interval: Enter time in seconds as per your organization's requirement, the time interval between health checks of an individual target.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Configure the following to register the targets:",
+      "depth": 3,
+      "number": 8
+    },
+    {
+      "item": "Network: Select the same network as the Virtual Service Edge's VPC network.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 addresses: Enter the service IP addresses of both the Virtual Service Edges.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "You can add more IP addresses by clicking Add IPv4 address.",
+      "depth": 4,
+      "strong": [
+        [
+          42,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Ports: Ensure that the port is set to 6081.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Include as pending below.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Review the targets.",
+      "depth": 3,
+      "number": 10
+    },
+    {
+      "item": "Click Create target group.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "c. Create a GWLB instance in load balancer (LB).",
+      "depth": 2
+    },
+    {
+      "item": "To create a GWLB in LB:",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to EC2 > Load balancers.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Compare and select load balancer type.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "For Gateway Load Balancer, click Create.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          4,
+          25
+        ],
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Create Gateway Load Balancer window:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Load balancer name: Enter a name for the LB.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Select the Virtual Service Edge's VPC.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Mappings: Select the Virtual Service Edge's Zone and Subnet.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          44,
+          48
+        ],
+        [
+          53,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "IP listener routing: Select the target group created in the preceding step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Review the summary.",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create Load Balancer.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "d. Create an endpoint service in VPC.",
+      "depth": 2
+    },
+    {
+      "item": "To create an endpoint service in VPC:",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to VPC > Endpoint services.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Click Create endpoint service.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "In the Create endpoint service window:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name - optional: Enter a name for the endpoint service.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Load balancer type: Select the Gateway type.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          31,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Available load balancers: Select the GWLB you created in the preceding step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Additional Settings section:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Require acceptance for endpoint: Select the Acceptance required checkbox.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          44,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Supported IP address types: Select the IPv4 checkbox.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The endpoint service is created.",
+      "depth": 3
+    },
+    {
+      "item": "e. Create an Endpoint in VPC.",
+      "depth": 2
+    },
+    {
+      "item": "To create an endpoint in VPC:",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to VPC > Endpoints.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Click Create endpoint.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Endpoint settings section:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Name - optional: Enter a name for the endpoint.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Service category: Select Other endpoint services category.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Service settings section, enter the service name of the endpoint service you created in the preceding step in the Service name field.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          121,
+          133
+        ]
+      ]
+    },
+    {
+      "item": "Click Verify service.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the VPC field, select the Virtual Service Edge's VPC.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Subnets section:",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Availability Zone: Select the Virtual Service Edge's zone.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Subnet ID: Choose the Virtual Service Edge's subnet ID.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Create Endpoint.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "The endpoint is created.",
+      "depth": 3
+    },
+    {
+      "item": "Go to VPC > Endpoint services.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Select the endpoint service created in the preceding step.",
+      "depth": 3,
+      "number": 11
+    },
+    {
+      "item": "Go to the Endpoint connections tab.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          10,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select the endpoint you created.",
+      "depth": 3,
+      "number": 13
+    },
+    {
+      "item": "In the Actions drop-down, select Accept endpoint connection request.",
+      "depth": 3,
+      "number": 14,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          33,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Virtual Service Edge Terraform Modules",
+      "depth": 1
+    },
+    {
+      "item": "To deploy your Virtual Service Edge using Terraform modules:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the AWS on GitHub repository.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Clone the repository to your system from where you want to deploy the Virtual Service Edges.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "In your system, navigate to the examples directory by entering cd ./terraform-aws-vzen-modules/examples/.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "5. Configure and start Virtual Service Edge on the VM instance.",
+      "depth": 0
+    },
+    {
+      "item": "The following Virtual Service Edge configuration steps are run through an SSH terminal connection.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge on the VM:",
+      "depth": 0
+    },
+    {
+      "item": "Configure the network.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Select the Virtual Service Edge VM and click either Power On or Power On the virtual machine.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          52,
+          60
+        ],
+        [
+          64,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "On the SSH terminal, enter the following credentials in the FreeBSD command prompt to log in:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "The following guidelines apply:",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler strongly recommends that you change this default password. Run the following command:",
+      "depth": 3
+    },
+    {
+      "item": "passwd",
+      "depth": 3
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 3
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "sudo vzen configure-network",
+      "depth": 2
+    },
+    {
+      "item": "Specify the following details:",
+      "depth": 2
+    },
+    {
+      "item": "Address of the DNS server that is used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic. For example: 10.84.0.100.",
+      "depth": 3
+    },
+    {
+      "item": "Hostname of the Virtual Service Edge.",
+      "depth": 3
+    },
+    {
+      "item": "The Virtual Service Edge management IP, gateway IP for management, and resolvers are obtained from DHCP.",
+      "depth": 2
+    },
+    {
+      "item": "This command does not allow you to modify the management IP and gateway IP.",
+      "depth": 2
+    },
+    {
+      "item": "Install the SSL certificate of the Virtual Service Edge instance. This is the certificate that you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses this certificate to authenticate itself to the Zscaler service. When you configure a Virtual Service Edge, ensure that you upload the correct certificate for the Virtual Service Edge instance.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "To install the SSL certificate of the Virtual Service Edge instance:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the SSL certificate that you saved.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use SCP or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "On the SSH terminal, log in with the following credentials:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen install-cert <cert-bundle.zip>",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you specify the absolute path to the SSL certificates (e.g., sudo vzen install-cert /tmp/cert-bundle.zip).",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) If you want to use an SNMP management system to monitor the Virtual Service Edge cluster, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 1
+    },
+    {
+      "item": "sudo vzen snmp-admin-configure",
+      "depth": 1
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1
+    },
+    {
+      "item": "The username for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries only from this username.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "An authentication protocol that the Virtual Service Edge uses to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "An encryption method that the Virtual Service Edge uses to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen snmp-trap-configure",
+      "depth": 2
+    },
+    {
+      "item": "When asked which traps you want to configure, specify v3 traps.",
+      "depth": 2
+    },
+    {
+      "item": "Specify the following information:",
+      "depth": 1
+    },
+    {
+      "item": "The IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The username for the SNMP management system.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "An authentication protocol that the Virtual Service Edge uses to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "An encryption method that the Virtual Service Edge uses to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command to download the Virtual Service Edge build:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen download-build",
+      "depth": 2
+    },
+    {
+      "item": "The initial build is around 1 GB, so it may take a while depending on your internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the configuration.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "sudo vzen status",
+      "depth": 2
+    },
+    {
+      "item": "The output should display that the Virtual Service Edge service is running.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "sudo vzen troubleshoot connection | grep 9422",
+      "depth": 2
+    },
+    {
+      "item": "The output should display an established connection.",
+      "depth": 2
+    },
+    {
+      "item": "6. Add the service port to both the Virtual Service Edges on the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "To add a service port to both the Virtual Service Edges:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the /sc/sme/conf folder:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "cd /sc/sme/conf",
+      "depth": 1
+    },
+    {
+      "item": "Create a new file called vzen_custom.conf:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "touch vzen_custom.conf",
+      "depth": 1
+    },
+    {
+      "item": "This step is not necessary if the vzen_custom.conf file is already there.",
+      "depth": 1
+    },
+    {
+      "item": "Edit vzen_custom.conf:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "vi vzen_custom.conf",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following port in the vzen_custom.conf file and save:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "[SME] serv_port=<Health check port configured> [-end-of-SME-]",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you specify the correct health check port (e.g., 5000) configured when creating a target group.",
+      "depth": 1
+    },
+    {
+      "item": "Restart the Virtual Service Edges:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "sudo vzen restart",
+      "depth": 1
+    },
+    {
+      "item": "Check the health status of the target groups created (EC2 > Target Groups).",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Ensure that the status of the target groups is healthy.",
+      "depth": 1
+    },
+    {
+      "item": "Forward your organization's traffic to GWLB.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "heading": "AWS Deployment Templates",
+      "level": 1
+    },
+    {
+      "text": "Use the templates in the Terraform repository to create the deployment resources required to deploy and operate a Virtual Service Edge in a new or existing virtual private cloud (VPC)."
+    },
+    {
+      "item": "Virtual Service Edge Cluster Deployment Template",
+      "depth": 0
+    },
+    {
+      "item": "Use the Deployment Template (vzen_with_gwlb) to deploy a cluster Virtual Service Edge setup. The template creates the following resources:",
+      "depth": 0
+    },
+    {
+      "item": "aws_vpc.vpc",
+      "depth": 1
+    },
+    {
+      "item": "aws_internet_gateway.igw",
+      "depth": 1
+    },
+    {
+      "item": "aws_subnet.vzen_subnet",
+      "depth": 1
+    },
+    {
+      "item": "aws_route_table.vzen_rt",
+      "depth": 1
+    },
+    {
+      "item": "aws_route_table_association.vzen_rt_asssociation",
+      "depth": 1
+    },
+    {
+      "item": "aws_instance.vzen_vm",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_vzens",
+      "depth": 1
+    },
+    {
+      "item": "aws_network_interface.vzen_vm_nic_index_0",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_management_nics",
+      "depth": 1
+    },
+    {
+      "item": "aws_eip.eip_management_interface",
+      "depth": 1
+    },
+    {
+      "item": "aws_network_interface.vzen_vm_nic_index_1",
+      "depth": 1
+    },
+    {
+      "item": "null_resource.wait_for_service_nics",
+      "depth": 1
+    },
+    {
+      "item": "aws_eip.eip_service_interface",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy_document.instance_assume_role_policy",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy_document.vzen_session_manager_policy_document",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_policy.vzen_session_manager_policy",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_role_policy_attachment.vzen_session_manager_attachment",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_role.vzen_node_iam_role",
+      "depth": 1
+    },
+    {
+      "item": "aws_iam_instance_profile.vzen_host_profile",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.vzen_mgmt_sg",
+      "depth": 1
+    },
+    {
+      "item": "aws_vpc_security_group_egress_rule.egress_vzen_management",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.ssh",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.vzen_service_sg",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.egress_vzen_service",
+      "depth": 1
+    },
+    {
+      "item": "aws_security_group.ingress_vzen_service_all",
+      "depth": 1
+    },
+    {
+      "item": "aws_lb.gwlb",
+      "depth": 1
+    },
+    {
+      "item": "aws_lb_listener.gwlb_listener",
+      "depth": 1
+    },
+    {
+      "item": "aws_lb_target_group.gwlb_target_group",
+      "depth": 1
+    },
+    {
+      "item": "aws_lb_target_group_attachment.gwlb_target_group_attachment",
+      "depth": 1
+    },
+    {
+      "item": "aws_vpc_endpoint_service.gwlb_vpce_service",
+      "depth": 1
+    },
+    {
+      "item": "aws_vpc_endpoint.gwlb_vpce",
+      "depth": 1
+    },
+    {
+      "item": "See resource Logs",
+      "depth": 0
+    },
+    {
+      "item": "local_file.private_key tls_private_key.key module.network.aws_vpc.vpc module.network.aws_internet_gateway.igw module.network.aws_subnet.vzen_subnet module.network.aws_route_table.vzen_rt module.network.aws_route_table_association.vzen_rt_asssociation module.vzen_vm.aws_instance.vzen_vm module.vzen_vm.null_resource.wait_for_vzens module.vzen_vm.aws_network_interface.vzen_vm_nic_index_0 module.vzen_vm.null_resource.wait_for_management_nics module.vzen_vm.aws_eip.eip_management_interface module.vzen_vm.aws_network_interface.vzen_vm_nic_index_1 module.vzen_vm.null_resource.wait_for_service_nics module.vzen_vm.aws_eip.eip_service_interface module.vzen_iam.aws_iam_policy_document.instance_assume_role_policy module.vzen_iam.aws_iam_policy_document.vzen_session_manager_policy_document module.vzen_iam.aws_iam_policy.vzen_session_manager_policy module.vzen_iam.aws_iam_role_policy_attachment.vzen_session_manager_attachment module.vzen_iam.aws_iam_role.vzen_node_iam_role module.vzen_iam.aws_iam_instance_profile.vzen_host_profile module_vzen_sg.aws_security_group.ssh module_vzen_sg.aws_security_group.vzen_service_sg module_vzen_sg.aws_security_group.egress_vzen_service module_vzen_sg.aws_security_group.ingress_vzen_service_all module_gwlb.aws_lb.gwlb module_gwlb.aws_lb_listener.gwlb_listener module_gwlb.aws_lb_target_group.gwlb_target_group module_gwlb.aws_lb_target_group_attachment.gwlb_target_group_attachment module_gwlb_endpoint.aws_vpc_endpoint_service.gwlb_vpce_service module_gwlb_endpoint.aws_vpc_endpoint.gwlb_vpce",
+      "depth": 0
+    },
+    {
+      "heading": "Testing Traffic",
+      "level": 1
+    },
+    {
+      "text": "To test the traffic:"
+    },
+    {
+      "item": "Add a route to the endpoint.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Create a route table in the same VPC and subnet where you created the EC2 instance (client machine):",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to VPC > Route Tables.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Click Create route table.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Create route table window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Name - optional: Enter a name for the route table.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "VPC: Enter the same VPC used to create the EC2 instance.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Click Create route table.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Add a route to the route table:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Click Edit routes.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Add route, and do the following:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Enter the required destination subnet or enter 0.0.0.0/0 to send all traffic.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target: Enter the Endpoint ID of the Endpoint created in VPC.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Click Save Changes.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Associate the route table to the subnet where we created the EC2 instance:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to VPC > Subnets.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          38
+        ],
+        [
+          41,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Select the subnet where we created the EC2 instance.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Click Edit route table association.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "In the Route table ID field, enter the route table ID of the route table created in the preceding step.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Send the traffic from the EC2 Instance.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "From the navigation menu, go to Data Explorer > Internet & SaaS > Web Insights > Logs, and retrieve the logs for the last 15 minutes to verify logs for test traffic are present.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          63
+        ],
+        [
+          66,
+          78
+        ],
+        [
+          81,
+          85
+        ]
+      ]
+    },
+    {
+      "text": "After you have verified your deployment, if you face any issues with Virtual Service Edge, you can troubleshoot Virtual Service Edge."
+    },
+    {
+      "heading": "Scaling up Instance Memory to 64 GB",
+      "level": 1
+    },
+    {
+      "text": "Scaling up instance memory impacts the traffic through Virtual Service Edges. So, you must ensure to scale the instance memory during a maintenance window."
+    },
+    {
+      "text": "To scale up the instance memory of your Virtual Service Edges:"
+    },
+    {
+      "item": "Go to the Amazon EC2 console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Click Instances (running) and select the Virtual Service Edge instance for which you want to scale up the instance memory.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "The instance summary for the selected instance appears.",
+      "depth": 0
+    },
+    {
+      "item": "From the Instance state menu, select Stop instance.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          37,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the Stop instance window, click Stop.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          35,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge instance might take up to 5 minutes to stop. The instance state appears as Stopped after the instance is stopped.",
+      "depth": 0,
+      "strong": [
+        [
+          100,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "After the Virtual Service Edge instance is stopped, go to Actions > Instance settings > Change instance type.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          58,
+          65
+        ],
+        [
+          68,
+          85
+        ],
+        [
+          88,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select r7i.2xlarge and click Change Instance Type.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the Instance state menu, select Start instance.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          9,
+          23
+        ],
+        [
+          37,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Virtual Service Edge instance might take up to 5 minutes to be SSHable again.",
+      "depth": 0
+    }
+  ]
+}

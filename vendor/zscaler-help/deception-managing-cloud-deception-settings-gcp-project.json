@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Cloud Deception Settings for a GCP Project",
+  "source": {
+    "url": "https://help.zscaler.com/deception/managing-cloud-deception-settings-gcp-project",
+    "node": "1542593",
+    "revision": "3221517",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can edit or delete Cloud Deception settings configured for your Google Cloud Deception (GCP) projects from the Zscaler Deception Admin Portal."
+    },
+    {
+      "heading": "Editing a GCP Project",
+      "level": 1
+    },
+    {
+      "text": "Depending on whether the configurations are already propagated to GCP, editing a GCP project is either a single-step process (if the changes were never propagated to GCP) or a two-step process (if the changes were propagated at least once)."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate editing in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > GCP > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Locate the project that you want to edit, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          56,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The GCP Project Setting drawer appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the GCP Project Setting drawer, select Enabled to modify the status of Cloud Deception for the GCP project.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          42,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: In the GCP Cloud",
+      "depth": 0
+    },
+    {
+      "item": "To complete editing in the GCP cloud:",
+      "depth": 0
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the GCP project you added, and click the Download icon in the Actions column.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 1
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the gcp-decoys.tf.json file in a text editor.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the gxp-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of Google Cloud Storage bucket-based Terraform back end:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"gcs\": { \"bucket\": \"your-terraform-state-bucket\", \"prefix\": \"deception/terraform\" } } } }",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same GCP project.",
+      "depth": 1
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and set the user agent for Terraform:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a new workspace:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "terraform apply",
+      "depth": 1
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to export the state file as JSON:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "terraform output -json gcp_terraform_output > deployment-output.json",
+      "depth": 1
+    },
+    {
+      "item": "The JSON file containing the details of the state is downloaded.",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings, locate the GCP project you added, and click the Upload icon in the Actions column.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "heading": "Deleting a GCP Project",
+      "level": 1
+    },
+    {
+      "text": "Depending on whether the configurations are already propagated to GCP, deleting a GCP project is either a single-step process (if the changes were never propagated to GCP) or a two-step process (if the changes were propagated at least once)."
+    },
+    {
+      "text": "You can delete GCP deception settings only if no GCP decoys are deployed. If you have already deployed GCP decoys, you must delete all decoys and complete the deletion in the GCP cloud first before deleting the settings."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate deletion in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > GCP > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Locate the project that you want to delete, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          58,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "All decoys are marked for deletion, and the configuration is disabled in the Deception Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "If you have never run the Terraform commands, then the deletion process is completed with this step. If you have already used either of them to sync the settings or deploy decoys, then proceed to the next step to complete the deletion process.",
+      "depth": 0
+    },
+    {
+      "item": "Step 2: In the GCP Cloud",
+      "depth": 0
+    },
+    {
+      "item": "To complete deletion in the GCP cloud:",
+      "depth": 0
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the GCP project you added, and click the Download icon in the Actions column.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 1
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the gcp-decoys.tf.json file in a text editor.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the gcp-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of Google Cloud Storage bucket-based Terraform back end:",
+      "depth": 1
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"gcs\": { \"bucket\": \"your-terraform-state-bucket\", \"prefix\": \"deception/terraform\" } } } }",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same GCP project.",
+      "depth": 1
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and set the user agent for Terraform:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "export TF_APPEND_USER_AGENT=\"<value_from_ui>\"",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to create a new workspace:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "terraform apply",
+      "depth": 1
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "The necessary resources are selected.",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to export the state file as JSON:",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "terraform output -json gcp_terraform_output > deployment-output.json",
+      "depth": 1
+    },
+    {
+      "item": "The JSON file containing the details of the state is downloaded.",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - GCP page, go to Settings, locate the GCP project you added, and click the Upload icon in the Actions column.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 1,
+      "number": 12
+    }
+  ]
+}

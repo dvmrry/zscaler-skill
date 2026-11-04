@@ -1,0 +1,1120 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Zero Trust Branch as a Virtual Machine on VMware ESXi",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/deploying-zero-trust-branch-virtual-machine-vmware-esxi",
+    "node": "1533836",
+    "revision": "3250444",
+    "updated": "2026-10-28",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch supports deployment as either a hardware appliance or a virtual machine (VM), allowing you to choose the model that best fits your branch environments."
+    },
+    {
+      "text": "This article explains how to deploy Zero Trust Branch as a VM on VMware ESXi."
+    },
+    {
+      "text": "See typical topology"
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before deploying a Zero Trust Branch VM on VMware ESXi, ensure that:"
+    },
+    {
+      "item": "Hardware requirements are met.",
+      "depth": 0
+    },
+    {
+      "item": "See hardware requirements",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Specifications",
+          "Option 1",
+          "Option 2"
+        ],
+        [
+          "CPU",
+          "4 vCPU",
+          "8 vCPU"
+        ],
+        [
+          "Memory",
+          "16 GB",
+          "32 GB"
+        ],
+        [
+          "Storage",
+          "256 GB",
+          "256 GB"
+        ],
+        [
+          "Ports",
+          "4 x vNICs (VMXNET3 recommended)",
+          "8 x vNICs (VMXNET3 recommended)"
+        ],
+        [
+          "Throughput (Unencrypted LAN-to-LAN or LAN-to-WAN flows)",
+          "10 Gbps",
+          "20 Gbps"
+        ],
+        [
+          "Sessions",
+          "500K",
+          "1 Million"
+        ],
+        [
+          "Number of Endpoints",
+          "500",
+          "1,000"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          3
+        ],
+        [
+          2,
+          0,
+          0,
+          6
+        ],
+        [
+          3,
+          0,
+          0,
+          7
+        ],
+        [
+          4,
+          0,
+          0,
+          5
+        ],
+        [
+          5,
+          0,
+          0,
+          55
+        ],
+        [
+          6,
+          0,
+          0,
+          8
+        ],
+        [
+          7,
+          0,
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "The Zero Trust Branch ISO image is obtained from the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Templates and interfaces to be used are determined.",
+      "depth": 0
+    },
+    {
+      "item": "See Zero Trust Branch VM port mapping",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Port",
+          "Description",
+          "Role"
+        ],
+        [
+          "1",
+          "ge1",
+          "LAN"
+        ],
+        [
+          "2",
+          "ge2",
+          "WAN"
+        ],
+        [
+          "3",
+          "ge3",
+          "Management"
+        ],
+        [
+          "4",
+          "ge4",
+          "LAN"
+        ],
+        [
+          "5",
+          "ge5",
+          "LAN"
+        ],
+        [
+          "6",
+          "ge6",
+          "LAN"
+        ],
+        [
+          "7",
+          "ge7",
+          "WAN"
+        ],
+        [
+          "8",
+          "ge8",
+          "WAN"
+        ]
+      ]
+    },
+    {
+      "item": "The necessary ports are open on the Zero Trust Branch VM.",
+      "depth": 0
+    },
+    {
+      "item": "See port access requirements",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Port with Protocol",
+          "Access Type",
+          "Host or URL",
+          "Description"
+        ],
+        [
+          "TCP 443",
+          "Outbound",
+          "gwactivation.goairgap.com",
+          "This port is used for appliance activation. This is a mandatory requirement."
+        ],
+        [
+          "TCP 80",
+          "Outbound",
+          "a24c1b36b6f9f1f88.awsglobalaccelerator.com",
+          "This port is required for improved Zscaler Admin Console performance."
+        ],
+        [
+          "UDP 443",
+          "Inbound",
+          "Public-routable IP address of the spoke appliance used for tunnel establishment",
+          "This port is required for Routed Tunnels if Zero Trust Branch appliances are deployed in the Hub-and-Spoke model."
+        ],
+        [
+          "UDP 500 UDP 4500 ESP - IP Protocol 50",
+          "Outbound",
+          "pac.zscaler.net gateway.zscaler.net One of the following hosts depending on your Internet & SaaS (ZIA) cloud: config.zscaler.com/zscaler.net/cenr config.zscaler.com/zscalertwo.net/cenr",
+          "This port is required if the Zero Trust Branch appliance must connect to Internet & SaaS."
+        ],
+        [
+          "TCP 443",
+          "Outbound",
+          "config.zscaler.com/private.zscaler.com/zpa prod.zpath.net private.zscaler.com",
+          "This port is required if the Zero Trust Branch appliance must connect to Private Access (ZPA)."
+        ],
+        [
+          "TCP 443",
+          "Outbound",
+          "dl.cloudsmith.io",
+          "This port is required for software upgrades. This is a mandatory requirement."
+        ],
+        [
+          "TCP 1883",
+          "Outbound",
+          "hub3.goairgap.com",
+          "This port is required for management-plane communication. This is a mandatory requirement."
+        ],
+        [
+          "TCP 443",
+          "Outbound",
+          "gateway.<cloud>.net",
+          "This port is required for WAN monitoring. This is a mandatory requirement."
+        ],
+        [
+          "UDP 51820",
+          "Outbound",
+          "wg.goairgap.com",
+          "This port is required for remote debugging. This is a mandatory requirement."
+        ],
+        [
+          "UDP 53",
+          "Outbound",
+          "IP address of DNS service",
+          "This port is required if the Zero Trust Branch appliances must use specific DNS servers for name resolution."
+        ],
+        [
+          "UDP 123",
+          "Outbound",
+          "0.pool.ntp.org 1.pool.ntp.org 2.pool.ntp.org 3.pool.ntp.org",
+          "This port is required if the Zero Trust Branch appliance must use specific NTP servers for time synchronization."
+        ]
+      ]
+    },
+    {
+      "heading": "Deploying a Zero Trust Branch VM on VMware ESXi",
+      "level": 1
+    },
+    {
+      "text": "Follow these steps to deploy Zero Trust Branch VM gateway on VMware ESXi:"
+    },
+    {
+      "item": "1. Create LAN and WAN port groups in VMware ESXi.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the VMware Host Client.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to Networking > Port groups.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          19,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "To create a LAN port group, click Add port group.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          34,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add port group window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the LAN port group.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "VLAN ID: Enter 4095 as the LAN port group must be a trunk port group. This allows support for many VLANs for the network adapter and Zero Trust Branch VM handles the tagging.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Click Security and select Accept for the following options:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          26,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Promiscuous mode",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "MAC address changes",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Forged transmits",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The LAN port group is created.",
+      "depth": 1
+    },
+    {
+      "item": "To create a WAN port group, click Add port group.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          34,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the Add port group window:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the WAN port group.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "VLAN ID: Enter a VLAN ID (value between 0 and 4094) as the WAN port group must be an access port group. This ensures only one VLAN for the network adapter and ESXi handles the tagging.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The WAN port group is created.",
+      "depth": 1
+    },
+    {
+      "item": "2. Launch the Zero Trust Branch VM gateway in VMware ESXi.",
+      "depth": 0
+    },
+    {
+      "item": "In the VMware Host Client, go to Virtual Machines.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          33,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Virtual Machines panel, click Create / Register VM.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          37,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the New virtual machine wizard:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Select creation type step:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select Create a new virtual machine.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Select a name and guest OS step:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the Zero Trust Branch VM.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Compatibility: Select ESXi 6.7 virtual machine from the drop-down menu.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Guest OS family: Select Linux from the drop-down menu.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Guest OS version: Select Ubuntu Linux (64-bit) from the drop-down menu.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Select storage step:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select the Standard storage type, and select a datastore.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Customize settings step:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Virtual Hardware tab:",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "CPU: Select the number of CPUs from the drop-down menu. Zscaler recommends a minimum of 4 CPUs.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Memory: Enter the RAM size in GB. Zscaler recommends a minimum of 16 GB.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Hard Disk 1: Enter the storage size in GB. Zscaler recommends a minimum of 256 GB.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Network Adapter 1: Select the LAN port group from the drop-down menu, and ensure that the Connect option is selected.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          90,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Network Adapter. The New Network Adapter field is added.",
+      "depth": 4,
+      "strong": [
+        [
+          6,
+          25
+        ],
+        [
+          31,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "New Network Adapter: Select the WAN port group from the drop-down menu, and ensure that the Connect option is selected.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          92,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "CD/DVD Drive 1: Select Datastore ISO file and upload the Zero Trust Branch ISO file obtained from Zscaler Support.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          36
+        ],
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the VM Options tab, go to Boot Options and select EFI from the drop-down menu as the firmware.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          29,
+          41
+        ],
+        [
+          53,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Ready to complete step:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Review the configurations.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Zero Trust Branch VM is created in VMware ESXi.",
+      "depth": 1
+    },
+    {
+      "item": "On the Virtual Machines panel, select the Zero Trust Branch VM, and click Power on.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          74,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Zero Trust Branch VM is launched in VMware ESXi.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Zero Trust Branch VM using the default credentials (enter admin as the username and a!rg@p as the password).",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "The Zero Trust Branch VM is running in VMware ESXi and is ready for registration.",
+      "depth": 1
+    },
+    {
+      "item": "In the terminal, enter the numerical value corresponding to the Change Password option and press Enter.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          64,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "In the Change password configuration, enter the current password and new password of your choice, and then retype the new password when prompted.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "The default password for the Zero Trust Branch VM terminal is updated.",
+      "depth": 1
+    },
+    {
+      "item": "3. Add a site in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "4. Associate the site and activate the Zero Trust Branch VM gateway.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Zero Trust Branch VM instance on VMware ESXi.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the terminal, enter the numerical value corresponding to the Configure Gateway option and press Enter.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          64,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Airgap Gateway Configuration, enter the numerical value corresponding to the Configure Network option and press Enter.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          84,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Configure the following network details when prompted:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "LAN interface: Enter the LAN interface value.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "WAN interface: Enter the WAN interface value.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "WAN Nameservers: Enter the IP addresses of nameservers.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "WAN IP Prefix: Enter the WAN IP address in CIDR notation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "WAN Default Gateway IP Address: Enter the IP address of the default WAN gateway",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "WAN Virtual IP Address: Enter the virtual IP address for the WAN.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Review and apply the configuration.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Press Enter.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "In the terminal, enter the numerical value corresponding to the Activate Gateway option and press Enter.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          64,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Airgap Gateway Configuration, enter the numerical value corresponding to the Activate Airgap Gateway option and press Enter.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          35
+        ],
+        [
+          84,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the activation code copied from the Zscaler Admin Console while adding the site, and press Enter.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Zero Trust Branch VM is activated.",
+      "depth": 1
+    },
+    {
+      "item": "After the activation, the Zero Trust Branch VM gateway runs the necessary scripts in the background. This process takes a few minutes and during this period, the State column for the site in the Zscaler Admin Console shows Post Update. Finally, when the background processes are completed, the State column is updated to Standalone and the Zero Trust Branch VM terminal shows the site name.",
+      "depth": 0,
+      "strong": [
+        [
+          162,
+          167
+        ],
+        [
+          223,
+          234
+        ],
+        [
+          294,
+          299
+        ],
+        [
+          321,
+          331
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "5. Configure a VLAN.",
+      "depth": 0
+    }
+  ]
+}

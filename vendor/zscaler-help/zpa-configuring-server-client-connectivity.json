@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Server-to-Client Connectivity",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-server-client-connectivity",
+    "node": "1485586",
+    "revision": "3194199",
+    "updated": "2026-04-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Server-to-client connectivity allows an admin to connect to an end user's device to troubleshoot, provide remote assistance, or push software updates. To use this in Private Access (ZPA), complete the following steps."
+    },
+    {
+      "text": "To enable server-to-client connectivity:"
+    },
+    {
+      "item": "Deploy a Zscaler Cloud Connector or Branch Connector. To learn more, see Zscaler Cloud & Branch Connector Help.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "Check with your Zscaler Account team to confirm your license for Cloud Connector or Branch Connector."
+    },
+    {
+      "item": "If you are deploying Branch or Cloud Connector specifically for server-to-client connectivity through an FQDN, Zscaler recommends you configure conditional DNS forwarding so only the DNS requests from the applications requiring server-to-client connections are forwarded to the Branch or Cloud Connector. To learn more, see Zscaler Cloud and Branch Connector Help.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If you are using Zscaler IP-based connectivity, point the IP gateway from those servers to the Branch or Cloud Connector's service IP.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "For Windows devices, enter the following command and check that it is applied using the route print command:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "text": "route add 0.0.0.0 mask 0.0.0.0 <Branch or Cloud Connector service IP address> metric 30 if 2"
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "route add 0.0.0.0 mask 0.0.0.0 10.66.36.132 metric 30 if 2"
+    },
+    {
+      "item": "For Linux devices, enter the following command and check that it is applied using the route -n command:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "sudo route add default gw <Branch or Cloud Connector Service IP address>"
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "sudo route add default gw 10.66.36.132"
+    },
+    {
+      "item": "Ensure the destination device is running versions Zscaler Client Connector 4.2 for Windows or later. Private Access must be enabled and turned on, with a user logged in, on the destination machine. To learn more, see Configuring an App Update in the Zscaler Client Connector App Store.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Configure and validate a client hostname to enroll endpoints and accept the incoming connections.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "If you are using Zscaler IP-based connectivity, create a virtual IP range that is assigned to Zscaler Client Connector as a Zscaler IP. This IP range must be non-overlapping. To learn more, see About Client Connector IP Assignment.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Create application segments that include the Zscaler IP of the clients for an IP-based connection, or FQDNs of the clients for a FQDN-based connection. To learn more, see Configuring AI-Powered Recommendedations.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "If you have the same namespace for both your applications and workstations, Zscaler recommends creating different application segments for client-based remote assistance and for application access, with separate FQDNs or wildcard subdomains if possible. Alternatively, you can use the Zscaler IP-based connectivity and create the Zscaler IP-based application segments."
+    },
+    {
+      "item": "Create or update an existing policy to control which servers can connect to the existing remote users. Add additional criteria to your access policy if you want more granular access control. To learn more, see Configuring Access Policies and Editing Access Policies.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "text": "If access policies are not created or updated for the server-to-client connection, then any user in their organization can use this feature to connect to any endpoints enrolled in this feature within their organization."
+    },
+    {
+      "text": "For Microsoft Remote Assistance (MSRA) with Zscaler IP-based connectivity, the following changes must be made in the invitation file by the destination user:"
+    },
+    {
+      "item": "Remove the LHTICKET attribute.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Replace the IP address for the RCTICKET value with the Zscaler IP. The following is an example RCTICKET value with the Zscaler IP:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "<UPLOADINFO TYPE=“Escalated”><UPLOADDATA USERNAME=“Zscaler” RCTICKET=“65538”, 1, 192.168.1.1:54606;100.64.0.2:54607,*,wmLNc8PLK1/q4ypjbU9+4PLWONEe6TKayN0ISF79EXdW+41xqXATVZDwGAQJcbrf…"
+    },
+    {
+      "text": "After making the connection, confirm that the server-to-client connection is enabled successfully by checking the following:"
+    },
+    {
+      "item": "Zscaler Client Connector endpoints were accessed.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "The data in the user activity diagnostics and live logs show the value Client to Client for the Access Type field.",
+      "depth": 0,
+      "strong": [
+        [
+          71,
+          87
+        ],
+        [
+          96,
+          107
+        ]
+      ]
+    }
+  ]
+}

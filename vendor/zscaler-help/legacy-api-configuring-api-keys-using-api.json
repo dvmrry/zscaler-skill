@@ -1,0 +1,317 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring API Keys Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-api-keys-using-api",
+    "node": "1530945",
+    "revision": "3144072",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) API key use cases using APIs. All APIs are rate limited. To learn more, see About API Key Management and Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before you create or update an API key, you must get the roleId, the unique identifier of the administrator role. To learn more, see Managing Administrator Roles Using API."
+    },
+    {
+      "heading": "Creating an API Key",
+      "level": 1
+    },
+    {
+      "text": "To create an API key:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/apiKeys?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/apiKeys?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "roleId: The unique identifier of the administrator role. To learn more, see Managing Administrator Roles Using API.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the API key.",
+      "depth": 1
+    },
+    {
+      "item": "tokenExpiryTimeInSec: The amount of time the key is available to use. The maximum amount of time is 3,600 seconds.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"tokenExpiryTimeInSec\":\"<integer>\", \"name\":\"<example name>\", \"roleId\":\"<role ID>\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"tokenExpiryTimeInSec\":\"3600\", \"name\":\"test API key\", \"roleId\":\"28\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"145283994705985861\", \"name\":\"test aneela jul22\", \"scopeId\":\"0\", \"clientId\":\"MTQ1MjgzOTk0NzA1OTg1ODYxLWIwYjEyYWFhLTkxNzQtNGNlMi05ZWQxLTBmYzVmYjdmYzYyNg==\", \"clientSecret\":\"'[dbx(&.Y(mDtrx*jj2ysoV7lM)9G-t9\", \"enabled\":true, \"tokenExpiryTimeInSec\":\"3600\", \"roleId\":\"28\", \"pinSessionEnabled\":false, \"isLocked\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201, meaning the API key is created. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for All API Keys",
+      "level": 1
+    },
+    {
+      "text": "To get details for all API keys:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/apiKeys?microtenantId={microtenantId}&page={pageNumber}&pageSize={pageSize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pageSize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/apiKeys?microtenantId=0&page=1&pageSize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"2\", \"totalCount\": \"37\", \"list\": [ { \"modifiedTime\": \"1753213126\", \"creationTime\": \"1744752949\", \"modifiedBy\": \"72057594038779845\", \"id\": \"145283994705985775\", \"clientId\": \"MTQ1MjgzOTk0NzA1OTg1Nzc1LTAyNWFiMTYyLTllODgtNDg1MC1hYWQ0LWUyNDM3YjVjZjQyMA==\", \"name\": \"test user apr15_2\", \"tokenExpiryTimeInSec\": \"360\", \"enabled\": true, \"pinSessionEnabled\": false, \"isLocked\": false, \"syncVersion\": \"0\", \"deliveryTag\": \"0\", \"customerId\": \"145283994705985536\", \"roleId\": \"28\", \"readOnly\": false, \"restrictedEntity\": false, \"zscalerManaged\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular API Key",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular API key:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}?microtenantId={microtenantId}&page={pageNumber}&pageSize={pageSize}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the API key. To learn more, see Getting Details for All API Keys.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "page: Specifies the page number.",
+      "depth": 1
+    },
+    {
+      "item": "pageSize: Specifies the page size. If not provided, the default page size is 20. The maximum page size is 500.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/apiKeys/145283994705985775?microtenantId=0&page=1&pageSize=20.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"modifiedTime\": \"1753213126\", \"creationTime\": \"1744752949\", \"modifiedBy\": \"72057594038779845\", \"id\": \"145283994705985775\", \"clientId\": \"MTQ1MjgzOTk0NzA1OTg1Nzc1LTAyNWFiMTYyLTllODgtNDg1MC1hYWQ0LWUyNDM3YjVjZjQyMA==\", \"name\": \"aneela17 user apr15_2\", \"tokenExpiryTimeInSec\": \"360\", \"enabled\": true, \"pinSessionEnabled\": false, \"isLocked\": false, \"syncVersion\": \"0\", \"deliveryTag\": \"0\", \"customerId\": \"145283994705985536\", \"roleId\": \"28\", \"readOnly\": false, \"restrictedEntity\": false, \"zscalerManaged\": false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an API Key",
+      "level": 1
+    },
+    {
+      "text": "To update an API key:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the API key. To learn more, see Getting Details for All API Keys.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/apiKeys?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "roleId: The unique identifier of the administrator role. To learn more, see Managing Administrator Roles Using API.",
+      "depth": 1
+    },
+    {
+      "item": "name: The name of the API key.",
+      "depth": 1
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"enabled\":true, \"tokenExpiryTimeInSec\":\"360\", \"id\":\"145283994705985775\", \"objectType\":\"ClientCredential\", \"action\":\"EDIT\", \"modifiedTime\":\"1748384838\", \"creationTime\":\"1744752949\", \"modifiedBy\":\"72057594038779845\", \"clientId\":\"MTQ1MjgzOTk0NzA1OTg1Nzc1LTAyNWFiMTYyLTllODgtNDg1MC1hYWQ0LWUyNDM3YjVjZjQyMA==\", \"name\":\"test user apr15_2\", \"pinSessionEnabled\":false, \"isLocked\":false, \"syncVersion\":\"0\", \"deliveryTag\":\"0\", \"customerId\":\"145283994705985536\", \"roleId\":\"28\", \"readOnly\":false, \"restrictedEntity\":false, \"zscalerManaged\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the API key is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting an API Key",
+      "level": 1
+    },
+    {
+      "text": "To delete an API key:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/apiKeys/{id}?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the API key. To learn more, see Getting Details for All API Keys.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/145283994705985536/apiKeys/145283994705985775/?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the API key is deleted. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

@@ -1,0 +1,895 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Adding a Snowflake Database Account",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/adding-snowflake-database-account",
+    "node": "1529987",
+    "revision": "3243113",
+    "updated": "2026-09-17",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can add a Snowflake account to DSPM. DSPM scans the Snowflake databases for sensitive data and identifies any potential security posture risks."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before adding a Snowflake account to DSPM, ensure the following prerequisites are met:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Refer to the detailed, step-by-step instructions below to execute these configurations within your Snowflake console and command line interfaces."
+    },
+    {
+      "item": "1. Create a warehouse for DSPM.",
+      "depth": 0
+    },
+    {
+      "item": "A dedicated warehouse is required so that DSPM has the necessary resources in Snowflake.",
+      "depth": 0
+    },
+    {
+      "item": "Run the following command in Snowflake to create a warehouse:",
+      "depth": 0
+    },
+    {
+      "item": "CREATE OR ALTER WAREHOUSE dspmwarehouse; - By default this will create with size x-small",
+      "depth": 0
+    },
+    {
+      "item": "2. Create a role with required permissions.",
+      "depth": 0
+    },
+    {
+      "item": "To create a role and grant DSPM with permissions to query the Snowflake data for scanning, run the following command:",
+      "depth": 0
+    },
+    {
+      "item": "CREATE ROLE dspmdatascanrole; GRANT usage ON WAREHOUSE dspmwarehouse TO ROLE dspmdatascanrole ; grant MONITOR SECURITY ON ACCOUNT to role dspmdatascanrole; grant MONITOR USAGE ON ACCOUNT to role dspmdatascanrole; GRANT DATABASE ROLE SNOWFLAKE.SECURITY_VIEWER TO ROLE dspmdatascanrole;",
+      "depth": 0
+    },
+    {
+      "item": "Run the following script to grant necessary privileges to the role:",
+      "depth": 0
+    },
+    {
+      "item": "CREATE OR REPLACE PROCEDURE z_dspm_grant_db_read() RETURNS varchar LANGUAGE SQL AS DECLARE cur CURSOR FOR SELECT db_name FROM regular_databases; db_name STRING; dspm_role_name STRING := 'dspmdatascanrole'; grants NUMBER := 0; BEGIN SHOW DATABASES; CREATE OR REPLACE TEMP TABLE regular_databases AS SELECT \"name\" AS db_name FROM TABLE(RESULT_SCAN(LAST_QUERY_ID())) WHERE \"origin\" = ''; FOR record IN cur DO db_name := record.db_name; EXECUTE IMMEDIATE 'GRANT USAGE ON DATABASE \"' || db_name || '\" TO ROLE ' || dspm_role_name; EXECUTE IMMEDIATE 'GRANT USAGE ON ALL SCHEMAS IN DATABASE \"' || db_name || '\" TO ROLE ' || dspm_role_name; EXECUTE IMMEDIATE 'GRANT USAGE ON FUTURE SCHEMAS IN DATABASE \"' || db_name || '\" TO ROLE ' || dspm_role_name; EXECUTE IMMEDIATE 'GRANT SELECT ON ALL TABLES IN DATABASE \"' || db_name || '\" TO ROLE ' || dspm_role_name; EXECUTE IMMEDIATE 'GRANT SELECT ON FUTURE TABLES IN DATABASE \"' || db_name || '\" TO ROLE ' || dspm_role_name; grants := grants + 5; END FOR; RETURN grants || ' grants executed on non-shared databases.'; END;",
+      "depth": 0
+    },
+    {
+      "item": "Run the following grant procedure that the script created:",
+      "depth": 0
+    },
+    {
+      "item": "CALL z_dspm_grant_db_read();",
+      "depth": 0
+    },
+    {
+      "item": "Optional: In case you want this DSPM role to automatically discover and scan the newly added databases, run the following command once. This creates a Snowflake task that runs the grant procedure at regular intervals to get access to any newly added databases:",
+      "depth": 0
+    },
+    {
+      "item": "CREATE OR REPLACE TASK z_dspm_role_grant_task schedule = 'USING CRON 0 2 * * * UTC' -- runs every day at 2am UTC; edit as needed AS CALL z_dspm_grant_db_read();",
+      "depth": 0
+    },
+    {
+      "item": "3. Create a user for DSPM.",
+      "depth": 0
+    },
+    {
+      "item": "Choose any of the two options to create and authenticate a user for DSPM:",
+      "depth": 0
+    },
+    {
+      "item": "Basic Authentication (Using PAT)",
+      "depth": 1
+    },
+    {
+      "item": "Create a user account in Snowflake with default configurations:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "CREATE USER dspmdatascanuser DEFAULT_ROLE = \"dspmdatascanrole\" DEFAULT_WAREHOUSE = \"dspmwarehouse\";",
+      "depth": 2
+    },
+    {
+      "item": "Assign the role to the user:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "GRANT ROLE dspmdatascanrole TO USER dspmdatascanuser;",
+      "depth": 2
+    },
+    {
+      "item": "Generate a programmatic access token (PAT) for this newly created user from the Snowflake UI.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Store the PAT for authenticating with DSPM.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Private Key Authentication",
+      "depth": 1
+    },
+    {
+      "item": "Create a private key using either an unencrypted or encrypted format:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Unencrypted key (without passphrase)",
+      "depth": 3
+    },
+    {
+      "item": "openssl genrsa 2048 | openssl pkcs8 -topk8 -inform PEM -out rsa_key.p8 -nocrypt",
+      "depth": 3
+    },
+    {
+      "item": "Encrypted key (with passphrase)",
+      "depth": 3
+    },
+    {
+      "item": "openssl genrsa 2048 | openssl pkcs8 -topk8 -v2 des3 -inform PEM -out rsa_key.p8",
+      "depth": 3
+    },
+    {
+      "item": "Use the generated private key to create a corresponding public key:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "openssl rsa -in rsa_key.p8 -pubout -out rsa_key.pub",
+      "depth": 2
+    },
+    {
+      "item": "Create the user account in Snowflake using the public key:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "CREATE USER dspmdatascanuser DEFAULT_ROLE = \"dspmdatascanrole\" DEFAULT_WAREHOUSE = \"dspmwarehouse\" RSA_PUBLIC_KEY=\"<rsa_public_key>\";",
+      "depth": 2
+    },
+    {
+      "item": "Assign the role to the user:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "GRANT ROLE dspmdatascanrole TO USER dspmdatascanuser;",
+      "depth": 2
+    },
+    {
+      "item": "Store the private key in the scanner account's secret manager for DSPM authentication.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "After the user is created, verify that the default warehouse and role are set correctly.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "4. Configure network policy for the DSPM user.",
+      "depth": 0
+    },
+    {
+      "item": "Network policy allows communication between the DSPM components deployed in the customer scanner account and Snowflake.",
+      "depth": 0
+    },
+    {
+      "item": "Get the public IP address of the NAT that will be used to perform the data scan.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Create a network rule in Snowflake to allow ingress traffic from the NAT public IP:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "CREATE NETWORK RULE ALLOW_INGRESS_ZSCALER_POLICY MODE = 'INGRESS' TYPE = 'IPV4' VALUE_LIST = ('xx.xx.xx.xx');",
+      "depth": 1
+    },
+    {
+      "item": "If you need to modify or update an existing network rule to include additional IP addresses:",
+      "depth": 1
+    },
+    {
+      "item": "ALTER NETWORK RULE ALLOW_INGRESS_ZSCALER_POLICY SET VALUE_LIST = ('xx.xxx.xx.xxx', 'xx.xx.xxx.xxx','xxx.xx.xxx.xx/xx');",
+      "depth": 1
+    },
+    {
+      "item": "After the network rule is created, create a network with allowed network rule:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "CREATE NETWORK POLICY ALLOW_INGRESS_ZSCALER_POLICY ALLOWED_NETWORK_RULE_LIST = ('ALLOW_INGRESS_ZSCALER_POLICY');",
+      "depth": 1
+    },
+    {
+      "item": "Attach the created network policy to the user:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "ALTER USER dspmdatascanuser SET NETWORK_POLICY = ALLOW_INGRESS_ZSCALER_POLICY;",
+      "depth": 1
+    },
+    {
+      "item": "5. Provide SQL connection strings and authentication credentials to allow DSPM to access the Snowflake account.",
+      "depth": 0
+    },
+    {
+      "item": "When deploying DSPM components in Azure, a specific configuration is required to ensure secure communication with Snowflake. Use the Azure CLI to create a private key and secret, as the Azure portal does not support multiple inputs for secrets.",
+      "depth": 0
+    },
+    {
+      "item": "az keyvault secret set --vault-name snowflakekeyvaultvikas --name azuremultilinersakey --file \"<filepath>\"",
+      "depth": 0
+    },
+    {
+      "item": "6. Set up the secrets in the same environment as the DSPM orchestrator.",
+      "depth": 0
+    },
+    {
+      "item": "AWS: Create and store the password or key‑pair in AWS Secrets Manager in the AWS account where the orchestrator account is present, and have the ARNs ready for use.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Open the AWS Secrets Manager in the AWS Management Console.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          9,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select Store a new secret.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose secret type page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Secret type: Select Other type of secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Key/value pairs: Select the Plaintext tab and enter the generated secret.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          28,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure secret page:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Secret name: Enter a name for the secret.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Description (optional): Enter a description if required.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image",
+      "depth": 2
+    },
+    {
+      "item": "Click Next.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure rotation page, click Next.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "On the Review page, review your secret details, and then click Store.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          63,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Azure: Create and store the secret in the Azure Key Vault of the worker plane resource group in the subscription where the orchestrator account is present, and have the Key Vault URIs ready for use. To learn more, refer to the Microsoft documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "GCP: Create and store the secret in Secret Manager in the GCP project where the orchestrator account is present, and have the Secret ID paths ready for use. To learn more, refer to the GCP documentation.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "heading": "Adding a Snowflake Account",
+      "level": 1
+    },
+    {
+      "text": "To add a Snowflake account:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Service Registration.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "On the Service Registration page, select the Snowflake tab, and click Add Account.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          45,
+          54
+        ],
+        [
+          70,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Add Snowflake Account drawer appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Snowflake Account drawer, update the required fields:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Account Information section:",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Account Alias (Optional): Enter a name to identify the Snowflake account in DSPM.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Account Edition: Select the edition of the Snowflake account.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Account Name: Snowflake account name as configured in the Snowflake.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Organization Name: Enter the Snowflake organization name.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Provider: Select the cloud service provider hosting the Snowflake account (AWS, Azure, or GCP).",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Region: Search for and select the region where the Snowflake account is located.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Business Unit: Assign the business unit to the Snowflake account.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DSPM Integration Alias: Enter the DSPM alias for the Snowflake account.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Authentication section, select the Secret Provider Type:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          42,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "The authentication option differs depending on the cloud service provider.",
+      "depth": 1
+    },
+    {
+      "item": "AWS Secrets Manager",
+      "depth": 2
+    },
+    {
+      "item": "For the Authentication Type, select any of the following:",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Key-Pair",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Private Key AWS Secret ARN: Enter the ARN of the AWS Secrets Manager secret where the private key is stored.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Passphrase AWS Secret ARN (Optional): Enter the ARN of the HashiCorp Vault instance where the database credentials are passphrased.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Username/Password",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "AWS Secret ARN: Enter the ARN of the secret in which the password is stored. In order for DSPM to read the password and connect to the database, ensure to create and store the secret in the AWS account where the orchestrator account is present.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Azure Key Vault",
+      "depth": 2
+    },
+    {
+      "item": "For the Authentication Type, select any of the following:",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Key-Pair",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Private Key Azure Key Vault URI: Enter the URI of the HashiCorp Vault instance where the database credentials are stored.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Passphrase Azure Key Vault URI (Optional): Enter the URI of the HashiCorp Vault instance where the database credentials are passphrased.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Username/Password",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Azure Key Vault URI: Enter the URI of the secret storing the password. In order for DSPM to read the password and connect to the database, ensure to create and store the secret in the Key Vault of the worker plane resource group [integration_id_worker_plane_rg] of the Azure subscription where the orchestrator account is present.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "GCP Secrets Manager",
+      "depth": 2
+    },
+    {
+      "item": "For the Authentication Type, select any of the following:",
+      "depth": 2,
+      "strong": [
+        [
+          8,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Key-Pair",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Private Key GCP Secret ID: Enter the Secret ID path of the HashiCorp Vault instance where the database credentials are stored.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Passphrase GCP Secret ID (Optional): Enter the Secret ID path of the HashiCorp Vault instance where the database credentials are passphrased.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Username/Password",
+      "depth": 3
+    },
+    {
+      "item": "Username: Enter the DSPM username.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "GCP Secret ID: Enter the Secret ID path of the secret storing the password. In order for DSPM to read the password and connect to the database, ensure to create and store the secret in the secret manager of the GCP project where the orchestrator account is present.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "After registration, verify the connection between DSPM and the Snowflake server. To learn more, see Testing Connection for Registered Services."
+    },
+    {
+      "text": "The Snowflake account is added and displayed on the Snowflake page. You can proceed to configure the scan rule."
+    }
+  ]
+}

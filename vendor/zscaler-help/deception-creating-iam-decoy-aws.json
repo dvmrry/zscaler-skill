@@ -1,0 +1,393 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating an IAM Decoy in AWS",
+  "source": {
+    "url": "https://help.zscaler.com/deception/creating-iam-decoy-aws",
+    "node": "1542473",
+    "revision": "3221637",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "An Identity Access Management (IAM) user in Amazon Web Services (AWS) is a representation of a human user or a workload that uses IAM credentials to access AWS resources. You can create AWS decoy IAM users to detect any attempt to sign in using these decoy user credentials. These decoy users have access to all other AWS decoys. The most effective way to lure attackers using IAM decoys is to add these decoys to a landmine policy."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before creating an IAM decoy in AWS, you must ensure that you have:"
+    },
+    {
+      "item": "Configured the integration between AWS and Zscaler Deception.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Obtained the necessary CloudShell command for the deployment script using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Automated Download Method",
+      "depth": 1
+    },
+    {
+      "item": "Manual Download Method",
+      "depth": 1
+    },
+    {
+      "item": "This only applies to the CloudShell-based deployment.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating an IAM Decoy",
+      "level": 1
+    },
+    {
+      "text": "To create an IAM decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > AWS > IAM.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          37
+        ],
+        [
+          40,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Decoy.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The IAM Decoy window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "In the IAM Decoy window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          11,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the IAM decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Select the Account ID associated with the AWS account in which you want to deploy the decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In AWS, IAM users are common to all regions within an account, so IAM user decoys do not include an option to select a region.",
+      "depth": 1
+    },
+    {
+      "item": "Description: Enter a description relevant to the IAM decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the decoy based on the method used to configure the integration between AWS and Deception:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Locate the AWS account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          48,
+          56
+        ],
+        [
+          69,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the aws-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an S3 bucket-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"s3\": { \"bucket\": \"your-terraform-state-bucket\", \"key\": \"deception/terraform.tfstate\", \"region\": \"us-east-1\", \"encrypt\": true } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same AWS account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed, and a JSON file containing the details of the state is downloaded.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "On the Cloud Deception - AWS page, go to Settings, locate the AWS account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          49
+        ],
+        [
+          99,
+          105
+        ],
+        [
+          118,
+          125
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "CloudShell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console as an administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Click the CloudShell icon on the navigation bar to launch AWS CloudShell.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The AWS CloudShell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the AWS CloudShell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the option to deploy IAM decoys and press Enter.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "The deployment script detects the Account ID and deploys the IAM decoys to the selected regions.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you want to add multiple IAM decoys to AWS, repeat Step 1 to Step 4 for each decoy and then deploy all decoys simultaneously.",
+      "depth": 0
+    },
+    {
+      "item": "Upon successful deployment, the IAM decoy is added to AWS. The deployment status is indicated by the icon next to the name of the decoy in the IAM decoys table (Deceive > Cloud Deception > AWS > IAM) within the Zscaler Deception Admin Portal. In addition, the Access Key value is automatically generated and associated with the IAM user decoys. The Access Key value is also shown in the IAM decoys table. To learn how to configure lures using IAM decoys, see Configuring Lures Using AWS Decoys.",
+      "depth": 0,
+      "strong": [
+        [
+          260,
+          270
+        ],
+        [
+          349,
+          359
+        ]
+      ]
+    }
+  ]
+}

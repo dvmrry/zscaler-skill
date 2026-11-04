@@ -1,0 +1,143 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "/32 IP Device Compatibility Limitations and Workarounds",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/32-ip-device-compatibility-limitations-and-workarounds",
+    "node": "1543092",
+    "revision": "3232921",
+    "updated": "2026-08-27",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zero Trust Branch delivers true zero trust microsegmentation by assigning a /32 subnet mask to each device endpoint. This approach creates a network-of-one system that isolates devices from one another, blocks direct endpoint-to-endpoint communication, and reduces the attack surface."
+    },
+    {
+      "text": "However, there are certain Internet of Things (IoT), Operational Technology (OT), industrial controller, and older networking devices that are unable to operate /32 subnet masks due to limitations in their legacy or embedded network stacks, causing them to not operate correctly within the network-of-one configuration. There are some endpoints that are Purdue Level 2 and below that require direct Layer 2 (L2) connectivity to function correctly, such as communication between Programmable Logic Controllers (PLCs)."
+    },
+    {
+      "heading": "Incompatible Devices",
+      "level": 1
+    },
+    {
+      "text": "The following are several devices that have been identified as incompatible with /32 IP configurations based on field testing. There might be others not listed that have the potential for showing similar behavior and should be tested with recommended workarounds detailed in the Recommended Workarounds section in this article."
+    },
+    {
+      "item": "Amazon Blink Cameras",
+      "depth": 0
+    },
+    {
+      "item": "Some older versions of Amazon Blink cameras might have connectivity and functionality issues with /32 IP addressing. Field observations frequently show connectivity and setup failures when nonstandard network settings are used.",
+      "depth": 0
+    },
+    {
+      "item": "See image",
+      "depth": 0
+    },
+    {
+      "item": "Apple AirPort Time Capsules",
+      "depth": 0
+    },
+    {
+      "item": "Apple AirPort Time Capsule devices do not natively support /32 IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Cisco Devices",
+      "depth": 0
+    },
+    {
+      "item": "Some Cisco devices, such as routers, switches, access points, wireless LAN controllers, and IP phones, might not handle /32 segmentation correctly.",
+      "depth": 0
+    },
+    {
+      "item": "LaMetric Connected Clock",
+      "depth": 0
+    },
+    {
+      "item": "Certain firmware versions of this device have a limited network stack and experience connectivity problems when assigned /32 IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "See image",
+      "depth": 0
+    },
+    {
+      "item": "Legacy HVAC Controllers and Devices",
+      "depth": 0
+    },
+    {
+      "item": "Legacy HVAC controllers, building automation devices, and older cameras and sensors typically have limiting network stacks. These stacks often expect conventional network or host bit boundaries and might not handle /32 masking correctly.",
+      "depth": 0
+    },
+    {
+      "item": "Network Printers",
+      "depth": 0
+    },
+    {
+      "item": "Most printers accept subnet mask configurations in the user interface, but /32 configurations might still cause issues if there are any changes in the routing or in the Address Resolution Protocol (ARP).",
+      "depth": 0
+    },
+    {
+      "item": "Services, such as Bonjour, Line Printer Daemon (LPD), and Server Message Block (SMD) discovery, might break if they cannot communicate with gateway or multicast neighboring endpoints.",
+      "depth": 0
+    },
+    {
+      "item": "Older printer models might also experience intermittent connectivity or print job failures in /32 configurations.",
+      "depth": 0
+    },
+    {
+      "item": "Siemens S7 and Rockwell/Allen-Bradley PLCs and EtherNet/IP Adapters",
+      "depth": 0
+    },
+    {
+      "item": "Siemens S7 family and Rockwell/Allen-Bradely EtherNet/IP modules expect devices and programming tools to be on the same subnet using conventional subnet masks such as /24. Unusual masks, such as /32, can prevent management tools or gateway-based communication from functioning correctly.",
+      "depth": 0
+    },
+    {
+      "item": "Sonos Sound System Devices",
+      "depth": 0
+    },
+    {
+      "item": "Sonos devices historically rely on DHCP reservations, multicast discovery, Simple Service Discovery Protocol (SSDP), and SonosNet behavior. Some models have been observed to become unstable with unusual subnetting or nonstandard addressing and might fail to maintain consistent communication on /32-based networks.",
+      "depth": 0
+    },
+    {
+      "item": "See image",
+      "depth": 0
+    },
+    {
+      "heading": "Recommended Workarounds",
+      "level": 1
+    },
+    {
+      "text": "If you have a device with limited /32 addressing support, use one of the following workarounds based on your deployment requirements:"
+    },
+    {
+      "item": "For devices that cannot operate reliably with /32 addressing",
+      "depth": 0
+    },
+    {
+      "item": "Deploy these devices under micro-subnet segmentation to enforce strict network segmentation and policy control. Configure these devices with subnet masks in the range of /27 to /30 to ensure that they are compatible with legacy network stacks while still providing fine-grained logical segmentation.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Creating Micro-Subnets.",
+      "depth": 0
+    },
+    {
+      "item": "For devices that don't support /32 addressing and full isolation is not required",
+      "depth": 0
+    },
+    {
+      "item": "Use network segmentation to configure these devices with the same subnet mask that the DHCP server provides. This enables direct communication between device endpoints without forcing traffic through the Zero Trust Branch gateway for policy evaluation, which offers lightweight segmentation and reduced overhead.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Configuring Airgap-Lite Mode for Assets.",
+      "depth": 0
+    }
+  ]
+}

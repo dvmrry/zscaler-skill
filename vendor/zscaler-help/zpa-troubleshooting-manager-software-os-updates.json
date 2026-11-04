@@ -1,0 +1,353 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Troubleshooting Manager Software and OS Updates",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/troubleshooting-manager-software-os-updates",
+    "node": "1535379",
+    "revision": "3243013",
+    "updated": "2026-09-25",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides steps to identify and resolve automated Manager software and operating system (OS) update failures, including how to locate issues in the Zscaler Admin Console and diagnose their root causes."
+    },
+    {
+      "item": "Step 1: Make Sure You Have Met the Minimum Manager Software and Component Software Prerequisites",
+      "depth": 0
+    },
+    {
+      "item": "To troubleshoot automated update failures, you must have the following:",
+      "depth": 0
+    },
+    {
+      "item": "A minimum Manager software version of 25.46.3.",
+      "depth": 1
+    },
+    {
+      "item": "A minimum App Connector, Private Service Edge for Private Access (ZPA), Private Cloud Controller, or Network Connector software version of 25.46.3.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Identify Update Failures in the Zscaler Admin Console for Your Component",
+      "depth": 0
+    },
+    {
+      "item": "To determine if there is an upgrade failure, select a component:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to the desired software component page:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "For App Connectors: Infrastructure > Private Access > Component > App Connectors",
+      "depth": 2,
+      "strong": [
+        [
+          20,
+          34
+        ],
+        [
+          37,
+          51
+        ],
+        [
+          54,
+          63
+        ],
+        [
+          66,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "For Private Service Edge: Infrastructure > Private Access > Component > Private Service Edges",
+      "depth": 2,
+      "strong": [
+        [
+          26,
+          40
+        ],
+        [
+          43,
+          57
+        ],
+        [
+          60,
+          69
+        ],
+        [
+          72,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "For Private Cloud Controller: Infrastructure > Business Continuity > Private Cloud Controllers",
+      "depth": 2,
+      "strong": [
+        [
+          30,
+          44
+        ],
+        [
+          47,
+          66
+        ],
+        [
+          69,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "For Network Connector: Infrastructure > Private Access > Component > Network Connectors",
+      "depth": 2,
+      "strong": [
+        [
+          23,
+          37
+        ],
+        [
+          40,
+          54
+        ],
+        [
+          57,
+          66
+        ],
+        [
+          69,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Check for results with 'Failure' in the Software Update or Manager Update columns or use the filter options above the table.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          55
+        ],
+        [
+          59,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Step 3: Troubleshoot Manager Software and OS Update Failures",
+      "depth": 0
+    },
+    {
+      "item": "To troubleshoot Manager software and OS update failures:",
+      "depth": 0
+    },
+    {
+      "item": "Check disk space usage and free up memory.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check directory space usage and the available space:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "df -h /var Filesystem Size Used Avail Use% Mounted on /dev/mapper/rootvg-varlv 5.0G 839M 4.2G 17% /var",
+      "depth": 2
+    },
+    {
+      "item": "Check the Available column for the amount of free disk space. If there is limited space left, i.e., <150MB, enter the following:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "sudo du -ah /var | sort -rh | head -n 20 9.5G /var 8.7G /var/lib 8.6G /var/lib/pgsql/x/data 8.6G /var/lib/pgsql/x 8.6G /var/lib/pgsql ...",
+      "depth": 2
+    },
+    {
+      "item": "This returns the 20 files with the largest size.",
+      "depth": 2
+    },
+    {
+      "item": "Consider removing some unused large/cache/tmp files.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Verify enough space is left by entering the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "sudo df -h /var",
+      "depth": 2
+    },
+    {
+      "item": "Check RAM usage and free up memory.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Check the general RAM stats by using the free command to see total memory, used memory, free memory, and cached memory. Look at the used and free columns to understand the current consumption.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          132,
+          136
+        ],
+        [
+          141,
+          145
+        ]
+      ]
+    },
+    {
+      "item": "free total used free shared buff/cache available Mem: 65120268 28712420 31795748 165552 5373280 36407848 Swap: 0 0 0",
+      "depth": 2
+    },
+    {
+      "item": "Check real-time memory usage by using the top command, which displays active processes and their memory usage. Review the RES for resident memory and %MEM columns for the percentage of memory used by each process.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          122,
+          125
+        ],
+        [
+          150,
+          154
+        ]
+      ]
+    },
+    {
+      "item": "top - 22:16:52 up 35 days, 7:44, 2 users, load average: 0.15, 0.18, 0.09 Tasks: 128 total, 1 running, 127 sleeping, 0 stopped, 0 zombie %Cpu(s): 3.4 us, 1.2 sy, 0.0 ni, 95.0 id, 0.3 wa, 0.1 hi, 0.0 si, 0.0 st MiB Mem: 7976.5 total, 1724.0 free, 3142.3 used, 3110.2 buff/cache MiB Swap: 2048.0 total, 2046.1 free, 1.8 used. 4089.1 avail Mem PID USER PR NI VIRT RES SHR S %CPU %MEM TIME+ COMMAND 425 root 20 0 162408 12404 8716 S 3.0 0.2 0:00.67 sshd 18 root 20 0 0 0 0 S 0.7 0.0 0:12.34 ksoftirqd/0 2398 apache 20 0 23856 1924 1632 S 0.3 0.0 0:00.02 httpd 789 root 20 0 45216 3612 2632 S 0.3 0.0 0:00.22 bash 1 root 20 0 166192 11128 7272 S 0.0 0.1 0:15.67 systemd 10 root 20 0 0 0 0 S 0.0 0.0 0:00.00 rcu_sched 63 root 20 0 0 0 0 S 0.0 0.0 0:01.32 kworker/u8:3 102 root -2 0 0 0 0 S 0.0 0.0 0:00.02 ecryptfs-kthrea 1238 mysql 20 0 134216 9280 6884 S 0.0 0.1 5:10.33 mysqld 2452 apache 20 0 34304 2456 2144 S 0.0 0.0 0:00.03 httpd 5126 root 20 0 47936 3780 3016 S 0.0 0.0 0:00.22 top 12234 student 20 0 30384 4128 3468 S 0.0 0.1 0:00.21 python3 27453 apache 20 0 34456 2500 2176 S 0.0 0.0 0:00.04 httpd",
+      "depth": 2
+    },
+    {
+      "item": "Consider killing resource-consuming processes to terminate processes by their process ID (PID). Identify the process ID of the application causing excessive RAM usage and terminate it using the kill -9 command:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "kill -9 <pid>",
+      "depth": 2
+    },
+    {
+      "item": "Verify enough RAM is available using the following command:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "free",
+      "depth": 2
+    },
+    {
+      "item": "Resolve broken system dependencies.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the following command to verify if there is a broken package dependency:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "yum check",
+      "depth": 2
+    },
+    {
+      "item": "Review the following suggestions for resolving yum check errors:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Use the yum provides <name-of-missing-dependency> command to determine which package has the missing file or library.",
+      "depth": 3
+    },
+    {
+      "item": "Enable additional repositories if a required package or dependency is missing (yum install epel-release can be useful for RHEL-based systems).",
+      "depth": 3
+    },
+    {
+      "item": "Check your repository list using the yum repolist command and ensure the relevant repositories are enabled.",
+      "depth": 3
+    },
+    {
+      "item": "If all else fails, you might need to manually download and install the required package using yum localinstall /path/to/package.rpm.",
+      "depth": 3
+    },
+    {
+      "item": "If a package is breaking your system or its dependencies remain unresolved, safely remove the problematic package using yum remove <package-name>.",
+      "depth": 3
+    },
+    {
+      "item": "Run the following command to remove old kernel modules. This verifies if there is an error when removing old kernel files during an OS upgrade:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "yum remove --oldinstallonly",
+      "depth": 1
+    },
+    {
+      "item": "Run the following command to remove cached files. This verifies if there are any errors in cleaning cached files:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "yum clean all",
+      "depth": 1
+    },
+    {
+      "item": "If the previous steps show the upgrade lock is held by a process using lsof /var/run/yum.pid or cat /var/run/yum.pid, consider using the kill process (kill -9 <PID>) if the lock is not released.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Example of an upgrade lock:",
+      "depth": 1
+    },
+    {
+      "item": "Another app is currently holding the yum lock; waiting for it to exit... The other application is: yum Memory : 42 M RSS (287 MB VSZ) Started: Mon Oct 21 20:34:58 2025 - 00:05 ago State : Running, pid: 3924",
+      "depth": 1
+    },
+    {
+      "item": "If the previous steps show RPM database errors similar to the following example, you can use RPM debugging to fix a corrupted RPM database.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Examples of database errors:",
+      "depth": 1
+    },
+    {
+      "item": "error: rpmdb: could not open database error: cannot load RPM database",
+      "depth": 1
+    },
+    {
+      "item": "You can run specific RPM commands with debugging enabled to understand the issue further:",
+      "depth": 1
+    },
+    {
+      "item": "rpm -v --rebuilddb rpm -qa --debug",
+      "depth": 1
+    }
+  ]
+}

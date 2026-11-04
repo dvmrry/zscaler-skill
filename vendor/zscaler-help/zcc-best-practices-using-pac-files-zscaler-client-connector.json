@@ -1,0 +1,262 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Best Practices for Using PAC Files with Zscaler Client Connector",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/best-practices-using-pac-files-zscaler-client-connector",
+    "node": "1296756",
+    "revision": "3246783",
+    "updated": "2026-10-19",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "To prevent outages, Zscaler strongly recommends that you roll out all PAC file changes to a small set of users before deploying changes to all users."
+    },
+    {
+      "text": "A PAC file is a text file used for directing traffic to a proxy server. A PAC file can also be used to bypass traffic or direct traffic to a specific proxy (i.e., traffic splitting). To learn more about PAC files, see Understanding PAC Files."
+    },
+    {
+      "text": "Zscaler Client Connector uses PAC files in the Forwarding Profile and in the App Profile. The Forwarding Profile PAC file is used to direct system, browser, and application traffic to Zscaler Client Connector. When Zscaler Client Connector receives traffic, the App Profile is used to direct that traffic to the Zscaler cloud. Zscaler Client Connector directs traffic to the closest data center according to the App Profile PAC file by changing the proxy return statement to the IP address of the geographically closest data center."
+    },
+    {
+      "text": "If the primary and secondary data center from the PAC file both fail, Zscaler Client Connector attempts to connect to gateway.<cloudname>.net, unless the Fallback to gateway domain setting is disabled.",
+      "strong": [
+        [
+          154,
+          180
+        ]
+      ]
+    },
+    {
+      "text": "Watch a video on troubleshooting PAC files with Zscaler Client Connector."
+    },
+    {
+      "text": "This article provides best practices for using PAC files with Zscaler Client Connector."
+    },
+    {
+      "item": "If you experience slowness when using Zscaler Client Connector:",
+      "depth": 0
+    },
+    {
+      "item": "Check if the data center has any issues.",
+      "depth": 1
+    },
+    {
+      "item": "Run traceroute to check for possible ISP issues.",
+      "depth": 1
+    },
+    {
+      "item": "From the App Profile PAC file, check for and remove the functions dnsResolve(), isResolvable(), and isInNet().",
+      "depth": 1
+    },
+    {
+      "item": "Check if any network firewalls or network scanning is interfering with traffic.",
+      "depth": 1
+    },
+    {
+      "item": "Check for possible server issues by browsing to a website without a proxy, with the PAC file only, and with Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Check if another process, such as Group Policy Object (GPO), is also applying proxy settings. This can conflict with Zscaler Client Connector and cause performance issues on the device.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that the return statement in your PAC file has double quotes. For example, return \"DIRECT\";. Missing double quotes can cause errors.",
+      "depth": 1
+    },
+    {
+      "item": "Bypass domains by using the shExpMatch function on the host variable. For example:",
+      "depth": 0
+    },
+    {
+      "text": "Bypassing a domain:"
+    },
+    {
+      "text": "if (shExpMatch(host, \"safemarch.com\")) return \"DIRECT\";"
+    },
+    {
+      "text": "Bypassing a domain and all of its subdomains:"
+    },
+    {
+      "text": "if (shExpMatch(host, \"safemarch.com\") || shExpMatch(host, \"*.safemarch.com\")) return \"DIRECT\";"
+    },
+    {
+      "item": "Apply bypasses in the Zscaler Admin Console by configuring bypasses in the SSL bypass list and in the Authentication Bypass list. If you have traffic that you do not want to reach the Zscaler cloud, and it must be bypassed on the client itself, you must configure bypasses in the PAC files used for Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "If you are using Zscaler Client Connector version 1.4 or later, you can configure multiple Public Service Edge for Internet & SaaS gateway destinations based on the destination the user is trying to access. For example, if you want traffic for internal hosts to go to a specific data center, but all other traffic to go to the geographically closest data center, define two return statements with the respective Public Service Edge for Internet & SaaS gateway IP addresses. For example:",
+      "depth": 0
+    },
+    {
+      "text": "var InternalHosts = /(remote\\.mydomain\\.com|mail\\.mydomain\\.com)/; if (InternalHosts.test(host)) { return \"PROXY 104.129.192.43:80; PROXY 104.129.198.34:80; DIRECT\"; } return \"PROXY ${GATEWAY}; PROXY ${SECONDARY_GATEWAY}:9400; DIRECT\"; }"
+    },
+    {
+      "text": "For optimal performance, do not define more than two return statements that contain Zscaler Client Connector gateway IP addresses."
+    },
+    {
+      "text": "The following are the best practices for using PAC files with different forwarding methods:"
+    },
+    {
+      "item": "Tunnel",
+      "depth": 0
+    },
+    {
+      "item": "To configure the following PAC files with Tunnel mode:",
+      "depth": 0
+    },
+    {
+      "item": "Forwarding Profile PAC File",
+      "depth": 1
+    },
+    {
+      "item": "In Tunnel mode, you must only use the Forwarding Profile PAC file to bypass traffic away from Zscaler Client Connector or to tunnel traffic to Zscaler Client Connector. Do not use it to tunnel traffic to the Zscaler cloud.",
+      "depth": 1
+    },
+    {
+      "item": "In Tunnel mode, a Forwarding Profile PAC file is commonly used to get web traffic on nonstandard ports. For example:",
+      "depth": 1,
+      "strong": [
+        [
+          3,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "if ( shExpMatch(url,\"*:8080\") || shExpMatch(url,\"*:8081\")) return \"PROXY ${ZAPP_LOCAL_PROXY}\"; else return \"DIRECT\";",
+      "depth": 1
+    },
+    {
+      "item": "If you choose Tunnel mode when configuring the Forwarding Profile, select Apply on Network Change or Never for the Proxy Action Type.",
+      "depth": 1
+    },
+    {
+      "item": "When you select Apply on Network Change, Zscaler Client Connector applies proxy settings when the network changes once and does not enforce them.",
+      "depth": 2
+    },
+    {
+      "item": "When you select Never, Zscaler Client Connector does not apply any PAC file configurations to the system.",
+      "depth": 2
+    },
+    {
+      "item": "In an IPv6 environment, IPv6 bypasses are required for Private Access apps in the App Profile PAC file when the Forwarding PAC is configured to send traffic to the Zscaler Client Connector listener.",
+      "depth": 1
+    },
+    {
+      "item": "Routes and filters are used to direct browser, system, or application traffic to Zscaler Client Connector. Zscaler Client Connector intercepts any traffic heading to port 80 and port 443.",
+      "depth": 1
+    },
+    {
+      "item": "App Profile PAC File",
+      "depth": 1
+    },
+    {
+      "item": "In Tunnel mode, the App Profile PAC file directs traffic that Zscaler Client Connector received to the Zscaler cloud. Using the PAC file, Zscaler Client Connector chooses the data center and tunnels the traffic to it with the Connect Tunnel method. If the PAC file contains exceptions for traffic, Zscaler Client Connector sends that traffic directly to the destination server.",
+      "depth": 1
+    },
+    {
+      "item": "When using the App Profile PAC file for Tunnel mode, you must:",
+      "depth": 1
+    },
+    {
+      "item": "Configure exceptions in the PAC file for traffic that must be bypassed.",
+      "depth": 2
+    },
+    {
+      "item": "Keep the PAC file as simple as possible.",
+      "depth": 2
+    },
+    {
+      "item": "The following is an example of App Profile PAC file for Tunnel mode:",
+      "depth": 1
+    },
+    {
+      "item": "function FindProxyForURL(url, host) { var privateIP = /^(0|10|127|192\\.168|172\\.1[6789]|172\\.2[0-9]|172\\.3[01]|169\\.254|192\\.88\\.99)\\.[0-9.]+$/; /* Non-FQDN or private IP goes direct */ if (isPlainHostName(host) || privateIP.test(host)) { return \"DIRECT\"; } /* FTP goes directly */ if (url.substring(0,4) == \"ftp:\") { return \"DIRECT\"; } /* Private domains or ZPA apps goes direct */ if (shExpMatch(host, \"corp.zscaler.com\") || shExpMatch(host, \"*.corp.zscaler.com\")) { return \"DIRECT\"; } /* Any other bypass */ if (shExpMatch(host, \"zscaler.com\") || shExpMatch(host, \"*.zscaler.com\")) { return \"DIRECT\"; } /* Updates are directly accessible */ if ((localHostOrDomainIs(host, \"trust.zscaler.com\") || localHostOrDomainIs(host, \"trust.zscaler.net\") || localHostOrDomainIs(host, \"trust.zscloud.net\") || localHostOrDomainIs(host, \"trust.zscalerone.net\") || localHostOrDomainIs(host, \"trust.zscalertwo.net\")) && (url.substring(0,5) == \"http:\" || url.substring(0,6) == \"https:\")) { return \"DIRECT\"; } /* Default Traffic Forwarding. Forwarding to Zen */ return \"PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT\"; }",
+      "depth": 1
+    },
+    {
+      "item": "Tunnel with Local Proxy",
+      "depth": 0
+    },
+    {
+      "item": "To configure the following PAC files with Tunnel with Local Proxy mode:",
+      "depth": 0
+    },
+    {
+      "item": "Forwarding Profile PAC File",
+      "depth": 1
+    },
+    {
+      "item": "In Tunnel with Local Proxy mode, the Forwarding Profile PAC file is responsible for directing system, browser, and application traffic to Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "When using the Forwarding Profile PAC file for Tunnel with Local Proxy mode, you must:",
+      "depth": 1
+    },
+    {
+      "item": "Use this PAC file for configuring exceptions. Configuring an exception in the PAC file allows you to bypass traffic so that it does not reach Zscaler Client Connector.",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that the proxy return statement has the following macro:",
+      "depth": 2
+    },
+    {
+      "item": "return \"PROXY ${ZAPP_LOCAL_PROXY}\";",
+      "depth": 1
+    },
+    {
+      "item": "When Zscaler Client Connector downloads this PAC file, it replaces the macro with a loopback IP address and the port that Zscaler Client Connector is listening to. Then Zscaler Client Connector applies this PAC file to the system, browser, and applications.",
+      "depth": 1
+    },
+    {
+      "item": "If traffic does not follow the Forwarding Profile PAC file, it does not reach Zscaler Client Connector and the Zscaler cloud. Instead, the traffic is sent directly.",
+      "depth": 1
+    },
+    {
+      "item": "In an IPv6 environment, IPv6 bypasses are required for Private Access apps in the App Profile PAC file when the Forwarding PAC is configured to send traffic to the Zscaler Client Connector listener.",
+      "depth": 1
+    },
+    {
+      "item": "The following is an example of a Forwarding Profile PAC file for Tunnel with Local Proxy mode:",
+      "depth": 1
+    },
+    {
+      "item": "function FindProxyForURL(url, host) { var privateIP = /^(0|10|127|192\\.168|172\\.1[6789]|172\\.2[0-9]|172\\.3[01]|169\\.254|192\\.88\\.99)\\.[0-9.]+$/; var resolved_ip = dnsResolve(host); /* Non-FQDN or private IP goes direct */ if (isPlainHostName(host) || isInNet(resolved_ip, \"192.0.2.0\",\"255.255.255.0\") || privateIP.test(resolved_ip)) { return \"DIRECT\"; } /* FTP goes directly */ if (url.substring(0,4) == \"ftp:\") { return \"DIRECT\"; } /* ZPA goes direct */ if (isInNet(resolved_ip, \"100.64.0.0\",\"255.255.0.0\")) { return \"DIRECT\"; } /* Any other bypass */ if (shExpMatch(host, \"zscaler.com\") || shExpMatch(host, \"*.zscaler.com\")) { return \"DIRECT\"; } /* Updates are directly accessible */ if ((localHostOrDomainIs(host, \"trust.zscaler.com\") || localHostOrDomainIs(host, \"trust.zscaler.net\") || localHostOrDomainIs(host, \"trust.zscloud.net\") || localHostOrDomainIs(host, \"trust.zscalerone.net\") || localHostOrDomainIs(host, \"trust.zscalertwo.net\")) && (url.substring(0,5) == \"http:\" || url.substring(0,6) == \"https:\")) { return \"DIRECT\"; } /* Non-FQDN or private IP goes direct */ if (isPlainHostName(host) || isInNet(resolved_ip, \"192.0.2.0\",\"255.255.255.0\") || privateIP.test(resolved_ip)) { return \"DIRECT\"; } /* Default Traffic Forwarding: All traffic goes to Z-App */ return \"PROXY ${ZAPP_LOCAL_PROXY}\"; }",
+      "depth": 1
+    },
+    {
+      "item": "App Profile PAC File",
+      "depth": 1
+    },
+    {
+      "item": "In Tunnel with Local Proxy mode, the App Profile directs traffic (that Zscaler Client Connector received) to the Zscaler cloud. Zscaler Client Connector directs traffic to the closest data center according to the App Profile PAC file by changing the proxy return statement to the geographically closest data center IP address.",
+      "depth": 1
+    },
+    {
+      "item": "When using the App Profile PAC for Tunnel with Local Proxy mode, you must keep the PAC file as simple as possible.",
+      "depth": 1
+    },
+    {
+      "item": "The following is an example of App Profile PAC file for Tunnel with Local Proxy mode:",
+      "depth": 1
+    },
+    {
+      "item": "function FindProxyForURL(url, host) { /* Default Traffic Forwarding. Forwarding to Zen */ return \"PROXY ${GATEWAY}:80; PROXY ${SECONDARY_GATEWAY}:80; DIRECT\"; }",
+      "depth": 1
+    },
+    {
+      "item": "Enforce Proxy",
+      "depth": 0
+    },
+    {
+      "item": "In Enforce Proxy mode, Zscaler Client Connector acts similarly to a GPO pushing a PAC file on the system. Zscaler Client Connector enforces the Forwarding Profile PAC file on your machine.",
+      "depth": 0
+    }
+  ]
+}

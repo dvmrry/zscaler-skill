@@ -1,0 +1,236 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Admins and Roles Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-admins-and-roles-using-api",
+    "node": "1461451",
+    "revision": "2887251",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Admin & Role Management API resources within the cloud service API provide programmatic access to perform various operations relating to admins, auditors, and roles. You can use these resources to retrieve roles or create and manage admins for your organization."
+    },
+    {
+      "text": "The following steps provide an overview of how to configure role-based administration for the Zscaler service:"
+    },
+    {
+      "item": "Add a user, set up authentication, and assign the user to their department and group by using the POST /users request. To learn more, see Managing Users Using API.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure the user with admin privileges and assign the admin role, scope, and other permissions by using the POST /adminUsers request. Ensure that you have the admin role configured per your requirements.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Manage the admin user:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To update admin user information, use PUT /adminUsers/{userId}.",
+      "depth": 0
+    },
+    {
+      "item": "To delete an admin and remove them as a user from the ZIA Admin Portal, use DELETE /adminUsers/{userId}. To delete an admin and retain them as a user, use POST /adminUsers/{userId}/convertToUser.",
+      "depth": 0
+    },
+    {
+      "text": "This article covers Step 2 and Step 3 in detail with examples."
+    },
+    {
+      "text": "The Zscaler service supports role-based access for admins to provide granular access to the ZIA Admin Portal based on their roles and responsibilities. The service also supports different types of admins, including ZIA admins, SD-WAN partner API clients, Executive Insights App admins, and API admins. You can also create and manage auditors, who play a special role in the organization, enabling admins to view user names that are obfuscated. To learn more, see About Auditors."
+    },
+    {
+      "item": "Access to Admin & Role Management resources requires full Administrators Access permissions for the API role (when using OAuth 2.0) or admin role (when using admin credentials and API key-based authentication). To learn more, see Getting Started.",
+      "depth": 0
+    },
+    {
+      "item": "Admins who have permission to manage other admins can only create, edit, or view admins that have an equal or lower rank. To learn more, see About Admin Rank. So when you retrieve, create, update, or delete admin credentials via the API, it is only for admins of an equal or lower rank to yours.",
+      "depth": 0
+    },
+    {
+      "item": "Admin rank and scope don't apply to SD-WAN partner API clients. To learn more, see Adding SD-WAN Partner API Clients.",
+      "depth": 0
+    },
+    {
+      "item": "API roles are never associated with an admin. Instead, an API role is assigned to an API client application that accesses Zscaler's APIs using OAuth 2.0. To learn more, see Securing ZIA APIs with OAuth 2.0.",
+      "depth": 0
+    },
+    {
+      "text": "Before getting started with the operations listed in this article, ensure that you have provisioned a user who can be assigned the admin role. To learn more, see Managing Users Using API."
+    },
+    {
+      "text": "After making any configuration changes, you must activate them by sending a POST request to /status/activate. As a best practice, if you are making multiple configuration changes, Zscaler recommends grouping the changes and activating once. To learn more, see Getting Started."
+    },
+    {
+      "heading": "Getting a List of Admin Roles",
+      "level": 1
+    },
+    {
+      "text": "To get a list of admin roles, send a GET request to /adminRoles/lite. You can use the following query parameters in the request:"
+    },
+    {
+      "item": "includeAuditorRole: Includes auditor role information in the list.",
+      "depth": 0
+    },
+    {
+      "item": "includePartnerRole: Includes SD-WAN partner API role information in the list.",
+      "depth": 0
+    },
+    {
+      "item": "includeApiRole: Includes API role information in the list.",
+      "depth": 0
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/adminRoles/lite?page=1&pageSize=100\", payload, headers) conn.request(\"GET\", \"/api/v1/adminRoles/lite?includeAuditorRole=true&includePartnerRole=true&includeApiRole=true\", payload, headers)"
+    },
+    {
+      "text": "A successful request returns the list of admin roles along with the following information in a JSON object:"
+    },
+    {
+      "text": "[ { \"id\": 1254, \"rank\": 7, \"name\": \"HR\", \"roleType\": \"ORG_ADMIN\", \"reportTimeDuration\": -1 }, … ]"
+    },
+    {
+      "heading": "Getting a List of Admin Users",
+      "level": 1
+    },
+    {
+      "text": "To get a list of admin users configured in the ZIA Admin Portal, send a GET request to /adminUsers. You can use the following query parameters in the request:"
+    },
+    {
+      "item": "includeAuditorUsers: Includes users with auditor privileges in the list.",
+      "depth": 0
+    },
+    {
+      "item": "includePartnerRole: Includes SD-WAN partner API client information in the list.",
+      "depth": 0
+    },
+    {
+      "text": "You can also use the search query parameter to use keywords to match (partially or fully) against an admin's Login ID or Name. (e.g., \"John\")."
+    },
+    {
+      "text": "For example, in Python:"
+    },
+    {
+      "text": "conn.request(\"GET\", \"/api/v1/adminUsers?page=1&pageSize=100&search=john\", payload, headers) conn.request(\"GET\", \"/api/v1/adminUsers?includeAuditorUsers=true&includePartnerRole=true\", payload, headers)"
+    },
+    {
+      "text": "A successful request returns the list of admin users with the following information in JSON-formatted data:"
+    },
+    {
+      "text": "[ { \"id\": 3817674, \"loginName\": \"jdoe@safemarch.com\", \"userName\": \"John Doe\", \"email\": \"jdoe@safemarch.com\", \"role\": { \"id\": 1255, \"name\": \"IT\", \"isNameL10nTag\": true, \"extensions\": { \"adminRank\": \"7\", \"roleType\": \"ORG_ADMIN\" } }, \"comments\": \"Password123!\", \"adminScopescopeGroupMemberEntities\": [], \"adminScopeType\": \"DEPARTMENT\", \"adminScopeScopeEntities\": [ { \"id\": 3829304, \"name\": \"TP\" } ], \"disabled\": false, \"isPasswordLoginAllowed\": true, \"pwdLastModifiedTime\": 1520496222, \"name\": \"John Doe\" } ]"
+    },
+    {
+      "heading": "Adding an Admin User",
+      "level": 1
+    },
+    {
+      "text": "Before you can add an admin, you must send a GET request to /adminRoles to retrieve information about the role that must be assigned to the admin user."
+    },
+    {
+      "text": "To configure a user with admin privileges, send a POST request to /adminUsers along with the following necessary key-value pairs in the Body:"
+    },
+    {
+      "item": "loginName: The admin's login name. This field value is in email format and uses the domain name associated with the Zscaler account.",
+      "depth": 0
+    },
+    {
+      "item": "email: The admin's business email address.",
+      "depth": 0
+    },
+    {
+      "item": "userName: The admin's username.",
+      "depth": 0
+    },
+    {
+      "item": "role: A JSON key-value pair containing the id and name of the role that must be assigned to the admin.",
+      "depth": 0
+    },
+    {
+      "text": "You can also include optional fields, such as isPasswordLoginAllowed, execMobileAppEnabled, etc. in the API request."
+    },
+    {
+      "text": "For example:"
+    },
+    {
+      "text": "{ \"email\": \"demouser@example.com\", \"loginName\": \"demouser@example.com\", \"role\": { \"id\": 695, \"name\": \"Demo Role\" }, \"userName\": \"Demo User\" }"
+    },
+    {
+      "text": "Sample request in Python:"
+    },
+    {
+      "text": "import http.client import json conn = http.client.HTTPSConnection(\"10.65.31.120\") payload = json.dumps({ \"email\": \"demouser@example.com\", \"loginName\": \"demouser@example.com\", \"role\": { \"id\": 695, \"name\": \"Demo Role\" }, \"userName\": \"Demo User\" }) headers = { 'Content-Type': 'application/json', 'Cookie': 'JSESSIONID=D2A1CC35FCCC5769501D7FE230576F34' } conn.request(\"POST\", \"/api/v1/adminUsers\", payload, headers) res = conn.getresponse() data = res.read() print(data.decode(\"utf-8\"))"
+    },
+    {
+      "text": "A successful request returns the admin user information in a JSON object:"
+    },
+    {
+      "text": "{ \"id\": 344325, \"loginName\": \"demouser@example.com\", \"userName\": \"Demo User\", \"email\": \"demouser@example.com\", \"role\": { \"id\": 695, \"name\": \"Demo Role\", \"isNameL10nTag\": true, \"extensions\": { \"adminRank\": \"7\", \"roleType\": \"ORG_ADMIN\" } }, \"adminScopescopeGroupMemberEntities\": [], \"adminScopeType\": \"ORGANIZATION\", \"adminScopeScopeEntities\": [], \"disabled\": false, \"pwdLastModifiedTime\": 0, \"name\": \"Demo User\", \"execMobileAppEnabled\": false }"
+    },
+    {
+      "text": "When a key-value pair is not explicitly specified in the API request, the default value is assigned to the respective fields. This includes password-based login (disabled by default if single sign-on is configured), admin scope (organization scope assigned by default), Executive Insights App access (disabled by default), etc. You can configure these fields using the appropriate attributes when adding the admin or by updating the admin user information."
+    },
+    {
+      "text": "If you want to create an auditor user, you need to send a POST request to /adminUsers along with the following key-value pairs in the Body:"
+    },
+    {
+      "text": "{ \"email\": \"demoauditor@example.com\", \"loginName\": \"demoauditor@example.com\", \"userName\": \"Demo Auditor\", \"isAuditor\": true, \"isPasswordLoginAllowed\": true, \"password\": \"Admin@123\" }"
+    },
+    {
+      "text": "Optionally, you can include the auditor user status and additional comments by using the appropriate fields in the API request."
+    },
+    {
+      "heading": "Updating Information for an Admin User",
+      "level": 1
+    },
+    {
+      "text": "To update an admin user information, obtain the admin user ID (userId) by sending a GET request to /adminUsers. Then, send a PUT request to /adminUsers/{userId} with all of the required fields as well as the fields that must be modified."
+    },
+    {
+      "text": "For example, to enable password-based login for an admin, you need to send the following key-value pairs in the request Body:"
+    },
+    {
+      "text": "{ \"email\": \"demouser@example.com\", \"loginName\": \"demouser@example.com\", \"role\": { \"id\": 695, \"name\": \"Demo Role\" }, \"userName\": \"Demo User\", \"isPasswordLoginAllowed\": true, \"password\": \"xxxxxx\" }"
+    },
+    {
+      "text": "A successful request returns the admin user information along with the new configurations in a JSON structure:"
+    },
+    {
+      "text": "{ \"id\": 344325, \"loginName\": \"demouser@example.com\", \"userName\": \"Demo User\", \"email\": \"demouser@example.com\", \"role\": { \"id\": 695, \"name\": \"Demo Role\", \"isNameL10nTag\": true, \"extensions\": { \"adminRank\": \"7\", \"roleType\": \"ORG_ADMIN\" } }, \"adminScopescopeGroupMemberEntities\": [], \"adminScopeType\": \"ORGANIZATION\", \"adminScopeScopeEntities\": [], \"disabled\": false, \"isPasswordLoginAllowed\": true, \"pwdLastModifiedTime\": 1689002233, \"name\": \"Demo User\", \"execMobileAppEnabled\": false }"
+    },
+    {
+      "heading": "Deleting an Admin User",
+      "level": 1
+    },
+    {
+      "text": "The default admin account cannot be deleted."
+    },
+    {
+      "text": "To delete an admin user, obtain the admin user ID (userId) by sending a GET request to /adminUsers. Then, send a DELETE request to /adminUsers/{userId} with the admin's user ID. For example, in Python:"
+    },
+    {
+      "text": "conn.request(\"DELETE\", \"/api/v1/adminUsers/344325\", payload, headers)"
+    },
+    {
+      "text": "This request deletes the admin and removes them as a user from the ZIA Admin Portal. However, if you want to remove the admin privileges for a user while retaining the user in the ZIA Admin Portal, you need to send a POST request to /adminUsers/{userId}/convertToUser with the admin user's ID. Apart from the user's ID, group information is mandatory for this request. Optionally, you can include other field information to modify the values."
+    },
+    {
+      "text": "For example, to convert an admin user to a non-admin user, you need to send the following POST request (example in Python) along with the key-value pairs in the request Body:"
+    },
+    {
+      "text": "conn.request(\"POST\", \"/api/v1/adminUsers/74611/convertToUser\", payload, headers)"
+    },
+    {
+      "text": "{ \"groups\": [ { \"id\": 69782, \"name\": \"Service Admin\" } ] }"
+    }
+  ]
+}

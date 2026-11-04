@@ -1,0 +1,205 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Administration",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/administration-0",
+    "node": "1409636",
+    "revision": "3160740",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Administration_2.json?VersionId=QLLozhjXeB4LgQO2.YKm556NFOLvmg7Q",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.3",
+    "info": {
+      "title": "ZDX API",
+      "version": "0.1.0",
+      "description": "APIs for Zscaler Digital Experience (ZDX).\n"
+    },
+    "servers": [
+      {
+        "url": "https://api.zdxcloud.net/v1",
+        "description": "production"
+      },
+      {
+        "url": "https://dev.zdxapi.zscaler.net/v1",
+        "description": "dev"
+      },
+      {
+        "url": "http://localhost:8080/v1",
+        "description": "local"
+      }
+    ],
+    "security": [
+      {
+        "BearerAuth": []
+      }
+    ],
+    "tags": {
+      "0": {
+        "name": "Administration"
+      }
+    },
+    "paths": {
+      "/administration/departments": {
+        "get": {
+          "description": "Gets configured departments.",
+          "tags": [
+            "Administration"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "in": "query",
+              "name": "Search",
+              "schema": {
+                "type": "string"
+              },
+              "required": false,
+              "description": "The search string used to support search by name or department ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "type": "object",
+                      "properties": {
+                        "id": {
+                          "type": "integer",
+                          "description": "The department ID."
+                        },
+                        "name": {
+                          "type": "string",
+                          "description": "Name of the department."
+                        }
+                      },
+                      "example": {
+                        "id": 38745231,
+                        "name": "Engineering"
+                      }
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      },
+      "/administration/locations": {
+        "get": {
+          "description": "Gets Zscaler locations. All configured Zscaler locations are returned if the search filters is not specified.",
+          "tags": [
+            "Administration"
+          ],
+          "parameters": [
+            {
+              "$ref": "#/components/parameters/from"
+            },
+            {
+              "$ref": "#/components/parameters/to"
+            },
+            {
+              "in": "query",
+              "name": "q",
+              "schema": {
+                "type": "string"
+              },
+              "required": false,
+              "description": "The search string used to support search by name or location ID."
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/ZSLocation"
+                    },
+                    "example": {
+                      "id": 72840124,
+                      "name": "US-BHE23-CBR - San Francisco"
+                    }
+                  }
+                }
+              }
+            },
+            "401": {
+              "$ref": "#/components/responses/UnauthorizedError"
+            },
+            "403": {
+              "$ref": "#/components/responses/Forbidden"
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "parameters": {
+        "from": {
+          "in": "query",
+          "name": "from",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The start time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours."
+        },
+        "to": {
+          "in": "query",
+          "name": "to",
+          "required": false,
+          "schema": {
+            "type": "integer",
+            "minimum": 0
+          },
+          "description": "The end time (in seconds) for the query. The value is entered in Unix Epoch. If not entered, returns the data for the last 2 hours."
+        }
+      },
+      "responses": {
+        "UnauthorizedError": {
+          "description": "Unauthorized"
+        },
+        "Forbidden": {
+          "description": "Forbidden"
+        }
+      },
+      "schemas": {
+        "ZSLocation": {
+          "type": "object",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "description": "The location ID."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the location."
+            }
+          }
+        }
+      }
+    }
+  }
+}

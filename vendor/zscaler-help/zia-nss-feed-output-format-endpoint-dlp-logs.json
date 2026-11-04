@@ -1,0 +1,659 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "NSS Feed Output Format: Endpoint DLP Logs",
+  "source": {
+    "url": "https://help.zscaler.com/zia/nss-feed-output-format-endpoint-dlp-logs",
+    "node": "1461946",
+    "revision": "3243454",
+    "updated": "2026-09-19",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler Endpoint Data Loss Prevention (DLP) Nanolog Streaming Service (NSS) feed specifies the data from the Endpoint DLP logs that the NSS sends to the security information and event management (SIEM) system. You can configure an NSS feed by including one or more fields. The fields and their values display in the NSS feed output."
+    },
+    {
+      "item": "View a sample Endpoint DLP log.",
+      "depth": 0
+    },
+    {
+      "item": "\"Tue May 30 18:07:54 2023\",\"7239038846486118403\",\"ZDP\",\"Unknown\",\"\",\"txt\",\"b29e01ed4bde24b0f8edb1fd4816e982\",\"Credit Cards: Detect leakage of credit card information\",\"10\",\"5 or more Credit Card Numbers\",\"Network Drive Transfer\",\"Confirm Allow\",\"High Severity\",\"NA\"",
+      "depth": 0
+    },
+    {
+      "text": "The following tables display information about the Endpoint DLP log fields and possible values for those fields."
+    },
+    {
+      "text": "Fields that support obfuscation are documented in the following tables with the prefix o (e.g., %s{ouser}). To obfuscate a field, manually add the prefix o before the field name in the Feed Output Format in the Zscaler Admin Console."
+    },
+    {
+      "heading": "Date/Time",
+      "level": 1
+    },
+    {
+      "text": "The following are date and time fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{time}",
+          "The log time (i.e., when a transaction is logged by the Zscaler Nanolog)",
+          "Mon Oct 16 22:55:48 2023"
+        ],
+        [
+          "%s{rtime}",
+          "The feed time (i.e., when a transaction is received by the NSS from the Nanolog)",
+          "Mon Oct 16 22:55:48 2023"
+        ],
+        [
+          "%s{eventtime}",
+          "The event time (i.e., when an event is intercepted and evaluated by the DLP service). An event (e.g., file copied to local drive) can be classified as an activity or as an incident, if it violates a DLP rule.",
+          "Mon Oct 16 22:55:48 2023"
+        ],
+        [
+          "%s{tz}",
+          "The time zone. This is the same as the time zone you specified when you configured the NSS feed.",
+          "GMT"
+        ],
+        [
+          "%02d{ss}",
+          "Seconds (0–59)",
+          "48"
+        ],
+        [
+          "%02d{mm}",
+          "Minutes (0–59)",
+          "55"
+        ],
+        [
+          "%02d{hh}",
+          "Hours (0–23)",
+          "22"
+        ],
+        [
+          "%02d{dd}",
+          "The day of the month (1–31)",
+          "16"
+        ],
+        [
+          "%02d{mth}",
+          "The month of the year",
+          "10"
+        ],
+        [
+          "%04d{yyyy}",
+          "Year",
+          "2023"
+        ],
+        [
+          "%s{mon}",
+          "The name of the month",
+          "Oct"
+        ],
+        [
+          "%s{day}",
+          "The day of the week",
+          "Mon"
+        ]
+      ]
+    },
+    {
+      "heading": "Scan Information",
+      "level": 1
+    },
+    {
+      "text": "The following are scan information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%llu{scantime}",
+          "The scan time in milliseconds",
+          "1210"
+        ],
+        [
+          "%u{numdlpengids}",
+          "The number of DLP engines hit",
+          "12"
+        ],
+        [
+          "%u{numdlpdictids}",
+          "The number of DLP dictionaries hit",
+          "8"
+        ],
+        [
+          "%llu{recordid}",
+          "The unique record identifier",
+          "2"
+        ],
+        [
+          "%llu{scanned_bytes}",
+          "The scanned item (file or text) size in bytes",
+          "290812"
+        ],
+        [
+          "%llu{dlpidentifier}",
+          "The unique DLP identifier",
+          "12"
+        ]
+      ]
+    },
+    {
+      "heading": "User Information",
+      "level": 1
+    },
+    {
+      "text": "The following are user information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{user}",
+          "The username",
+          "TempUser"
+        ],
+        [
+          "%s{ouser}",
+          "The obfuscated version of the username. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{department}",
+          "The name of the department",
+          "TempDept"
+        ],
+        [
+          "%s{odepartment}",
+          "The obfuscated version of the department name. This displays a random string.",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "Device Information",
+      "level": 1
+    },
+    {
+      "text": "The following are device information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{devicename}",
+          "The device name",
+          "Dev 1"
+        ],
+        [
+          "%s{odevicename}",
+          "The obfuscated version of the device name. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{devicetype}",
+          "The device type",
+          "WinUser"
+        ],
+        [
+          "%s{deviceostype}",
+          "The device OS type",
+          "Windows"
+        ],
+        [
+          "%s{deviceplatform}",
+          "The device platform",
+          "Windows"
+        ],
+        [
+          "%s{deviceosversion}",
+          "The device OS version",
+          "Win-11"
+        ],
+        [
+          "%s{devicemodel}",
+          "The device model",
+          "Model-2022"
+        ],
+        [
+          "%s{deviceappversion}",
+          "The device application version",
+          "Ver-2199"
+        ],
+        [
+          "%s{deviceowner}",
+          "The device owner",
+          "Administrator"
+        ],
+        [
+          "%s{odeviceowner}",
+          "The obfuscated version of the device owner. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{devicehostname}",
+          "The device hostname",
+          "Host"
+        ],
+        [
+          "%s{odevicehostname}",
+          "The obfuscated version of the device hostname. This displays a random string.",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "Data Center Information",
+      "level": 1
+    },
+    {
+      "text": "The following are data center information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{datacenter}",
+          "The name of the data center",
+          "Georgia"
+        ],
+        [
+          "%s{datacentercity}",
+          "The city where the data center is located",
+          "Atlanta"
+        ],
+        [
+          "%s{datacentercountry}",
+          "The country where the data center is located",
+          "US"
+        ]
+      ]
+    },
+    {
+      "heading": "File Information",
+      "level": 1
+    },
+    {
+      "text": "The following are file information fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{filesrcpath}",
+          "The file source path",
+          "source_path"
+        ],
+        [
+          "%s{ofilesrcpath}",
+          "The obfuscated version of the file source path. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{filedstpath}",
+          "The file destination path",
+          "dest_path"
+        ],
+        [
+          "%s{ofiledstpath}",
+          "The obfuscated version of the file destination path. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{filemd5}",
+          "The file MD5 hash",
+          "938c2cc0dcc05f2b68c4287040cfcf71"
+        ],
+        [
+          "%s{filesha}",
+          "The file SHA256 hash",
+          "076085239f3a10b8f387c4e5d4261abf8d109aa641be35a8d4ed2d775eb09612"
+        ],
+        [
+          "%s{filetypename}",
+          "The file type",
+          "exe64"
+        ],
+        [
+          "%s{filetypecategory}",
+          "The file type category",
+          "PLS File (pls)"
+        ],
+        [
+          "%s{filedoctype}",
+          "The type of document uploaded or downloaded during the transaction",
+          "Medical"
+        ],
+        [
+          "%s{doc_subtype}",
+          "The subtype of the document uploaded or downloaded during the transaction",
+          "Patient Medical Records: Medical History"
+        ],
+        [
+          "%s{itemtype}",
+          "The item (file or text) type",
+          "email_attachment"
+        ],
+        [
+          "%s{srctype}",
+          "The source type",
+          "network_share"
+        ],
+        [
+          "%s{dsttype}",
+          "The destination type",
+          "personal_cloud_storage"
+        ],
+        [
+          "%s{itemname}",
+          "The item name",
+          "endpoint_dlp"
+        ],
+        [
+          "%s{oitemname}",
+          "The obfuscated version of the item name. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{itemsrcname}",
+          "The item source name",
+          "endpoint"
+        ],
+        [
+          "%s{oitemsrcname}",
+          "The obfuscated version of the item source name. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{itemdstname}",
+          "The item destination name",
+          "nanolog"
+        ],
+        [
+          "%s{oitemdstname}",
+          "The obfuscated version of the item destination name. This displays a random string.",
+          ""
+        ]
+      ]
+    },
+    {
+      "heading": "DLP Information",
+      "level": 1
+    },
+    {
+      "text": "The following are DLP fields:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Example"
+        ],
+        [
+          "%s{dlpengnames}",
+          "The DLP engine names",
+          "dlpengine"
+        ],
+        [
+          "%s{odlpengnames}",
+          "The obfuscated version of the DLP engine names. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{dlpdictnames}",
+          "The DLP dictionary names",
+          "[dlp]"
+        ],
+        [
+          "%s{odlpdictnames}",
+          "The obfuscated version of the DLP dictionary names. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{dlpcounts}",
+          "The number of hits for each of the DLP dictionaries",
+          "[12,13]"
+        ],
+        [
+          "%s{confirmaction}",
+          "The confirmation action by the user",
+          "confirm"
+        ],
+        [
+          "%s{actiontaken}",
+          "The action taken by Endpoint DLP",
+          "allow"
+        ],
+        [
+          "%s{severity}",
+          "The severity of the event. An event is either an incident or a sensitive activity. An incident violates an Endpoint DLP rule and the severity (High, Medium, Low, Info) is based on the rule that was violated. A sensitive activity does not violate a rule and is reported for visibility (Info).",
+          "High Severity Medium Severity Low Severity Info Severity"
+        ],
+        [
+          "%s{triggeredrulelabel}",
+          "The DLP rule that was triggered. An event can trigger multiple rules, out of which the DLP service applies the most restrictive rule. The applied rule is the \"triggered\" rule, while the other rules are stored as \"other\" rules (i.e., %s{otherrulelabels}).",
+          "configured_rule"
+        ],
+        [
+          "%s{otriggeredrulelabel}",
+          "The obfuscated version of the triggered DLP rule. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{otherrulelabels}",
+          "The labels of other rules that were triggered. See %s{triggeredrulelabel}.",
+          "[none]"
+        ],
+        [
+          "%s{ootherrulelabels}",
+          "The obfuscated version of the other rule labels. This displays a random string.",
+          ""
+        ],
+        [
+          "%s{logtype}",
+          "The type of record",
+          "dlp_incident sensitive_activity"
+        ],
+        [
+          "%s{channel}",
+          "The channel",
+          "Network Drive Transfer"
+        ],
+        [
+          "%s{activitytype}",
+          "The activity type",
+          "email_sent"
+        ],
+        [
+          "%s{expectedaction}",
+          "The expected action by Endpoint DLP",
+          "block"
+        ],
+        [
+          "%s{zdpmode}",
+          "The ZDP mode",
+          "block mode"
+        ],
+        [
+          "%s{addinfo}",
+          "Additional information",
+          "File already open by another application"
+        ],
+        [
+          "%s{confirmjust}",
+          "The option selected by the user to justify a transaction that triggers a DLP rule with the Confirm action",
+          "1 - User didn't provide justification in time 2 - The data contains only my personal information 3 - This activity is part of a necessary business workflow 4 - This activity was accidental 5 - The data does not contain sensitive information 6 - Other"
+        ],
+        [
+          "%s{dlp_confirm_just_str}",
+          "The message entered by a user to justify a transaction that triggers a DLP rule with the Confirm action",
+          "My manager approved it"
+        ]
+      ]
+    },
+    {
+      "heading": "Base64 Fields",
+      "level": 1
+    },
+    {
+      "text": "A SIEM can have parsing issues whenever a string field has non-printable or delimiter characters. For that reason, the Zscaler service has URL encoding for URL fields like URL, Referer, and Hostname. There are several other fields that have the same parsing issue, but URL encoding is not suitable. Such fields are encoded using Base64."
+    },
+    {
+      "text": "Turning on Base64 encoding for all supported fields might result in approximately a 20% drop in performance."
+    },
+    {
+      "text": "The following are Base64 fields:"
+    },
+    {
+      "item": "b64user",
+      "depth": 0
+    },
+    {
+      "item": "b64department",
+      "depth": 0
+    },
+    {
+      "item": "b64devicename",
+      "depth": 0
+    },
+    {
+      "item": "b64deviceowner",
+      "depth": 0
+    },
+    {
+      "item": "b64devicehostname",
+      "depth": 0
+    },
+    {
+      "item": "b64itemname",
+      "depth": 0
+    },
+    {
+      "item": "b64itemsrcname",
+      "depth": 0
+    },
+    {
+      "item": "b64itemdstname",
+      "depth": 0
+    },
+    {
+      "item": "b64dlpengnames",
+      "depth": 0
+    },
+    {
+      "item": "b64filesrcpath",
+      "depth": 0
+    },
+    {
+      "item": "b64filedstpath",
+      "depth": 0
+    },
+    {
+      "item": "b64dlpdictnames",
+      "depth": 0
+    },
+    {
+      "item": "b64otherrulelabels",
+      "depth": 0
+    },
+    {
+      "item": "b64triggeredrulelabel",
+      "depth": 0
+    },
+    {
+      "heading": "Hex-Encoded Fields",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service hex encodes all non-printable ASCII characters that are in URLs when it sends logs to the NSS. Any URL character that is less than or equal to 0x20, or greater than or equal to 0x7F, is encoded as %HH. This ensures that your SIEM can parse the URLs that contain control characters. For example, a \\n character in a URL is encoded as %0A, and a space is encoded as %20."
+    },
+    {
+      "text": "The following are hex-encoded fields:"
+    },
+    {
+      "item": "euser",
+      "depth": 0
+    },
+    {
+      "item": "edepartment",
+      "depth": 0
+    },
+    {
+      "item": "edevicename",
+      "depth": 0
+    },
+    {
+      "item": "edeviceowner",
+      "depth": 0
+    },
+    {
+      "item": "edevicehostname",
+      "depth": 0
+    },
+    {
+      "item": "eitemname",
+      "depth": 0
+    },
+    {
+      "item": "eitemsrcname",
+      "depth": 0
+    },
+    {
+      "item": "eitemdstname",
+      "depth": 0
+    },
+    {
+      "item": "edlpengnames",
+      "depth": 0
+    },
+    {
+      "item": "efilesrcpath",
+      "depth": 0
+    },
+    {
+      "item": "efiledstpath",
+      "depth": 0
+    },
+    {
+      "item": "edlpdictnames",
+      "depth": 0
+    },
+    {
+      "item": "eotherrulelabels",
+      "depth": 0
+    },
+    {
+      "item": "etriggeredrulelabel",
+      "depth": 0
+    }
+  ]
+}

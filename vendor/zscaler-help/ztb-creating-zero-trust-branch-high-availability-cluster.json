@@ -1,0 +1,544 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating a Zero Trust Branch High Availability Cluster",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/creating-zero-trust-branch-high-availability-cluster",
+    "node": "1533622",
+    "revision": "3252107",
+    "updated": "2026-11-04",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "A Zscaler Zero Trust Branch high availability (HA) cluster consists of two identical Zero Trust Branch appliances (or nodes). One node is the primary node and has the active role. The other node is the secondary node and has the standby role. If the primary node fails, the secondary node takes over as the primary, active node. The nodes coordinate stateful failover and traffic handling using protocols such as traffic session state synchronization and Virtual Router Redundancy Protocol (VRRP)."
+    },
+    {
+      "item": "Traffic session state synchronization enables seamless, stateful failover between the nodes. This ensures uninterrupted service for session-based applications such as SSH, SCP, FTP, and HTTP during node failovers. The session state information on the primary node is continuously synchronized to the secondary node to ensure that it has up-to-date session data to seamlessly continue traffic processing if the primary node fails.",
+      "depth": 0
+    },
+    {
+      "item": "VRRP determines the active and standby roles of the nodes, monitors the health and availability of the nodes, and initiates a failover when necessary. When VRRP detects a node failure and triggers a failover, the new active node uses the synchronized session data to maintain ongoing traffic sessions without disruption.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Dedicate an unused VLAN for HA only.",
+      "depth": 0
+    },
+    {
+      "item": "Configure two ports on the switch for that VLAN.",
+      "depth": 0
+    },
+    {
+      "item": "Connect a cable from the GE4 port of each appliance to one of the two ports on the switch.",
+      "depth": 0
+    },
+    {
+      "item": "The two appliances are connected to each other via a switch, not via a crossover cable that connects them directly.",
+      "depth": 0
+    },
+    {
+      "heading": "Topology Diagram",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide a diagram depicting the topology of an HA cluster deployment and a description of its components and flow."
+    },
+    {
+      "item": "Topology diagram",
+      "depth": 0
+    },
+    {
+      "item": "Topology details",
+      "depth": 0
+    },
+    {
+      "item": "The LAN segment hosts the endpoints that the HA cluster manages and secures.",
+      "depth": 1
+    },
+    {
+      "item": "The Zero Trust Branch HA cluster consists of two identical Zero Trust Branch appliances configured for HA.",
+      "depth": 1
+    },
+    {
+      "item": "The appliances use a dedicated HA interface, and are connected to a switch via the GE4 port. TCP, UDP, and ICMP connections are synchronized between the nodes using this link. To learn more, see Zero Trust Branch Physical Port Mapping.",
+      "depth": 1
+    },
+    {
+      "item": "This is the only supported way to connect the appliances. If you connect the appliances to each other directly, the failover does not function properly.",
+      "depth": 1
+    },
+    {
+      "item": "The WAN uplink allows secure communication with Zero Trust Branch management and other external networks.",
+      "depth": 1
+    },
+    {
+      "heading": "Creating a Cluster",
+      "level": 1
+    },
+    {
+      "text": "To create and activate a cluster, complete the following steps in the Zscaler Admin Console:"
+    },
+    {
+      "item": "Step 1: Add a Template",
+      "depth": 0
+    },
+    {
+      "item": "You must use an HA template to launch a Zero Trust Branch cluster. You can use a default HA template or create a custom template. To create a custom template:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Resources > Templates.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          61
+        ],
+        [
+          64,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "On the Templates page, complete the Add a New Template procedure, ensuring that you select standard_mode_ha for the Deployment Type.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          91,
+          107
+        ],
+        [
+          116,
+          132
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 2: Add a Site",
+      "depth": 0
+    },
+    {
+      "item": "When you add a site in a Zero Trust Branch HA deployment, you configure a appliance for each appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Sites page, complete the Add a Site procedure, ensuring that you select the default HA template or a custom HA template, and configure both appliances.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "After the site is saved, you are returned to the Sites page.",
+      "depth": 1,
+      "strong": [
+        [
+          49,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Review the site details. Both appliances are in a Pending Activation or Disconnected state because they have not been activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          50,
+          68
+        ],
+        [
+          72,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Activate the Appliances",
+      "depth": 0
+    },
+    {
+      "item": "The example used in this procedure shows how to activate one appliance and is not intended to represent the cluster setup described in this article. Repeat this procedure for the secondary node. The appliance that is activated first becomes the primary node and the other appliance becomes the secondary node.",
+      "depth": 0
+    },
+    {
+      "item": "To review the ports that need to be open, see Open Ports on the Upstream Device.",
+      "depth": 0
+    },
+    {
+      "item": "The activation process uses the activation code and URL that you saved during the Managing Sites procedure in the Zscaler Admin Console. If you cannot find this information:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the row for the required site, click the Send Activation Link icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler supports one subinterface per WAN interface. However, Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged).",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to activate a Zero Trust Branch appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Activation Code Method",
+      "depth": 1
+    },
+    {
+      "item": "Activation URL Method",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the activation code that you saved during the Adding a Site procedure in the Zscaler Admin Console. Before you activate the appliance, you must configure it with the same parameters you configured when you created the site in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure uses these example values:",
+      "depth": 0
+    },
+    {
+      "item": "WAN interface: ge3 set for DHCP (This interface is hard-coded.)",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DNS servers: 1.1.1.1 and 8.8.8.8",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Web proxy: hub3.goairgap.com:1883",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "a. Configure the network.",
+      "depth": 1
+    },
+    {
+      "item": "b. Configure the web proxy (Required only if the Zero Trust Branch appliance is deployed behind a firewall)",
+      "depth": 1
+    },
+    {
+      "item": "c. Activate the appliance.",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the URL that you saved during the Adding a Site procedure in the Zscaler Admin Console. The URL contains the configuration data for the WAN interface and the activation code.",
+      "depth": 0
+    },
+    {
+      "item": "Connect a laptop directly to the management port on the appliance. The laptop automatically gets an IP address directly from the appliance.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Open a browser on the laptop and paste the URL that you copied when you created the site.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "After the appliance processes the configuration, it displays an Activation is completed message on the web page.",
+      "depth": 1,
+      "strong": [
+        [
+          64,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and click the site in the Site Name column. In the site details, verify that the appliance is activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ],
+        [
+          72,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "The State field value for an activated appliance is:",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Standalone for a standalone appliance",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Active for the primary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Standby for the secondary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Show image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, enter 2 (Configure Gateway) from the menu and press Enter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Configure Network) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the network configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 3 (Configure Web Proxy) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the web proxy configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 1 (Activate Gateway) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Activate Airgap Gateway) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the activation code that you saved when you created the site and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 2 (Main Menu) and press Enter. The screen shows that the appliance is activated.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Sites page, you can observe the activation process, which goes through several states, such as Initializing and Post-update. When both appliances are activated, the primary appliance state is Active and the secondary appliance state is Standby.",
+      "depth": 0,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          102,
+          114
+        ],
+        [
+          119,
+          130
+        ],
+        [
+          199,
+          205
+        ],
+        [
+          243,
+          250
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Configure VRRP",
+      "depth": 0
+    },
+    {
+      "item": "Configure VRRP at the site level to select which interface to use for HA synchronization. During this step, configure a password and additional settings to prevent other devices using VRRP from communicating with the nodes in the HA cluster. To learn more, see Configuring a High Availability Site with Virtual Router Redundancy Protocol.",
+      "depth": 0
+    }
+  ]
+}

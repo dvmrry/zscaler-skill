@@ -1,0 +1,1673 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Changing AWS CloudTrail Details",
+  "source": {
+    "url": "https://help.zscaler.com/dspm/changing-aws-cloudtrail-details",
+    "node": "1478051",
+    "revision": "3249678",
+    "updated": "2026-10-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can change the CloudTrail for an organization or a single account within the organization as required."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "item": "You must be assigned either an Administrator role or any role with Edit Cloud Accounts permission.",
+      "depth": 0
+    },
+    {
+      "item": "To configure a cross-account CloudTrail that stores logs in an S3 bucket located in a different account than the onboarded account (member account), enable the following settings:",
+      "depth": 0
+    },
+    {
+      "item": "CloudTrail Permissions for Member Accounts",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS account where the S3 bucket that stores CloudTrail logs is available, and go to CloudTrail.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          99,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Under Trails, select the required CloudTrail.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Under General details, click the Trail log location.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          21
+        ],
+        [
+          33,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the S3 bucket, and then select the Permissions tab.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Under Bucket policy, click Edit and add the following permissions to write CloudTrail logs of the member accounts in the S3 bucket:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          27,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "{ \"Sid\": \"AllowCloudTrailWriteLogsFor<CloudTrail account ID>\", \"Effect\": \"Allow\", \"Principal\": { \"Service\": \"cloudtrail.amazonaws.com\" }, \"Action\": \"s3:PutObject\", \"Resource\": \"arn:aws:s3:::cross-bucketpolicy/AWSLogs/<CloudTrail account ID>/*\", \"Condition\": { \"StringEquals\": { \"AWS:SourceArn\": \"arn:aws:cloudtrail:us-west-2:<CloudTrail account ID>:trail/cross-trail\", \"s3:x-amz-acl\": \"bucket-owner-full-control\" } }",
+      "depth": 2
+    },
+    {
+      "item": "{ \"Sid\": \"AllowBucketAccessForMembers\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": [ \"arn iam::<CloudTrail account ID>: root\" ] } }",
+      "depth": 2
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Cross-Account Log Decryption",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console where the CloudTrail account is available, and go to CloudTrail.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          91,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Copy the S3 bucket name of the CloudTrail.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Sign in to the member account, and go to CloudTrail.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          41,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Click Create trail.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose trail attributes page:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Trail name: Enter a unique name.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Storage location: Select Use existing S3 bucket.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Trail log bucket name: Paste the CloudTrail bucket name.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "AWS KMS alias: Enter the KMS alias.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Choose log events page:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Under Events, select Management events or Data events.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          21,
+          38
+        ],
+        [
+          42,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "On the Review and create page, click Create trail.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Trails page, click the newly created trail.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Under General details, click AWS KMS key to update the policy and provide access to the S3 bucket where the CloudTrail is present.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          29,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "On the Key policy tab, click Edit to add the following policies:",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          29,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "\"Sid\": \"Enable IAM User Permissions\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": [ \"arn:aws:iam::<CloudTrail Account ID>:root\", \"arn:aws:iam::<S3 bucket account ID>:role/DSPM-Role-org-1stjuly\", \"arn:aws:sts::<CloudTrail Account ID>:assumed-role/AWSReservedSSO_AdministratorAccess_2d4e2733faaf72bb/<userID>\" ] },",
+      "depth": 2
+    },
+    {
+      "item": "{ \"Sid\": \"Enable cross account log decryption\", \"Effect\": \"Allow\", \"Principal\": { \"AWS\": [ \"arn:aws:iam::<S3 bucket account ID>:role/DSPM-Role-org-1stjuly-get-data-events\", \"arn:aws:iam::<S3 bucket account ID>:role/DSPM-Role-org-1stjuly\" ] }, \"Action\": [ \"kms:Decrypt\", \"kms:ReEncryptFrom\" ], \"Resource\": \"*\", \"Condition\": { \"StringEquals\": { \"kms:CallerAccount\": \"<S3 bucket account ID>\" }, \"StringLike\": { \"kms:EncryptionContext:aws:cloudtrail:arn\": \"arn:aws:cloudtrail:*:<CloudTrail Account ID>:trail/*\" }",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "KMS Key ID",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS account where the S3 bucket that stores CloudTrail logs is available, and go to Roles.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          99,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Select the resource discovery role that is created by DSPM.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Under Permissions, expand DSPM-CLOUDTRAIL-KMS-POLICY and click Edit.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          26,
+          52
+        ],
+        [
+          63,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "In the Policy editor, add the S3 bucket account ID where the KMS key is present.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "{ \"Version\": \"2012-10-17\", \"Statement\": [ { \"Action\": [ \"kms:Decrypt\", ], \"Resource\": [ \"arn:aws:kms:*:<CloudTrail account ID>:key*\", \"arn:aws:kms:*:<S3 bucket account ID>:key*\", \"Effect\": \"Allow\", \"Sid\": \"DSPMCLOUDTRAILKMSPOLICY\" } ] }",
+      "depth": 2
+    },
+    {
+      "item": "You can also add a specific KMS key:",
+      "depth": 2
+    },
+    {
+      "item": "Go to KMS > Customer-managed keys > Key ID.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          33
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Copy the Key ID and paste it in the Policy editor.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "\"arn:aws:kms:*:<S3 bucket account ID>:key <kms key ID>\",",
+      "depth": 3
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Changing AWS CloudTrail for an Organization",
+      "level": 1
+    },
+    {
+      "text": "The organization CloudTrail shares the CloudTrail events of the management and member accounts of the organization to the same CloudTrail S3 bucket. When you reset the organization AWS CloudTrail details, the existing CloudTrail is disabled and all the onboarded accounts move to the Needs Attention state until the new CloudTrail is validated successfully."
+    },
+    {
+      "text": "To change AWS CloudTrail for an organization:"
+    },
+    {
+      "item": "From the navigation menu, go to Data Security > DSPM > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          45
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          55,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Accounts page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Accounts page, click the required cloud account.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Manage, and then select Manage CloudTrail from the drop-down menu.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          30,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Organization CloudTrail window:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Click Reset to edit the existing CloudTrail details and add new details.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "CloudTrail Type: If it is an organization CloudTrail, select the OrgCloudTrail checkbox.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          65,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "CloudTrail Bucket Name: Enter the S3 bucket name that is associated with the CloudTrail.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Prefix (Optional): Enter the prefix specified in the CloudTrail S3 bucket path, if any.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Account ID: Enter the AWS account ID where the CloudTrail S3 bucket is present.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "A message appears indicating that the CloudTrail details is saved successfully.",
+      "depth": 1
+    },
+    {
+      "item": "Under Download and Deploy Template, select one of the following template types:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "CloudFormation",
+      "depth": 2
+    },
+    {
+      "item": "To update the CloudTrail details using the CloudFormation template:",
+      "depth": 2
+    },
+    {
+      "item": "i. Download the CloudFormation template.",
+      "depth": 3
+    },
+    {
+      "item": "In the Organization CloudTrail window, click Organization CloudTrail to download the template as a YAML file to your local system.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          45,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "ii. Update the stack.",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console using the root account credentials and go to CloudFormation.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          83,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stacks.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Identify the stack created while onboarding an organization and click the stack name.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Update.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Update stack page:",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Prepare template: Select Replace current template.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file and click Choose file. Browse your folder and select the downloaded YAML file, then click Open.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ],
+        [
+          58,
+          69
+        ],
+        [
+          138,
+          142
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify stack details page, click Next.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure stack options page, click Next.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Review stack page, review the stack details and then select the I acknowledge checkbox to acknowledge AWS CloudFormation's creation of IAM resources with custom names.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          71,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Events tab, you can view the status of the stack execution.",
+      "depth": 4,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Terraform",
+      "depth": 2
+    },
+    {
+      "item": "To update the CloudTrail details using the Terraform template:",
+      "depth": 2
+    },
+    {
+      "item": "i. Download the Terraform template.",
+      "depth": 3
+    },
+    {
+      "item": "In the Organization CloudTrail window, click Organization CloudTrail to download the template as a Terraform file to your local system.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          45,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "ii. Copy the access keys of the root account.",
+      "depth": 3
+    },
+    {
+      "item": "Copy the Access keys of the root account. The access keys provide DSPM with administrator access to the root account from the AWS CLI.",
+      "depth": 3,
+      "strong": [
+        [
+          9,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "To copy the access keys:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS access portal and select the root account.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Click Access keys.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Select the required tab (macOS/Linux, Windows, PowerShell) based on your operating system.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Under Option 1: Set AWS environment variables, click Copy.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          45
+        ],
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "iii. Run the Terraform template.",
+      "depth": 3
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app in your local system.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Switch to the directory that contains the downloaded template .tf folder.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Paste the access keys you copied earlier and press Enter.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 5
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 5,
+      "number": 3
+    },
+    {
+      "item": "terraform apply",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Under Do you want to perform these actions?, enter yes and press Enter.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Done.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Overview tab, under the CloudTrail section, click Validate.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          31,
+          41
+        ],
+        [
+          57,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "After the CloudTrail is validated successfully, the CloudTrail status shows as Enabled.",
+      "depth": 0,
+      "strong": [
+        [
+          79,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If there is any issue found while validating the template, the status of the CloudTrail shows Failed. Download the template and run it again, and then validate the CloudTrail.",
+      "depth": 0,
+      "strong": [
+        [
+          94,
+          100
+        ]
+      ]
+    },
+    {
+      "heading": "Changing AWS CloudTrail for Single or Multiple Accounts",
+      "level": 1
+    },
+    {
+      "text": "When you update the account CloudTrail, the existing CloudTrail is disabled only for that account, without affecting the other accounts in the organization. The account moves to the Needs Attention state until the new CloudTrail is validated successfully."
+    },
+    {
+      "text": "To change AWS CloudTrail for single or multiple accounts:"
+    },
+    {
+      "item": "Go to Data Security > DSPM > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          22,
+          26
+        ],
+        [
+          29,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "The Cloud Accounts page appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Accounts page, click the required cloud account and then select the Accounts tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Choose one of the following options:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To change CloudTrail for a single account:",
+      "depth": 1
+    },
+    {
+      "item": "Click the Actions icon for the account you want to change the CloudTrail details, then select Update CloudTrail.",
+      "depth": 1,
+      "strong": [
+        [
+          10,
+          17
+        ],
+        [
+          94,
+          111
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To change CloudTrail for multiple accounts:",
+      "depth": 1
+    },
+    {
+      "item": "Select the checkboxes for the required accounts.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "From the Actions drop-down menu, select Update CloudTrail.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          40,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "In the Update Account CloudTrail window:",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Click Reset to edit the existing CloudTrail details and add new details.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "CloudTrail Bucket Name: Enter the S3 bucket name that is associated with CloudTrail.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Prefix (Optional): Enter the prefix specified in the CloudTrail S3 bucket path, if any.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Account ID: Enter the AWS account ID where the CloudTrail S3 bucket is present.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "A message appears indicating that the CloudTrail details is saved successfully.",
+      "depth": 1
+    },
+    {
+      "item": "Under Download and Deploy Template, select one of the following template types:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "CloudFormation",
+      "depth": 2
+    },
+    {
+      "item": "To update the CloudTrail details using the CloudFormation template:",
+      "depth": 2
+    },
+    {
+      "item": "i. Download the CloudFormation template.",
+      "depth": 3
+    },
+    {
+      "item": "In the Update Account CloudTrail window, click CloudTrail to download the template as a YAML file to your local system.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          47,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "ii. Create a stack.",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS Management Console for the account you want to change the CloudTrail, and go to CloudFormation.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          99,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stacks.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Create stack.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "On the Create stack page:",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Prepare template: Select Choose an existing template.",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file to upload the template you downloaded from the Zscaler Admin Console.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Upload a template file: Click Choose file, browse and select template, then click Open.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          30,
+          41
+        ],
+        [
+          82,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify stack details page, under Stack name, enter a unique stack name.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          41,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Next.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure stack options page, click Next.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, under Capabilities, select the I acknowledge checkbox to acknowledge AWS CloudFormation's creation of IAM resources with custom names.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          49
+        ],
+        [
+          62,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 4,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Terraform",
+      "depth": 2
+    },
+    {
+      "item": "To update the CloudTrail details using the Terraform template:",
+      "depth": 2
+    },
+    {
+      "item": "i. Download the Terraform template.",
+      "depth": 3
+    },
+    {
+      "item": "In the Update Account CloudTrail window, select Terraform and click CloudTrail to download the template as a Terraform file to your local system.",
+      "depth": 3,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          48,
+          57
+        ],
+        [
+          68,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "ii. Copy the access keys of the account for which you want to change the CloudTrail details.",
+      "depth": 3
+    },
+    {
+      "item": "The access keys provide DSPM with administrator access to the account from the AWS CLI.",
+      "depth": 3
+    },
+    {
+      "item": "To copy the access keys:",
+      "depth": 3
+    },
+    {
+      "item": "Sign in to the AWS access portal and select the account for which you want to change the CloudTrail details.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Click Access keys.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Select the required tab (macOS/Linux, Windows, PowerShell) based on your operating system.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Under Option 1: Set AWS environment variables, click Copy.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          45
+        ],
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "iii. Run the Terraform template.",
+      "depth": 3
+    },
+    {
+      "item": "Open the Command Prompt or any other CLI app in your local system.",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Switch to the directory that contains the downloaded template .tf folder.",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "Paste the access keys you copied earlier and press Enter.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 4,
+      "number": 4
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 5,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 5,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 5
+    },
+    {
+      "item": "To run the Terraform script:",
+      "depth": 5,
+      "number": 3
+    },
+    {
+      "item": "terraform apply",
+      "depth": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Under Do you want to perform these actions?, enter yes and press Enter.",
+      "depth": 5,
+      "strong": [
+        [
+          6,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Click Done.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "DSPM validates the template deployment by checking the new CloudTrail details provided.",
+      "depth": 0
+    },
+    {
+      "item": "If there is any error while validating the template, download and rerun the template.",
+      "depth": 0
+    },
+    {
+      "item": "You can see the CloudTrail details of the account in the corresponding account drawer.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

@@ -1,0 +1,717 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Cloud Deception Settings for an Azure Account",
+  "source": {
+    "url": "https://help.zscaler.com/deception/managing-cloud-deception-settings-azure-account",
+    "node": "1542539",
+    "revision": "3221572",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "heading": "Editing an Azure Account",
+      "level": 1
+    },
+    {
+      "text": "You can edit a Microsoft Azure account from the Zscaler Deception Admin Portal. Depending on whether the configurations are already propagated to Azure, the editing is either a single-step process (if the deployment script was never used on Azure) or a two-step process (if the deployment script was used at least once)."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate editing in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > Azure > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          39
+        ],
+        [
+          42,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Locate the account that you want to edit, and click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          56,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Azure Account Setting window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Azure Account Setting window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Enabled: Select to modify the status of Cloud Deception for the Azure account.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select a new region for the Azure account from the drop-down menu.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Decoy Manager Resource Group: Enter a new name or update the existing one.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: In the Microsoft Azure Portal",
+      "depth": 0
+    },
+    {
+      "item": "To complete editing in Azure cloud, choose a method based on how the integration was configured:",
+      "depth": 0
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Azure account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          58
+        ],
+        [
+          71,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the azure-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the azure-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an Azure blob storage-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"azurerm\": { \"resource_group_name\": \"your-tfstate-rg\", \"storage_account_name\": \"yourtfstatestorageacct\", \"container_name\": \"tfstate\", \"key\": \"deception/terraform.tfstate\" } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to download the details of the state as a JSON file.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "terraform output -json decoys_output > deployment-output.json",
+      "depth": 2
+    },
+    {
+      "item": "A JSON file containing the details of the state is downloaded.",
+      "depth": 2
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings, locate the Azure account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ],
+        [
+          103,
+          109
+        ],
+        [
+          122,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "Cloud Shell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Azure Portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch Cloud Shell by clicking the Cloud Shell icon on the top navigation bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Cloud Shell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the Cloud Shell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Set your shell environment to PowerShell.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Enter the option to sync settings.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "heading": "Deleting an Azure Account",
+      "level": 1
+    },
+    {
+      "text": "You can delete Cloud Deception settings configured for a Microsoft Azure account from the Deception Admin Portal. Depending on if the configurations are already propagated to Azure, the deletion is either a single-step process (if the deployment script was never used on Azure) or a two-step process (if the deployment script was used at least once)."
+    },
+    {
+      "text": "You can delete Azure Cloud Deception settings only if no Azure decoys are deployed. If you have already deployed Azure decoys, you must delete all decoys and run the deployment script first before deleting the settings."
+    },
+    {
+      "item": "Step 1: In the Deception Admin Portal",
+      "depth": 0
+    },
+    {
+      "item": "To initiate deletion in the Deception Admin Portal:​​​​​",
+      "depth": 0
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > Azure > Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          39
+        ],
+        [
+          42,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Azure account that must be deleted, and click the Delete icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "All fields are deleted, and the configuration is disabled in the Deception Admin Portal.",
+      "depth": 0
+    },
+    {
+      "item": "If you have never run the deployment script on Azure, then the deletion process is completed with this step. If you have already used the deployment script either to sync the settings or deploy decoys, then proceed to Step 2 to complete the deletion process.",
+      "depth": 0
+    },
+    {
+      "item": "To complete deletion in the Azure Cloud, choose a method based on how the integration was configured:",
+      "depth": 0
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Azure account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          58
+        ],
+        [
+          71,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the azure-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the azure-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an Azure blob storage-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"azurerm\": { \"resource_group_name\": \"your-tfstate-rg\", \"storage_account_name\": \"yourtfstatestorageacct\", \"container_name\": \"tfstate\", \"key\": \"deception/terraform.tfstate\" } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to download the details of the state as a JSON file.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "terraform output -json decoys_output > deployment-output.json",
+      "depth": 2
+    },
+    {
+      "item": "A JSON file containing the details of the state is downloaded.",
+      "depth": 2
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings, locate the Azure account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ],
+        [
+          103,
+          109
+        ],
+        [
+          122,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "Cloud Shell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Azure Portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch Cloud Shell by clicking the Cloud Shell icon on the top navigation bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Cloud Shell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the Cloud Shell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Set your shell environment to PowerShell.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "When prompted to continue with deletion, enter y and press Enter.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "If you enter n and press Enter, then the deletion process is aborted, and the configuration is enabled again in the Deception Admin Portal.",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "All resources created for setting up Cloud Deception with Azure are deleted.",
+      "depth": 1
+    },
+    {
+      "item": "In some cases, the deployment script might fail to remove the entries of the Azure resources that were marked for deletion in the Deception Admin Portal. For example, manually removing Azure resources deployed by Deception from the Azure cloud can fail to remove entries of resources from the Deception Admin Portal if the resources are interdependent. If the deployment script fails to remove these entries, you need to use the Force Delete option.",
+      "depth": 1,
+      "strong": [
+        [
+          429,
+          441
+        ]
+      ]
+    },
+    {
+      "item": "Steps to Force Delete Azure Settings",
+      "depth": 2
+    },
+    {
+      "item": "In the Deception Admin Portal, go to Deceive > Cloud Deception > Azure > Settings.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          47,
+          62
+        ],
+        [
+          65,
+          70
+        ],
+        [
+          73,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Click Force Delete. This option appears when the deletion process is started.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Confirm your action.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "The Azure resource entries are removed from the Deception Admin Portal.",
+      "depth": 3
+    },
+    {
+      "item": "Step 2: In the Microsoft Azure Portal",
+      "depth": 0
+    }
+  ]
+}

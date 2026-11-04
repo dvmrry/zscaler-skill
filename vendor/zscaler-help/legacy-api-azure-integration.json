@@ -1,0 +1,480 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Azure Integration",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/azure-integration",
+    "node": "1541305",
+    "revision": "3213532",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Azure%20Integration_0.json?VersionId=m7nPJPzvsTrZpDdSVyNmky.09m4dOt.F",
+    "updated": "2026-06-19",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Azure Integration"
+      }
+    ],
+    "paths": {
+      "/azure/refreshConnectionStatus": {
+        "get": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Retrieves the progress summary of the VPN connection refresh process",
+          "operationId": "AzureResource_getRefreshConnectionStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Starts an asynchronous process to refresh the VPN connection status",
+          "operationId": "AzureResource_startRefreshConnectionStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/azure/tunnelConfiguration": {
+        "get": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Retrieves the tunnel configuration status of the Azure hub. To learn more, see <a href=\"/zia/integrating-microsoft-azure-virtual-wan\" target=\"_blank\">Integrating with Microsoft Azure Virtual WAN</a>.",
+          "operationId": "AzureResource_getTunnelConfigurationStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Starts the tunnel configuration process for the specified Azure hub. To learn more, see <a href=\"/zia/configuring-azure-vwan-locations\" target=\"_blank\">Configuring Azure Virtual WAN Location</a>.",
+          "operationId": "AzureResource_startTunnelConfig",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "The Azure hub tunnel configuration information",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/VirtualHubInfo"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "409": {
+              "description": "Another configuration change in progress"
+            }
+          }
+        }
+      },
+      "/azure/unConfigureTunnel/{hubId}": {
+        "delete": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Removes the tunnel configuration for a specified Azure hub",
+          "operationId": "AzureResource_unconfigureTunnel",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "hubId",
+              "in": "path",
+              "description": "The Azure hub ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "409": {
+              "description": "Another configuration change in progress"
+            }
+          }
+        }
+      },
+      "/azure/unConfigureTunnelStatus": {
+        "get": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Retrieves the status of the tunnel configuration removal process",
+          "operationId": "AzureResource_getTunnelUnConfigurationStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        }
+      },
+      "/azure/virtualHubs": {
+        "get": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Retrieves a list of synced Azure hubs from the database",
+          "operationId": "AzureResource_getVirtualHubs",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "version",
+              "in": "query",
+              "description": "Version of the data to retrieve",
+              "required": false,
+              "type": "integer",
+              "default": 0,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/VirtualHubInfo"
+                }
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      },
+      "/azure/virtualHubSync": {
+        "get": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Retrieves the status of the Azure hub sync process",
+          "operationId": "AzureResource_getAsyncStatus",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            },
+            "404": {
+              "description": "Not Found"
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Azure Integration"
+          ],
+          "description": "Starts an asynchronous process to sync Azure hubs",
+          "operationId": "AzureResource_checkAsync",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AzureProgressSummary"
+              }
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "AzureProgressSummary": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "string",
+            "description": "The Azure hub tunnel configuration status",
+            "enum": [
+              "NEVER_TRIGGERED",
+              "SUCCESS",
+              "IN_PROGRESS",
+              "NOT_CONFIGURED",
+              "ACCESS_FAILURE",
+              "NOT_AUTHORIZED",
+              "LIMIT_EXCEEDED",
+              "DUPLICATE_ITEM",
+              "INVALID_CREDENTIALS",
+              "UNEXPECTED_ERROR",
+              "INVALID_ARGUMENTS"
+            ]
+          },
+          "details": {
+            "type": "string",
+            "description": "Additional information about the hub's VPN status and tunnel configuration"
+          },
+          "virtualHubs": {
+            "type": "array",
+            "description": "Information about the Azure hub",
+            "items": {
+              "$ref": "#/definitions/VirtualHubInfo"
+            }
+          },
+          "lastSyncTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the hub was last synced"
+          },
+          "hubCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The count of available hubs"
+          },
+          "lastRefreshTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the tunnel configuration information for the hub was last refreshed"
+          }
+        }
+      },
+      "VirtualHubInfo": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The Azure hub ID"
+          },
+          "resourceGroupName": {
+            "type": "string",
+            "description": "The Azure virtual WAN location group name"
+          },
+          "virtualWan": {
+            "type": "string",
+            "description": "The Azure virtual WAN. Zscaler's integration leverages Microsoft Azure Virtual WAN (VWAN) APIs to discover and configure Azure hubs, including querying and configuring Azure VWAN."
+          },
+          "azureRegion": {
+            "type": "string",
+            "description": "The Zscaler associated Azure region"
+          },
+          "vpnGateway": {
+            "type": "string",
+            "description": "The VPN gateway details"
+          },
+          "azureHubName": {
+            "type": "string",
+            "description": "The Azure hub name"
+          },
+          "hubStatus": {
+            "type": "string",
+            "description": "The Azure hub integration status"
+          },
+          "azureVpnSites": {
+            "type": "array",
+            "description": "Information about the Azure sites and the VPN connection status",
+            "items": {
+              "$ref": "#/definitions/VpnSite"
+            }
+          },
+          "zsLocation": {
+            "description": "The Zscaler location associated to the hub",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "zsIpAddress": {
+            "type": "string",
+            "description": "The Zscaler IP address that displays the relevant IP information for a specific hub"
+          },
+          "tunnelConfigurationStatus": {
+            "type": "string",
+            "description": "The tunnel configuration status",
+            "enum": [
+              "NOT_CONFIGURED",
+              "IN_PROGRESS",
+              "CONFIGURED"
+            ]
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the hub's tunnel configuration was last modified"
+          }
+        }
+      },
+      "VpnSite": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the VPN associated with the Azure site"
+          },
+          "name": {
+            "type": "string",
+            "description": "VPN name"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "The hub's IP address provisioned for the respective Zscaler cloud and organization"
+          },
+          "connectionStatus": {
+            "type": "string",
+            "description": "The VPN connection status",
+            "enum": [
+              "UNKNOWN",
+              "CONNECTED",
+              "CONNECTING",
+              "NOTCONNECTED"
+            ]
+          }
+        }
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of an ID and name"
+      }
+    }
+  }
+}

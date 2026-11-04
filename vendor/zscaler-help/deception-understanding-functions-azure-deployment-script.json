@@ -1,0 +1,119 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding the Functions of the Azure Deployment Script",
+  "source": {
+    "url": "https://help.zscaler.com/deception/understanding-functions-azure-deployment-script",
+    "node": "1542552",
+    "revision": "3221556",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Zscaler Deception relies on Azure logs to generate events in the Deception dashboard for interactions with Azure decoys. The deployment script for Azure Cloud Deception is responsible for creating logging resources, deploying decoys, deleting decoys, and enabling logging for the decoys via the logging resources in the Azure cloud. To collect and store logs, the deployment script creates various resources. The Zscaler Deception Admin Portal polls logs every 3 minutes from the logging resources created by the deployment script to generate events."
+    },
+    {
+      "heading": "Azure Resources Created by the Deployment Script",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the resources created by the deployment script to enable log collection and storage for Azure decoys."
+    },
+    {
+      "table": [
+        [
+          "Resource",
+          "Description"
+        ],
+        [
+          "Decoy Resource Group",
+          "A resource group in which all decoys are created. The prefix string for the Decoy Resource Group is specified while setting up Cloud Deception with Azure."
+        ],
+        [
+          "Management Resource Group",
+          "A resource group in which all necessary management resources such as Function App, Logging Storage Account, App Service Plan, etc. are created to support Cloud Deception functionalities."
+        ],
+        [
+          "Logging Storage Account",
+          "A storage account created for logging purposes. The appropriate diagnostic setting is enabled for all decoy resources to push all diagnostic logs to this storage account for analysis and generating alerts on the Deception dashboard."
+        ],
+        [
+          "Client ID and Client Secret",
+          "A service principal that has access to polling log files from the created logging storage account."
+        ],
+        [
+          "Decoy Health Check Function App",
+          "A function app that is triggered at an interval of 15 minutes from the Deception Admin Portal to check whether the deployed decoys exists in the Azure cloud. This function app does not check the actual health of the deployed Azure resources."
+        ],
+        [
+          "Decoy Access Role",
+          "A role that has full access to the Decoy Resource Group. This role is associated with the user and service principal decoys created in the Deception Admin Portal."
+        ],
+        [
+          "App Service Plan",
+          "A service plan created to deploy app service decoys."
+        ]
+      ]
+    },
+    {
+      "heading": "Workflows for Decoy Deployment",
+      "level": 1
+    },
+    {
+      "text": "The following table describes the workflow followed by the deployment script to deploy decoys and enable logging for them."
+    },
+    {
+      "table": [
+        [
+          "Decoy",
+          "Workflow"
+        ],
+        [
+          "User Decoy",
+          "Create an Azure AD (Entra ID) user, associate the Decoy Access Role with it, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Service Principal Decoy",
+          "Create a service principal (Client ID and Client Secret), associate the Decoy Access Role with it, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Managed Identity Decoy",
+          "Create a user-assigned managed identity and associate the Decoy Access Role with the managed identity."
+        ],
+        [
+          "App Service Decoy",
+          "Create a web app and create a managed identity for the web app, associate the Contributor and Website Contributor roles to it, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Storage Account Container Decoy",
+          "Create a storage account and a storage account container, upload the decoy file datasets, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Storage Account File Share Decoy",
+          "Create a storage account and create a file share with the TransactionOptimized access tier, upload the decoy file datasets, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Key Vault Decoy",
+          "Create a key vault, add passwords or keys of the created user or service principal decoys as decoy datasets in the vault, and enable the diagnostic setting for logging."
+        ],
+        [
+          "Azure Resource Manager (ARM) Template Decoy",
+          "Create a deployment template for selected decoys (user, service principal, key vault, or Azure file share decoys). This template does not deploy any actual resources but creates an entry for template deployment in the history."
+        ],
+        [
+          "Container Registry Decoy",
+          "Create an empty container registry and enable the diagnostic setting for logging."
+        ],
+        [
+          "Virtual Machine (VM) Image Decoy",
+          "Deploy a VM instance, create a snapshot, and build a disk image from the snapshot. A Standard VM instance is deployed to create the snapshot. The VM instance persists for a duration of 5 minutes and is terminated after the snapshot is built. For public VM image decoys, a shareable link is also created for adding it as a lure in landmines."
+        ]
+      ]
+    },
+    {
+      "text": "To learn how to obtain the deployment script for Azure Cloud Deception, see Obtaining the Deployment Script for Azure."
+    }
+  ]
+}

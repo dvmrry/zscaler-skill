@@ -1,0 +1,74 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Load Balancing for PAC Forwarded Traffic",
+  "source": {
+    "url": "https://help.zscaler.com/zia/load-balancing-pac-forwarded-traffic",
+    "node": "1401356",
+    "revision": "3243646",
+    "updated": "2026-09-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports up to 8 Virtual IP (VIP) addresses in a cluster and up to 64 clusters in a data center to ensure load balancing for the incoming traffic. Load balancing is typically based on the source IP address and the destination IP address. Many deployments have traffic forwarding either through Zscaler Client Connector or directly via a browser. If your organization uses NAT, the traffic originating from multiple users has the same public IP address."
+    },
+    {
+      "text": "Many organizations use only Zscaler Client Connector as the traffic forwarding method. In such cases, a large volume of users from one physical location are behind an edge gateway with a single egress IP address. This means that all the users have the same source IP address. So, the typical load balancing calculation leads all the users from the organization to connect to the same Public Service Edge for Internet & SaaS (ZIA) in the data center. This results in the overloading of a single Public Service Edge instance in the data center, thereby causing performance issues."
+    },
+    {
+      "text": "To evenly distribute PAC forwarded traffic over multiple Public Service Edge instances in a data center, the PAC server returns multiple VIP addresses within the same data center as the destination IP address. When the clients with the same source IP address are assigned with different VIP addresses as the destination IP addresses, they are load-balanced to different Public Service Edge instances. This ensures even distribution of traffic from the same source IP address over multiple Public Service Edge instances."
+    },
+    {
+      "text": "The PAC server uses the ${GATEWAY_FX} and ${GATEWAY_Fn} variables (where n can take up to 8 values from 0 to 7) in the Zscaler-hosted PAC file to assign the VIP addresses for the incoming traffic:"
+    },
+    {
+      "text": "Load balancing for PAC forwarded traffic can be classified as:"
+    },
+    {
+      "item": "Load Balancing for Zscaler Client Connector Traffic",
+      "depth": 0
+    },
+    {
+      "item": "For Zscaler Client Connector users, the PAC server allocates VIP addresses for devices through the ${GATEWAY_FX} variable in the Zscaler-hosted PAC file. When Zscaler Client Connector connects to the PAC server to download a PAC file, it sends a unique device identifier with the request. The PAC server allocates one of the VIP addresses to the device based on the device identifier received from the HTTP request using the ${GATEWAY_FX} variable. When the same device connects again to download the PAC file, the PAC server allocates the same VIP address that was allocated to the device earlier based on its unique identifier.",
+      "depth": 0
+    },
+    {
+      "item": "Load Balancing for Non-Zscaler Client Connector Traffic",
+      "depth": 0
+    },
+    {
+      "item": "Each data center can have up to 8 unique VIP addresses assigned to it. For non-Zscaler Client Connector users, admins can leverage the ${GATEWAY_Fn} variable in the Zscaler-hosted PAC file to evenly distribute the clients across multiple VIP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "${GATEWAY_Fn} represents 8 different variables starting from ${GATEWAY_F0} to ${GATEWAY_F7} that are used to pick an available VIP address from the data center. The PAC server returns the VIP address value based on the variable used in the PAC file. If the number of VIP addresses assigned to a data center is fewer than 8, then the PAC server allocates the available VIP addresses to all 8 variables in a round-robin fashion.",
+      "depth": 0
+    },
+    {
+      "item": "The following image illustrates how the VIP addresses are mapped to the variables based on the number of available VIP addresses in a data center:",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends the following PAC file format for non-Zscaler Client Connector users to leverage the multiple VIP address features using a single PAC file.",
+      "depth": 0
+    },
+    {
+      "item": "See recommended PAC file format for non-Zscaler Client Connector users",
+      "depth": 1
+    },
+    {
+      "item": "splitPublicTraffic() splits the client private IP address into its corresponding octets and performs last octet%8 to get the index between 0 to 7. This function file uses multiple PAC functions to evenly distribute client traffic over the 8 PAC variables. Initially, the PAC file uses the myIpAddress() function to determine the client source IP address. Then, it extracts the last octet of the client IP address. This number is divided by 8 and the remainder is used to assign one of the 8 gateway variables.",
+      "depth": 1
+    },
+    {
+      "item": "function splitPublicTraffic() { var myip = myIpAddress(); /* get the client’s Private IP address */ var ipbytes = myip.split(\".\"); /* split the IP into its octets and store in an array */ var lastoctet = parseInt(ipbytes[3], 10); switch (lastoctet % 8) { /* last octet % 8 returns the index to use */ case 0: return \"PROXY ${GATEWAY_F0}:80; PROXY ${SECONDARY_GATEWAY_F0}:80; DIRECT\"; case 1: return \"PROXY ${GATEWAY_F1}:80; PROXY ${SECONDARY_GATEWAY_F1}:80; DIRECT\"; case 2: return \"PROXY ${GATEWAY_F2}:80; PROXY ${SECONDARY_GATEWAY_F2}:80; DIRECT\"; case 3: return \"PROXY ${GATEWAY_F3}:80; PROXY ${SECONDARY_GATEWAY_F3}:80; DIRECT\"; case 4: return \"PROXY ${GATEWAY_F4}:80; PROXY ${SECONDARY_GATEWAY_F4}:80; DIRECT\"; case 5: return \"PROXY ${GATEWAY_F5}:80; PROXY ${SECONDARY_GATEWAY_F5}:80; DIRECT\"; case 6: return \"PROXY ${GATEWAY_F6}:80; PROXY ${SECONDARY_GATEWAY_F6}:80; DIRECT\"; case 7: return \"PROXY ${GATEWAY_F7}:80; PROXY ${SECONDARY_GATEWAY_F7}:80; DIRECT\"; } } function FindProxyForURL(url, host) { var privateIP = /^(0|10|127|192\\.168|172\\.1[6789]|172\\.2[0-9]|172\\.3[01]|169\\.254|192\\.88\\.99)\\.[0-9.]+$/; var resolved_ip = dnsResolve(host); /* Don't send non-FQDN or private IP auths to us */ if (isPlainHostName(host) || isInNet(resolved_ip, \"192.0.2.0\",\"255.255.255.0\") || privateIP.test(resolved_ip)) return \"DIRECT\"; /* FTP goes directly */ if (url.substring(0,4) == \"ftp:\") return \"DIRECT\"; /* test with ZPA*/ if (isInNet(resolved_ip, \"100.64.0.0\",\"255.255.0.0\")) return \"DIRECT\"; /* Updates are directly accessible */ if (((localHostOrDomainIs(host, \"trust.zscaler.com\")) || (localHostOrDomainIs(host, \"trust.zscaler.net\")) || (localHostOrDomainIs(host, \"trust.zscalerone.net\")) || (localHostOrDomainIs(host, \"trust.zscalertwo.net\")) || (localHostOrDomainIs(host, \"trust.zscalerthree.net\")) || (localHostOrDomainIs(host, \"trust.zscalergov.net\")) || (localHostOrDomainIs(host, \"trust.zsdemo.net\")) || (localHostOrDomainIs(host, \"trust.zscloud.net\")) ) && (url.substring(0,5) == \"http:\" || url.substring(0,6) == \"https:\")) return \"DIRECT\"; /* use zscaler proxy */ return splitPublicTraffic(); }",
+      "depth": 1
+    }
+  ]
+}

@@ -1,0 +1,3205 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Virtual Service Edge for Internet & SaaS: Microsoft Azure",
+  "source": {
+    "url": "https://help.zscaler.com/zia/configuring-virtual-service-edge-internet-saas-microsoft-azure",
+    "node": "1401636",
+    "revision": "3249831",
+    "updated": "2026-10-21",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler supports standalone Virtual Service Edge for Internet & SaaS (ZIA) for production deployments on Microsoft Azure."
+    },
+    {
+      "heading": "Configuring a Standalone Virtual Service Edge",
+      "level": 1
+    },
+    {
+      "text": "To configure a standalone Virtual Service Edge:"
+    },
+    {
+      "item": "1. Ensure that you meet all the requirements.",
+      "depth": 0
+    },
+    {
+      "item": "You need the following to deploy Virtual Service Edge over your virtual machine (VM):",
+      "depth": 0
+    },
+    {
+      "item": "A subscription to Virtual Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "VM specifications:",
+      "depth": 1
+    },
+    {
+      "item": "VM Size: Standard_E8as_v4 or Standard_E8ads_v5 for 64 GB RAM.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "CPU: 4 CPU cores. Each CPU core independently handles a portion of the traffic for the Virtual Service Edge.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Instance Memory: 48 GB or 64 GB.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Scanning large files without adversely impacting performance requires more memory on the Virtual Service Edges. To scan large files and maintain the performance of Virtual Service Edges, you can deploy them with 64 GB RAM (in standalone or cluster mode).",
+      "depth": 2
+    },
+    {
+      "item": "If you expand memory to 64 GB, the system automatically inserts a section into the configuration files to enable a third antivirus (AV) process. After the expansion, starting the Virtual Service Edges spawns the third AV process on each instance. For existing deployments with less than 64 GB, refer to Microsoft documentation.",
+      "depth": 2
+    },
+    {
+      "item": "Storage account: General Purpose.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Storage Type: Premium SSD.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Data disk size: 500 GB.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Network Specs:",
+      "depth": 1
+    },
+    {
+      "item": "Two network interfaces.",
+      "depth": 2
+    },
+    {
+      "item": "The first network interface is the management IP address. It's used to control connections to the Zscaler cloud and make an SSH connection to the Virtual Service Edge VM for configuration and management. You can customize the deployment and define a separate IP address for the SSH connection to the Virtual Service Edge VM.",
+      "depth": 3
+    },
+    {
+      "item": "The second network interface is the service IP address.",
+      "depth": 3
+    },
+    {
+      "item": "Two public IPs.",
+      "depth": 2
+    },
+    {
+      "item": "The two public IPs are not required when using a NAT. A NAT network configuration works correctly as long as it has sufficient network bandwidth.",
+      "depth": 2
+    },
+    {
+      "item": "Firewall requirements: It's mandatory to deploy the Virtual Service Edge instance behind a VM network security group. The Virtual Service Edge instance only requires outbound connections to the Zscaler cloud. It does not require any inbound connections to your network from the Zscaler cloud. To view the firewall requirements for your specific account, go to the following URL:",
+      "depth": 1
+    },
+    {
+      "item": "https://config.zscaler.com/<zscaler cloud name>/zia-v-sedge.",
+      "depth": 1
+    },
+    {
+      "item": "You can find the <zscaler cloud name> in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​",
+      "depth": 1
+    },
+    {
+      "item": "To create a VM instance using the Virtual Service Edge Terraform modules method, you need the following in addition to the preceding requirements:",
+      "depth": 0
+    },
+    {
+      "item": "Azure Subscription ID",
+      "depth": 1
+    },
+    {
+      "item": "The following information collected from the Service Principal created:",
+      "depth": 1
+    },
+    {
+      "item": "Application (client) ID",
+      "depth": 2
+    },
+    {
+      "item": "Directory (tenant) ID",
+      "depth": 2
+    },
+    {
+      "item": "Client Secret Value",
+      "depth": 2
+    },
+    {
+      "item": "Azure Region (e.g. westus2) where you want to deploy the Virtual Service Edge resources",
+      "depth": 1
+    },
+    {
+      "item": "Terraform CLI installed on your device",
+      "depth": 1
+    },
+    {
+      "item": "2. Add the Virtual Service Edge instance.",
+      "depth": 0
+    },
+    {
+      "item": "To add a Virtual Service Edge instance:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Internet & SaaS > Virtual Service Edges.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          64
+        ],
+        [
+          67,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Virtual Service Edge.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "The Add Virtual Service Edge window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "In the Add Virtual Service Edge window:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the Virtual Service Edge.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Status: Choose to enable or disable the Virtual Service Edge. The default status is Enabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          84,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "Deployment Status: Choose either In Production or Trial. The default deployment status is In Production.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          33,
+          46
+        ],
+        [
+          50,
+          55
+        ],
+        [
+          90,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "In Production represents Virtual Service Edge instances deployed for production purposes, and Trial represents Virtual Service Edge instances deployed for internal uses or testing purposes.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          94,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "The trial Virtual Service Edge instances are upgraded first during a maintenance window, followed by production Virtual Service Edge instances. This setting does not affect the behavior, functionality, or performance of the Virtual Service Edge instance, and it helps Zscaler prioritize production Virtual Service Edge instances over trial if an issue or a bug affects Virtual Service Edge instances.",
+      "depth": 2
+    },
+    {
+      "item": "Your Used Virtual Service Edges: You can see the total number of Virtual Service Edges as well as the available number of subscriptions. You can't modify this field.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Proxy IP Address: Enter the IP address to which you’ll forward the traffic. All user and server workload traffic is forwarded to the proxy IP address of the Virtual Service Edge. If the Virtual Service Edge has to receive and service traffic from users or workloads over the internet, ensure that this IP address has access to the internet as well as users.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Subnet Mask: Enter the corresponding subnet mask.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Default Gateway: Enter the IP address of the default gateway to the internet.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Load Balancer IP Address: Appears only when Cluster is selected as the deployment mode. Enter the IP address of the load balancer.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          44,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Deployment Mode: Select either Cluster or Standalone if you have the VMware ESXi platform. Otherwise, select only Standalone.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          31,
+          38
+        ],
+        [
+          42,
+          52
+        ],
+        [
+          114,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "If clustering fault tolerance is required, ensure to have an external load balancer for Standalone deployment.",
+      "depth": 2,
+      "strong": [
+        [
+          88,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "IPSec Local Termination: Enable this option to terminate IPSec traffic from the client at the Virtual Service Edge node. By default, this option is disabled.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "If you select the deployment mode as Cluster, this option becomes read-only and displays the actual status of IPSec Local Termination of the Virtual Service Edge in the cluster. If you want to change the IPSec Local Termination status of the Virtual Service Edge in a cluster, you can do it from the Infrastructure > Internet & SaaS > Virtual Service Edges > Virtual Service Edge Clusters page. To learn more, see Adding Virtual Service Edge Clusters.",
+      "depth": 2,
+      "strong": [
+        [
+          37,
+          44
+        ],
+        [
+          300,
+          314
+        ],
+        [
+          317,
+          332
+        ],
+        [
+          335,
+          356
+        ],
+        [
+          359,
+          388
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler Initiated On-Demand Support Tunnel: Enable this option to allow Zscaler to establish a support tunnel whenever required. This option is disabled by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "If this option is enabled, you cannot establish a support tunnel from the Zscaler Admin Console. Also, the Establish Support Tunnel option is grayed out.",
+      "depth": 2,
+      "strong": [
+        [
+          107,
+          131
+        ]
+      ]
+    },
+    {
+      "item": "Establish Support Tunnel: Enable this option to allow the service to establish a support tunnel for Zscaler Support to access the Virtual Service Edge. This option is disabled by default.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "This option is available only when the Zscaler Initiated On-Demand Support Tunnel is disabled.",
+      "depth": 2,
+      "strong": [
+        [
+          39,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Service Edge ID: You can see the Virtual Service Edge ID used by Zscaler to identify and access the Virtual Service Edge using the established support tunnel.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Activate the change.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Azure reserves five IP addresses within each subnet. These are x.x.x.0-x.x.x.3 and the last address of the subnet. x.x.x.1-x.x.x.3 is reserved in each subnet for Azure services.",
+      "depth": 0
+    },
+    {
+      "item": "x.x.x.0: Network address.",
+      "depth": 1
+    },
+    {
+      "item": "x.x.x.1: Reserved by Azure for the default gateway.",
+      "depth": 1
+    },
+    {
+      "item": "x.x.x.2, x.x.x.3: Reserved by Azure to map the Azure DNS IPs to the VNet space.",
+      "depth": 1
+    },
+    {
+      "item": "x.x.x.255: Network broadcast address.",
+      "depth": 1
+    },
+    {
+      "item": "3. Download the Virtual Service Edge certificates.",
+      "depth": 0
+    },
+    {
+      "item": "To download a Virtual Service Edge certificate:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Infrastructure > Internet & SaaS > Virtual Service Edges.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          64
+        ],
+        [
+          67,
+          88
+        ]
+      ]
+    },
+    {
+      "item": "In the SSL Certificate column, click Download for the Virtual Service Edge that you added previously, and then save the certificate.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          37,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "If you're downloading multiple certificates, you might want to change the certificate name so that you can differentiate between them. For example, if the Virtual Service Edge instances in a cluster are called VSE1 and VSE2, you can rename the certificate's ZIP files to VSE1.zip and VSE2.zip.",
+      "depth": 0
+    },
+    {
+      "item": "4. Create the virtual machine (VM) instance and validate the configuration.",
+      "depth": 0
+    },
+    {
+      "item": "Create a VM instance using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Virtual Service Edge Image in Azure Marketplace",
+      "depth": 1
+    },
+    {
+      "item": "Create a new VM instance using the Virtual Service Edge image:",
+      "depth": 1
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a virtual network.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "In the Azure portal, go to Home > Resource Groups and select your resource group.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          31
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the left-side navigation, click Virtual networks.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, on the Home page, in the Search field, search for the virtual networks.",
+      "depth": 3,
+      "strong": [
+        [
+          22,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "On the Virtual networks page, click Create.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "The Create virtual network page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "On the Create virtual network page, on the Basics tab:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          43,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the desired resource group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Virtual network name: Enter a name for the virtual network.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region that has your Virtual Service Edge image.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Click the IP addresses tab.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "By default, the subnet is 16 and it's named default. If required, click the Edit icon for the subnet and make the necessary changes.",
+      "depth": 3,
+      "strong": [
+        [
+          76,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create to validate the network and review the configuration.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create to create the virtual network.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Create public IP addresses for the service network interface.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "In the left-side navigation, click Public IP addresses.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, on the Home page, in the Search field, search for the public IP addresses.",
+      "depth": 3,
+      "strong": [
+        [
+          22,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "On the Public IP addresses page, click Create.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "The Create public IP address page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the Create public IP address page, on the Basics tab:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          45,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the desired resource group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region that has your Virtual Service Edge image.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the public IP address.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Select IPv4.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "SKU: Select Standard.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "IP address assignment: Select Static.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create to validate the public IP address and review the configuration.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create to create the public IP address.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Create a service network interface (NIC).",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "In the left-side navigation, click Network interfaces.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          35,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, on the Home page, in the Search field, search for the network interfaces.",
+      "depth": 3,
+      "strong": [
+        [
+          22,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "On the Network interfaces page, click Create.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          38,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "The Create network interface page appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          11,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the Create network interface page, on the Basics tab:",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          31
+        ],
+        [
+          45,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the desired resource group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the network interface.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region that has your Virtual Service Edge image.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Virtual network: Select the virtual network you created in the earlier step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: Select the subnet you created in the earlier step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Select IPv4.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Private IP address assignment: Select Dynamic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          38,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create to validate the NIC and review the configuration.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create to create the NIC.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Create a VM.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "On the Home page, in the Search field, search for Marketplace and select it.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Marketplace page, in the Search field, search for Zscaler Internet Access Virtual Service Edge.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Select the Zscaler Internet Access Virtual Service Edge VM.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "On the Zscaler Internet Access Virtual Service Edge VM page, click Create.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          51
+        ],
+        [
+          67,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "On the Create a virtual machine page, on the Basics tab:",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          45,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the desired resource group.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Virtual machine name: Enter a name for the VM.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Region: The region of the VM is automatically populated. You can't edit it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Availability options: Select either No infrastructure redundancy required (for VMs without Azure Load Balancer (LB)) or Availability set (for VMs with Azure LB).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          36,
+          73
+        ],
+        [
+          120,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "Security type: The security type is automatically set to Standard. You can't edit it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          57,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Image: The image is set to Zscaler Internet Access Virtual Service Edge - x64 Gen1 by default. You can't edit it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          27,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "VM architecture: The architecture is set to x64 by default. You can't edit it.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          44,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Size: Select either Standard_E8as_v4 or Standard_E8ads_v5 for 64 GB RAM.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          20,
+          36
+        ],
+        [
+          40,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Authentication type: Select either SSH public key or Password.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          35,
+          49
+        ],
+        [
+          53,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Username: Enter zsroot.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "SSH public key source: Select Generate new key pair.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "This field appears only if you select SSH public key for Authentication Type.",
+      "depth": 4,
+      "strong": [
+        [
+          38,
+          52
+        ],
+        [
+          57,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Key pair name: Enter the key pair name.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "This field appears only if you select SSH public key for Authentication Type.",
+      "depth": 4,
+      "strong": [
+        [
+          38,
+          52
+        ],
+        [
+          57,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Password: Enter the password.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "This field appears only if you select Password for Authentication Type.",
+      "depth": 4,
+      "strong": [
+        [
+          38,
+          46
+        ],
+        [
+          51,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Public inbound ports: Select Allow selected ports.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "On the Create a virtual machine page, on the Networking tab:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          14,
+          15
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          45,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Virtual network: The virtual network you created in the earlier step is automatically populated.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Subnet: The subnet you created in the earlier step is automatically populated.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Public IP: Click Create new to create a public IP.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          17,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter the name for the public IP.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "SKU: Select Standard.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Assignment: Select Static.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "NIC network security group: Select Basic.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Public inbound ports: Select Allow selected ports.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Select inbound ports: Select SSH (22).",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create to validate the VM and review the configuration.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click Create to create the VM.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Generate new key pair window appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Generate new key pair window, click Download private key and create resource.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          43,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The VM deployment takes about two minutes.",
+      "depth": 2
+    },
+    {
+      "item": "After the VM is deployed to the resource group that has your Virtual Service Edge image, click Go to resource.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          95,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Click Stop to stop the VM.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the VM is stopped, go to the Network settings of the VM.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          35,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "On the Network settings page, click Attach network interface to attach the second NIC you created in the earlier step.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          36,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Attach the public IP address to the service NIC.",
+      "depth": 2,
+      "number": 10
+    },
+    {
+      "item": "Go to the Network interfaces page, locate and select the NIC you created in the earlier step.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click IP configurations in the Settings section.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          31,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Locate and select the public IP you created in the earlier step.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "In the Edit IP configuration window:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Associate public IP address: Select the checkbox.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Public IP address: Select the public IP you created in the earlier step.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Virtual machines page, locate and select the VM you created in the earlier step.",
+      "depth": 2,
+      "number": 11,
+      "strong": [
+        [
+          10,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Click Start to start the VM.",
+      "depth": 2,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Manually configure the network security groups' settings. You can find more details about the outbound connection requirements at https://config.zscaler.com/<zscaler cloud name>/zia-v-sedge. The <zscaler cloud name> can be found in the Account Settings menu. For example, if your organization's Zscaler cloud name is zscalertwo.net. In this case, you should go to config.zscaler.com/zscalertwo.net/zia-v-sedge. To learn more about Zscaler cloud names, see Understanding Zscaler Cloud Names. ​​​​​​ To connect to your instance via SSH, you're required to open port 22 for inbound connections. In production, you should authorize only a specific IP address or range of addresses to access your instance and not use 0.0.0.0. If you use a NAT gateway, you can disassociate and delete the two public IP addresses.",
+      "depth": 2,
+      "number": 13
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Virtual Service Edge Terraform Modules",
+      "depth": 1
+    },
+    {
+      "item": "To deploy your Virtual Service Edge using Terraform modules:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Azure on GitHub repository.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On GitHub, click Code > Download ZIP to download the Terraform ZIP file.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          17,
+          21
+        ],
+        [
+          24,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the Azure Portal.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "In the upper-right corner, click the Cloud Shell icon.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          37,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Select Manage Files > Upload to upload the ZIP file you downloaded from GitHub.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          22,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Unzip the Terraform ZIP file by running the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "unzip terraform-azurerm-vzen-modules-main.zip",
+      "depth": 2
+    },
+    {
+      "item": "Identify the full path of the Terraform folder.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Navigate to the examples directory by entering cd terraform-azurerm-vzen-modules-main/examples.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "Refer to one of the following README pages based on the type of deployment:",
+      "depth": 1
+    },
+    {
+      "item": "Standalone Virtual Service Edge",
+      "depth": 2
+    },
+    {
+      "item": "Virtual Service Edge with Azure LB",
+      "depth": 2
+    },
+    {
+      "item": "5. Create a Firewall Filtering rule to bypass Azure LB IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler performs ICMP and HTTP monitoring from the Azure LB to the Virtual Service Edge to monitor the health of the Virtual Service Edge and ensure that traffic is distributed appropriately. For health probes to work, you must create a Firewall Filtering policy rule to allow Azure proxy and load balancer IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "To create a Firewall filtering rule to bypass Azure LB IP addresses:",
+      "depth": 0
+    },
+    {
+      "item": "From the navigation menu, go to Internet Access > Policy > Firewall Control > Firewall Filtering Policy.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          47
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          59,
+          75
+        ],
+        [
+          78,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Firewall Filtering Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "The Add Firewall Filtering Rule window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "In the Source IP tab, under IP Addresses add the following IP addresses from Azure:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          28,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Proxy IP address",
+      "depth": 2
+    },
+    {
+      "item": "Load balancer IP address",
+      "depth": 2
+    },
+    {
+      "item": "Under Action, select Allow.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          21,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Complete the configuration for the new rule as detailed in Configuring Firewall Filtering Policy.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "6. Configure and start Virtual Service Edge on the VM instance.",
+      "depth": 0
+    },
+    {
+      "item": "The following Virtual Service Edge configuration steps are run through an SSH terminal connection.",
+      "depth": 0
+    },
+    {
+      "item": "To configure the Virtual Service Edge on the VM:",
+      "depth": 0
+    },
+    {
+      "item": "Configure the network.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Select the Virtual Service Edge VM and click either Power On or Power On the virtual machine.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          52,
+          60
+        ],
+        [
+          64,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "In the Azure Web Console, enter the following credentials in the FreeBSD command prompt to log in:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "The following guidelines apply:",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler strongly recommends that you change this default password by running the passwd command.",
+      "depth": 3
+    },
+    {
+      "item": "Direct root login is not permitted. Administrators must use the sudo utility to run a command with higher privileges.",
+      "depth": 3
+    },
+    {
+      "item": "Run the sudo vzen configure-network command, and then enter the following details:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Address of the DNS server (e.g., 10.84.0.100) used for name resolution of Zscaler cloud domains and also for domain names in the proxy traffic.",
+      "depth": 3
+    },
+    {
+      "item": "Hostname of the Virtual Service Edge.",
+      "depth": 3
+    },
+    {
+      "item": "The Virtual Service Edge management IP, gateway IP for management, and resolvers are obtained from DHCP.",
+      "depth": 2
+    },
+    {
+      "item": "This command does not allow you to modify the management IP and gateway IP.",
+      "depth": 2
+    },
+    {
+      "item": "Install the SSL certificate of the Virtual Service Edge instance. This is the certificate that you downloaded from the Zscaler Admin Console. A Virtual Service Edge uses this certificate to authenticate itself to the Zscaler service.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "When you configure a Virtual Service Edge, ensure that you upload the correct certificate for the Virtual Service Edge instance.",
+      "depth": 1
+    },
+    {
+      "item": "To install the SSL certificate of the Virtual Service Edge instance:",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the SSL certificate that you saved.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Use SCP or SFTP to upload it to the management IP address of the Virtual Service Edge.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "In the Azure Web Console, log in with the following credentials:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Username: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Password: zsroot",
+      "depth": 2
+    },
+    {
+      "item": "Go to the Azure Web Console or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Run the command, sudo vzen install-cert <cert-bundle.zip>.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Ensure to specify the absolute path to the SSL certificates (e.g., sudo vzen install-cert /tmp/cert-bundle.zip).",
+      "depth": 2
+    },
+    {
+      "item": "(Optional) if you want to use an SNMP management system to monitor the Virtual Service Edge cluster, enable SNMP for Virtual Service Edge and configure SNMP parameters. Virtual Service Edges support SNMPv3 only.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Run the command, sudo vzen snmp-admin-configure.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Enter a user name for the SNMPv3 management system that sends queries to the Virtual Service Edge. The Virtual Service Edge accepts queries only from this user name.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Specify the authentication protocol that the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Specify the encryption method that the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Run the command, sudo vzen snmp-trap-configure.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "When asked which traps you want to configure, specify v3 traps.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Enter the IP address of the SNMP trap management system to which the Virtual Service Edge sends traps.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Enter a user name for the SNMP management system.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "Enter the password that the Virtual Service Edge uses to authenticate the SNMP management system.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Specify the authentication protocol that the Virtual Service Edge can use to authenticate the SNMP user. Enter either MD5 or SHA1.",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "Specify the encryption method that the Virtual Service Edge can use to authenticate the SNMP user. Enter either DES or AES.",
+      "depth": 3,
+      "number": 6
+    },
+    {
+      "item": "Download the Virtual Service Edge build and start the Virtual Service Edge.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Go to the Azure Web Console or use SSH to connect to the management IP address.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Run the following command to download the Virtual Service Edge build: sudo vzen download-build.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The initial build is around 1 GB, so it may take a while depending on your Internet connection. The downloaded build is automatically installed. The Virtual Service Edge automatically starts after the installation is complete.",
+      "depth": 2
+    },
+    {
+      "item": "Verify the configuration.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Go to the Azure Web Console or use SSH to connect to the management IP address.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Run the sudo vzen status command.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "The output should display that the Virtual Service Edge service and load balancer are running.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Run the sudo vzen troubleshoot connection | grep 9422 command.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "The output should display an established connection.",
+      "depth": 2
+    },
+    {
+      "heading": "Associating Multiple Virtual Service Edges with Azure LB",
+      "level": 1
+    },
+    {
+      "text": "This section is applicable only to VM instances created using the Virtual Service Edge image in Azure marketplace."
+    },
+    {
+      "text": "To associate a single Virtual Service Edge VM with Azure LB, skip the first two steps. To associate multiple Virtual Service Edges with Azure LB:"
+    },
+    {
+      "item": "1. Create an availability set in your Azure account.",
+      "depth": 0
+    },
+    {
+      "item": "To create availability sets in your Azure account:",
+      "depth": 0
+    },
+    {
+      "item": "In the Azure Web Console, go to Home > Resource Groups and select your resource group.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          36
+        ],
+        [
+          39,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Availability sets.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, on the Home page, in the Search field, search for the availability sets.",
+      "depth": 1,
+      "strong": [
+        [
+          22,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "On the Availability sets page, click Add.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "The Create availability sets page appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "On the Create availability sets page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select your subscription.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the resource group in which you want to create the availability sets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the availability sets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Fault domains: Select the number of Virtual Service Edge VMs in a fault domain.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Update domains: Select the number of Virtual Service Edge VMs in an update domain.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Use manage disks: Select No (Classic).",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Review + create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "2. Associate Virtual Service Edge with Azure LB.",
+      "depth": 0
+    },
+    {
+      "item": "To associate Virtual Service Edge with Azure LB:",
+      "depth": 0
+    },
+    {
+      "item": "a. Create an Azure LB in the resource group.",
+      "depth": 1
+    },
+    {
+      "item": "To create an Azure LB in the resource group:",
+      "depth": 1
+    },
+    {
+      "item": "In the Azure portal, go to Home > Resource Groups and select your resource group.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          31
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Add Load Balancer.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, on the Home page, in the Search field, search for the load balancer.",
+      "depth": 2,
+      "strong": [
+        [
+          22,
+          26
+        ],
+        [
+          40,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "On the Create Load Balancer page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Subscription: Select your subscription.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Resource group: Select the resource group in which you want to create the load balancer.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a load balancer name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Region: Enter the same region as the Virtual Service Edge.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select either Internal (for private IP) or Public (for public IP) option.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          20,
+          28
+        ],
+        [
+          49,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "SKU: Select the Standard option.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          16,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Public IP address: Select Create new. If you have an existing Public IP that you would like to use, select Use existing.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          17
+        ],
+        [
+          26,
+          36
+        ],
+        [
+          107,
+          119
+        ]
+      ]
+    },
+    {
+      "item": "Public IP address name: Enter a public IP address name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "The public IP addresses of the VMs should be according to the SKU selection. By default, the VMs are created with the Standard SKU public IP addresses.",
+      "depth": 3
+    },
+    {
+      "item": "Assignment: Select Static.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Add a public IPv6 address: Select No.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "In the Review + create tab, click Create.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "b. Create a backend pool and link Virtual Service Edge VMs.",
+      "depth": 1
+    },
+    {
+      "item": "To create a backend pool and link Virtual Service Edge VMs to it:",
+      "depth": 1
+    },
+    {
+      "item": "In the load balancer, click Backend pools.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          28,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The Add backend pool page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Add backend pool page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a backend pool name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Virtual network: Select the virtual network in which the Virtual Service Edge VMs and load balancers are created.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "IP version: Select IPv4.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Associate to: Select Virtual machine.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Virtual Machine: Select the Virtual Service Edge VM that you want to link to the backend pool.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "IP address: Select the corresponding service IP address.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "You can associate up to 500 virtual machines to a backend pool, provided they are in the same availability set.",
+      "depth": 3
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "c. Create health probes for the ports.",
+      "depth": 1
+    },
+    {
+      "item": "To create health probes for ports:",
+      "depth": 1
+    },
+    {
+      "item": "In the load balancer, click Health probes.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          28,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The Add health probe page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Add health probe page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a health probe name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select the protocol.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port: Enter the port number that you want to monitor.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Interval: Enter the interval in seconds between each probe attempt.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Unhealthy threshold: Enter the consecutive number of probe failures that must occur before the Virtual Service Edge VM is considered unhealthy.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click Ok.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "d. Create load balancing rules.",
+      "depth": 1
+    },
+    {
+      "item": "To create load balancing rules:",
+      "depth": 1
+    },
+    {
+      "item": "In the load balancer, click Load balancing rules.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          28,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The Add load balancing rule page appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "On the Add load balancing rule page:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a load balancing rule name.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IP Version: Select IPv4.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Frontend IP address: Select the load balancer's frontend IP address.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select the protocol.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Port: Enter the same port number that is exposed in the health probe.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Backend port: Enter the same port number that is exposed in the health probe.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Backend pool: Select the backend pool.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Health probe: Select the health probe.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Session persistence: Select a session persistence value based on your requirement. The values can be None, Client IP, or Client IP and protocol.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          101,
+          105
+        ],
+        [
+          107,
+          116
+        ],
+        [
+          121,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "Idle timeout (minutes): Don't make any changes to the default value, 4.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          69,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Floating IP (direct server return): Don't make any changes to the default value, Disabled.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          34
+        ],
+        [
+          81,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Click Ok.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "text": "You can forward the traffic to the Azure LB virtual IP after creating load balancing rules."
+    },
+    {
+      "text": "Zscaler recommends Azure's best practices for securing VMs."
+    },
+    {
+      "heading": "Azure Deployment Templates",
+      "level": 1
+    },
+    {
+      "text": "Use the templates in the Terraform repository to create the deployment resources required to deploy and operate a Virtual Service Edge in a new or existing virtual private cloud (VPC)."
+    },
+    {
+      "item": "Virtual Service Edge Standalone Deployment Template",
+      "depth": 0
+    },
+    {
+      "item": "Use the Deployment Template (vzen_standalone) to deploy your standalone Virtual Service Edge in a new resource group and virtual network. The template creates the following resources:",
+      "depth": 0
+    },
+    {
+      "item": "Resource Group",
+      "depth": 1
+    },
+    {
+      "item": "Private Key for SSH (stored in your local machine)",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Network",
+      "depth": 1
+    },
+    {
+      "item": "Subnet",
+      "depth": 1
+    },
+    {
+      "item": "Management NIC",
+      "depth": 1
+    },
+    {
+      "item": "Service NIC.",
+      "depth": 1
+    },
+    {
+      "item": "Public IP for Management NIC",
+      "depth": 1
+    },
+    {
+      "item": "Public IP for Service NIC",
+      "depth": 1
+    },
+    {
+      "item": "Network Security Group for Management NIC",
+      "depth": 1
+    },
+    {
+      "item": "Network Security Group for Service NIC",
+      "depth": 1
+    },
+    {
+      "item": "VZEN VM",
+      "depth": 1
+    },
+    {
+      "item": "See Resource Logs",
+      "depth": 1
+    },
+    {
+      "item": "local_file.private_key tls_private_key.key module.network.data.azurerm_subnet.vzen_subnet_selected[0] module.network.azurerm_public_ip.vzen_mgmt_public_ip[0] module.network.azurerm_public_ip.vzen_service_public_ip[0] module.network.azurerm_resource_group.rg[0] module.network.azurerm_subnet.vzen_subnet[0] module.network.azurerm_virtual_network.vnet[0] module.vzen_nsg.azurerm_network_security_group.vzen_mgmt_nsg[0] module.vzen_nsg.azurerm_network_security_group.vzen_service_nsg[0] module.vzen_vm.azurerm_linux_virtual_machine.vzen_vm[0] module.vzen_vm.azurerm_network_interface.vzen_mgmt_nic[0] module.vzen_vm.azurerm_network_interface.vzen_service_nic[0] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_mgmt_nic_association[0] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_service_nic_association[0]",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Service Edge Deployment Template with Azure LB",
+      "depth": 0
+    },
+    {
+      "item": "Use the Deployment Template (vzen_with_azure_lb) to deploy your Virtual Service Edge with Azure LB in a new resource group and virtual network. The template creates the following resources:",
+      "depth": 0
+    },
+    {
+      "item": "Resource Group",
+      "depth": 1
+    },
+    {
+      "item": "Private Key for SSH (stored in your local machine)",
+      "depth": 1
+    },
+    {
+      "item": "Virtual Network",
+      "depth": 1
+    },
+    {
+      "item": "Subnet",
+      "depth": 1
+    },
+    {
+      "item": "Two Management NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two Service NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two Public IP for Management NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two Public IP for Service NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two Network Security Group for Management NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two Network Security Group for Service NIC's",
+      "depth": 1
+    },
+    {
+      "item": "Two VZEN VM's",
+      "depth": 1
+    },
+    {
+      "item": "Azure Load Balancer",
+      "depth": 1
+    },
+    {
+      "item": "Public IP for Azure Load Balancer",
+      "depth": 1
+    },
+    {
+      "item": "See Resource Logs",
+      "depth": 1
+    },
+    {
+      "item": "local_file.private_key tls_private_key.key module.network.data.azurerm_subnet.vzen_subnet_selected[0] module.network.azurerm_public_ip.vzen_lb_public_ip[0] module.network.azurerm_public_ip.vzen_mgmt_public_ip[0] module.network.azurerm_public_ip.vzen_mgmt_public_ip[1] module.network.azurerm_public_ip.vzen_service_public_ip[0] module.network.azurerm_public_ip.vzen_service_public_ip[1] module.network.azurerm_resource_group.rg[0] module.network.azurerm_subnet.vzen_subnet[0] module.network.azurerm_virtual_network.vnet[0] module.vzen_lb.azurerm_lb.vzen_lb module.vzen_lb.azurerm_lb_backend_address_pool.vzen_lb_backend_pool module.vzen_lb.azurerm_lb_probe.vzen_lb_probe module.vzen_lb.azurerm_lb_rule.vzen_lb_rule module.vzen_nsg.azurerm_network_security_group.vzen_mgmt_nsg[0] module.vzen_nsg.azurerm_network_security_group.vzen_mgmt_nsg[1] module.vzen_nsg.azurerm_network_security_group.vzen_service_nsg[0] module.vzen_nsg.azurerm_network_security_group.vzen_service_nsg[1] module.vzen_vm.azurerm_linux_virtual_machine.vzen_vm[0] module.vzen_vm.azurerm_linux_virtual_machine.vzen_vm[1] module.vzen_vm.azurerm_network_interface.vzen_mgmt_nic[0] module.vzen_vm.azurerm_network_interface.vzen_mgmt_nic[1] module.vzen_vm.azurerm_network_interface.vzen_service_nic[0] module.vzen_vm.azurerm_network_interface.vzen_service_nic[1] module.vzen_vm.azurerm_network_interface_backend_address_pool_association.vzen_vm_service_nic_lb_association[0] module.vzen_vm.azurerm_network_interface_backend_address_pool_association.vzen_vm_service_nic_lb_association[1] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_mgmt_nic_association[0] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_mgmt_nic_association[1] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_service_nic_association[0] module.vzen_vm.azurerm_network_interface_security_group_association.vzen_service_nic_association[1]",
+      "depth": 1
+    },
+    {
+      "text": "If you encounter any issues with your Virtual Service Edge, you can Troubleshoot Virtual Service Edge."
+    }
+  ]
+}

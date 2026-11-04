@@ -1,0 +1,50 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Handling DNS Resolution for Various Traffic Forwarding Methods",
+  "source": {
+    "url": "https://help.zscaler.com/zia/handling-dns-resolution-various-traffic-forwarding-methods",
+    "node": "1401621",
+    "revision": "3207640",
+    "updated": "2026-05-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following table provides information on how Internet & SaaS (ZIA) handles DNS resolution for various traffic forwarding methods:"
+    },
+    {
+      "table": [
+        [
+          "Traffic Forwarding Method",
+          "DNS Resolution Handling"
+        ],
+        [
+          "Explicit Proxy (PAC forwarded traffic)",
+          "Zscaler performs DNS resolution for the proxied traffic. However, for the traffic that is exempted based on the PAC file, the DNS resolution is performed locally on the client side."
+        ],
+        [
+          "Transparent Proxy (GRE and IPSec traffic)",
+          "Zscaler performs DNS resolution only if the server is configured on the client side and if it is one of the following: A public DNS server, such as Cloudflare, Infoblox, or OpenDNS, etc. A private DNS server hosted on the internet, such as AWS or Azure If not, the DNS resolution is performed locally on the client side before forwarding the traffic to Zscaler."
+        ],
+        [
+          "All traffic forwarded to Zscaler through any port or protocol",
+          "Zscaler performs the DNS resolution for the clients. Zscaler might use DNS servers running within the data centers or use a third-party DNS service for DNS resolution."
+        ],
+        [
+          "Zscaler Client Connector traffic in tunnel mode with local proxy",
+          "Zscaler performs DNS resolution for the proxied traffic. However, for the traffic that is exempted based on the App Profile's PAC file or Forwarding Profile's PAC file, the DNS resolution is performed locally on the client side."
+        ],
+        [
+          "Zscaler Client Connector traffic in tunnel mode",
+          "A DNS resolution is first performed locally on the client side for all the traffic. Then, Zscaler performs a second DNS resolution for the proxied traffic. However, for the traffic that is exempted based on the App Profile's PAC file or based on VPN gateway bypasses, the result of the initial client side DNS resolution is used."
+        ],
+        [
+          "Zscaler Client Connector traffic in Zscaler Tunnel (Z-Tunnel) 2.0 mode",
+          "If a public DNS (i.e., DNS server in Destination Include Range or if the domain matches the Domain Inclusions for DNS Requests) is used, Zscaler performs the DNS resolution for the clients. Then the traffic is either proxied or bypassed based on the Destination Include or Exclude Range, Z-Tunnel 2.0 Domain-Based bypass configurations, or based on VPN gateway bypasses. If a local DNS (i.e., DNS server in Destination Exclude Range or if the domain matches the Domain Exclusions for DNS Requests) is used, the DNS resolution is performed locally on the client side. Then the traffic is either proxied or bypassed based on the Destination Include or Exclude Range, Z-Tunnel 2.0 Domain-Based bypass configurations, or based on VPN gateway bypasses. For the proxied traffic, Zscaler has an option to redo the DNS resolution. To learn more about destination and domain inclusion and exclusion for DNS requests, see Best Practices for Adding Bypasses for Z-Tunnel 2.0 and Configuring Zscaler Client Connector App Profiles."
+        ]
+      ]
+    }
+  ]
+}

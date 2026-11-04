@@ -1,0 +1,257 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Alerts",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/alerts",
+    "node": "1528937",
+    "revision": "3107755",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Alerts_15.json?VersionId=.u9XF9guxxEEJxosAWMK4IFufWMI2SYu",
+    "updated": "2025-04-25",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Alerts"
+      }
+    ],
+    "paths": {
+      "/alertSubscriptions": {
+        "get": {
+          "tags": [
+            "Alerts"
+          ],
+          "description": "Retrieves a list of all alert subscriptions. To learn more, see <a href=\"/zia/about-alert-subscriptions\" target=\"_blank\">About Alert Subscriptions</a>.",
+          "operationId": "AlertSubscriptionResource_getAlertSubscriptions",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/AlertSubscription"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Alerts"
+          ],
+          "description": "Adds a new alert subscription. To learn more, see <a href=\"/zia/adding-alert-subscriptions\" target=\"_blank\">Adding Alert Subscriptions</a>.",
+          "operationId": "AlertSubscriptionResource_addAlertSubscription",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the alert subscription",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AlertSubscription"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AlertSubscription"
+              }
+            }
+          }
+        }
+      },
+      "/alertSubscriptions/{alertSubscriptionId}": {
+        "get": {
+          "tags": [
+            "Alerts"
+          ],
+          "description": "Retrieves the alert subscription information based on the specified ID",
+          "operationId": "AlertSubscriptionResource_getAlertSubscription",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "alertSubscriptionId",
+              "in": "path",
+              "description": "The alert subscription ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AlertSubscription"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Alerts"
+          ],
+          "description": "Updates an existing alert subscription based on the specified ID",
+          "operationId": "AlertSubscriptionResource_updateAlertSubscription",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "alertSubscriptionId",
+              "in": "path",
+              "description": "The alert subscription ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "description": "Information about the alert subscription",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/AlertSubscription"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/AlertSubscription"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "AlertSubscription": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the alert subscription"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional comments or information about the alert subscription"
+          },
+          "email": {
+            "type": "string",
+            "description": "The email address of the alert recipient"
+          },
+          "pt0Severities": {
+            "type": "array",
+            "description": "Lists the severity levels of the Patient 0 Alert class information that the recipient receives",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CRITICAL",
+                "MAJOR",
+                "MINOR",
+                "INFO",
+                "DEBUG"
+              ]
+            }
+          },
+          "secureSeverities": {
+            "type": "array",
+            "description": "Lists the severity levels of the Secure Alert class information that the recipient receives",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CRITICAL",
+                "MAJOR",
+                "MINOR",
+                "INFO",
+                "DEBUG"
+              ]
+            }
+          },
+          "manageSeverities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CRITICAL",
+                "MAJOR",
+                "MINOR",
+                "INFO",
+                "DEBUG"
+              ]
+            }
+          },
+          "complySeverities": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CRITICAL",
+                "MAJOR",
+                "MINOR",
+                "INFO",
+                "DEBUG"
+              ]
+            }
+          },
+          "systemSeverities": {
+            "type": "array",
+            "description": "Lists the severity levels of the System Alerts class information that the recipient receives",
+            "items": {
+              "type": "string",
+              "enum": [
+                "CRITICAL",
+                "MAJOR",
+                "MINOR",
+                "INFO",
+                "DEBUG"
+              ]
+            }
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Deletes an existing alert subscription"
+          }
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Microsegmentation API GraphQL Schema Reference",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/microsegmentation-api-graphql-schema-reference",
+    "node": "1532673",
+    "revision": "3163997",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Microsegmentation APIs enable customers and partners to visualize workload traffic flows, manage segmentation policies, and query agent and resource telemetry through a single GraphQL endpoint on OneAPI."
+    },
+    {
+      "heading": "Understanding the General Structure",
+      "level": 2
+    },
+    {
+      "item": "The API uses two root types for all operations:",
+      "depth": 0
+    },
+    {
+      "item": "Query: To retrieve existing information (read-only). This is conceptually similar to a GET request in a REST API.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Mutation: To create, update, or delete objects in the system. This is conceptually similar to POST, PUT, PATCH, or DELETE requests in a REST API.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Common input patterns:",
+      "depth": 0
+    },
+    {
+      "item": "Pagination: page or pageNum and pageSize.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Sorting: sort and sortDir (ASC or DESC).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Filtering: Filter inputs tailored to each resource (e.g., ResourceGroupsFilter).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Multiple queries per request: GraphQL can execute multiple queries in one request. The response is successful only when all queries succeed; otherwise the request returns errors.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Handling Errors:",
+      "depth": 0
+    },
+    {
+      "item": "Errors are reported within the response body. A request can fail at the service level, while still returning an HTTP 200 OK response code. Always check the response body for errors.",
+      "depth": 0
+    },
+    {
+      "item": "View a sample error format",
+      "depth": 1
+    },
+    {
+      "item": "{ \"errors\": [ { \"message\": \"Data fetching Failed: Forbidden to use API\", \"locations\": [ { \"line\": 51, \"column\": 9 } ], \"path\": [ \"agentGroupUpdate\", \"protocols\" ], \"extensions\": { \"code\": \"FORBIDDEN\", \"http_status\": 403, \"classification\": \"INTERNAL_ERROR\" } } ], \"data\": { \"agentGroupUpdate\": { \"protocols\": { \"entries\": [] } } } }",
+      "depth": 1
+    },
+    {
+      "heading": "Supported Data Domains",
+      "level": 1
+    },
+    {
+      "text": "The following data domains are available to be queried via the Microsegmentation APIs."
+    },
+    {
+      "heading": "Query Type",
+      "level": 3
+    },
+    {
+      "text": "Root query type is available for management and policy APIs. Use it to retrieve agents, groups, statistics, metadata, nonces, and microsegmentation resources."
+    },
+    {
+      "item": "Query type operations",
+      "depth": 0
+    },
+    {
+      "item": "AgentConnectionStatusStatisticsConnection: Return aggregated agent connection status statistics for the specified customer.",
+      "depth": 1
+    },
+    {
+      "item": "agentGroups: Return a paged list of agent groups for the specified customer. Supports search and sorting.",
+      "depth": 1
+    },
+    {
+      "item": "agentVersionStatistics: Return aggregated agent version statistics for the specified customer.",
+      "depth": 1
+    },
+    {
+      "item": "agents: Return a paged list of agents for the specified customer. Supports search and sorting.",
+      "depth": 1
+    },
+    {
+      "item": "metadata: Return event metadata for the specified customer as a JSON object.",
+      "depth": 1
+    },
+    {
+      "item": "nonce: Return a nonce for the specified eyezId.",
+      "depth": 1
+    },
+    {
+      "item": "nonces: Return a paged list of nonces for the specified customer. Supports search and sorting.",
+      "depth": 1
+    },
+    {
+      "item": "appZones: Return app zones for the specified customer. Supports filtering and sorting.",
+      "depth": 1
+    },
+    {
+      "item": "defaultPolicyRules: Return default policy rules for the specified customer with pagination.",
+      "depth": 1
+    },
+    {
+      "item": "policyRules: Return policy rules for the specified customer. Supports filtering, pagination, and fetch-all.",
+      "depth": 1
+    },
+    {
+      "item": "recommendedResourceGroups: : Return ML-based recommended resource groups for the specified customer. Supports filtering and pagination.",
+      "depth": 1
+    },
+    {
+      "item": "resourceGroupMembers: Return resources that belong to the specified resource group.",
+      "depth": 1
+    },
+    {
+      "item": "resourceGroupProtectionStatus: Return protection status for resource groups with optional detail per group.",
+      "depth": 1
+    },
+    {
+      "item": "resourceGroups: Return resource groups for the specified customer. Supports filtering and pagination.",
+      "depth": 1
+    },
+    {
+      "item": "resourceProtectionStatus: Return protection status for resources with optional detail per resource.",
+      "depth": 1
+    },
+    {
+      "item": "resources: Return resources that match the specified filters. Supports sorting, pagination, and inclusion of deleted resources.",
+      "depth": 1
+    },
+    {
+      "item": "resourcesByFilters: Return resources filtered by multiple criteria for resource group recommendations.",
+      "depth": 1
+    },
+    {
+      "heading": "Mutation Type",
+      "level": 3
+    },
+    {
+      "text": "Root mutation type is available for management and policy operations. Use it to create, update, or delete agents, groups, nonces, policy rules, and resource groups."
+    },
+    {
+      "item": "Mutation type operations",
+      "depth": 0
+    },
+    {
+      "item": "agentDelete: Remove an existing agent.",
+      "depth": 1
+    },
+    {
+      "item": "agentGroupCreate: Create a new agent group.",
+      "depth": 1
+    },
+    {
+      "item": "agentGroupDelete: Delete an agent group.",
+      "depth": 1
+    },
+    {
+      "item": "agentGroupUpdate: Update an existing agent group.",
+      "depth": 1
+    },
+    {
+      "item": "agentGroupUpgradeStatusReset: Reset the upgrade status of an agent group.",
+      "depth": 1
+    },
+    {
+      "item": "agentUpdate: Update an existing agent.",
+      "depth": 1
+    },
+    {
+      "item": "nonceCreate: Create a new nonce (provisioning key) for an existing agent group.",
+      "depth": 1
+    },
+    {
+      "item": "nonceDelete: Delete a nonce.",
+      "depth": 1
+    },
+    {
+      "item": "nonceUpdate: Update an existing nonce.",
+      "depth": 1
+    },
+    {
+      "item": "nonceWithAgentGroupCreate: Create a new nonce (provisioning key) and a new agent group.",
+      "depth": 1
+    },
+    {
+      "item": "defaultPolicyRulesCreate: Create default policy rules in batch.",
+      "depth": 1
+    },
+    {
+      "item": "defaultPolicyRulesDelete: Delete multiple default policy rules in batch.",
+      "depth": 1
+    },
+    {
+      "item": "defaultPolicyRulesUpdate: Update multiple default policy rules in batch.",
+      "depth": 1
+    },
+    {
+      "item": "managedRecommendedResourceGroupUpdate: Update a recommended resource group.",
+      "depth": 1
+    },
+    {
+      "item": "managedResourceGroupCreate: Create a managed resource group.",
+      "depth": 1
+    },
+    {
+      "item": "managedResourceGroupUpdate: Update a managed resource group.",
+      "depth": 1
+    },
+    {
+      "item": "policyRuleCreate: Create a policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "policyRuleDelete: Delete a policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "policyRuleUpdate: Update a policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "resourceGroupDelete: Delete a resource group.",
+      "depth": 1
+    },
+    {
+      "item": "unmanagedResourceGroupCreate: Create an unmanaged resource group.",
+      "depth": 1
+    },
+    {
+      "item": "unmanagedResourceGroupUpdate: Update an unmanaged resource group.",
+      "depth": 1
+    }
+  ]
+}

@@ -1,0 +1,269 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Authentication",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/authentication",
+    "node": "1450241",
+    "revision": "2562231",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Authentication_8.json?VersionId=EIek89KmgS9prANpGqHUMABfcoDBeYON",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Edge Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Authentication"
+      }
+    ],
+    "paths": {
+      "/auth": {
+        "get": {
+          "tags": [
+            "Authentication"
+          ],
+          "operationId": "AuthSessionZResource_getAuthenticatedSession",
+          "description": "Checks if there is an authenticated session.",
+          "responses": {
+            "200": {
+              "description": "Successful Operation. When an authenticated session exists, the response contains authType information.  If authType is not present, the authenticated session has expired or does not exist.\n",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SessionInfo"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Authentication"
+          ],
+          "description": "Creates an authenticated session. The response returns a cookie in the header called <code>JSESSIONID</code> that must be used in subsequent requests.",
+          "operationId": "AuthSessionZResource_addAuthenticatedSession",
+          "parameters": [
+            {
+              "name": "includeDisplayPreferences",
+              "in": "query",
+              "description": "Indicates whether to include localization info from organization settings.",
+              "schema": {
+                "type": "boolean",
+                "default": false
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/AuthCredentials"
+                }
+              }
+            }
+          },
+          "responses": {
+            "200": {
+              "description": "OK",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/SessionInfo"
+                  }
+                }
+              }
+            },
+            "400": {
+              "description": "Bad Request"
+            },
+            "401": {
+              "description": "Unauthorized"
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Authentication"
+          ],
+          "description": "Log out of authenticated session.",
+          "operationId": "AuthSessionZResource_deleteAuthenticatedSession",
+          "responses": {
+            "default": {
+              "description": "default response. See <a href=\"https://help.zscaler.com/cloud-branch-connector/api-response-codes-and-error-messages\" target=\"_blank\">API Response Codes</a>",
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EdgeAPIResponse"
+                  }
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "SessionInfo": {
+          "type": "object",
+          "description": "Session information.",
+          "properties": {
+            "authType": {
+              "type": "string",
+              "description": "Login type.",
+              "enum": [
+                "ADMIN_LOGIN",
+                "SUPPORT_ACCESS_PARTIAL",
+                "SUPPORT_ACCESS_FULL",
+                "TEMPLATE_ORG_BY_ZSUPPORT",
+                "TEMPLATE_ORG_BY_PARTNER",
+                "PARTNER_ACCESS",
+                "INTEGRATION_PARTNER_ACCESS",
+                "DEFAULT_LOGIN",
+                "ADMIN_SAML_SSO_LOGIN",
+                "SUPPORT_ACCESS_READ_ONLY",
+                "MOBILE_APP_TOKEN"
+              ]
+            },
+            "obfuscateApiKey": {
+              "type": "boolean",
+              "description": "Indicates whether API key is obfuscated."
+            },
+            "loginName": {
+              "type": "string",
+              "description": "Internal use only."
+            },
+            "partnerCss": {
+              "type": "string",
+              "description": "Internal use only.",
+              "enum": [
+                "DEFAULT",
+                "COLOR_MAGENTA"
+              ]
+            },
+            "locale": {
+              "type": "string",
+              "description": "Internal use only."
+            },
+            "passwordExpiryTime": {
+              "type": "integer",
+              "format": "int64",
+              "description": "Password expiry time."
+            },
+            "passwordExpiryDays": {
+              "type": "integer",
+              "format": "int32",
+              "description": "Password expiry days."
+            },
+            "source": {
+              "type": "string",
+              "description": "Internal use only."
+            },
+            "readOnly": {
+              "type": "boolean",
+              "description": "Internal use only."
+            },
+            "ssoZccAdminAccess": {
+              "type": "boolean",
+              "description": "Internal use only."
+            },
+            "ssoZccAdminUrl": {
+              "type": "string",
+              "description": "Internal use only."
+            }
+          }
+        },
+        "AuthCredentials": {
+          "type": "object",
+          "description": "Credential info that is required for authenticating a session.",
+          "properties": {
+            "apiKey": {
+              "type": "string",
+              "description": "The obfuscated form of the API key."
+            },
+            "username": {
+              "type": "string",
+              "description": "Username of admin user that is provisioned."
+            },
+            "password": {
+              "type": "string",
+              "description": "Password of the admin user."
+            },
+            "timestamp": {
+              "type": "string",
+              "description": "Long value that represents the current time in milliseconds since  midnight, January 1, 1970 UTC. This timestamp value must reflect the real current time."
+            },
+            "samlResponse": {
+              "type": "string",
+              "description": "SAML response."
+            },
+            "providerName": {
+              "type": "string",
+              "description": "Name of SAML provider."
+            }
+          }
+        },
+        "EdgeAPIResponse": {
+          "type": "object",
+          "description": "Cloud & Branch Connector API HTTP response.",
+          "properties": {
+            "status": {
+              "type": "string",
+              "description": "HTTP Status."
+            },
+            "description": {
+              "type": "string",
+              "description": "HTTP Status description."
+            }
+          }
+        }
+      }
+    }
+  }
+}

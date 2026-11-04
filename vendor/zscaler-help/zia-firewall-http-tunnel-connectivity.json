@@ -1,0 +1,81 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Firewall HTTP Tunnel Connectivity",
+  "source": {
+    "url": "https://help.zscaler.com/zia/firewall-http-tunnel-connectivity",
+    "node": "1401616",
+    "revision": "3243514",
+    "updated": "2026-09-01",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler recommends using GRE/IPSec tunnel connectivity from branch or headquarter location gateway devices. For remote users, the recommendation is to install Zscaler Client Connector to connect to the Zscaler service. Zscaler Client Connector should be implemented when users are off network using HTTP CONNECT tunnels to forward their traffic."
+    },
+    {
+      "text": "With HTTP CONNECT tunnels, there are two 5-tuples associated with the traffic: the outer IP and the inner IP address. Zscaler removes the HTTP CONNECT request from the outer tunnel and then applies the Firewall policies to the request inside the HTTP CONNECT tunnel independently. This means that any 5-tuple that results in a blocking policy blocks the corresponding session."
+    },
+    {
+      "text": "To ensure your organization is configured to allow connectivity to the Zscaler service, you must leverage the following predefined Zscaler network services and IP groups in your organization’s policies:"
+    },
+    {
+      "item": "A predefined network service: Zscaler Proxy Network Service - This includes all proxied network services (e.g., TCP 21, 80, 443, 9400, 9480, etc.) and the subscription to a DPPC port.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "A predefined IP category: Zscaler Proxy IPs - It includes all Public Service Edge for Internet & SaaS (ZIA) service IPs in a particular cloud, local IPs of the particular Public Service Edge for Internet & SaaS, and global service IPs.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "A predefined Firewall policy rule: Zscaler Proxy Traffic - This is available to match the Zscaler Proxy IPs category and the Zscaler Proxy Networking Service.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "text": "Zscaler Client Connector version 2.0 or later uses DTLS/TLS tunnels to forward traffic, and it doesn't support Zscaler Proxy Traffic rule."
+    },
+    {
+      "text": "The Firewall HTTP Tunnel Connectivity works as follows:"
+    },
+    {
+      "text": "Orange Layer: Represents the secure tunnel types like CONNECT, GRE, or DTLS/TLS, which serve as the transport mechanism for data.",
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "Green Layer: Represents the actual user data or packet content being transmitted securely within the tunnel.",
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "To learn more about configuring GRE tunnels and Zscaler Client Connector app profiles, see Configuring GRE Tunnels and Configuring Zscaler Client Connector App Profiles."
+    }
+  ]
+}

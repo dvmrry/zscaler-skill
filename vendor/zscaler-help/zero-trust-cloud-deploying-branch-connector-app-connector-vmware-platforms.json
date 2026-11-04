@@ -1,0 +1,1022 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Branch Connector & App Connector on VMware Platforms",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/deploying-branch-connector-app-connector-vmware-platforms",
+    "node": "1447016",
+    "revision": "3226512",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy Zscaler Branch Connector & App Connector as a virtual machine (VM) on VMware platforms, and post-deployment configurations."
+    },
+    {
+      "text": "This procedure describes the steps for deploying Zscaler Branch Connector & App Connector on VMware platforms. To learn more about deploying Branch Connector & App Connector using a Terraform script, see Deployment Templates for Zscaler Branch Connector & App Connector."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Grant admins full access to Branch Connector Provisioning permissions.",
+      "depth": 0
+    },
+    {
+      "item": "The role that you assign admins dictates the level of access they have to the Zscaler Admin Console. Zscaler provides a default admin account that provides full access to the portal and scope over the entire organization. To learn more, see About Role Management and Adding Admin Roles.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, create a dedicated username and password for the Branch Connector & App Connector deployment. The password must be at least 8 characters in length and include at least one uppercase letter, one number, and one special character. The password must not contain a $ , &, >, <, ;, ', or \". If the password does not meet these requirements, the deployment fails.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a Branch Configuration Template and copy the Branch Configuration URL.",
+      "depth": 0
+    },
+    {
+      "item": "Download the combined Branch Connector & App Connector Open Virtual Appliance (OVA) image file for VMware ESXi from the Branch Connector Images page.",
+      "depth": 0
+    },
+    {
+      "item": "Branch Connector & App Connector uses an API key to authenticate and register the VM with the Zscaler service. If you do not already have an API key, generate a new key. Then copy the API key from the API Key Management page.",
+      "depth": 0
+    },
+    {
+      "item": "The VM requires VMware vSphere Hypervisor (ESXi) version 7.0 or later, or the minimum version stated by Broadcom.",
+      "depth": 0
+    },
+    {
+      "item": "Configure an App Connector Provisioning Key in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Review the Branch Connector specifications and sizing requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Small VM: requires 16 GB of memory, 4 CPU cores, 128 GB data disk size, and 3 network interface cards (NICs)",
+      "depth": 1
+    },
+    {
+      "item": "Medium VM: requires 32 GB of memory, 6 CPU cores, 128 GB data disk size, and 5 NICs",
+      "depth": 1
+    },
+    {
+      "item": "Review the virtual machine specifications for Branch Connector deployed in high availability.",
+      "depth": 0
+    },
+    {
+      "item": "The Promiscuous mode option must be enabled (i.e., set to Accept) on the vSphere switch (vSwitch) or at the port group level. Branch Connector uses the Common Address Redundancy Protocol (CARP) to process traffic across multiple Branch Connector instances. To support this, you must enable promiscuous mode on your Branch Connector service interface.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          58,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "The MAC address changes option must be enabled on the vSwitch or port group.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "The Forged transmits option must be enabled on the vSwitch or port group.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Branch Connectors often share the vSwitch with other corporate VMs, and settings you apply on the vSwitch level are applied to all VMs on the vSwitch. When promiscuous mode is enabled, other VMs might be able to detect traffic going through the service interface. To avoid this risk, Zscaler recommends that you create and use a port group for your Branch Connector service interfaces.",
+      "depth": 1
+    },
+    {
+      "item": "If multiple physical ports exist on the same vSwitch, then the Net.ReversePathFwdCheckPromisc advanced option must be enabled (i.e., set to 1) on the ESXi host. If it is not enabled, then multicast traffic loops back to the host, causing CARP not to function properly, and link states coalesced messages are sent. To learn more, refer to the VMware documentation.",
+      "depth": 1
+    },
+    {
+      "heading": "Creating and Applying User Data",
+      "level": 1
+    },
+    {
+      "text": "For deployment using cloud-init Config Drive, you must create a text file containing user data information for your Branch Connector VM. This information is applied to the VM as an International Organization for Standardization (ISO) file that you mount via a virtual CD-ROM drive during deployment."
+    },
+    {
+      "text": "This section does not pertain to deployments using an OVA file and OVA template. In these deployments, the OVA import process provides the user data information."
+    },
+    {
+      "text": "List of network drivers to specify in the user data information"
+    },
+    {
+      "text": "The following lists Ethernet devices and the drivers that support them. In the template, replace <Driver> with the value associated with the device you will select during deployment. (The values used in the examples are for illustration only, and are not necessarily typical for the hypervisor type.)"
+    },
+    {
+      "item": "Windows VirtIO: vtnet",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Intel e1000: em",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Intel Gigabit: igb",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Intel 10 Gigabit: ix",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "VMware Vxnet3: vmx",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Hyper-V: hn",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Create your user data in a text file named userdata.cfg using the following template, formatted in YAML:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Branch Connector & App Connector with Static Management IP Template",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035 #Optional to change the port for load balancer status checks from the default value 50001 to 50035. api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - address: <IP Address/Netmask> #IP configuration for the management interface gateway: <Gateway> type: static - name: <Driver> type: physical fib: '1' subnets: - address: <IP Address/Netmask> #IP configuration for the App Connector interface gateway: <Gateway> type: static - type: nameserver address: - <IP Address> - <IP Address> search: - zscaler.net version: '1' zscaler_app_connector: enable: 'yes' provisioning_key: <Key> #ssh keys are optional ssh_authorized_keys: - ssh-rsa <Key>",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with default HTTP probe port and no SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vmx0 type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254 type: static - name: vmx1 type: physical fib: '1' subnets: - address: 10.66.118.72/24 gateway: 10.66.118.254 type: static - type: nameserver address: - 10.66.98.1 - 8.8.8.8 search: - zscaler.net version: '1' zscaler_app_connector: enable: 'yes' provisioning_key: asldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaks",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with non-default HTTP probe port and SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC http_probe_port: 50035 api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vtnet0 type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254 type: static - name: vtnet1 type: physical fib: '1' subnets: - address: 10.66.118.72/24 gateway: 10.66.118.254 type: static - type: nameserver address: - 10.66.98.1 - 8.8.8.8 search: - zscaler.net version: '1' zscaler_app_connector: enable: 'yes' provisioning_key: asldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaksasldkfjalsdkjflaks ssh_authorized_keys: - ssh-rsa AAAAB3NzaC1yc2EAAAADAQABAAABgQCh3ru9CCnEow69WlQyJuxvZJGHcjhcgJzp8XnoKTJk6o1bit+rq4BNyjS0orauMF6fNMHAyGZqDWw6RICvoeh386xNqnD7+AGE9VGz4cPv0CjoV2HvkKnA2Dj8KZFFJ/bBV0BndNdGATsbDnhq0wkJ+WXFmamb9kx4dSDL5ZD15SybFop0b/3JoqXoU+9pxFc0bQ/cediaifCztliI9i7NAmvIUinLy2OlDW/uPEcB8nBgXhAAc9ALe6+Q4wZt8JUdrcF04bgoAHYsNuzyEk4dNvov97JyExCAwzSLomiHFtdzhGw7/o6KhfhxxBRodKy4wQBwDzPbD6EbN9iCqoK8DY4HZ2L7HyQKRjhnnY/Y0uldO0tleogElbk+4LsoyAPjPAbogu89xSOa6D7sl2G+dPpqTlFBmO/3m/2JhBnGU= admin@branchpc",
+      "depth": 1
+    },
+    {
+      "item": "Apply your user data to the VM in one of the following ways:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Install the Development Tools component from the Windows ADK.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Add oscdimg.exe to your PATH Windows environment variable.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Use PowerShell or Command Prompt (CMD) to generate the ISO.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir\\user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "> oscdimg.exe -j1 -u1 -lcidata .\\isodir\\user-data",
+      "depth": 2
+    },
+    {
+      "item": "macOS",
+      "depth": 1
+    },
+    {
+      "item": "Install cdrtools using a method such as Homebrew. (This procedure uses Homebrew.)",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "$ brew install cdrtools",
+      "depth": 2
+    },
+    {
+      "item": "Use Terminal to generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkisofs -output user-data.iso -volid cidata -joliet -rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "item": "Linux",
+      "depth": 1
+    },
+    {
+      "item": "Install genisoimage.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On Centos, RedHat, or Rocky Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo yum install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "On Ubuntu or Debian Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo apt install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "Generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> geniosimage -o user-data.iso -volid cidata -joliet -rational-rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "heading": "Deploying the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "Perform one of the following procedures to deploy your Branch Connector & App Connector:"
+    },
+    {
+      "item": "Deploying Using an OVA File and Template",
+      "depth": 0
+    },
+    {
+      "item": "Deploying Using cloud-init Config Drive",
+      "depth": 0
+    },
+    {
+      "text": "After you have met all the prerequisites, perform the following steps to deploy your Branch Connector & App Connector:"
+    },
+    {
+      "item": "Log in to the vCenter Server with the vSphere Client.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Locate the VMware host on which you want to deploy the Branch Connector & App Connector, then right-click and select Deploy OVF Template.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          117,
+          136
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select an OVF template page, select Local file. Then, upload the Branch Connector & App Connector OVA image file that you previously downloaded from the Branch Connector Images page. Then, click Next.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          43,
+          53
+        ],
+        [
+          202,
+          206
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select a name and folder page, enter a unique name and select a target location for the VM. Then, click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          111,
+          115
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select a compute resource page, select the destination compute resource. Then, click Next.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Review details page, verify the template details. Then, click Next.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          69,
+          73
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Configuration page, select a deployment configuration for the combined Branch Connector & App Connector image. Then, click Next.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          130,
+          134
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select storage page, select the storage for the configuration and disk files. Then, click Next.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          97,
+          101
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select networks page, select a destination network for each source network. Then, click Next.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          95,
+          99
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Customize template page, configure the following deployment properties:",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Branch Connector",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Provisioning Template URL: Enter the Branch Connector Configuration URL.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "API Key: Enter the API key from the API Key Management page.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "username: Enter the username you created for the Branch Connector deployment role in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "password: Enter the password for the Branch Connector deployment role in the Zscaler Admin Console.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Management Interface Type: Select static.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Management Interface IP Address: Enter the IP address and subnet prefix for the management interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Management Interface Default Gateway: Enter the default gateway for the management interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Domain: Enter the domain suffix.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "DNS Information: Enter the primary and secondary DNS servers that the Branch Connector should use for DNS resolution.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "ssh login public key: Enter the SSH public key for logging in without a password.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "App Connector",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Provision Key: Enter the App Connector Provisioning Key.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Control Interface Type: Select static.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          31,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Control Interface IP Address: Enter the IP address and subnet prefix for the control interface.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Control Interface Default Gateway: Enter a default gateway for the control network.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Control Interface DNS Information: Enter the primary and secondary DNS servers that the Branch Connector should use for DNS resolution.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          33
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Ready to complete page, review all of your configurations. Then, click Finish to deploy.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          78,
+          84
+        ]
+      ]
+    },
+    {
+      "text": "To avoid any time sync issues, Zscaler recommends enabling the Synchronize guest time with host option after deploying Branch Connector & App Connector. To learn more, refer to the VMware product documentation.",
+      "strong": [
+        [
+          63,
+          95
+        ]
+      ]
+    },
+    {
+      "text": "After you have met all the prerequisites, created user data, and applied user data to the VM with an ISO file, perform the following steps to deploy your Branch Connector & App Connector:"
+    },
+    {
+      "item": "Log in to the vSphere Hypervisor (ESXi) Server with the vSphere Client.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Locate the VMware host on which you want to deploy the Branch Connector & App Connector and click Create/Register VM.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          98,
+          116
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The New virtual machine window appears.",
+      "strong": [
+        [
+          4,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "On the Select creation type page, select Deploy a virtual machine from an OVF or OVA file. Then, click Next.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          41,
+          89
+        ],
+        [
+          103,
+          107
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select OVF and VMDK files page, enter a unique name for the VM and upload the Branch Connector & App Connector OVA image file that you previously downloaded from the Branch Connector Images page. Then, click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          215,
+          219
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Select storage page, select Standard as the storage type and select the datastore for the VM's configuration files. Then, click Next.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          35,
+          43
+        ],
+        [
+          135,
+          139
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Deployment options page, select the Network mappings, Deployment type, and Disk provisioning. Ensure that the Power on automatically option is disabled. Then, click Next.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          43,
+          59
+        ],
+        [
+          61,
+          76
+        ],
+        [
+          82,
+          99
+        ],
+        [
+          117,
+          139
+        ],
+        [
+          172,
+          176
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Additional settings page, skip the additional properties for the VM because values entered on this page are not configured. Click Next.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          137,
+          141
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Ready to complete page, review all of your configurations. Then, click Finish.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          78,
+          84
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "After the VM has fully deployed, locate the VM and click Edit.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          57,
+          61
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Complete the deployment:",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "On the Edit settings window, click Virtual Hardware. From the CD/DVD Drive 1 drop-down menu, select Datastore ISO file.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          35,
+          51
+        ],
+        [
+          62,
+          76
+        ],
+        [
+          100,
+          118
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Datastore browser window that opens, click Upload to upload the user-data.iso file you created in Creating and Applying User Data. Then, click Select.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          50,
+          56
+        ],
+        [
+          150,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Ensure that Connect and Connect at power on are enabled. Then, click Save.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          12,
+          19
+        ],
+        [
+          24,
+          43
+        ],
+        [
+          69,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Virtual Machines, locate the deployed Branch Connector and click Power on.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          71,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "text": "To avoid any time sync issues, Zscaler recommends enabling the Synchronize guest time with host option after deploying Branch Connector & App Connector. To learn more, refer to the VMware product documentation.",
+      "strong": [
+        [
+          63,
+          95
+        ]
+      ]
+    },
+    {
+      "heading": "Managing the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "After your VM is fully deployed, you can manage the Branch Connector & App Connector VM from the Zscaler Admin Console. A deployed VM is displayed in the dashboard. The Branch Connector Monitoring page provides information on the name, group, location, geolocation, and status of your VMs deployed in your branch account."
+    },
+    {
+      "text": "After verifying deployment, you can configure the following policies:"
+    },
+    {
+      "item": "Traffic Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "Log and Control Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "DNS Filtering",
+      "depth": 0
+    }
+  ]
+}

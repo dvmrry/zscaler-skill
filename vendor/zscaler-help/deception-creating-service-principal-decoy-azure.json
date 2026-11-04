@@ -1,0 +1,541 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Creating a Service Principal Decoy in Azure",
+  "source": {
+    "url": "https://help.zscaler.com/deception/creating-service-principal-decoy-azure",
+    "node": "1542464",
+    "revision": "3221655",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "Service principals are identities created for use with applications, hosted services, and automated tools to access Microsoft Azure resources. You can create service principal decoys with credentials attached to them. Any attempt to sign in using the credentials of the service principals will be detected as an attack or compromise. These service principal decoys have access to all other Azure decoys that are part of the decoy resource group (Decoys Resource Group) configured by Zscaler Deception. The most effective way to lure attackers using decoy users is to add these decoy users to a landmine policy."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before creating a service principal decoy in Azure, you must ensure that you have:"
+    },
+    {
+      "item": "Configured the integration between Microsoft Azure and Deception.",
+      "depth": 0
+    },
+    {
+      "item": "(Optional) Obtained the necessary PowerShell command to run the deployment script using one of the following methods:",
+      "depth": 0
+    },
+    {
+      "item": "Automated Download Method",
+      "depth": 1
+    },
+    {
+      "item": "Manual Download Method",
+      "depth": 1
+    },
+    {
+      "item": "This only applies to the Cloud Shell-based deployment.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a Service Principal Decoy",
+      "level": 1
+    },
+    {
+      "text": "To create a service principal decoy:"
+    },
+    {
+      "item": "Go to Deceive > Cloud Deception > Azure > Service Principal.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          31
+        ],
+        [
+          34,
+          39
+        ],
+        [
+          42,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Decoy.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Service Principal Decoy window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "In the Service Principal Decoy window:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the service principal decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Tenant ID: Select the tenant ID of the Azure account where you want to deploy the decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Subscription ID: Select the subscription ID of the Azure account where you want to deploy the decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description relevant to the service principal decoy.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Deploy the decoy based on the method used to configure the integration between Azure and Deception:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Terraform-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Locate the Azure account you added, and click the Download icon in the Actions column.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          58
+        ],
+        [
+          71,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Terraform Deployment Steps window, click Download to download the necessary files.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          33
+        ],
+        [
+          48,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "A ZIP file containing all necessary files is downloaded to your system.",
+      "depth": 2
+    },
+    {
+      "item": "Extract the downloaded ZIP file and open the azure-decoys.tf.json file in a text editor.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Locate the backend block in the azure-decoys.tf.json file. Add your back-end details and save the file.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "The following example shows a backend block of an Azure blob storage-based Terraform back end:",
+      "depth": 2
+    },
+    {
+      "item": "{ \"terraform\": { \"backend\": { \"azurerm\": { \"resource_group_name\": \"your-tfstate-rg\", \"storage_account_name\": \"yourtfstatestorageacct\", \"container_name\": \"tfstate\", \"key\": \"deception/terraform.tfstate\" } } } }",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that you use the same back end for all configurations relating to the same Azure account.",
+      "depth": 2
+    },
+    {
+      "item": "In the terminal, go to the extracted folder, and run the following command to create a new workspace:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "terraform init && terraform workspace new <workspace_name>",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to deploy resources:",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "terraform apply",
+      "depth": 2
+    },
+    {
+      "item": "Review the plan, and confirm it by entering Yes when prompted.",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "The necessary resources are deployed.",
+      "depth": 2
+    },
+    {
+      "item": "Run the following command to download the details of the state as a JSON file.",
+      "depth": 2,
+      "number": 9
+    },
+    {
+      "item": "terraform output -json decoys_output > deployment-output.json",
+      "depth": 2
+    },
+    {
+      "item": "A JSON file containing the details of the state is downloaded.",
+      "depth": 2
+    },
+    {
+      "item": "On the Cloud Deception - Azure page, go to Settings, locate the Azure account you added, and click the Upload icon in the Actions column.",
+      "depth": 2,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          51
+        ],
+        [
+          103,
+          109
+        ],
+        [
+          122,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select the downloaded JSON file to update the status to the Deception Admin Portal.",
+      "depth": 2,
+      "number": 11
+    },
+    {
+      "item": "Cloud Shell-based deployment",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Azure Portal as a Cloud Device Administrator or Global Administrator.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Launch Cloud Shell by clicking the Cloud Shell icon on the top navigation bar.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Cloud Shell window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "In the Cloud Shell window:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Set your shell environment to PowerShell.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Run the deployment script using the command obtained via the automated download method or manual download method.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Enter the option to deploy user decoys and press Enter.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "If you want to add multiple service principal decoys to Microsoft Azure, repeat Step 1 to Step 4 for each decoy and then run the script to sync all decoys simultaneously.",
+      "depth": 0
+    },
+    {
+      "item": "Enable Azure AD (Entra ID) diagnostic settings:",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "In the Azure Portal, click Azure Active Directory.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Monitoring > Diagnostic settings.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          16
+        ],
+        [
+          19,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Click Add diagnostic setting.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "The Diagnostic setting window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Diagnostic setting window:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Enter a Diagnostic setting name.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          8,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Under the Logs section, select the ServicePrincipalSignInLogs checkbox to configure a data source for sending the logs to the logging storage account created as a part of the integration.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          35,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Under the Destination details section, select the Archive to storage account checkbox, and select the storage account created as part of the integration from the Storage account drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          29
+        ],
+        [
+          50,
+          76
+        ],
+        [
+          162,
+          177
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "This configuration is not handled via the deployment script, as enabling diagnostic settings via API requires a P1 or P2 subscription.",
+      "depth": 0
+    },
+    {
+      "text": "Upon successful deployment, the service principal decoy is added to Microsoft Azure under the Decoys Resource Group configured by Deception during the integration. In addition, a Client ID is also associated with the service principal automatically. The deployment status is indicated by the icon next to the name of the decoy in the service principal decoys table (Deceive > Cloud Deception > Azure > Service Principal) within the Zscaler Deception Admin Portal.",
+      "strong": [
+        [
+          179,
+          188
+        ]
+      ]
+    },
+    {
+      "text": "To learn how to configure lures using service principal decoys, see Configuring Lures Using Azure Decoys."
+    }
+  ]
+}

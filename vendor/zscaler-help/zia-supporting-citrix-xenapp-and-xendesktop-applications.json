@@ -1,0 +1,135 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Supporting Citrix XenApp & XenDesktop Applications",
+  "source": {
+    "url": "https://help.zscaler.com/zia/supporting-citrix-xenapp-and-xendesktop-applications",
+    "node": "1400926",
+    "revision": "3243669",
+    "updated": "2026-08-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Internet & SaaS (ZIA) is used by many existing Citrix customers. To forward traffic to Internet & SaaS from Citrix workloads, you can use GRE or IPSec tunnels, PAC files, or Zscaler Client Connector. However, there are some situations where one option might not be feasible or where it needs to be configured in a certain way."
+    },
+    {
+      "heading": "Using XenDesktop with Internet & SaaS",
+      "level": 1
+    },
+    {
+      "text": "These workloads are typically Windows Client Operating Systems, such as Windows 7, 8, or 10."
+    },
+    {
+      "item": "GRE or IPSec tunnels: These can be treated like any Windows user device going through Internet & SaaS. You likely only need to create a sublocation for these workloads.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "PAC files: These are typically deployed as a Group Policy Object (GPO) and treated no differently than a user’s physical device. However, you need to ensure that the Zscaler authentication cookies are retained across sessions. This way, a user does not need to reauthenticate each time they launch a new desktop. To learn more, see About Authentication Default Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Client Connector: Zscaler Client Connector currently supports Windows Client Operating Systems and can work with Virtual Desktops. However, due to Zscaler Client Connector’s enrollment process, this only works well with a dedicated VDI. Zscaler Client Connector does not support multiple, simultaneous user sessions from a single host operating system. If you are using non-persistent VDIs where users get fresh desktops each time they connect, they need to re-enroll each time. This might cause users to quickly hit the limit of 16 devices per user. To avoid this, configure Device Cleanup in the Zscaler Admin Console to remove the oldest enrolled device. To learn more, see Configuring Automated Device Cleanup.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "text": "If you are running Zscaler Client Connector in conjunction with a corporate VPN client, follow the best practices for VPN client interoperability."
+    },
+    {
+      "item": "SSL/TLS Inspection: If needed, you can deploy the Zscaler Root certificate centrally to the Citrix master images or via GPO as you would any other domain-joined machine.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "IP Surrogacy: Since each user gets a one-to-one mapping with a virtual desktop, you can use IP Surrogacy to bind a username to an internal IP for transactions that would normally only show the Internet & SaaS location name. Typically, you should configure the threshold to be much lower than on normal device networks, such as only a few hours. To learn more about surrogate IP, see About Surrogate IP.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Using XenApp and Hosted Shared Desktops with Internet & SaaS",
+      "level": 1
+    },
+    {
+      "text": "These workloads are typically Windows Servers, such as Windows Server 2008R2, and Windows Server 2012."
+    },
+    {
+      "item": "GRE or IPSec tunnels: These can be treated like any Windows user device going through Internet & SaaS. You likely only need to create a sublocation for these workloads.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "PAC files: These are typically deployed as a Group Policy Object (GPO) and treated no differently than a user’s physical device. However, you need to ensure that the Zscaler authentication cookies are retained across sessions. This way, a user does not need to reauthenticate each time they launch a new desktop. To learn more, see About Authentication Default Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler Client Connector: Zscaler Client Connector currently supports Windows Client Operating Systems and is not supported for use with Virtual Apps and Hosted Shared Desktops. This is because Zscaler does not support concurrent user sessions on a device with Zscaler Client Connector installed. Zscaler Client Connector establishes a single tunnel to Internet & SaaS from the first Windows user session that has enrolled with the service. Any concurrently connected users on the same server are able to enroll with Zscaler Client Connector, but the Internet & SaaS and Private Access (ZPA) tunnels fail.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "SSL Inspection: If needed, you can deploy the Zscaler Root certificate centrally to the Citrix master images or via GPO as you would any other domain-joined machine.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "IP Surrogacy: IP Surrogacy needs to be disabled for the sublocation containing the XenApp workloads. The reason is that these servers have multiple concurrent users connected to them. Therefore, if user authentication is enabled, IP Surrogate can flip between users and eventually stop working. Since all the users connected to the server have the same source IP address, there is no way for Zscaler to know which user to map to that IP. To learn more about surrogate IP, see About Surrogate IP.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    }
+  ]
+}

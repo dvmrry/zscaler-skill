@@ -1,0 +1,1300 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Microtenants Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-microtenants-using-api",
+    "node": "1485721",
+    "revision": "3160720",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Private Access (ZPA) Microtenants using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "text": "The following conditions apply when passing microtenantId, the unique identifier of the Microtenant, in a request:"
+    },
+    {
+      "item": "If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "When making requests using inheritable resources, you can pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. Click here to see a list of inheritable resources.",
+      "depth": 0
+    },
+    {
+      "item": "Application Segments",
+      "depth": 1
+    },
+    {
+      "item": "Segment Groups",
+      "depth": 1
+    },
+    {
+      "item": "App Connectors",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Groups",
+      "depth": 1
+    },
+    {
+      "item": "Certificates",
+      "depth": 1
+    },
+    {
+      "item": "Emergency Access users",
+      "depth": 1
+    },
+    {
+      "item": "Machine Groups",
+      "depth": 1
+    },
+    {
+      "item": "Microtenants",
+      "depth": 1
+    },
+    {
+      "item": "Privileged Approvals",
+      "depth": 1
+    },
+    {
+      "item": "Privileged Consoles",
+      "depth": 1
+    },
+    {
+      "item": "Privileged Credentials",
+      "depth": 1
+    },
+    {
+      "item": "Privileged Portals",
+      "depth": 1
+    },
+    {
+      "item": "Provisioning Keys",
+      "depth": 1
+    },
+    {
+      "item": "Servers",
+      "depth": 1
+    },
+    {
+      "item": "Server Groups",
+      "depth": 1
+    },
+    {
+      "item": "ZPA Private Service Edges",
+      "depth": 1
+    },
+    {
+      "item": "ZPA Private Service Edge Groups",
+      "depth": 1
+    },
+    {
+      "heading": "Getting Details for All Microtenants",
+      "level": 1
+    },
+    {
+      "text": "To get details for all Microtenants:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"3\", \"list\": [ { \"id\": \"72057594038621068\", \"creationTime\": \"1663791107\", \"modifiedBy\": \"72057594038052745\", \"name\": \"Example Microtenant\", \"enabled\": false, \"operator\": \"OR\", \"criteriaAttribute\": \"AuthDomain\", \"criteriaAttributeValues\": [ \"1467901757270.com\" ] }, { \"name\": \"Default\", \"description\": \"This is the default Microtenant for users not associated to any Microtenant\", \"enabled\": true, \"operator\": \"OR\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting All Microtenants by Given Filters",
+      "level": 2
+    },
+    {
+      "text": "To get all Microtenants by the given filters:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants/search.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the tenant ID of the ZPA customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037987390/microtenants/search.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use the following JSON payload to get all Microtenants by given filters.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "You choose the filter criteria to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"filterBy\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"filterName\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"values\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"pageBy\": {",
+      "depth": 0
+    },
+    {
+      "item": "\"page\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"pageSize\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"validPage\": 0,",
+      "depth": 0
+    },
+    {
+      "item": "\"validPageSize\": 0",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"sortBy\": {",
+      "depth": 0
+    },
+    {
+      "item": "\"sortName\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"sortOrder\": \"string\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View a sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"pageBy\":{",
+      "depth": 0
+    },
+    {
+      "item": "\"page\":1,",
+      "depth": 0
+    },
+    {
+      "item": "\"pageSize\":20",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "\"filterBy\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"filterName\":\"criteriaAttributeValues\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"LIKE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"values\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"Test\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\": \"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800497\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1669058887\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"73186051597795329\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Microtenant 1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest-365.in\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.c3.com\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800358\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1667566039\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1666168946\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"73186051597795329\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Microtenant 2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytestad.com\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800399\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1667566034\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1666207734\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"73186051597795329\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Microtenant 3\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.org\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800513\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1669223724\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038052595\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Test Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.co.in\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details for a Particular Microtenant",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular Microtenant:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants/{microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "name: The name of the Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The Microtenant ID for the particular Microtenant that was captured in the Getting Details for All Microtenants section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants/72057594038621068."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"72057594038621068\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1663791107\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038052745\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Microtenant1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"1467901757270.com\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Name and ID for All Microtenants",
+      "level": 1
+    },
+    {
+      "text": "To get the name and ID for all Microtenants:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants/summary.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants/summary.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"72057594038621068\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Microtenant1\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"72057594038622872\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"security-new\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"default\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see About Error Codes."
+    },
+    {
+      "heading": "Getting Details of User Session and User Microtenant ID",
+      "level": 1
+    },
+    {
+      "text": "To get details of a user session and a user Microtenant ID, send a GET request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/me."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"customerId\": \"72057594037927936\",",
+      "depth": 0
+    },
+    {
+      "item": "\"customerName\": \"zscaler\",",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantName\": \"default\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a Microtenant",
+      "level": 1
+    },
+    {
+      "text": "The ability to create a Microtenant is only supported for Default Microtenant admins."
+    },
+    {
+      "text": "To create a Microtenant:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use the following JSON payload to update a Microtenant and provide the following information about the Microtenant:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "name: The name of the Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "criteriaAttribute: The criteria attribute for the Microtenant(i.e., AuthDomain).",
+      "depth": 0
+    },
+    {
+      "item": "criteriaAttributeValues: The value for the criteria attribute (i.e., valid authentication domains configured for a customer).",
+      "depth": 0
+    },
+    {
+      "text": "You choose the Microtenant criteria in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": 0,",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": 0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\": 0",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\":\"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.co.in\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800513\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1669222935\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038052595\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.co.in\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"user\": {",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"73186051597800514\",",
+      "depth": 0
+    },
+    {
+      "item": "\"username\": \"mtAdmin_73186051597800513@dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"displayName\": \"Zscaler Private Access Scope Administrator\",",
+      "depth": 0
+    },
+    {
+      "item": "\"email\": \"mtAdmin_73186051597800513@dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"password\": \"#<6I!7WE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"roleId\": \"12\",",
+      "depth": 0
+    },
+    {
+      "item": "\"forcePwdChange\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"localLoginDisabled\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"pinSession\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"isLocked\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"microtenantId\": \"73186051597800513\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the Microtenant use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "The name of the Microtenant",
+          "Yes",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether the Microtenant is enabled or not",
+          "No",
+          "Boolean: true, false"
+        ],
+        [
+          "description",
+          "The description of the Microtenant",
+          "No",
+          "String"
+        ],
+        [
+          "criteriaAttribute",
+          "The criteria attribute for the Microtenant",
+          "Yes",
+          "Supported value: AuthDomain"
+        ],
+        [
+          "criteriaAttributeValues",
+          "The value for the criteria attribute. This is the valid authentication domains configured for a customer (e.g., ExampleAuthDomain.com).",
+          "Yes",
+          "String"
+        ],
+        [
+          "filterBy",
+          "This indicates the filter, the operator, and the value for the filter",
+          "Yes",
+          "Array of attributes (i.e., filterName, operator, values)"
+        ],
+        [
+          "filterName",
+          "The name of the filter",
+          "Yes",
+          "String"
+        ],
+        [
+          "operator",
+          "The operator of the Microtenant",
+          "Yes",
+          "String Supported values: EQ (Equals), LIKE (Contains), and NQ (Not Equals)"
+        ],
+        [
+          "values",
+          "The values for the filter",
+          "No",
+          "String"
+        ],
+        [
+          "pageBy",
+          "This indicates the page and page size",
+          "No",
+          "Array of attributes (i.e., page and pageSize)"
+        ],
+        [
+          "page",
+          "This indicates the page",
+          "No",
+          "Integer"
+        ],
+        [
+          "pageSize",
+          "This indicates the page size. If not provided, the default page size is 20. The max page size is 500.",
+          "No",
+          "Integer"
+        ],
+        [
+          "sortBy",
+          "This indicates the sort name and sort order",
+          "No",
+          "Array of attributes (i.e., sortName and SortOrder)"
+        ]
+      ]
+    },
+    {
+      "heading": "Updating a Microtenant",
+      "level": 1
+    },
+    {
+      "text": "The ability to update a Microtenant is only supported for Default Microtenant admins."
+    },
+    {
+      "text": "To update a Microtenant:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants/{microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The Microtenant ID for the particular Microtenant you want to update.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants/72057594038621068."
+    },
+    {
+      "item": "Use the following JSON payload to update a Microtenant and provide the following information about the Microtenant:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Name: The name of the Microtenant.",
+      "depth": 0
+    },
+    {
+      "item": "criteriaAttribute: The criteria attribute for the Microtenant(i.e., AuthDomain).",
+      "depth": 0
+    },
+    {
+      "item": "criteriaAttributeValues: The value for the criteria attribute (i.e., valid authentication domains configured for a customer).",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": 0,",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\": [",
+      "depth": 0
+    },
+    {
+      "item": "\"string\"",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": 0,",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"string\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\": 0",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "View a sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Example Microtenant\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttribute\":\"AuthDomain\",",
+      "depth": 0
+    },
+    {
+      "item": "\"criteriaAttributeValues\":[",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.com\",",
+      "depth": 0
+    },
+    {
+      "item": "\"dummytest.co.in\"",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response yields code 204, meaning the Microtenant is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Microtenant",
+      "level": 1
+    },
+    {
+      "text": "To delete a Microtenant:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/customers/{customerId}/microtenants/{microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The Microtenant ID for the particular Microtenant you want to delete.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/microtenants/72057594038621068."
+    },
+    {
+      "text": "A successful response yields code 204, meaning the Microtenant is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting the Details of Your Current Session",
+      "level": 1
+    },
+    {
+      "text": "To get the details of your current session, send a GET request to the following endpoint in the Microtenant controller: /mgmtconfig/v1/admin/me."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"customerId\": \"72057594037927936\", \"customerName\": \"Zscaler - Example User - safemarch.com\", \"microtenantId\": \"72057594038621068” \"microtenantName\": \"Example Microtenant\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

@@ -1,0 +1,538 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Using Zscaler Microsegmentation API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/using-zscaler-microsegmentation-api",
+    "node": "1532646",
+    "revision": "3186185",
+    "updated": "2026-06-01",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Microsegmentation API is available via the GraphQL API endpoint accessible via the OneAPI Gateway. A single endpoint allows clients to query multiple data domains relevant to Microsegmentation (e.g., agents, agent groups, versions, connection status, metadata)."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "To use the Microsegmentation API, ensure the following:"
+    },
+    {
+      "item": "Create an API client with the appropriate role that can access the Microsegmentation APIs.",
+      "depth": 0
+    },
+    {
+      "item": "Enable and provision Microsegmentation in your Zscaler Private Access (ZPA) tenant.",
+      "depth": 0
+    },
+    {
+      "heading": "Endpoints",
+      "level": 2
+    },
+    {
+      "text": "Use the following endpoint URL based on your cloud environment:"
+    },
+    {
+      "item": "Production: https://api.zsapi.net/zms/graphql",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Beta: https://api.beta.zsapi.net/zms/graphql",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "heading": "Setting Up Authentication in Postman",
+      "level": 2
+    },
+    {
+      "text": "Zscaler recommends referring to the Postman GraphQL Request Guide before making GraphQL requests."
+    },
+    {
+      "text": "To configure authentication for the Microsegmentation API:"
+    },
+    {
+      "item": "In Postman, select New > GraphQL to open a request in a new tab.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          19,
+          22
+        ],
+        [
+          25,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "In the Postman desktop app, you can also select ⌘+N or Ctrl+N, then select GraphQL.",
+      "depth": 0,
+      "strong": [
+        [
+          75,
+          83
+        ]
+      ]
+    },
+    {
+      "item": "Paste the appropriate OneAPI API Endpoint (see Endpoints) in the URL field.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          22,
+          41
+        ],
+        [
+          65,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Select the Authorization tab.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Auth Type: Select OAuth 2.0.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Add authorization data to: Select Request Headers.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Under Configure New Token, enter token details:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Token Name: Enter any name for the token.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Grant Type: Select Client Credentials from the drop-down menu.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Access Token URL: Enter the Authentication Service access token URL, <Authentication Service tenant domain>/oauth2/v1/token>.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "For example, https://acme.zsloginbeta.net/oauth2/v1/token",
+      "depth": 2
+    },
+    {
+      "item": "Client ID: Enter the Client ID from API client creation.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: Enter the Client Secret from API client creation.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Scope: Enter the multiple scopes of access separated by a space.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Client Authentication: Send as Basic Auth in header or Send client credentials in body.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "From the Advanced drop-down menu, add an audience key for the token request:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Key: Select audience.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ],
+        [
+          12,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Value: Enter https://api.zscaler.com.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Send in: Select Request Body.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Get New Access Token to verify that the setup was successful.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "text": "If you successfully retrieve an access token, authentication with Authentication Service has been set up correctly."
+    },
+    {
+      "heading": "Obtaining the API Schema",
+      "level": 2
+    },
+    {
+      "text": "The GraphQL API schema is generally self-documenting and can be loaded into your GraphQL client to enable query validation."
+    },
+    {
+      "heading": "Using Postman Introspection (Recommended)",
+      "level": 3
+    },
+    {
+      "text": "The preferred method is to utilize the built-in introspection feature within the Postman client to retrieve the schema, as it automatically uses the preconfigured authentication credentials."
+    },
+    {
+      "text": "After you have configured the endpoint URL and authentication as described in the earlier section, the Postman can use these credentials to automatically fetch the schema."
+    },
+    {
+      "text": "To obtain the schema using introspection:"
+    },
+    {
+      "item": "In your Postman GraphQL request, select the Schema tab.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          44,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Select the option to Use GraphQL Introspection.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          21,
+          46
+        ]
+      ]
+    },
+    {
+      "text": "The Postman loads the schema in the schema explorer and enables query auto-completion."
+    },
+    {
+      "heading": "Alternative Method",
+      "level": 3
+    },
+    {
+      "text": "Alternatively, you can fetch or download the schema directly."
+    },
+    {
+      "text": "These methods require a valid authorization header in the request, else the request would fail with a 403 Forbidden error."
+    },
+    {
+      "text": "To get the schema manually, use any of the following methods:"
+    },
+    {
+      "item": "Fetch the schema with a GET request: https://api.zsapi.net/zms/graphql/supergraph-schema",
+      "depth": 0
+    },
+    {
+      "item": "Download the schema to your local system: https://api.zsapi.net/zms/graphql/supergraph-schema?download=true",
+      "depth": 0
+    },
+    {
+      "text": "After obtaining the schema, import it into a GraphQL client such as Postman or Insomnia to explore the API. This populates the schema explorer of the GraphQL client, allowing you to easily build and validate queries."
+    },
+    {
+      "heading": "Setting Up the User-Agent Header",
+      "level": 2
+    },
+    {
+      "text": "You are required to set the User-Agent header in this format:"
+    },
+    {
+      "text": "PartnerName/AppName/Version (Device; OS Version) Region=COUNTRY"
+    },
+    {
+      "text": "For example, ACME/acme-insights-app/1.0.1 (iPhone; iOS 15.4) Region=US"
+    },
+    {
+      "heading": "Creating GraphQL Queries (Examples)",
+      "level": 2
+    },
+    {
+      "text": "After importing the schema, you can build queries. Postman allows you to create a GraphQL query visually by selecting the checkboxes and providing appropriate values in the text inputs, as well as selecting fields to be present in the response."
+    },
+    {
+      "heading": "Example: Creating a Simple Query",
+      "level": 3
+    },
+    {
+      "text": "To create a query for fetching page 2 of agent group results with up to 10 records per page, for customer ID 97531 that matches the search term doc, ordered by createdDate in ascending order with the group description, admin region, and admin status:"
+    },
+    {
+      "item": "Select AgentGroups.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Set the following arguments values in the query:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: 97531",
+      "depth": 1
+    },
+    {
+      "item": "page: 2",
+      "depth": 1
+    },
+    {
+      "item": "pageSize: 10",
+      "depth": 1
+    },
+    {
+      "item": "search: doc",
+      "depth": 1
+    },
+    {
+      "item": "sort: createdDate",
+      "depth": 1
+    },
+    {
+      "item": "sortDir: ASC",
+      "depth": 1
+    },
+    {
+      "item": "GraphQL allows selecting the exact fields that should be part of the response. Select an entry and the fields that must be part of the entry. For example, select description, adminRegion, and adminStatus.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          162,
+          173
+        ],
+        [
+          175,
+          186
+        ],
+        [
+          192,
+          203
+        ]
+      ]
+    },
+    {
+      "item": "Limit the number of returned nodes using pageSize and pageNumber.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          41,
+          49
+        ],
+        [
+          54,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Click Query next to the URL field to make the request and fetch the response, which you can see in the response tab.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Example: Creating a Multi-Domain Query",
+      "level": 3
+    },
+    {
+      "text": "Paste the following snippet into the panel on the right on the Query tab. The request contains multiple queries from agentGroups, agentVersionStatistics, agents, and policyRules in a single request.",
+      "strong": [
+        [
+          63,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Sample multi-domain query format",
+      "depth": 0
+    },
+    {
+      "item": "query AgentGroups { agentGroups(customerId: \"97531\", page: 18) { nodes { adminStatus adminVPC agentCount } } agentVersionStatistics(customerId: \"97531\") { agentVersions { version } } agents(customerId: \"97531\", page: 18) { nodes { agentGroupAdminStatus agentGroupName } } policyRules(customerId: \"97531\") { nodes { action creationTime appZoneScopes { appZoneName } } } }",
+      "depth": 0
+    },
+    {
+      "text": "Click Query at the top-right of the query panel to make a request. The response appears in the Response panel. Click Response to view it.",
+      "strong": [
+        [
+          6,
+          11
+        ],
+        [
+          95,
+          103
+        ],
+        [
+          117,
+          125
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    }
+  ]
+}

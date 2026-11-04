@@ -1,0 +1,502 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Provisioning Keys Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-provisioning-keys-using-api",
+    "node": "1484956",
+    "revision": "3160712",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information for managing Zscaler Private Access (ZPA) provisioning keys using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Calls",
+      "level": 1
+    },
+    {
+      "text": "Before you can create a provisioning key, you must get the required details for the following:"
+    },
+    {
+      "item": "Provisioning keys. To learn more, see Getting Details of All Provisioning Keys and Getting Details of a Particular Provisiong Key by ID and Type.",
+      "depth": 0
+    },
+    {
+      "item": "App Connector Groups. To learn more, see Configuring App Connector Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Private Service Edge Groups. To learn more, see Configuring ZPA Private Service Edge Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Enrollment certificates. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Getting Details for All Provisioning Keys",
+      "level": 2
+    },
+    {
+      "text": "To get details of all provisioning keys:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"38\", \"list\": [ { \"id\": \"6221\", \"creationTime\": \"1618365768\", \"modifiedBy\": \"217246660303024936\", \"name\": \"example_test\", \"usageCount\": \"0\", \"maxUsage\": \"2000\", \"autoSign\": \"1\", \"zcomponentId\": \"217246660303024937\", \"enabled\": true, \"enrollmentCertName\": \"Mock Company Root Certificate\", \"zcomponentName\": \"example_test\", \"provisioningKey\": \"3|sample.test.net|yy6CCpQ8M8QUlGKyFUjUZBspPIxR3n3X2loHsRWt9nt0+b9TMdCqKvrkO8sfdnhMb7l\", \"enrollmentCertId\": \"2858\", \"appConnectorGroupName\": \"example_test\" }, { \"id\": \"6211\", \"modifiedTime\": \"1626298081\", \"creationTime\": \"1617747326\", \"modifiedBy\": \"72057594038008981\", \"name\": \"example_provising_key\", \"usageCount\": \"5\", \"maxUsage\": \"1000\", \"autoSign\": \"1\", \"zcomponentId\": \"217246660303024864\", \"enabled\": true, \"enrollmentCertName\": \"Mock Company Root Certificate\", \"zcomponentName\": \"test_connector_group\", \"provisioningKey\": \"3|sample.test.net|7b2hqKIV36K7AUPNBQzrPNh9MK8IZaXItNFWwmXQPGeEDfdMk90buQ/qmrefavlkr6Pv\", \"enrollmentCertId\": \"2858\", \"appConnectorGroupName\": \"test_connector_group\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer, in the request endpoint.",
+      "depth": 0
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 0
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey?page=1&pagesize=20."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"50\", \"list\": [ { \"id\": \"6221\", \"creationTime\": \"1618365768\", \"modifiedBy\": \"217246660303024936\", \"name\": \"testPkey\", \"usageCount\": \"0\", \"maxUsage\": \"2000\", \"zcomponentId\": \"217246660303024937\", \"enabled\": true, \"zcomponentName\": \"testPkey\", \"provisioningKey\": \"3|test.net|yy6CCpQ8M8QUlGKyFUjUZBspPIxR3n3X2loHsRWt9nt\", \"enrollmentCertId\": \"2858\", \"enrollmentCertName\": \"Test Company Root Certificate\" }, { \"id\": \"6211\", \"modifiedTime\": \"1647894135\", \"creationTime\": \"1617747326\", \"modifiedBy\": \"3\", \"name\": \"test_provising_key\", \"usageCount\": \"11\", \"maxUsage\": \"1000\", \"zcomponentId\": \"217246660303024864\", \"enabled\": true, \"zcomponentName\": \"Test_connector_group\", \"provisioningKey\": \"3|test.net|7b2hqKIV36K7AUPNBQzrPN\", \"enrollmentCertId\": \"2858\", \"enrollmentCertName\": \"Test Company Root Certificate\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to search by features and fields. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/73186051597795328/associationType/{associationType}/provisioningKey&search={searchString}.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string maxUsage%20EQ%202 is supported for the Maximum # of App Connectors filter, using the Equals (EQ) operator, for the filter value 2.",
+      "depth": 0,
+      "strong": [
+        [
+          265,
+          292
+        ],
+        [
+          311,
+          317
+        ]
+      ]
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/73186051597795328/associationType/CONNECTOR_GRP/provisioningKey&search=maxUsage%20EQ%202."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"2\", \"list\": [ { \"id\": \"8639\", \"creationTime\": \"1620326351\", \"modifiedBy\": \"72057594037987389\", \"name\": \"App_Connector_Test\", \"usageCount\": \"0\", \"maxUsage\": \"2\", \"zcomponentId\": \"72057594038011104\", \"enabled\": true, \"zcomponentName\": \"App_Connector_Test\", \"provisioningKey\": \"1|api-f1.dev.zpath.net|nDDqXjr077Iv/ThxVzpnZa2OlPQBJinz5EOeZ1weBeTb42n5/GyDiocPAz/byiZnA3haAe43R8YUMO8lsjwWaxM74SiPmz8EkMyaei2yWYigACY5289WAeR+zSVHk0c4l9tFv4Mxe0YIJB88EcSUENpwA4h0INP00H3s5q/n9s5qWzIgC1Iix4OXgxip/fgAUMIb3w1WfHv5woPJ0kBxSKxKJ5zElTHAbqtsE8Cl8Dobb/tC9yoxpqBys8PgLIRJnmiqyBAykMsBCOqUllz76Ng4Nnr/6TbGTRm1Wzjqc48v+7R9V6VIVk7v6a2/SBevNPxvkTD5BnB+llhkTChTCCal3bCKBBx2Q/NrFjPF\", \"enrollmentCertId\": \"14009\", \"enrollmentCertName\": \"test1\" }, { \"id\": \"16173\", \"modifiedTime\": \"1636950866\", \"creationTime\": \"1636884834\", \"modifiedBy\": \"72057594038058788\", \"name\": \"kalai2-pk\", \"usageCount\": \"0\", \"maxUsage\": \"2\", \"zcomponentId\": \"72057594038059864\", \"enabled\": true, \"zcomponentName\": \"kalai2\", \"provisioningKey\": \"1|api-f8.dev.zpath.net|j1ZdiPJxwjukKf8hzvQ+2uxNZTec/6ct6WxcHLeWHkXTm597Xy2WDvBrTOJaAqpoApXu7qxgPx8IJL7uAwMGJpncHh+v8MB5vdW1ZYAF84gv4j5WyIulAiC1F95j/XIULlTpzD/RYQAVmRfDljeRE7vVUyYHOeL87R5lHtGUtwFyEzciDZR/0AGR3G2Uw+6leeI7l/vrt4MlgE+QaQPInTsOM8PfpDgSUw2NYevXMkwaDb+9wFGEmUzp7rrtYJ9DYihyeJqIrA0gO+XrUPbaAH\", \"enrollmentCertId\": \"14009\", \"enrollmentCertName\": \"test1\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "If you use the Reference Guide to make your API calls, the search field string does not require any characters. For example, maxUsage%20EQ%202 is maxUsage EQ 2."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of a Particular Provisioning Key by ID and Type",
+      "level": 2
+    },
+    {
+      "text": "To get details of a particular provisioning key by ID and type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 0
+    },
+    {
+      "item": "provisioningKeyId: The ID of the provisioning key.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey/6211."
+    },
+    {
+      "item": "View an Example Response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"6211\", \"modifiedTime\": \"1626298081\", \"creationTime\": \"1617747326\", \"modifiedBy\": \"72057594038008981\", \"name\": \"test_provisioning_key\", \"usageCount\": \"5\", \"maxUsage\": \"1000\", \"autoSign\": \"1\", \"zcomponentId\": \"217246660303024864\", \"enabled\": true, \"enrollmentCertName\": \"Mock Company Root Certificate\", \"zcomponentName\": \"test_connector_group\", \"provisioningKey\": \"3|sample.test.net|7b2hqKIV36K7AUPNBQzrPNh9MK8IZaXItNFWwmXQPGeEDfdMk90buQ\", \"enrollmentCertId\": \"2858\", \"appConnectorGroupName\": \"test_connector_group\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Creating a Provisioning Key",
+      "level": 1
+    },
+    {
+      "text": "To create a provisioning key:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey."
+    },
+    {
+      "item": "Use the following JSON payload to create a provisioning key and provide the following information about the provisioning key:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "name: The name of the provisioning key.",
+      "depth": 0
+    },
+    {
+      "item": "maxUsage: The maximum number of instances where this provisioning key can be used for enrolling an App Connector, Private Service Edge, or Network Connector. To reduce the possibility of compromise, Zscaler recommends setting the maxUsage field to the number of App Connectors, ZPA Private Service Edges, or Network Connectors you plan to deploy immediately.",
+      "depth": 0
+    },
+    {
+      "item": "enrollmentCertId: The ID of the enrollment certificate that can be used for this provisioning key. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "exportable: Indicates if View or Export Provisioning Key After Creation is enabled or disabled. If set to true, this option allows you to view, copy, or download the provisioning key after creation. If set to false, you cannot enable this option at a later time, and provisioning keys are hidden when sending GET requests to retrieve provisioning key details.",
+      "depth": 0
+    },
+    {
+      "item": "zcomponentId: The ID of the existing App Connector, Private Service Edge, or Network Connector.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<Provisioning key name>\", \"maxUsage\": \"<max usage for this key>\", \"enrollmentCertId\": \"<enrollment certificate ID>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"exportable\": \"true\", \"zcomponentId\": \"<App Connector, ZPA Private Service Edge ID, or Network Connector ID>\" }",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"App Connector Provisioning Key\", \"maxUsage\": \"300\", \"enrollmentCertId\": \"22115\",",
+      "depth": 0
+    },
+    {
+      "item": "\"exportable\": \"true\", \"zcomponentId\": \"217306507451045314\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"13191\", \"creationTime\": \"1632411234\", \"modifiedBy\": \"72057594038052595\", \"name\": \"Test App Connector Provisioning Key\", \"usageCount\": \"0\", \"maxUsage\": \"300\", \"zcomponentId\": \"72057594038009372\", \"enabled\": true, \"provisioningKey\": \"1|api-develop.sample.zpath.net|b+4GLZRQ6VvCJjgQ9GTwZXbjm55FgTCCXkfgEdy4m8+wEY1b2UMrhHLERsEVJJ5YJ/T9du2H+8Z+txHC5rpUykuA72nyLTDK+\",",
+      "depth": 0
+    },
+    {
+      "item": "\"exportable\": \"true\", \"enrollmentCertId\": \"14009\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201, meaning the provisioning key is created. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "You choose the provisioning key criteria you want to include in the JSON payload. Refer to the Adding Field Descriptions section for supported values."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the provisioning key use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "Name of the provisioning key",
+          "Yes",
+          "String"
+        ],
+        [
+          "enabled",
+          "Whether the provisioning key is enabled or not",
+          "No",
+          "Default: true Supported values: true, false"
+        ],
+        [
+          "exportable",
+          "Indicates if View or Export Provisioning Key After Creation is enabled or disabled. If set to true, this option allows you to view, copy, or download the provisioning key after creation. If set to false, you cannot enable this option at a later time, and provisioning keys are hidden when sending GET requests to retrieve provisioning key details. If exportable is not passed in the payload, then the View or Export Provisioning Key After Creation option is considered enabled, and exportable is set to true by default.",
+          "No",
+          "Default: true Supported values: true, false"
+        ],
+        [
+          "maxUsage",
+          "The maximum number of instances where this provisioning key can be used for enrolling an App Connector, ZPA Private Service Edge, or Network Connector. To reduce the possibility of compromise, Zscaler recommends setting the maxUsage field to the number of App Connectors, ZPA Private Service Edges, or Network Connectors you plan to deploy immediately. You can enter a value greater than 1 when sending a PUT request to update a provisioning key. This results in an audit log with the Nonce MaxUsage Increment value for the Action.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "usageCount",
+          "The provisioning key utilization count",
+          "No",
+          "Integer"
+        ],
+        [
+          "enrollmentCertId",
+          "ID of the enrollment certificate that can be used for this provisioning key. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+          "Yes",
+          "Integer. ID of the existing enrollment certificate that has the private key"
+        ],
+        [
+          "zcomponentId",
+          "ID of the existing App Connector or ZPA Private Service Edge Group",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all Microtenants associated with the tenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "Updating a Provisioning Key",
+      "level": 1
+    },
+    {
+      "text": "To update a provisioning key:"
+    },
+    {
+      "item": "Use the JSON payload from Creating a Provisioning Key.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following in the request:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 1
+    },
+    {
+      "item": "provisioningKeyId: The ID of the provisioning key.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey/6211.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload to create a provisioning key and provide the following information about the provisioning key:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "name: The name of the provisioning key.",
+      "depth": 1
+    },
+    {
+      "item": "maxUsage: The maximum number of instances where this provisioning key can be used for enrolling an App Connector, ZPA Private Service Edge, or Network Connector. To reduce the possibility of compromise, Zscaler recommends setting the maxUsage field to the number of App Connectors, ZPA Private Service Edges, or Network Connectors you plan to deploy immediately. You can enter a value greater than 1 when sending a PUT request to update a provisioning key. This results in an audit log with the Nonce MaxUsage Increment value for the Action.",
+      "depth": 1
+    },
+    {
+      "item": "enrollmentCertId: The ID of the enrollment certificate that can be used for this provisioning key. To learn more, see Obtaining Enrollment Certificate Details Using API.",
+      "depth": 1
+    },
+    {
+      "item": "exportable: Indicates if View or Export Provisioning Key After Creation is enabled or disabled. If set to true, this option allows you to view, copy, or download the provisioning key after creation. If set to false, you cannot enable this option at a later time, and provisioning keys are hidden when sending GET requests to retrieve provisioning key details.",
+      "depth": 1
+    },
+    {
+      "item": "If exportable is not passed in the payload, then the View or Export Provisioning Key After Creation option is considered enabled, and exportable is set to true by default.",
+      "depth": 1
+    },
+    {
+      "item": "zcomponentId: The ID of the existing App Connector, ZPA Private Service Edge, or Network Connector.",
+      "depth": 1
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"name\": \"<Provisioning key name>\", \"maxUsage\": \"<max usage for this key>\", \"enrollmentCertId\": \"<enrollment cert id>\",",
+      "depth": 0
+    },
+    {
+      "item": "\"exportable\": \"true\", \"zcomponentId\": \"<connector/service edge group id>\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the provisioning key is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a provisioning key is configured using Zscaler Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Deleting a Provisioning Key",
+      "level": 1
+    },
+    {
+      "text": "To delete a provisioning key:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/associationType/{associationType}/provisioningKey/{provisioningKeyId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "associationType: The provisioning key for the App Connector group, Private Service Edge group, or Network Connector group. The supported values are CONNECTOR_GRP, SERVICE_EDGE_GRP, or NP_ASSISTANT_GRP.",
+      "depth": 0
+    },
+    {
+      "item": "provisioningKeyId: The ID of the provisioning key.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/associationType/CONNECTOR_GRP/provisioningKey/6211."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the provisioning key is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If a provisioning key is configured using Zscaler Deception, then the update and delete options are unavailable."
+    }
+  ]
+}

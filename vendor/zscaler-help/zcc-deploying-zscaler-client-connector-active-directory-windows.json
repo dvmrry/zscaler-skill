@@ -1,0 +1,565 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Zscaler Client Connector with Active Directory for Windows",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-client-connector/deploying-zscaler-client-connector-active-directory-windows",
+    "node": "1285471",
+    "revision": "2894146",
+    "updated": "2026-01-05",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide is for admins only. If you are an end user, contact your organization’s administrator for deployment-related details."
+    },
+    {
+      "text": "This article provides instructions for deploying Zscaler Client Connector in an Active Directory (AD) environment. It also provides details on how to complete a silent installation on users' devices."
+    },
+    {
+      "text": "To deploy Zscaler Client Connector in an AD environment:"
+    },
+    {
+      "item": "1. Prepare your AD environment.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the AD environment (Domain Controller) as an admin user.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Ensure that you have a well-defined organizational unit (OU) in the AD where you want to deploy the app. If you do not have an appropriate OU, create one by going to Server Manager > Active Directory Domain Services > [domain name] > New > Organizational Unit.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          166,
+          180
+        ],
+        [
+          183,
+          215
+        ],
+        [
+          218,
+          231
+        ],
+        [
+          234,
+          237
+        ],
+        [
+          240,
+          259
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Alternatively, you can also apply Group Policy (GPO) to a group. If you do not have an appropriate group, create one by going to Server Manager > Active Directory Domain Services > [domain name] > New > Group.",
+      "depth": 0,
+      "strong": [
+        [
+          129,
+          143
+        ],
+        [
+          146,
+          178
+        ],
+        [
+          181,
+          194
+        ],
+        [
+          197,
+          200
+        ],
+        [
+          203,
+          208
+        ]
+      ]
+    },
+    {
+      "item": "Ensure that the newly created OU has all the users and computer systems on which you want to deploy Zscaler Client Connector.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Create a network share.",
+      "depth": 0
+    },
+    {
+      "item": "You must ensure that Zscaler Client Connector installer is accessible to all relevant computers by creating a network share on the drive in the Domain Controller.",
+      "depth": 0
+    },
+    {
+      "item": "Create a folder, then right-click Properties. Click Enable Sharing, and in the Security tab, provide the relevant domain Administrators and Authenticated Users with access permissions.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          34,
+          44
+        ],
+        [
+          52,
+          66
+        ],
+        [
+          79,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Copy Zscaler Client Connector installer to this folder.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Map this folder as a network drive and make sure it is accessible by client computers across the relevant OU within the domain.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Create a Group Policy (GPO) for Zscaler Client Connector installation.",
+      "depth": 0
+    },
+    {
+      "item": "You must create a new GPO policy for your OU to in order to install Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Run and enter gpmc.msc to open the Group Policy Management editor.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Select your OU, then right-click and select Create a GPO in this domain, and Link it here.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Security Filtering, specify the users, groups, and computers to which the policy must apply.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "4. Install Zscaler Client Connector on the OU's Windows systems.",
+      "depth": 0
+    },
+    {
+      "item": "You must now edit the GPO policy for the OU in order to install Zscaler Client Connector on the OU's Windows systems. You can use either the MSI or EXE file, but Zscaler recommends using the MSI file because it integrates well with GPO.",
+      "depth": 0
+    },
+    {
+      "item": "Deploying the MSI file to install Zscaler Client Connector",
+      "depth": 1
+    },
+    {
+      "item": "These steps provide details on how to complete a silent installation of the app on users' devices using an MSI file.",
+      "depth": 1
+    },
+    {
+      "item": "If you want to customize the MSI file and add install options (for example, you want to require users to enroll with Zscaler Client Connector before accessing the Internet), you must create an MST file before completing the steps below. To learn more, see Customizing Zscaler Client Connector with Install Options (MSI).",
+      "depth": 1
+    },
+    {
+      "item": "Right-click on the GPO Policy you created and select Edit.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          53,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Go to User Configuration > Policies > Software Settings > Software installation.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          24
+        ],
+        [
+          27,
+          35
+        ],
+        [
+          38,
+          55
+        ],
+        [
+          58,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Right-click and select New > Package.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          23,
+          26
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Double-click the MSI Windows Installer Package.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "In the Deploy Software window, select Advanced for the deployment method.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To install the app on in silent mode, do the following, in Zscaler Properties window, click the Deployment tab. Do the the following:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          59,
+          77
+        ],
+        [
+          96,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "For Deployment type, select Assigned.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          19
+        ],
+        [
+          28,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "For Deployment options, select Install this application at logon.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          22
+        ],
+        [
+          31,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "For Installation user interface option, select Basic.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          38
+        ],
+        [
+          47,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Do one of the following:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "If you did not create an MST, click OK.",
+      "depth": 3,
+      "strong": [
+        [
+          36,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "If you created an MST:",
+      "depth": 3
+    },
+    {
+      "item": "Go to the Modifications tab.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Add....",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Select the MST file.",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "Click OK.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Client Connector is automatically deployed the next time users' log into to their computers.",
+      "depth": 1
+    },
+    {
+      "item": "Deploying the EXE file to install Zscaler Client Connector",
+      "depth": 1
+    },
+    {
+      "item": "Below are instructions for defining a system start-up script to install Zscaler Client Connector on user devices with an EXE file.",
+      "depth": 1
+    },
+    {
+      "item": "Select the GPO Policy and go to Computer Configuration > Policies > Windows Settings > Scripts > Startup.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          11,
+          21
+        ],
+        [
+          32,
+          54
+        ],
+        [
+          57,
+          65
+        ],
+        [
+          68,
+          84
+        ],
+        [
+          87,
+          94
+        ],
+        [
+          97,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "Double-click to open.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Select Add to open a new wizard.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "In the Script Name field, specify the absolute path to the EXE file. For example, \\\\SERVER\\\\share\\Zscaler-windows-1.1.0.000213-installer.exe.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "In the Script Parameters field, do one of the following:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "If you want to deploy the EXE file without any install options, leave the Script Parameters field blank.",
+      "depth": 3,
+      "strong": [
+        [
+          74,
+          91
+        ]
+      ]
+    },
+    {
+      "item": "If you want to customize the EXE file and include install options (e.g., you want to require users to enroll with the app before they can access the Internet), add the options to the Script Parameters field as described in Running the EXE File with Command-Line Options.",
+      "depth": 3,
+      "strong": [
+        [
+          183,
+          200
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply, then run the following command:",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "gpupdate.exe /force",
+      "depth": 1
+    },
+    {
+      "item": "Remotely reboot the OU computers on which you want to install the app using the following command:",
+      "depth": 2,
+      "number": 8
+    },
+    {
+      "item": "shutdown.exe –r –m \\\\<Remote Computer Name> –t 0",
+      "depth": 1
+    },
+    {
+      "item": "5. Verify the installation of Zscaler Client Connector on the OU's Windows systems.",
+      "depth": 0
+    },
+    {
+      "item": "Once the OU system is rebooted, log in to a remote system.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Verify that the app is running in the desktop foreground and that the desktop shortcut is installed.",
+      "depth": 1,
+      "number": 2
+    }
+  ]
+}

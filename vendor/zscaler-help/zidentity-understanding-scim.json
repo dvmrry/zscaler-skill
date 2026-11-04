@@ -1,0 +1,623 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding SCIM",
+  "source": {
+    "url": "https://help.zscaler.com/authentication-service/understanding-scim",
+    "node": "1499461",
+    "revision": "3209073",
+    "updated": "2026-06-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "System for Cross-domain Identity Management (SCIM) is a standard protocol that you can use to provision and manage users and groups. Zscaler provides an easy and consistent mechanism to use SCIM and manage the user and group accounts lifecycle."
+    },
+    {
+      "text": "You can use SCIM for:"
+    },
+    {
+      "item": "Provisioning users and groups onto Zscaler.",
+      "depth": 0
+    },
+    {
+      "item": "Automatically updating a user's group and department in the Zscaler user database to align with the changes in your user directory.",
+      "depth": 0
+    },
+    {
+      "item": "Deprovisioning users from Zscaler's database when users are deleted from your user directory.",
+      "depth": 0
+    },
+    {
+      "text": "You can use one of the identity providers (IdP) partnered with Zscaler to implement SCIM."
+    },
+    {
+      "text": "For IdP configuration guides, see:"
+    },
+    {
+      "item": "Configuring Okta as an External IdP",
+      "depth": 0
+    },
+    {
+      "item": "Configuring Microsoft Entra ID as an External IdP",
+      "depth": 0
+    },
+    {
+      "item": "Configuring Microsoft AD FS as an External IdP",
+      "depth": 0
+    },
+    {
+      "item": "Configuring PingOne as an External IdP",
+      "depth": 0
+    },
+    {
+      "text": "When creating users, the domain included in the username must be preregistered with Authentication Service. For example, if a user has the username \"test@zscalerexample.com\", the domain \"zscalerexample.com\" needs to be registered with your tenant on Authentication Service."
+    },
+    {
+      "text": "Authentication Service classifies attributes into two types: system-defined user attributes and custom user attributes. In addition, Zscaler supports default SCIM group attributes and standard SCIM operations."
+    },
+    {
+      "heading": "System-Defined User Attributes",
+      "level": 1
+    },
+    {
+      "text": "The following table provides information on the association between system-defined user attributes and the corresponding UI label name in Authentication Service."
+    },
+    {
+      "table": [
+        [
+          "Authentication Service Equivalent",
+          "SCIM Equivalent Attribute",
+          "Data Type",
+          "Description"
+        ],
+        [
+          "Display Name",
+          "displayName",
+          "String",
+          "The display name of the user. This is a mandatory attribute."
+        ],
+        [
+          "First Name",
+          "name.givenName",
+          "String",
+          "The first name of the user"
+        ],
+        [
+          "Last Name",
+          "name.familyName",
+          "String",
+          "The last name of the user"
+        ],
+        [
+          "Middle Name",
+          "name.middleName",
+          "String",
+          "The middle name of the user"
+        ],
+        [
+          "Primary Email",
+          "emails[type eq \"work\"].value",
+          "String",
+          "The user's primary email address. This is a mandatory attribute."
+        ],
+        [
+          "Secondary Email",
+          "Emails[type eq “home”].value",
+          "String",
+          "The user's secondary email address"
+        ],
+        [
+          "STATUS",
+          "active",
+          "String",
+          "The user's status confirming whether the user is enabled or disabled"
+        ],
+        [
+          "Mobile Phone",
+          "phoneNumbers[type eq \"mobile\"].value",
+          "String",
+          "The user's mobile phone number"
+        ],
+        [
+          "Primary Phone",
+          "phoneNumbers[type eq \"work\"].value",
+          "String",
+          "The user's work phone number"
+        ],
+        [
+          "PREFERRED_LANGUAGE",
+          "preferredLanguage",
+          "String",
+          "The user's preferred language of communication"
+        ],
+        [
+          "Department",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.department",
+          "String",
+          "The department to which the user belongs"
+        ],
+        [
+          "Manager",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.manager.value",
+          "String",
+          "The user ID of the manager"
+        ],
+        [
+          "Addresses",
+          "addresses[type eq \"work\"].formatted",
+          "String",
+          "The address of the user"
+        ],
+        [
+          "Cost Center",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.costcenter",
+          "String",
+          "The cost center to which the user belongs"
+        ],
+        [
+          "Division",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.division",
+          "String",
+          "The division to which the user belongs"
+        ],
+        [
+          "Formatted Name",
+          "name.formatted",
+          "String",
+          "The formatted name of the user"
+        ],
+        [
+          "Nickname",
+          "nickName",
+          "String",
+          "The nickname of the user"
+        ],
+        [
+          "Organization",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0:User.organization",
+          "String",
+          "The organization to which the user belongs"
+        ],
+        [
+          "Title",
+          "title",
+          "String",
+          "The title of the user"
+        ],
+        [
+          "Login ID",
+          "userName",
+          "String",
+          "The user ID used for authentication"
+        ],
+        [
+          "User Type",
+          "userType",
+          "String",
+          "The type of the user such as employee or customer"
+        ],
+        [
+          "TIME ZONE",
+          "timezone",
+          "String",
+          "The timezone to which the user belongs"
+        ]
+      ]
+    },
+    {
+      "heading": "Default SCIM User Attributes",
+      "level": 2
+    },
+    {
+      "text": "The following table provides information on the association between the default system-defined user attributes and the corresponding name in Authentication Service."
+    },
+    {
+      "table": [
+        [
+          "Authentication Service Equivalent",
+          "SCIM Equivalent Attribute",
+          "Data Type",
+          "Description"
+        ],
+        [
+          "id",
+          "id",
+          "String",
+          "The unique identifier assigned to the user"
+        ],
+        [
+          "External ID",
+          "scim_externalid",
+          "String",
+          "The client-assigned identifier for the user which is unique within the client's context"
+        ],
+        [
+          "Created",
+          "meta.created",
+          "String",
+          "The timestamp indicating when the user resource was created"
+        ],
+        [
+          "Last Modified",
+          "meta.lastModified",
+          "String",
+          "The timestamp indicating the last modification to the user resource"
+        ],
+        [
+          "Location",
+          "meta.location",
+          "String",
+          "The URI representing the location of the user resource in the SCIM server"
+        ],
+        [
+          "Version",
+          "meta.version",
+          "String",
+          "The version of the user resource. The version is updated with every modification to the user resource"
+        ],
+        [
+          "Resource Type",
+          "meta.resourceType",
+          "String",
+          "The type indicating the resource type. In this case, the resource type should be User."
+        ],
+        [
+          "Groups",
+          "groupIds",
+          "String",
+          "A list of group memberships of the user. These groups allow access control and association."
+        ]
+      ]
+    },
+    {
+      "heading": "Custom User Attributes",
+      "level": 1
+    },
+    {
+      "text": "The following table provides a list of custom user attributes and their corresponding SCIM mappings."
+    },
+    {
+      "table": [
+        [
+          "SCIM Attribute Name",
+          "SCIM Attribute",
+          "Mapping in IdP",
+          "Description"
+        ],
+        [
+          "honorificPrefix",
+          "name.honorificPrefix",
+          "honorificPrefix",
+          "A string representing the user's title or honorific, such as Mr., Ms., Dr., etc."
+        ],
+        [
+          "honorificSuffix",
+          "name.honorificSuffix",
+          "honorificSuffix",
+          "A string representing the suffix of a person's name, such as Jr., Sr., III, etc."
+        ],
+        [
+          "PROFILE_URL",
+          "profileUrl",
+          "PROFILE_URL",
+          "The URL pointing to the user's profile page"
+        ],
+        [
+          "LOCALE",
+          "locale",
+          "LOCALE",
+          "The string indicating the user's locale, typically used for language and regional settings (e.g., en-US)"
+        ],
+        [
+          "IMS",
+          "ims",
+          "IMS",
+          "The instant messaging addresses associated with the user"
+        ],
+        [
+          "PHOTOS",
+          "photos",
+          "PHOTOS",
+          "The URLs pointing to the user's photos or avatars"
+        ],
+        [
+          "ENTITLEMENTS",
+          "entitlements",
+          "ENTITLEMENTS",
+          "The set of entitlements granted to the user, such as access roles or permissions"
+        ],
+        [
+          "ROLES",
+          "roles",
+          "ROLES",
+          "The list of roles assigned to the user (e.g., admin, manager)"
+        ],
+        [
+          "X509CERTIFICATES",
+          "x509Certificates",
+          "X509CERTIFICATES",
+          "X.509 public key certificates associated with the user"
+        ],
+        [
+          "employeeNumber",
+          "urn:ietf:params:scim:schemas:extension:enterprise:2.0.employeeNumber",
+          "employeeNumber",
+          "A unique identifier assigned to the employee, typically used within an enterprise"
+        ]
+      ]
+    },
+    {
+      "heading": "Administrator-Defined Custom User Attributes",
+      "level": 2
+    },
+    {
+      "text": "The following table provides example custom attributes for reference. Administrators can define any attributes as needed."
+    },
+    {
+      "table": [
+        [
+          "SCIM Attribute Name",
+          "SCIM Attribute",
+          "Mapping in IdP",
+          "Description"
+        ],
+        [
+          "Tshirtsize",
+          "Tshirtsize",
+          "urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.tshirtsize",
+          "A custom attribute indicating the T-shirt size of the user"
+        ],
+        [
+          "Officebuilding",
+          "Officebuilding",
+          "urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.officebuilding",
+          "A custom attribute indicating the office premises to which the user belongs"
+        ],
+        [
+          "Keyshare",
+          "Keyshare",
+          "urn:ietf:params:scim:schemas:extension:zscaler:1.0:User.Keyshare",
+          "A custom attribute for the keyshare belonging to the user"
+        ]
+      ]
+    },
+    {
+      "heading": "Default SCIM Group Attributes",
+      "level": 1
+    },
+    {
+      "text": "The following table provides information on the association between SCIM group attributes and the corresponding column name in Authentication Service."
+    },
+    {
+      "table": [
+        [
+          "SCIM Attribute Name",
+          "Authentication Service Store Attribute Name",
+          "Comments"
+        ],
+        [
+          "ID",
+          "<unique_id>",
+          "The unique ID generated by Zscaler"
+        ],
+        [
+          "EXTERNALID",
+          "scim_externalid",
+          "The external ID provided by the client and stored in the Zscaler's database"
+        ],
+        [
+          "CREATED",
+          "meta.created",
+          "The timestamp when the group was created"
+        ],
+        [
+          "LAST_MODIFIED",
+          "meta.lastModified",
+          "The timestamp when the group was last updated"
+        ],
+        [
+          "LOCATION",
+          "meta.location",
+          "The URL to locate the group resource"
+        ],
+        [
+          "VERSION",
+          "meta.version",
+          "The version of the group resource. The version is updated for each modification to the group resource."
+        ],
+        [
+          "RESOURCE_TYPE",
+          "meta.resourceType",
+          "The type indicating the resource type. In this case, the resource type should be Group."
+        ],
+        [
+          "DISPLAYNAME",
+          "displayName",
+          "The display name of the group"
+        ],
+        [
+          "Members",
+          "members",
+          "The list of users or resources associated with the group"
+        ]
+      ]
+    },
+    {
+      "heading": "Operations Supported by Zscaler SCIM Servers",
+      "level": 1
+    },
+    {
+      "text": "The following table lists the SCIM operations supported by Zscaler SCIM servers."
+    },
+    {
+      "table": [
+        [
+          "Operation",
+          "HTTP Request"
+        ],
+        [
+          "Endpoint /Users",
+          ""
+        ],
+        [
+          "Create User",
+          "POST /Users"
+        ],
+        [
+          "Retrieve All Users (up to 100 entries)",
+          "GET /Users"
+        ],
+        [
+          "Retrieve All Users (1,000 users from specified index value)",
+          "GET /Users?startIndex=<value>&count=1000"
+        ],
+        [
+          "Retrieve a Specific User",
+          "GET /Users/{UserID}"
+        ],
+        [
+          "Filter Users by Username",
+          "GET /Users?filter=userName eq <value>"
+        ],
+        [
+          "Filter Users by External ID",
+          "GET /Users?filter=externalID eq <value>"
+        ],
+        [
+          "Update User",
+          "PUT /Users/{UserID} or PATCH /Users/{UserID}"
+        ],
+        [
+          "Delete User",
+          "DELETE /Users/{UserID}"
+        ],
+        [
+          "Endpoint /Groups",
+          ""
+        ],
+        [
+          "Create Group",
+          "POST /Groups"
+        ],
+        [
+          "Retrieve All Groups (up to 1,000 entries)",
+          "GET /Groups"
+        ],
+        [
+          "Retrieve All Groups (1,000 groups from specified index value)",
+          "GET /Groups?startIndex=<value>"
+        ],
+        [
+          "Retrieve a Specific Group",
+          "GET /Groups/{GroupID}"
+        ],
+        [
+          "Filter by Group's Display Name and Members",
+          "GET /Groups?filter=displayName eq <value> and members.value eq <value>"
+        ],
+        [
+          "Update Group",
+          "PUT /Groups/{GroupID} or PATCH /Groups/{GroupID}"
+        ],
+        [
+          "Delete Group",
+          "DELETE /Groups/{GroupID}"
+        ],
+        [
+          "Endpoint /Bulk",
+          ""
+        ],
+        [
+          "Bulk Modify Resources",
+          "POST /Bulk"
+        ],
+        [
+          "Endpoint /Schema",
+          ""
+        ],
+        [
+          "Retrieve All Resource Schemas",
+          "GET /Schemas"
+        ],
+        [
+          "Retrieve a Specific Resource",
+          "Schema GET /Schemas/{SchemaID}"
+        ],
+        [
+          "Endpoint /ServiceProviderConfig",
+          ""
+        ],
+        [
+          "Retrieve the Service Provider's Configuration",
+          "GET /ServiceProviderConfig"
+        ],
+        [
+          "Endpoint /ResourceTypes",
+          ""
+        ],
+        [
+          "Retrieve All Resource Types",
+          "GET /ResourceTypes"
+        ],
+        [
+          "Retrieve a Specific Resource Type",
+          "GET /ResourceTypes/{ResourceTypeID}"
+        ],
+        [
+          "Endpoint [prefix]/.search",
+          ""
+        ],
+        [
+          "Search for Resource Types",
+          "POST"
+        ]
+      ],
+      "strong": [
+        [
+          1,
+          0,
+          0,
+          15
+        ],
+        [
+          10,
+          0,
+          0,
+          16
+        ],
+        [
+          18,
+          0,
+          0,
+          14
+        ],
+        [
+          20,
+          0,
+          0,
+          16
+        ],
+        [
+          23,
+          0,
+          0,
+          31
+        ],
+        [
+          25,
+          0,
+          0,
+          23
+        ],
+        [
+          28,
+          0,
+          0,
+          25
+        ]
+      ]
+    }
+  ]
+}

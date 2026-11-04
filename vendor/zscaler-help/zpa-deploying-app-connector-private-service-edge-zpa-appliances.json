@@ -1,0 +1,432 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying App Connector and Private Service Edge ZPA Appliances",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/deploying-app-connector-private-service-edge-zpa-appliances",
+    "node": "1540963",
+    "revision": "3246924",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The ZPA hardware appliance is shipped with an App Connector or Private Service Edge for Private Access (ZPA) installed on it. Before you can use the appliance, you need to enroll the App Connector or Private Service Edge, including applying a provisioning key. The provisioning key functions like a credential, enabling the Private Access cloud to verify the App Connector's or Private Service Edge's authenticity and complete the deployment process. Furthermore, each key is associated with a specific App Connector or Private Service Edge group, so the key allows the Private Access cloud to identify the correct group to which an App Connector or Private Service Edge must be deployed."
+    },
+    {
+      "text": "Provisioning keys should be treated as secrets and properly protected because they can create a resource for a tenant. The provisioning key must also be secured and not transmitted or stored in clear text."
+    },
+    {
+      "item": "Upon receipt of the ZPA appliance, install your hardware according to the instructions provided. To learn more, see ZPA Appliance Wall and Rack Mount Instruction Manual.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Add the App Connector or Private Service Edge in the Zscaler Admin Console:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "For App Connector:",
+      "depth": 1
+    },
+    {
+      "item": "Add an App Connector group.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Add an App Connector provisioning key to use for enrollment.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Add the App Connector.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "For Private Service Edge, add a Private Service Edge.",
+      "depth": 1
+    },
+    {
+      "item": "On the ZPA appliance, using console access, log in to the box with the following credentials:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Username: admin",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: zscaler",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "text": "Make sure you change the password after logging in for the first time. To learn more, see Managing Deployed Software Components."
+    },
+    {
+      "item": "Connect to the network physically. It is recommended that you connect to port 7 XE7/eno4 SFP+ port.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Link aggregation mechanisms are not supported at this time.",
+      "depth": 0
+    },
+    {
+      "item": "If necessary, configure the network interface based on your environment (not a standard DHCP environment). To learn more, see Networking Deployed Software Components for networking and static IP address configuration.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Enable the sshd service if you want to use ssh to connect to the appliance:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "# sudo systemctl enable sshd # sudo service sshd start",
+      "depth": 0
+    },
+    {
+      "item": "To replace a provisioning key, see Managing Deployed Software Components.",
+      "depth": 0
+    },
+    {
+      "item": "Apply the provisioning key:",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "See App Connector instructions.",
+      "depth": 1
+    },
+    {
+      "item": "Stop running the zpa-connector service. If the provisioning key was not detected when the App Connector was first started, the App Connector is in a sleep cycle and will look for the key again every 24 hours.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/provision_key. For example:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "If you are using vi, make sure it is in insert mode before you paste the key into the file.",
+      "depth": 2
+    },
+    {
+      "item": "If you are unfamiliar with the vi editor, you can also use the following echo and tee commands to paste in the provisioning key:",
+      "depth": 2
+    },
+    {
+      "item": "echo \"<App Connector Provisioning Key>\" | sudo tee /opt/zscaler/var/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Make sure that the key is within double quotes (\").",
+      "depth": 2
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo cat /opt/zscaler/var/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 2
+    },
+    {
+      "item": "Start the zpa-connector service.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector",
+      "depth": 2
+    },
+    {
+      "item": "After the App Connector is enrolled, disable SSH using the following command:",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "sudo systemctl disable sshd",
+      "depth": 2
+    },
+    {
+      "item": "See Private Service Edge instructions.",
+      "depth": 1
+    },
+    {
+      "item": "Stop running the Private Service Edge service.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo systemctl stop zpa-service-edge",
+      "depth": 1
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions at /opt/zscaler/var/service-edge/provision_key. For example:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo touch /opt/zscaler/var/service-edge/provision_key [admin@zpa-service-edge ~]$ sudo chmod 644 /opt/zscaler/var/service-edge/provision_key",
+      "depth": 2
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console, paste it into the file, and save. Use an editor, such as vi.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo vi /opt/zscaler/var/service-edge/provision_key",
+      "depth": 1
+    },
+    {
+      "item": "Enter the following command to verify the file's content:",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo cat /opt/zscaler/var/service-edge/provision_key",
+      "depth": 1
+    },
+    {
+      "item": "The output should return the provisioning key you entered in the previous step.",
+      "depth": 1
+    },
+    {
+      "item": "Start the zpa-service-edge service.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "[admin@zpa-service-edge ~]$ sudo systemctl start zpa-service-edge",
+      "depth": 1
+    },
+    {
+      "item": "Check the App Connector or Private Service Edge status in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "See App Connector instructions.",
+      "depth": 1
+    },
+    {
+      "item": "To check the status of a ZPA appliance for App Connector on the App Connectors page:",
+      "depth": 2
+    },
+    {
+      "item": "Go to Private Access > Private Infrastructure > App Connectors > App Connectors.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          45
+        ],
+        [
+          48,
+          62
+        ],
+        [
+          65,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "Check that the ZPA appliance for App Connector you deployed appears in the table of configured App Connectors.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Click the App Connector name and verify that the Host Platform has ZS-ZPA-APPL-8010.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "To check the status of a ZPA appliance for App Connector on the Health page:",
+      "depth": 2
+    },
+    {
+      "item": "Go to Private Access > Dashboards > Health.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          33
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "The Health page for Private Applications appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Check that the ZPA appliance you deployed appears in the Appliances widget. The App Connector must have enrolled successfully at least once for it to appear within the Health dashboard.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          57,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See Private Service Edge instructions.",
+      "depth": 1
+    },
+    {
+      "item": "To check the status of a ZPA appliance for Private Service Edge on the Private Service Edges page:",
+      "depth": 2
+    },
+    {
+      "item": "Go to Private Access > Private Infrastructure > Private Service Edges > Private Service Edges.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          45
+        ],
+        [
+          48,
+          69
+        ],
+        [
+          72,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Check that the ZPA appliance for Private Service Edge you deployed appears in the table of configured Private Service Edges.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Click the Private Service Edge name and verify that the Host Platform is ZS-ZPA-PSE-8010.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "To check the status of a ZPA appliance for Private Service Edge on the Health page:",
+      "depth": 2
+    },
+    {
+      "item": "Go to Private Access > Dashboards > Health.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          33
+        ],
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "The Health page for Private Applications appears.",
+      "depth": 3,
+      "strong": [
+        [
+          4,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Check that the ZPA Appliance you deployed appears in the Appliances widget. The Private Service Edge must have enrolled successfully at least once for it to appear within the Health dashboard.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          57,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "If necessary, you can troubleshoot issues with the App Connector or Private Service Edge.",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "text": "Sample interface output:"
+    },
+    {
+      "text": "Sample interface output. [root@localhost ~]# ip addr | less 1: lo: <LOOPBACK,UP,LOWER_UP> mtu 65536 qdisc noqueue state UNKNOWN group default qlen 1000 link/loopback 00:00:00:00:00:00 brd 00:00:00:00:00:00 inet 127.0.0.1/8 scope host lo valid_lft forever preferred_lft forever inet6 ::1/128 scope host valid_lft forever preferred_lft forever 2: ens5f0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:01:7d brd ff:ff:ff:ff:ff:ff altname enp145s0f0 3: enp1s0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:46 brd ff:ff:ff:ff:ff:ff 4: eno1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:48 brd ff:ff:ff:ff:ff:ff altname enp2s0 5: ens5f1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:01:7e brd ff:ff:ff:ff:ff:ff altname enp145s0f1 p default qlen 1000 link/ether 00:90:0b:de:01:7f brd ff:ff:ff:ff:ff:ff altname enp145s0f2 7: ens83f0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:49 brd ff:ff:ff:ff:ff:ff altname enp23s0f0 8: ens5f3: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:01:80 brd ff:ff:ff:ff:ff:ff altname enp145s0f3 9: ens83f1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4a brd ff:ff:ff:ff:ff:ff altname enp23s0f1 10: ens83f2: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4b brd ff:ff:ff:ff:ff:ff altname enp23s0f2 11: ens83f3: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4c brd ff:ff:ff:ff:ff:ff altname enp23s0f3 12: ens84f0: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4d brd ff:ff:ff:ff:ff:ff altname enp24s0f0 13: ens84f1: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4e brd ff:ff:ff:ff:ff:ff altname enp24s0f1 14: ens84f2: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:4f brd ff:ff:ff:ff:ff:ff altname enp24s0f2 15: ens84f3: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:50 brd ff:ff:ff:ff:ff:ff altname enp24s0f3 16: eno2: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:51 brd ff:ff:ff:ff:ff:ff altname enp137s0f0 17: eno3: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:52 brd ff:ff:ff:ff:ff:ff altname enp137s0f1 18: eno4: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:53 brd ff:ff:ff:ff:ff:ff altname enp137s0f2 19: eno5: <NO-CARRIER,BROADCAST,MULTICAST,UP> mtu 1500 qdisc mq state DOWN group default qlen 1000 link/ether 00:90:0b:de:81:54 brd ff:ff:ff:ff:ff:ff altname enp137s0f3"
+    }
+  ]
+}

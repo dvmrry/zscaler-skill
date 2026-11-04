@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "IoT Report",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/iot-report",
+    "node": "1474081",
+    "revision": "2760966",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/IoT%20Report_7.json?VersionId=9fPqh9ehVLODNO3HsKQDaFLMaUeDf73W",
+    "updated": "2025-04-22",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "IoT Report"
+      }
+    ],
+    "paths": {
+      "/iotDiscovery/deviceTypes": {
+        "get": {
+          "tags": [
+            "IoT Report"
+          ],
+          "description": "<p>Retrieve the mapping between device type universally unique identifier (UUID) values and the device type names for all the device types supported by the Zscaler AI/ML.</p>",
+          "operationId": "IotDiscoveryResource_getDeviceTypes",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IotItemInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/iotDiscovery/categories": {
+        "get": {
+          "tags": [
+            "IoT Report"
+          ],
+          "description": "<p>Retrieve the mapping between the device category universally unique identifier (UUID) values and the category names for all the device categories supported by the Zscaler AI/ML. The parent of device category is device type.</p>",
+          "operationId": "IotDiscoveryResource_getCategories",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IotItemInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/iotDiscovery/classifications": {
+        "get": {
+          "tags": [
+            "IoT Report"
+          ],
+          "description": "<p>Retrieve the mapping between the device classification universally unique identifier (UUID) values and the classification names for all the device  classifications supported by Zscaler AI/ML. The parent of device classification is device category.</p> ",
+          "operationId": "IotDiscoveryResource_getClassifications",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/IotItemInfo"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/iotDiscovery/deviceList": {
+        "get": {
+          "tags": [
+            "IoT Report"
+          ],
+          "description": "<p>Retrieve a list of discovered devices with the following key contexts, IP address, location, ML auto-label, classification, category, and type.</p>",
+          "operationId": "IotDiscoveryResource_getDeviceList",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "successful operation",
+              "schema": {
+                "$ref": "#/definitions/IotDeviceInfo"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "IotItemInfo": {
+        "type": "object",
+        "description": "<p>Information about the items.</p>",
+        "properties": {
+          "uuid": {
+            "type": "string",
+            "description": "<p>The universally unique identifier (UUID) of the item.</p>"
+          },
+          "name": {
+            "type": "string",
+            "description": "<p>The name of the item.</p>"
+          },
+          "parent_uuid": {
+            "type": "string",
+            "description": "<p>The parent UUID of the item.</p><p><b>Note</b>: This field is not applicable for the device types endpoint.</p>"
+          }
+        }
+      },
+      "IotDeviceInfo": {
+        "type": "object",
+        "description": "<p>Information about all discovered devices.</p>",
+        "properties": {
+          "cloudName": {
+            "type": "string",
+            "description": "<p>The Zscaler cloud on which your organization is provisioned.</p>"
+          },
+          "customerId": {
+            "type": "integer",
+            "description": "<p>The unique identifier for your organization.</p>",
+            "format": "int32"
+          },
+          "devices": {
+            "type": "array",
+            "description": "<p>A list of DeviceInfo objects.</p>",
+            "items": {
+              "$ref": "#/definitions/DeviceInfo"
+            }
+          }
+        }
+      },
+      "DeviceInfo": {
+        "type": "object",
+        "properties": {
+          "locationId": {
+            "type": "string",
+            "description": "<p>The location ID where the device resides.</P>"
+          },
+          "deviceUuid": {
+            "type": "string",
+            "description": "<p>The universally unique identifier (UUID) of the device identified by the Zscaler AI/ML.</P>"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "<p>The IP address of the device.</P>"
+          },
+          "deviceTypeUuid": {
+            "type": "string",
+            "description": "<p>The UUID of the device type identified by the Zscaler AI/Ml.</P>"
+          },
+          "autoLabel": {
+            "type": "string",
+            "description": "<p>A label generated by the Zscaler AI/ML engine to describe the device's prominent characteristics.</P>"
+          },
+          "classificationUuid": {
+            "type": "string",
+            "description": "<p>The UUID for the device classification.</P>"
+          },
+          "categoryUuid": {
+            "type": "string",
+            "description": "<p>The UUID for the device category.</P>"
+          },
+          "flowStartTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>The start timestamp at which Zscaler AI/ML engine starts evaluating the device's weblog records. It's noted in epoch seconds.</P>"
+          },
+          "flowEndTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "<p>The end timestamp at which Zscaler AI/ML engine stops evaluating the device's weblog records. It's noted in epoch seconds.</P>"
+          }
+        }
+      }
+    }
+  }
+}

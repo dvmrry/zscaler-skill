@@ -1,0 +1,1041 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Redirection Policies Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-redirection-policies-using-api",
+    "node": "1485771",
+    "revision": "3175634",
+    "updated": "2026-01-23",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) redirection policy use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "To get the policySetId by policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the policyType, the value for differentiating the policy types, in the request endpoint. The supported values are:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "text": "To get a redirection policy set ID, provide the REDIRECTION_POLICY policy type in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/REDIRECTION_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\": \"217246660303027250\", \"creationTime\": \"1683058318\", \"modifiedBy\": \"72057594038040687\", \"name\": \"ReDirection_Policy\", \"enabled\": true, \"description\": \"Re-Direction policies.\", \"policyType\": \"10\", \"sorted\": true }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "To get the paginated policy rules for the specified policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/rules/policyType/REDIRECTION_POLICY?page=1&pagesize=1."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"10\", \"list\": [ { \"id\": \"72057594038644505\", \"modifiedTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"name\": \"New UX test\", \"description\": \"in safari\", \"ruleOrder\": \"1\", \"priority\": \"1\", \"policyType\": \"10\", \"operator\": \"AND\", \"conditions\": [ { \"id\": \"31470314\", \"modifiedTime\": \"1683038805\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"31470315\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"COUNTRY_CODE\", \"lhs\": \"AE\", \"rhs\": \"true\", \"name\": \"AE\" }, { \"id\": \"31470316\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"COUNTRY_CODE\", \"lhs\": \"AG\", \"rhs\": \"true\", \"name\": \"AG\" } ] }, { \"id\": \"31470317\", \"modifiedTime\": \"1683038805\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"31470318\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_machine_tunnel\", \"name\": \"zpn_client_type_machine_tunnel\" }, { \"id\": \"31470319\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"CLIENT_TYPE\", \"lhs\": \"id\", \"rhs\": \"zpn_client_type_branch_connector\", \"name\": \"zpn_client_type_branch_connector\" } ] }, { \"id\": \"31470320\", \"modifiedTime\": \"1683038805\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"operator\": \"OR\", \"negated\": false, \"operands\": [ { \"id\": \"31470321\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038603627\", \"rhs\": \"test 1\", \"name\": \"http___schemas_xmlsoap_org_ws_2005_05_identity_claims_givenname_Azure_User\" }, { \"id\": \"31470322\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038603627\", \"rhs\": \"test 2\", \"name\": \"http___schemas_xmlsoap_org_ws_2005_05_identity_claims_givenname_Azure_User\" }, { \"id\": \"31470323\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038603627\", \"rhs\": \"test 3\", \"name\": \"http___schemas_xmlsoap_org_ws_2005_05_identity_claims_givenname_Azure_User\" }, { \"id\": \"31470324\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038042068\", \"rhs\": \"test 1\", \"name\": \"dssdd\" }, { \"id\": \"31470325\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038042068\", \"rhs\": \"test 2\", \"name\": \"dssdd\" }, { \"id\": \"31470326\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038042068\", \"rhs\": \"test 3\", \"name\": \"dssdd\" }, { \"id\": \"31470327\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038620864\", \"rhs\": \"test 1\", \"name\": \"department1\" }, { \"id\": \"31470328\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038620864\", \"rhs\": \"test 2\", \"name\": \"department1\" }, { \"id\": \"31470329\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SAML\", \"lhs\": \"72057594038620864\", \"rhs\": \"test 3\", \"name\": \"department1\" }, { \"id\": \"31470330\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SCIM\", \"lhs\": \"72057594037988775\", \"rhs\": \"bjensen3\", \"name\": \"userName\", \"idpId\": \"72057594037961373\" }, { \"id\": \"31470331\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SCIM_GROUP\", \"lhs\": \"72057594037961373\", \"rhs\": \"20470\" }, { \"id\": \"31470332\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"SCIM_GROUP\", \"lhs\": \"72057594037961373\", \"rhs\": \"20524\" }, { \"id\": \"31470333\", \"creationTime\": \"1683038805\", \"modifiedBy\": \"72057594038606777\", \"objectType\": \"IDP\", \"lhs\": \"id\", \"rhs\": \"72057594038072942\", \"name\": \"Testtest\" } ] } ], \"action\": \"REDIRECT_PREFERRED\", \"serviceEdgeGroups\": [ { \"id\": \"72057594038038943\", \"modifiedTime\": \"1680861999\", \"creationTime\": \"1622618432\", \"modifiedBy\": \"72057594037987389\", \"name\": \"testvr\", \"enabled\": false, \"description\": \"testvr\", \"versionProfileId\": \"0\", \"overrideVersionProfile\": false, \"isPublic\": \"TRUE\", \"location\": \"India\", \"cityCountry\": \"Wadgaon, IN\", \"countryCode\": \"IN\", \"useInDrMode\": false, \"graceDistanceEnabled\": false }, { \"id\": \"72057594038054625\", \"modifiedTime\": \"1639642844\", \"creationTime\": \"1633932755\", \"modifiedBy\": \"72057594038046699\", \"name\": \"testserviceedgegrp-1_2\", \"enabled\": true, \"description\": \"sdsd\", \"versionProfileId\": \"0\", \"overrideVersionProfile\": false, \"isPublic\": \"FALSE\", \"location\": \"Hyderabad, Telangana, India\", \"cityCountry\": \"Hyderabad, IN\", \"countryCode\": \"IN\", \"graceDistanceEnabled\": false } ], \"defaultRule\": false, \"restrictedEntity\": false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Required Details for the Redirection Policy",
+      "level": 1
+    },
+    {
+      "text": "Before creating a redirection policy rule, you must get the following required client types for the policy criteria. To learn more, see Getting Details of All Client Types."
+    },
+    {
+      "heading": "Creating a New Redirection Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To create a new redirection policy rule for a given policy set and for a given customer:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the prerequisite API call.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057594037927936/policySet/72057594038644503/rule.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the policy criteria you want for creating a redirection policy rule.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"conditions\":[ { \"operands\":[ { \"objectType\":\"SAML\", \"lhs\":\"<samlAttrId>\", \"rhs\":\"<samlAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM\", \"lhs\":\"<scimAttrId>\", \"rhs\":\"<scimAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM_GROUP\", \"lhs\":\"<scimGroupAttrId>\", \"rhs\":\"<scimGroupAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"CLIENT_TYPE\", \"lhs\":\"id\", \"rhs\":\"zpn_client_type_zapp\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"<CountryCode>\", \"rhs\":true } ] } ] } ], \"name\":\"PolicyName\", \"description\":\"Description\", \"action\":\"REDIRECT_ALWAYS\", \"customMsg\":\"MsgString\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"72057594038644503\", \"conditions\":[ { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"US\", \"rhs\":true } ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"CLIENT_TYPE\", \"values\":[ \"zpn_client_type_machine_tunnel\", \"zpn_client_type_edge_connector\", \"zpn_client_type_zapp_partner\", \"zpn_client_type_zapp\", \"zpn_client_type_branch_connector\" ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM\", \"entryValues\":[ { \"lhs\":\"72057594037988776\", \"rhs\":\"Jensen\" } ] }, { \"objectType\":\"SCIM_GROUP\", \"entryValues\":[ { \"lhs\":\"72057594037961373\", \"rhs\":20470 } ] } ], \"operator\":\"OR\" } ], \"name\":\"Example Redirection Policy\", \"description\":\"Example description\", \"action\":\"REDIRECT_ALWAYS\", \"serviceEdgeGroups\":[ { \"id\":\"72057594038056014\", \"modifiedTime\":\"1678798195\", \"creationTime\":\"1634589741\", \"modifiedBy\":\"72057594038606777\", \"name\":\"test_abc\", \"MicrotenantName\":\"Default\", \"enabled\":true, \"description\":\"Private broker group\", \"versionProfileId\":\"72057594038644936\", \"overrideVersionProfile\":false, \"versionProfileName\":\"hshinde-vp\", \"versionProfileVisibilityScope\":\"ALL\", \"upgradeTimeInSecs\":\"25200\", \"upgradeDay\":\"MONDAY\", \"isPublic\":\"FALSE\", \"location\":\"California, USA\", \"latitude\":\"36.778261\", \"longitude\":\"-119.4179324\", \"cityCountry\":\"Sanger, US\", \"countryCode\":\"US\", \"useInDrMode\":false, \"graceDistanceEnabled\":true, \"graceDistanceValue\":\"2500.0\", \"graceDistanceValueUnit\":\"MILES\", \"restrictedEntity\":false, \"level\":2, \"parent\":\"California, USA\", \"isLeaf\":true } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the redirection policy use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "The name of the redirection rule",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "The description of the redirection rule",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "This is for providing the rule action",
+          "Yes",
+          "Supported values: REDIRECT_DEFAULT REDIRECT_PREFERRED REDIRECT_ALWAYS"
+        ],
+        [
+          "conditions",
+          "This is for providing the set of conditions for the policy",
+          "No",
+          "Array of operands"
+        ],
+        [
+          "operands",
+          "The various policy criteria",
+          "No",
+          "Array of attributes (objectType, lhs, rhs, name)"
+        ],
+        [
+          "objectType",
+          "The policy criteria",
+          "No",
+          "Supported values: IDP SCIM SCIM_GROUP CLIENT_TYPE COUNTRY_CODE"
+        ],
+        [
+          "lhs",
+          "The key for the object type",
+          "No",
+          "String ID example: \"id\""
+        ],
+        [
+          "rhs",
+          "The value for the given object type. Its value depends upon the key.",
+          "No",
+          "For IDP, the supported value is entity id. For CLIENT_TYPE, the supported values are: zpn_client_type_machine_tunnel (for Machine Tunnels) zpn_client_type_edge_connector (For Cloud Connectors) zpn_client_type_zapp (for Zscaler Client Connector) zpn_client_type_zapp_partner (for Zscaler Client Connector Support for Multiple Tenants) zpn_client_type_branch_connector (for Branch Connectors) The CLIENT_TYPE values zpn_client_type_edge_connector and zpn_client_type_branch_connector are not supported if the action field is set to REDIRECT_ALWAYS. For POSTURE, the supported values are: true (verified) false (verification failed)"
+        ],
+        [
+          "operator",
+          "The operation type",
+          "No",
+          "Supported values: AND OR"
+        ],
+        [
+          "graceDistanceEnabled",
+          "If enabled, allows ZPA Private Service Edge groups within the specified distance to be prioritized over a closer ZPA Public Service Edge. To learn more, see Configuring ZPA Private Service Edges.",
+          "No",
+          "Default: false Boolean: true, false"
+        ],
+        [
+          "graceDistanceValue",
+          "Indicates the maximum distance in miles or kilometers to ZPA Private Service Edge groups that would override a ZPA Public Service Edge",
+          "No",
+          "Integer"
+        ],
+        [
+          "graceDistanceValueUnit",
+          "Indicates the grace distance unit of measure in miles or kilometers. This value is only required if graceDistanceEnabled is set to true.",
+          "No",
+          "Supported values: MILES KMS"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "text": "For a comprehensive table of LHS and RHS values, see Configuring Access Policies Using API."
+    },
+    {
+      "heading": "Getting Details for a Particular Redirection Rule",
+      "level": 1
+    },
+    {
+      "text": "To get details for a particular redirection rule:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the redirection policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the redirection rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594038644503/rule/72057594038649412."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"72057594038649412\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"Example Redirection Policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"Example description\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\": \"9\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\": \"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\": \"10\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470342\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470343\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\": \"COUNTRY_CODE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\": \"US\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\": \"true\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"US\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470344\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470345\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\": \"CLIENT_TYPE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\": \"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\": \"zpn_client_type_branch_connector\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470346\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\": \"CLIENT_TYPE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\": \"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\": \"zpn_client_type_zapp\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470347\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\": \"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470348\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\": \"SCIM\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\": \"72057594037988776\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\": \"Jensen\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"name.familyName\",",
+      "depth": 0
+    },
+    {
+      "item": "\"idpId\": \"72057594037961373\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"31470349\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1683038920\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038040687\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\": \"SCIM_GROUP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\": \"72057594037961373\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\": \"20470\",",
+      "depth": 0
+    },
+    {
+      "item": "\"idpId\": \"72057594037961373\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\": \"REDIRECT_ALWAYS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"serviceEdgeGroups\": [",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\": \"72057594038056014\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\": \"1678798195\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\": \"1634589741\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\": \"72057594038606777\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\": \"dhareeshkumar_pb_grp\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\": \"Private broker group\",",
+      "depth": 0
+    },
+    {
+      "item": "\"versionProfileId\": \"0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"overrideVersionProfile\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"isPublic\": \"FALSE\",",
+      "depth": 0
+    },
+    {
+      "item": "\"location\": \"California, USA\",",
+      "depth": 0
+    },
+    {
+      "item": "\"cityCountry\": \"Sanger, US\",",
+      "depth": 0
+    },
+    {
+      "item": "\"countryCode\": \"US\",",
+      "depth": 0
+    },
+    {
+      "item": "\"useInDrMode\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"graceDistanceEnabled\": true,",
+      "depth": 0
+    },
+    {
+      "item": "\"graceDistanceValue\": \"2500.0\",",
+      "depth": 0
+    },
+    {
+      "item": "\"graceDistanceValueUnit\": \"MILES\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"policySetId\": \"72057594038644503\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\": false,",
+      "depth": 0
+    },
+    {
+      "item": "\"restrictedEntity\": false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Redirection Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of a redirection policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId captured in the prerequisite API call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the JSON payload from Creating a New Redirection Rule and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the redirection policy set.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The ID of the redirection policy rule.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764641.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"conditions\":[ { \"operands\":[ { \"objectType\":\"SAML\", \"lhs\":\"<samlAttrId>\", \"rhs\":\"<samlAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM\", \"lhs\":\"<scimAttrId>\", \"rhs\":\"<scimAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM_GROUP\", \"lhs\":\"<scimGroupAttrId>\", \"rhs\":\"<scimGroupAttrValue>\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"CLIENT_TYPE\", \"lhs\":\"id\", \"rhs\":\"zpn_client_type_zapp\" } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"<CountryCode>\", \"rhs\":true } ] } ] } ], \"name\":\"PolicyName\", \"description\":\"Description\", \"action\":\"REDIRECT_ALWAYS\", \"customMsg\":\"MsgString\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"72057594038644503\", \"conditions\":[ { \"operands\":[ { \"objectType\":\"COUNTRY_CODE\", \"entryValues\":[ { \"lhs\":\"US\", \"rhs\":true } ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"CLIENT_TYPE\", \"values\":[ \"zpn_client_type_machine_tunnel\", \"zpn_client_type_edge_connector\", \"zpn_client_type_zapp_partner\", \"zpn_client_type_zapp\", \"zpn_client_type_branch_connector\" ] } ], \"operator\":\"OR\" }, { \"operands\":[ { \"objectType\":\"SCIM\", \"entryValues\":[ { \"lhs\":\"72057594037988776\", \"rhs\":\"Jensen\" } ] }, { \"objectType\":\"SCIM_GROUP\", \"entryValues\":[ { \"lhs\":\"72057594037961373\", \"rhs\":20470 } ] } ] } ], \"name\":\"Example Redirection Policy\", \"description\":\"Example description\", \"action\":\"REDIRECT_ALWAYS\", \"serviceEdgeGroups\":[ { \"id\":\"72057594038665671\", \"modifiedTime\":\"1689071571\", \"creationTime\":\"1689071571\", \"modifiedBy\":\"72057594038642792\", \"name\":\"test_abc\", \"MicrotenantName\":\"Default\", \"enabled\":true, \"versionProfileId\":\"72057594038660432\", \"overrideVersionProfile\":false, \"versionProfileName\":\"test_aglawe07\", \"versionProfileVisibilityScope\":\"ALL\", \"upgradeTimeInSecs\":\"66600\", \"upgradeDay\":\"SUNDAY\", \"isPublic\":\"FALSE\", \"location\":\"Nagpur, Maharashtra, India\", \"latitude\":\"21.1458004\", \"longitude\":\"79.0881546\", \"cityCountry\":\"Nagpur, IN\", \"countryCode\":\"IN\", \"useInDrMode\":false, \"graceDistanceEnabled\":true, \"graceDistanceValue\":\"2500.0\", \"graceDistanceValueUnit\":\"MILES\", \"restrictedEntity\":false, \"level\":2, \"parent\":\"Nagpur, Maharashtra, India\", \"isLeaf\":true } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the redirection rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Rule Order",
+      "level": 1
+    },
+    {
+      "text": "To update a rule order:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following parameters in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the policy set.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the redirection rule.",
+      "depth": 0
+    },
+    {
+      "item": "newOrder: The new order of the rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594037938994/rule/72057615512764641/reorder/4."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rule order is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Deleting a Redirection Rule",
+      "level": 1
+    },
+    {
+      "text": "To delete a redirection rule:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the redirection policy set captured in the prerequisite API call.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you want to delete.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764641."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the redirection rule is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Details of All Client Types",
+      "level": 1
+    },
+    {
+      "text": "To get details of all client types:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientTypes.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/clientTypes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter\": \"Web Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter_noauth\": \"Web Browser Unauthenticated\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_machine_tunnel\": \"Machine Tunnel\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_edge_connector\": \"Cloud Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zia_inspection\": \"ZIA Inspection\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp\": \"Client Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_slogger\": \"ZPA LSS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_browser_isolation\": \"Cloud Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_ip_anchoring\": \"ZIA Service Edge\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp_partner\": \"Client Connector Partner\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_branch_connector\": \"Branch Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_vdi\":\"Client Connector for VDI\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

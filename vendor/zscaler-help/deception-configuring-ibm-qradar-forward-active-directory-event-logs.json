@@ -1,0 +1,764 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring IBM QRadar to Forward Active Directory Event Logs",
+  "source": {
+    "url": "https://help.zscaler.com/deception/configuring-ibm-qradar-forward-active-directory-event-logs",
+    "node": "1542327",
+    "revision": "3221815",
+    "updated": "2026-09-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "You can configure the IBM QRadar SIEM tool to filter event logs from an Active Directory (AD) domain controller for decoy accounts or enumeration detection. You can forward the event logs to the Zscaler Deception Admin Portal via a Decoy Connector when an adversary's actions are detected."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure that the following prerequisites are met:"
+    },
+    {
+      "item": "Configure the AD servers to forward logs to QRadar.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a Decoy Connector as a syslog receiver with an IP address of the QRadar server in its allowed IP list.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure that there is network connectivity between the QRadar server and the Decoy Connector’s management IP on TCP port 9514.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring QRadar to Forward Logs to the Zscaler Deception Admin Portal",
+      "level": 1
+    },
+    {
+      "text": "To configure QRadar to forward logs to the Deception Admin Portal:"
+    },
+    {
+      "item": "Step 1: Configure a Decoy Connector as a Syslog Receiver",
+      "depth": 0
+    },
+    {
+      "item": "Before you configure QRadar to forward logs, you must configure a Decoy Connector as a syslog receiver.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Orchestrate > SIEM > Connectors.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          20,
+          24
+        ],
+        [
+          27,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select a Decoy Connector that you want to use as a syslog receiver to collect the AD event logs from the QRadar server, and then click the Edit icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          139,
+          143
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the SIEM Connector Details window, under Syslog Receiver:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          44,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Source Type: Select IBM QRadar.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Source Allowed IPs: Enter the QRadar server's IP address.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Step 2: Add a Forwarding Destination",
+      "depth": 0
+    },
+    {
+      "item": "Open an IBM QRadar SIEM console.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the navigation menu, click Admin.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          30,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the System Configuration page, click Forwarding Destinations.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          40,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the toolbar, click Add.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          22,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Forwarding Destinations Properties window:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the forwarding instance.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Destination Address: Enter the Decoy Connector’s management IP address, which is configured as a syslog receiver.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Event Format: Select Payload from the drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Destination Port: Enter 9514.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Select TCP from the drop-down menu.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Prefix a Syslog header if it is missing or invalid: Select the checkbox.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "The forward destination entry is added to the table.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 3: Create an Event Rule",
+      "depth": 0
+    },
+    {
+      "item": "On the navigation menu, go to Offenses > Rules.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          38
+        ],
+        [
+          41,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Actions > New Event Rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          16,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Rule Wizard page, click Next to select the source from which you want the rule to be generated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          31,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Under Choose the source from which you want this rule to generate, select Events.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          66
+        ],
+        [
+          74,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under the Rule section, enter a rule name in Apply. For example, enter \"Decoy account usage is detected\". Make sure quotation marks are included around the rule name.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          45,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 4: Add Tests to the Event Rule",
+      "depth": 0
+    },
+    {
+      "item": "Add a QID filter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the Rule Wizard page, click the Add icon next to when the event QID is one of the following QIDs.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          35,
+          38
+        ],
+        [
+          52,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "Under the Rule section, click the QIDs link.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Browse or search for the following QIDs, select a QID, and click Add. You can add only one QID at a time.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          65,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "5000937",
+      "depth": 3
+    },
+    {
+      "item": "5000475",
+      "depth": 3
+    },
+    {
+      "item": "5000945",
+      "depth": 3
+    },
+    {
+      "item": "5000940",
+      "depth": 3
+    },
+    {
+      "item": "5000938",
+      "depth": 3
+    },
+    {
+      "item": "5000581",
+      "depth": 3
+    },
+    {
+      "item": "5000589",
+      "depth": 3
+    },
+    {
+      "item": "5000584",
+      "depth": 3
+    },
+    {
+      "item": "5000835",
+      "depth": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "After the QIDs are added, click Submit.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          32,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Add a user filter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "On the Rule Wizard page, click the Add icon next to when the event matches this search filter.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          35,
+          38
+        ],
+        [
+          52,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "Under the Rule section, click the this search filter link.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          34,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Select Username from the drop-down menu.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Select Equals any of from the drop-down menu.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Enter the decoy username and click the Plus icon to add the decoy username to the list.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          39,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to add the filter.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Verify that all the decoy users are added to the filter, and then click Submit.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          72,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Next to go to the Rule Response section.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          24,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Step 5: Specify Rule Response",
+      "depth": 0
+    },
+    {
+      "item": "Under the Rule Response section, select the Dispatch New Event checkbox.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          23
+        ],
+        [
+          44,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Enter an Event Name.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Event Description.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select the Ensure the dispatched event is part of an offense checkbox.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Under Offense Naming, select This information should set or replace the name of associated offense(s).",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          29,
+          101
+        ]
+      ]
+    },
+    {
+      "item": "Select the Send to Forwarding Destinations checkbox, and then select the Decoy Connector’s management IP that was configured as a forwarding destination from the list of destinations.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Enable Rule, select the Enable this rule if you want it to begin watching events right away checkbox.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          30,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Click Next, and then click Finish.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ],
+        [
+          27,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    }
+  ]
+}

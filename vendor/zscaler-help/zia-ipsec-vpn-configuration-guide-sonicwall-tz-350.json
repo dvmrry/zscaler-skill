@@ -1,0 +1,803 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IPSec VPN Configuration Guide for SonicWall TZ 350",
+  "source": {
+    "url": "https://help.zscaler.com/zia/ipsec-vpn-configuration-guide-sonicwall-tz-350",
+    "node": "1401686",
+    "revision": "3249830",
+    "updated": "2026-10-12",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article uses only sample IP addresses in the configuration steps and screenshots. For tunnel interface configuration, you must use only RFC 1918 IP addresses and not APIPA addresses."
+    },
+    {
+      "text": "This article illustrates how to configure two IPSec VPN tunnels from a SonicWall TZ 350 firewall to two Public Service Edges for Internet & SaaS (ZIA). As shown in the following figure, the corporate office sends its internal traffic to LAN port X0 in the internal network. It sends the outbound traffic to the WAN interface X1."
+    },
+    {
+      "text": "Zscaler IPSec tunnels support a limit of 400 Mbps for each public source IP address. If your organization wants to forward more than 400 Mbps of traffic, Zscaler recommends using one of the following configurations:"
+    },
+    {
+      "item": "Configure multiple IPSec tunnels with different public source IP addresses.",
+      "depth": 0
+    },
+    {
+      "item": "Configure multiple IPSec VPN tunnels with the same public source IP address using NAT-T and source port randomization with IKEv2 for all the configured tunnels.",
+      "depth": 0
+    },
+    {
+      "text": "For example, if your organization forwards 800 Mbps of traffic, you can configure two primary VPN tunnels and two backup VPN tunnels."
+    },
+    {
+      "text": "Dead Peer Detection (DPD) must be enabled, so the firewall can detect if a VPN is offline. If this occurs, it routes the internet-bound traffic through the backup VPN."
+    },
+    {
+      "text": "SonicWall TZ 350 firewall doesn't support VPN monitoring. It relies on DPD for failover."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure you have the IP addresses of the Public Service Edges."
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in the Zscaler Admin Console",
+      "level": 1
+    },
+    {
+      "text": "In this configuration example, the peers use an FQDN and a pre-shared key (PSK) for authentication."
+    },
+    {
+      "text": "To configure the IPSec VPN tunnels:"
+    },
+    {
+      "item": "Add the VPN Credential",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "You need the FQDN and PSK when linking the VPN credentials to a location and creating the IKE gateways.",
+      "depth": 0
+    },
+    {
+      "item": "Link the VPN Credentials to a Location",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "heading": "Configuring the IPSec VPN Tunnel in SonicOS",
+      "level": 1
+    },
+    {
+      "text": "This article covers only the configuration details of IPSec VPN tunnels between the SonicWall TZ 350 firewall and the Public Service Edges. For any other specific information about SonicWall TZ 350, refer to the SonicWall documentation."
+    },
+    {
+      "text": "This section describes how to log in to the user interface of the SonicWall TZ 350 firewall running SonicOS version 6.5.4.4-44n and configure two IPSec VPN tunnel interfaces. See the SonicWall documentation for additional information about the user interface."
+    },
+    {
+      "text": "Log in to the SonicWall TZ 350 and complete the following tasks to configure IPSec VPN tunnels:"
+    },
+    {
+      "text": "Zscaler does not support Extended Sequence Number (ESN)-based proposals during IPSec tunnel negotiation."
+    },
+    {
+      "item": "1. Define the VPN Policy and Specify the IKE Settings",
+      "depth": 0
+    },
+    {
+      "item": "Go to Manage > VPN > Base Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          18
+        ],
+        [
+          21,
+          25
+        ],
+        [
+          26,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Under VPN Global Settings:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable VPN.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "View IP Version: Choose IPv4",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add to create a new VPN policy.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "In the General tab:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Under Security Policy:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Policy Type: Choose Site to Site.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends that you select the Policy Type as Site to Site for forwarding all traffic to Zscaler. However, you can also select any other policy type based on your policy requirements.",
+      "depth": 3,
+      "strong": [
+        [
+          39,
+          50
+        ],
+        [
+          54,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Method: Choose IKE using Preshared Secret.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter ZscalerTunnel.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IPsec Primary Gateway Name or Address: Enter 199.168.148.132 (See the Prerequisites to learn how to locate Public Service Edge IP addresses for your organization.)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "IPsec Secondary Gateway Name or Address: Enter 104.129.194.39 (See the Prerequisites to learn how to locate Public Service Edge IP addresses for your organization.)",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Under IKE Authentication:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Shared Secret: Enter the shared secret.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Confirm Shared Secret: Reenter the shared secret.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Local IKE ID: Choose E-mail Address and enter sonic@example.com.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Peer IKE ID: Choose IPv4 Address.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          20,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Network tab, select the local networks and remote networks for which the traffic is tunneled through the IPSec tunnel:",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Local Networks: Select Choose local network from list and choose LAN Subnets.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          53
+        ],
+        [
+          65,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Zscaler recommends that you select LAN Subnets in the Local Networks field to forward network traffic through Zscaler. However, you can select any subnet based on your traffic forwarding requirements.",
+      "depth": 2,
+      "strong": [
+        [
+          35,
+          46
+        ],
+        [
+          54,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Remote Networks: Select Use this VPN Tunnel as default route for all internet traffic.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Proposals tab, specify the parameters for the IKE (Phase 1) proposal and IPSec (Phase 2) proposal.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Under IKE (Phase 1) Proposal:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Exchange: Choose IKEv2 Mode.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "DH Group: Choose Group 2.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Encryption: Choose AES-128.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Authentication: Choose SHA1.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Life Time (seconds): Enter 86400.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Under IPsec (Phase 2) Proposal:",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Protocol: Choose ESP.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Encryption: Choose AES-GCM-based encryption.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          19,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "For Phase 2, Zscaler recommends using AES-GCM-based ciphers if you have purchased a separate subscription. If you do not have a separate subscription, Zscaler recommends using NULL encryption.",
+      "depth": 3
+    },
+    {
+      "item": "Authentication: Choose MD5.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          23,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Life Time (seconds): Enter 28800.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Advanced tab:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Keep Alive.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "VPN Policy bound to: Choose Zone WAN.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Select Preempt Secondary Gateway.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Primary Gateway Detection Interval (seconds): Enter 28800.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "2. Enable DPD, Packet Fragmenting, and NAT Traversal",
+      "depth": 0
+    },
+    {
+      "item": "Go to Manage > VPN > Advanced Settings.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          18
+        ],
+        [
+          21,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Under Advanced VPN Settings:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable IKE Dead Peer Detection.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Dead Peer Detection Interval (seconds): Enter 60.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Failure Trigger Level (missed heartbeats): Enter 3.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Dead Peer Detection for Idle VPN sessions.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Dead Peer Detection Interval for Idle VPN sessions (seconds): Enter 60.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Fragmented Packet Handling and Ignore DF (Don’t Fragment) Bit.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          40
+        ],
+        [
+          45,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable NAT Traversal.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Select Clean up Active tunnels when Peer Gateway DNS name resolves to a different IP Address.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Under IKEv2 Settings:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select Send IKEv2 Invalid SPI Notify.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          12,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "After you complete the configuration, you can monitor the status of the tunnel and view packet-level statistics by going to Manage > VPN > Base Settings.",
+      "strong": [
+        [
+          124,
+          130
+        ],
+        [
+          133,
+          136
+        ],
+        [
+          139,
+          152
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "From the navigation menu, you can go to Data Explorer > Internet & SaaS > Tunnel Insights to see data as well as monitor the health and status of your configured IPSec VPN tunnels. To learn more, see About Insights and About Insights Logs."
+    },
+    {
+      "text": "To troubleshoot your configuration on the SonicWall GUI:"
+    },
+    {
+      "item": "Verify that the default route is configured properly, so traffic can reach the Public Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "If the tunnel goes down, click Renegotiate.",
+      "depth": 0,
+      "strong": [
+        [
+          31,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    }
+  ]
+}

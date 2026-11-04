@@ -1,0 +1,886 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying a Zero Trust Branch Appliance",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-branch/deploying-zero-trust-branch-appliance",
+    "node": "1532526",
+    "revision": "3251127",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can deploy Zero Trust Branch to establish connectivity and pass traffic with minimal initial configuration. After activation:"
+    },
+    {
+      "item": "The Zero Trust Branch appliance automatically establishes an IPSec tunnel to Internet & SaaS (ZIA) through its configured WAN port (for example, the GE3 port on the ZT400 model).",
+      "depth": 0
+    },
+    {
+      "item": "The default Zscaler routing policy allows traffic to be sent to Internet & SaaS.",
+      "depth": 0
+    },
+    {
+      "item": "The default (system) firewall policy allows traffic over LANs and WANs.",
+      "depth": 0
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "Verify That Your Tenant Is Provisioned",
+      "depth": 0
+    },
+    {
+      "item": "Verify that Zscaler provisioned your tenant. If not, contact your Zscaler account team. After the tenant is provisioned, Zscaler sends the super admin an email invitation that must be accepted. The super admin can then access Zero Trust Branch in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "Review the Appliance Port Mapping",
+      "depth": 0
+    },
+    {
+      "item": "Review the port mapping on your appliance model. To learn more, see Zero Trust Branch Physical Appliance Port Mapping.",
+      "depth": 0
+    },
+    {
+      "item": "Determine the Template to Use",
+      "depth": 0
+    },
+    {
+      "item": "Each site uses a single template, which defines the Zero Trust Branch model to be deployed at the site and configuration settings such as the DNS server address, DHCP service type, deployment type, platform, and NAT enablement. Choose from one of the following options:",
+      "depth": 0
+    },
+    {
+      "item": "Clone the default template or an existing template, save it with a new name, and customize it (recommended). To find a template to clone, search for templates matching your Zero Trust Branch model number.",
+      "depth": 1
+    },
+    {
+      "item": "Use the default template for your site.",
+      "depth": 1
+    },
+    {
+      "item": "Create your own template from scratch. To learn more, see Managing Templates.",
+      "depth": 1
+    },
+    {
+      "item": "Determine the Interfaces to Use",
+      "depth": 0
+    },
+    {
+      "item": "The following table shows the interfaces that each Zero Trust Branch model uses in a high availability (HA) deployment. The interfaces with an asterisk (*) are fixed and cannot be changed, even on cloned templates.",
+      "depth": 0
+    },
+    {
+      "item": "The GE4 interface is fixed in an HA deployment, but in a standalone deployment it can be used for LAN. All other interfaces with an asterisk are fixed in a standalone deployment as well.",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Purpose",
+          "ZT400",
+          "ZT600",
+          "ZT800",
+          "ZT8010"
+        ],
+        [
+          "Management",
+          "GE1*",
+          "GE1*",
+          "GE3*",
+          "GE1*"
+        ],
+        [
+          "LAN",
+          "GE2",
+          "GE2, GE3",
+          "GE1, GE5, GE6",
+          "GE3, GE5, GE6, XE11, XE12, XE13, XE14"
+        ],
+        [
+          "WAN",
+          "GE3*",
+          "GE2, GE5*",
+          "GE2*, GE7, GE8",
+          "GE2*, XE7, XE8, XE9, XE10"
+        ],
+        [
+          "HA",
+          "GE4*",
+          "GE4*",
+          "GE4*",
+          "GE4*"
+        ]
+      ]
+    },
+    {
+      "item": "Open Ports on the Upstream Device",
+      "depth": 0
+    },
+    {
+      "item": "A Zero Trust Branch appliance requires ports to be open on a Layer 3 (L3) device, such as an upstream firewall or a router, for initial activation and ongoing management. For a complete list of ports, refer to Ports that need to be open for appliance activation and upgrade.",
+      "depth": 0
+    },
+    {
+      "item": "Verify Internet Connectivity for the Primary WAN Interface",
+      "depth": 0
+    },
+    {
+      "item": "Test that the primary WAN interface can reach the internet.",
+      "depth": 0
+    },
+    {
+      "item": "Gather Details for the Configuration",
+      "depth": 0
+    },
+    {
+      "item": "Collect the following information:",
+      "depth": 0
+    },
+    {
+      "item": "For each interface that is statically configured, collect the IP address, mask, gateway, and primary and secondary DNS servers.",
+      "depth": 1
+    },
+    {
+      "item": "If the Zero Trust Branch appliance is to operate as a DHCP server, collect the scope that will be used, the DNS server IP addresses, the LAN interface IP address (or IP addresses if there is more than one LAN interface), and the corresponding VLAN (or VLANs if there is more than one VLAN on the LAN side).",
+      "depth": 1
+    },
+    {
+      "item": "If the Zero Trust Branch appliance is to operate as a DHCP relay, collect the IP address of the DHCP server.",
+      "depth": 1
+    },
+    {
+      "heading": "Deploying Zero Trust Branch",
+      "level": 1
+    },
+    {
+      "text": "To deploy Zero Trust Branch, complete the following steps:"
+    },
+    {
+      "item": "Step 1: Mount and Cable the Appliance",
+      "depth": 0
+    },
+    {
+      "item": "To mount and cable the appliance:",
+      "depth": 0
+    },
+    {
+      "item": "Review the package contents and mount the Zero Trust Branch appliance using the instruction manual for your model. To learn more, see Zero Trust Branch Appliances Wall and Rack Mount Instruction Manual.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Cable the appliance based on the interfaces that you decided to use.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Step 2: Change the Default Password",
+      "depth": 0
+    },
+    {
+      "item": "To connect to the console port and change the default admin password:",
+      "depth": 0
+    },
+    {
+      "item": "Download an SSH, telnet, and terminal emulator client such as PuTTY, Minicom, screen2, SecureCRT, Terminus, or ZOC Terminal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Connect one end of the serial console cable to your laptop, and make sure the other end is connected to the console port on the appliance.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Establish a serial connection using the following parameters:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Baud Rate: 115,200",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Data Bits: 8",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Stop Bits: 1",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Parity: None",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Flow Control: XON/XOFF",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Log in to the console using the default credentials:",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Login ID: admin",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Password: a!rg@p",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Enter 3 (Change Administrator Password) in the console menu and press Enter.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Enter the current password and press Enter.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Enter the new password and press Enter.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Enter the new password again and press Enter.",
+      "depth": 1,
+      "number": 8
+    },
+    {
+      "item": "Press Enter to continue and to log out of the console.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Use the new password to log in to the console.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "Step 3: Clone and Modify a Template",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler recommends that you clone a template and then modify it to meet your requirements. Alternatively, you can create a new template. To learn more, see Managing Templates.",
+      "depth": 0
+    },
+    {
+      "item": "Step 4: Add a Site",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Managing Sites.",
+      "depth": 0
+    },
+    {
+      "item": "Step 5: Activate the Appliance",
+      "depth": 0
+    },
+    {
+      "item": "To review the ports that need to be open, see Open Ports on the Upstream Device.",
+      "depth": 0
+    },
+    {
+      "item": "The activation process uses the activation code and URL that you saved during the Managing Sites procedure in the Zscaler Admin Console. If you cannot find this information:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "In the row for the required site, click the Send Activation Link icon.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler supports one subinterface per WAN interface. However, Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged).",
+      "depth": 0
+    },
+    {
+      "item": "There are two ways to activate a Zero Trust Branch appliance.",
+      "depth": 0
+    },
+    {
+      "item": "Activation Code Method",
+      "depth": 1
+    },
+    {
+      "item": "Activation URL Method",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the activation code that you saved during the Adding a Site procedure in the Zscaler Admin Console. Before you activate the appliance, you must configure it with the same parameters you configured when you created the site in the Zscaler Admin Console.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure uses these example values:",
+      "depth": 0
+    },
+    {
+      "item": "WAN interface: ge3 set for DHCP (This interface is hard-coded.)",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "DNS servers: 1.1.1.1 and 8.8.8.8",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Web proxy: hub3.goairgap.com:1883",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "a. Configure the network.",
+      "depth": 1
+    },
+    {
+      "item": "b. Configure the web proxy (Required only if the Zero Trust Branch appliance is deployed behind a firewall)",
+      "depth": 1
+    },
+    {
+      "item": "c. Activate the appliance.",
+      "depth": 1
+    },
+    {
+      "item": "This method uses the URL that you saved during the Adding a Site procedure in the Zscaler Admin Console. The URL contains the configuration data for the WAN interface and the activation code.",
+      "depth": 0
+    },
+    {
+      "item": "Connect a laptop directly to the management port on the appliance. The laptop automatically gets an IP address directly from the appliance.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Open a browser on the laptop and paste the URL that you copied when you created the site.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "After the appliance processes the configuration, it displays an Activation is completed message on the web page.",
+      "depth": 1,
+      "strong": [
+        [
+          64,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites and click the site in the Site Name column. In the site details, verify that the appliance is activated.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ],
+        [
+          72,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "The State field value for an activated appliance is:",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Standalone for a standalone appliance",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Active for the primary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Standby for the secondary node of an HA cluster",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Show image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, enter 2 (Configure Gateway) from the menu and press Enter.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Configure Network) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the network configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 3 (Configure Web Proxy) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Respond to the prompts to complete the web proxy configuration.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the console, press Enter to return to the main menu.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enter 1 (Activate Gateway) and press Enter.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 1 (Activate Airgap Gateway) from the next menu and press Enter.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the activation code that you saved when you created the site and press Enter.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Enter 2 (Main Menu) and press Enter. The screen shows that the appliance is activated.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Step 6: Configure the LAN Interface",
+      "depth": 0
+    },
+    {
+      "item": "A Zero Trust Branch appliance can be deployed to protect multiple VLANs. To process multiple VLANs, the switchport connecting to the LAN-side interface of the Zero Trust Branch appliance must be configured as a trunk port, and it must allow the VLANs that need to be protected by Zero Trust Branch.",
+      "depth": 0
+    },
+    {
+      "item": "The following is an example configuration of a switchport connecting to the LAN side of the Zero Trust Branch appliance via the GE2 interface. The F0/5 interface is configured with trunk and allows VLANs 50, 60, 70, and 80. The laptop connects to the switch via the F0/4 interface, which is configured to allow access to VLAN 50.",
+      "depth": 0
+    },
+    {
+      "item": "interface FastEthernet0/5 description connected to ZT400 Ge2 switchport trunk encapsulation dot1q switchport trunk allowed clan 50,60,70,80 interface FastEthernet0/4 description connected to test laptop switchport access vlan 50 switchport mode access end",
+      "depth": 0
+    },
+    {
+      "item": "Step 7: Configure the VLAN",
+      "depth": 0
+    },
+    {
+      "item": "Zero Trust Branch deployment is not complete until the VLAN to be protected is enabled in the Zscaler Admin Console. Ensure that a LAN port is connected to the switch and that it is in the same VLAN as the devices (i.e., broadcast packets from the devices must reach the LAN port). The following example describes how to configure Zero Trust Branch to receive traffic from VLANs 50, 60, 70, and 80 and protect devices connected to those VLANs.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "This procedure shows how to add a new VLAN. If you are using an existing production VLAN, make sure that the default gateway IP address is the same as the existing Switch Virtual Interface (SVI) address for that VLAN.",
+      "depth": 0
+    },
+    {
+      "item": "Go to Zero Trust Branch > Deployments > Sites.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          37
+        ],
+        [
+          40,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Select the site that you activated, and click the VLANs tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Add VLAN.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add VLAN drawer, configure the necessary information for this VLAN.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "If you are configuring an untagged port, enter 1 in the VLAN ID field.",
+      "depth": 1,
+      "strong": [
+        [
+          56,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the VLANs tab, in the Enable column, enable the VLAN.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Connect the laptop to the access port on the switch. In this example, you configured F0/4 as an access port on VLAN 50.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "The laptop automatically gets an IP address within the DHCP range that you configured when you added the VLAN. All the Zero Trust Branch appliances connected to the switch have the same subnet mask, which provides device segmentation.",
+      "depth": 1
+    },
+    {
+      "item": "Step 8. Verify the Deployment",
+      "depth": 0
+    },
+    {
+      "item": "To verify the Zero Trust Branch deployment:",
+      "depth": 0
+    },
+    {
+      "item": "On a client device connected to the deployed Zero Trust Branch appliance, open a browser and go to a few websites.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Go to ip.zscaler.com.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Observe that traffic from the laptop goes to the internet via Internet & SaaS:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "From the navigation menu, go to Zero Trust Branch > Deployments > Sites, and click the site in the Site Name column.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          49
+        ],
+        [
+          52,
+          63
+        ],
+        [
+          66,
+          71
+        ],
+        [
+          99,
+          108
+        ]
+      ]
+    },
+    {
+      "item": "Go to Connectivity > Internet & SaaS.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          21,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "On the Auto-provisioned Tunnels tab, verify the value in the Status column is Up.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ],
+        [
+          61,
+          67
+        ],
+        [
+          78,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) Only if directed by Zscaler Support, edit the IPSec tunnel configuration for the site:",
+      "depth": 0
+    },
+    {
+      "item": "In Auto-provisioned Tunnels, locate the tunnel for which you want to edit the configuration, click the Gear icon, and select Edit.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          3,
+          27
+        ],
+        [
+          103,
+          107
+        ],
+        [
+          125,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "In the Remote Address field, enter the IP address for the Internet & SaaS global VPN.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    }
+  ]
+}

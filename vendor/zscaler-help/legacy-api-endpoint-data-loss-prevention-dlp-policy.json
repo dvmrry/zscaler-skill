@@ -1,0 +1,3608 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Endpoint Data Loss Prevention (DLP) Policy",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/endpoint-data-loss-prevention-dlp-policy",
+    "node": "1541608",
+    "revision": "3217839",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Endpoint%20Data%20Loss%20Prevention_0.json?VersionId=TWBYQ3T_dJ3DxwD7Y8AqjjtNPtrweMM2",
+    "updated": "2026-07-09",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "spec": {
+    "swagger": "2.0",
+    "info": {
+      "version": "v1",
+      "title": "ZIA Cloud Service and Sandbox Submission APIs",
+      "description": "API Reference Guide for the ZIA Cloud Service and Sandbox Submission APIs\n"
+    },
+    "host": "zsapi.[zscaler-cloud-name]",
+    "basePath": "/api/v1",
+    "schemes": [
+      "https"
+    ],
+    "tags": [
+      {
+        "name": "Endpoint Data Loss Prevention"
+      }
+    ],
+    "paths": {
+      "/endPointDlpRules": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Retrieves the list of all Endpoint Data Loss Prevention (DLP) policy rules and any exception rules added to the parent rules",
+          "operationId": "EndpointDlpRulesResource_getEndpointDlpRules",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndpointDlpRule"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Creates a new Endpoint DLP policy rule. To learn more, see <a href=\"/zia/configuring-endpoint-dlp-policy-rules\" target=\"_blank\">Configuring Endpoint DLP Policy Rules</a>.",
+          "operationId": "EndpointDlpRulesResource_addEndpointDlpRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpRule"
+              }
+            }
+          }
+        }
+      },
+      "/endPointDlpRules/fileTypeCategories": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Retrieves the list of file types that are available in the Endpoint DLP policy rule criteria. You can create Endpoint DLP rules that apply only to content being sent via specific file types.",
+          "operationId": "EndpointDlpRulesResource_fetchFileTypeCategories",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "external",
+              "in": "query",
+              "description": "The file types available to select in an Endpoint DLP policy rule vary depending on whether Content Matching is enabled and DLP engines are used. Setting true for this field retrieves the list of file types available when DLP engines are used with Content Matching enabled. Setting false retrieves a different set of file types available when DLP engines are not used.",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/FileTypeCategoryDTO"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointDlpRules/fileTypes": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "This endpoint is deprecated and is no longer supported for usage. It is replaced by the <code>GET /endPointDlpRules/fileTypeCategories</code> endpoint that retrieves the list of file types available in Endpoint DLP policy rule criteria.",
+          "operationId": "EndpointDlpRulesResource_fetchFileTypesForEndpointDlp",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "external",
+              "in": "query",
+              "required": false,
+              "type": "boolean"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string",
+                  "enum": [
+                    "ANY",
+                    "NONE",
+                    "FTCATEGORY_JAVASCRIPT",
+                    "FTCATEGORY_FLASH",
+                    "FTCATEGORY_JAVA_APPLET",
+                    "FTCATEGORY_ZIP",
+                    "FTCATEGORY_GZIP",
+                    "FTCATEGORY_TAR",
+                    "FTCATEGORY_BZIP2",
+                    "FTCATEGORY_RAR",
+                    "FTCATEGORY_STUFFIT",
+                    "FTCATEGORY_ISO",
+                    "FTCATEGORY_CAB",
+                    "FTCATEGORY_P7Z",
+                    "FTCATEGORY_SCZIP",
+                    "FTCATEGORY_XZ",
+                    "FTCATEGORY_FCL",
+                    "FTCATEGORY_ZIPX",
+                    "FTCATEGORY_CPIO",
+                    "FTCATEGORY_LZH",
+                    "FTCATEGORY_MP3",
+                    "FTCATEGORY_WAV",
+                    "FTCATEGORY_OGG_VORBIS",
+                    "FTCATEGORY_M3U",
+                    "FTCATEGORY_VPR",
+                    "FTCATEGORY_AAC",
+                    "FTCATEGORY_ADE",
+                    "FTCATEGORY_DB2",
+                    "FTCATEGORY_SQL",
+                    "FTCATEGORY_ACCDB",
+                    "FTCATEGORY_DBF",
+                    "FTCATEGORY_VIRTUAL_HARD_DISK",
+                    "FTCATEGORY_DB",
+                    "FTCATEGORY_SDB",
+                    "FTCATEGORY_KDBX",
+                    "FTCATEGORY_DXL",
+                    "FTCATEGORY_WINDOWS_EXECUTABLES",
+                    "FTCATEGORY_WINDOWS_LIBRARY",
+                    "FTCATEGORY_PYTHON",
+                    "FTCATEGORY_POWERSHELL",
+                    "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+                    "FTCATEGORY_BASH_SCRIPTS",
+                    "FTCATEGORY_SHELL_SCRAP",
+                    "FTCATEGORY_APPX",
+                    "FTCATEGORY_MSC",
+                    "FTCATEGORY_ELF",
+                    "FTCATEGORY_DRV",
+                    "FTCATEGORY_MSIX",
+                    "FTCATEGORY_BITMAP",
+                    "FTCATEGORY_PHOTOSHOP",
+                    "FTCATEGORY_WINDOWS_META_FORMAT",
+                    "FTCATEGORY_GIF",
+                    "FTCATEGORY_JPEG",
+                    "FTCATEGORY_PNG",
+                    "FTCATEGORY_TIFF",
+                    "FTCATEGORY_DCM",
+                    "FTCATEGORY_GREENSHOT",
+                    "FTCATEGORY_IMG",
+                    "FTCATEGORY_HIGH_EFFICIENCY_IMAGE_FILES",
+                    "FTCATEGORY_VECTOR_GRAPHIC_FILES",
+                    "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+                    "FTCATEGORY_ONENOTE",
+                    "FTCATEGORY_CATALOG",
+                    "FTCATEGORY_NETMON",
+                    "FTCATEGORY_HIVE",
+                    "FTCATEGORY_MS_POWERPOINT",
+                    "FTCATEGORY_MS_WORD",
+                    "FTCATEGORY_MS_EXCEL",
+                    "FTCATEGORY_MS_RTF",
+                    "FTCATEGORY_MS_MDB",
+                    "FTCATEGORY_MS_MSG",
+                    "FTCATEGORY_MS_PST",
+                    "FTCATEGORY_VSDX",
+                    "FTCATEGORY_OAB",
+                    "FTCATEGORY_OLM",
+                    "FTCATEGORY_MS_PUB",
+                    "FTCATEGORY_TNEF",
+                    "FTCATEGORY_MS_PROJ",
+                    "FTCATEGORY_OPEN_OFFICE_DOC",
+                    "FTCATEGORY_OPEN_OFFICE_DRAWINGS",
+                    "FTCATEGORY_OPEN_OFFICE_PRESENTATIONS",
+                    "FTCATEGORY_OPEN_OFFICE_SPREADSHEETS",
+                    "FTCATEGORY_ALL_OUTBOUND",
+                    "FTCATEGORY_ENCRYPT",
+                    "FTCATEGORY_UTF8BOM",
+                    "FTCATEGORY_UTF16LE",
+                    "FTCATEGORY_UTF16BE",
+                    "FTCATEGORY_PDF_DOCUMENT",
+                    "FTCATEGORY_POSTSCRIPT",
+                    "FTCATEGORY_COMPILED_HTML_HELP",
+                    "FTCATEGORY_DWG",
+                    "FTCATEGORY_CGR",
+                    "FTCATEGORY_SOLIDWORKFILES",
+                    "FTCATEGORY_TXT",
+                    "FTCATEGORY_FORM_DATA_POST",
+                    "FTCATEGORY_CSV",
+                    "FTCATEGORY_STL",
+                    "FTCATEGORY_CERT",
+                    "FTCATEGORY_PCAP",
+                    "FTCATEGORY_CER",
+                    "FTCATEGORY_DER",
+                    "FTCATEGORY_P7B",
+                    "FTCATEGORY_PEM",
+                    "FTCATEGORY_JKS",
+                    "FTCATEGORY_KEY",
+                    "FTCATEGORY_P12",
+                    "FTCATEGORY_CHEMDRAW_FILES",
+                    "FTCATEGORY_CML",
+                    "FTCATEGORY_CP",
+                    "FTCATEGORY_MM",
+                    "FTCATEGORY_INF",
+                    "FTCATEGORY_APPLE_DOCUMENTS",
+                    "FTCATEGORY_TABLEAU_FILES",
+                    "FTCATEGORY_AUTOCAD",
+                    "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+                    "FTCATEGORY_LOG_FILES",
+                    "FTCATEGORY_EML_FILES",
+                    "FTCATEGORY_DAT",
+                    "FTCATEGORY_INI",
+                    "FTCATEGORY_IGS",
+                    "FTCATEGORY_TMP",
+                    "FTCATEGORY_MUI",
+                    "FTCATEGORY_HBS",
+                    "FTCATEGORY_ICS",
+                    "FTCATEGORY_PUB",
+                    "FTCATEGORY_DRAWIO",
+                    "FTCATEGORY_PRT",
+                    "FTCATEGORY_PS2",
+                    "FTCATEGORY_PS3",
+                    "FTCATEGORY_ACIS",
+                    "FTCATEGORY_VDA",
+                    "FTCATEGORY_PARASOLID",
+                    "FTCATEGORY_PGP",
+                    "FTCATEGORY_BIN",
+                    "FTCATEGORY_JSON",
+                    "FTCATEGORY_XML",
+                    "FTCATEGORY_HTTP",
+                    "FTCATEGORY_BINHEX",
+                    "FTCATEGORY_QUARKXPRESS",
+                    "FTCATEGORY_APPINSTALLER",
+                    "FTCATEGORY_GO_FILES",
+                    "FTCATEGORY_RUBY_FILES",
+                    "FTCATEGORY_PERL_FILES",
+                    "FTCATEGORY_MATLAB_FILES",
+                    "FTCATEGORY_INCLUDE_FILES",
+                    "FTCATEGORY_JAVA_FILES",
+                    "FTCATEGORY_MAKE_FILES",
+                    "FTCATEGORY_YAML_FILES",
+                    "FTCATEGORY_VISUAL_BASIC_FILES",
+                    "FTCATEGORY_C_FILES",
+                    "FTCATEGORY_XAML",
+                    "FTCATEGORY_BASIC_SOURCE_CODE",
+                    "FTCATEGORY_SCT",
+                    "FTCATEGORY_A_FILE",
+                    "FTCATEGORY_MS_CPP_FILES",
+                    "FTCATEGORY_ASM",
+                    "FTCATEGORY_BORLAND_CPP_FILES",
+                    "FTCATEGORY_COBOL",
+                    "FTCATEGORY_CSX",
+                    "FTCATEGORY_DELPHI",
+                    "FTCATEGORY_DMD",
+                    "FTCATEGORY_DSP",
+                    "FTCATEGORY_F_FILES",
+                    "FTCATEGORY_NATVIS",
+                    "FTCATEGORY_NCB",
+                    "FTCATEGORY_NFM",
+                    "FTCATEGORY_POD",
+                    "FTCATEGORY_QLIKVIEW_FILES",
+                    "FTCATEGORY_RES_FILES",
+                    "FTCATEGORY_RPY",
+                    "FTCATEGORY_RSP",
+                    "FTCATEGORY_SAS",
+                    "FTCATEGORY_SC",
+                    "FTCATEGORY_SCALA",
+                    "FTCATEGORY_TLH",
+                    "FTCATEGORY_TLI",
+                    "FTCATEGORY_VISUAL_CPP_FILES",
+                    "FTCATEGORY_X1B",
+                    "FTCATEGORY_IFC",
+                    "FTCATEGORY_BCP",
+                    "FTCATEGORY_FOR",
+                    "FTCATEGORY_AU3",
+                    "FTCATEGORY_BGI",
+                    "FTCATEGORY_MANIFEST",
+                    "FTCATEGORY_NLS",
+                    "FTCATEGORY_TLB",
+                    "FTCATEGORY_ASHX",
+                    "FTCATEGORY_EXP",
+                    "FTCATEGORY_FLASH_VIDEO",
+                    "FTCATEGORY_AVI",
+                    "FTCATEGORY_MPEG",
+                    "FTCATEGORY_MP4",
+                    "FTCATEGORY_3GPP",
+                    "FTCATEGORY_QUICKTIME_VIDEO",
+                    "FTCATEGORY_WINDOWS_MEDIA_MOVIE",
+                    "FTCATEGORY_MKV",
+                    "FTCATEGORY_WEBM",
+                    "FTCATEGORY_VS4",
+                    "FTCATEGORY_TS"
+                  ]
+                }
+              }
+            }
+          },
+          "deprecated": true
+        }
+      },
+      "/endPointDlpRules/{id}": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Retrieves information about the Endpoint DLP policy rule with the specified ID and any exception rule added to the parent rule",
+          "operationId": "EndpointDlpRulesResource_getEndpointDlpRuleById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "Endpoint DLP policy rule ID",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpRule"
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Updates information for the Endpoint DLP policy rule with the specified ID",
+          "operationId": "EndpointDlpRulesResource_modifyEndpointDlpRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID of the policy rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Deletes the Endpoint DLP policy rule with the specified ID",
+          "operationId": "EndpointDlpRulesResource_deleteEndpointDlpRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID of the policy rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointDlpRules/{id}/subRule": {
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Adds an exception rule to an existing Endpoint DLP rule. Exception rules allow you to exclude specific users or groups in your organization that need to perform tasks as part of a necessary workflow that might otherwise violate Endpoint rules. To learn more, <a href=\"/zia/configuring-endpoint-dlp-policy-rules#ExceptionRules\" target=\"_blank\">Configuring Endpoint DLP Policy Rules</a>.",
+          "operationId": "EndpointDlpRulesResource_addSubRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID of the policy rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpSubRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpSubRule"
+              }
+            }
+          }
+        }
+      },
+      "/endPointDlpRules/{id}/subRule/{subRuleId}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Updates information for an exception rule with the specified ID. You must include both the exception rule ID and its parent rule ID in this request.",
+          "operationId": "EndpointDlpRulesResource_modifySubRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID of the parent Endpoint DLP rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "subRuleId",
+              "in": "path",
+              "description": "System-generated ID of the exception rule that's being modified",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpSubRule"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpSubRule"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Deletes an exception rule with the specified ID. You must include both the exception rule ID and its parent rule ID in this request.",
+          "operationId": "EndpointDlpRulesResource_deleteSubRule",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID of the parent Endpoint DLP rule",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "subRuleId",
+              "in": "path",
+              "description": "System-generated ID of the exception rule that's being deleted",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/dlpEndpointResource/{channel}": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of DLP resources configured for the specified channel.</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_getDlpEndpointResources",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "channel",
+              "in": "path",
+              "description": "The channel for which DLP resources must be retrieved",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "PRINTING",
+                "REMOVABLE_DRIVE_TRANSFER",
+                "NETWORK_DRIVE_TRANSFER",
+                "PERSONAL_CLOUD_STORAGE"
+              ]
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 20,
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Specifies the sorting order for the list by ascending or descending order of the DLP resource names",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            },
+            {
+              "name": "name",
+              "in": "query",
+              "description": "The search string used to filter the list by DLP resource name and other fields",
+              "required": false,
+              "type": "string"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndpointDlpResource"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dlpEndpointResource/{channel}/{id}": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves information about the DLP resource with the specified ID</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_getEndpointById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "channel",
+              "in": "path",
+              "description": "The channel to which the DLP resource belongs",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "PRINTING",
+                "REMOVABLE_DRIVE_TRANSFER",
+                "NETWORK_DRIVE_TRANSFER",
+                "PERSONAL_CLOUD_STORAGE"
+              ]
+            },
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID for the DLP resource",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          }
+        }
+      },
+      "/dlpEndpointResource/{id}/groups": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of tags in name-ID pairs to which the specified DLP resource is associated. Tags are channel-specific. To learn more, see <a href=\"/zia/adding-resource-tags\" target=\"_blank\">Adding Resource Tags</a>.</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_getGroupIdsByResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EntityReference"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/dlpEndpointResource": {
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Adds a new DLP resource for one of the supported channels. To learn more, see <a href=\"/zia/adding-dlp-and-endpoint-resources\" target=\"_blank\">Adding DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_addDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          }
+        }
+      },
+      "/dlpEndpointResource/{id}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates the DLP resource with the specified ID for supported channels. To learn more, see <a href=\"/zia/adding-dlp-and-endpoint-resources\" target=\"_blank\">Adding DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_updateDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Deletes an Endpoint DLP resource by ID</p><p><b>Note</b>: The <code>/dlpEndpointResource</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplications</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointResource_deleteDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointDlpResourceGroups/{channel}": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of DLP resource tags added for the specified channel</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_getResourceGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 20,
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "channel",
+              "in": "path",
+              "description": "Specifies the channel for which the configured DLP resource tags must be retrieved",
+              "required": true,
+              "type": "string",
+              "enum": [
+                "PRINTING",
+                "REMOVABLE_DRIVE_TRANSFER",
+                "NETWORK_DRIVE_TRANSFER",
+                "PERSONAL_CLOUD_STORAGE"
+              ]
+            },
+            {
+              "name": "name",
+              "in": "query",
+              "description": "The search string used to filter the list by DLP resource name or other fields",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "sortOrder",
+              "in": "query",
+              "description": "Specifies the sorting order for the list by ascending or descending order of the DLP resource tag names",
+              "required": false,
+              "type": "string",
+              "default": "asc",
+              "enum": [
+                "asc",
+                "desc",
+                "ruleExecution"
+              ]
+            },
+            {
+              "name": "searchResources",
+              "in": "query",
+              "description": "A true value must be set for this field to include search strings via the <code>name</code> parameter",
+              "required": false,
+              "type": "boolean",
+              "default": false
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndpointDlpResourceGroup"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointDlpResourceGroups": {
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Adds a new DLP resource tag. To learn more, see <a href=\"/zia/adding-resource-tags\" target=\"_blank\">Adding Resource Tags</a>.</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_createResourceGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          }
+        }
+      },
+      "/endPointDlpResourceGroups/{groupId}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates information about the DLP resource tag with the specified ID. However, DLP resources association with the tag cannot be modified with this request. To modify DLP resource association, use <code>PUT /endPointDlpResourceGroups/{groupId}/resources</code>.</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_modifyResourceGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated ID for the DLP resource tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Deletes the DLP resource tag with the specified ID</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_deleteGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated ID for the DLP resource tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointDlpResourceGroups/{groupId}/resources": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of DLP resources linked to the specified tag (by ID)</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_getResourcesInGroupPublic",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated ID for the DLP resource tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size",
+              "required": false,
+              "type": "integer",
+              "default": 20,
+              "format": "int32"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndpointDlpResource"
+                }
+              }
+            }
+          }
+        },
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates DLP resources association for the tag group with the specified ID</p><p><b>Note</b>: The <code>/endPointDlpResourceGroups</code> endpoints support API operations related to Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. For operations related to Application File Access and Clipboard, use the <code>/endPointApplicationGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndpointDlpResourceGroupsResource_modifyGroupResourceAssociationPublic",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpGroupToResourceAssociation"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated ID for the DLP resource tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpGroupToResourceAssociation"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/customApps": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of custom applications. You can use the applications in Endpoint DLP and other policies (e.g., SSL/TLS Inspection, Firewall Filtering, and DNS Control). To learn more, see <a href=\"/zia/adding-dlp-and-endpoint-resources\" target=\"_blank\">Adding DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getCustomApplications",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplication"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/count": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the count of all endpoint applications<p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getApplicationsCount",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "applicationType",
+              "in": "query",
+              "description": "Filters the results by application type (e.g., Custom, Discovered, and Well-Known)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/cloudApps/count": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the count of well-known and discovered endpoint applications as determined by the Zscaler service.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getCloudApplicationsCount",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "applicationType",
+              "in": "query",
+              "description": "Filters the results by application type (e.g., Discovered and Well-Known)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/policies": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of policy rules currently associated with the endpoint application with the specified ID. To learn more, see <a href=\"/zia/about-dlp-endpoint-resources\" target=\"_blank\">About DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getPoliciesAssociatedWithApps",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "resourceId",
+              "in": "query",
+              "description": "Resource identifier for the endpoint application. This value corresponds to the <code>resourceId</code> field returned by <code>GET /endPointApplications</code>.",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/AssociatedRulesDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/customApps/{id}": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves information about the custom endpoint application with the specified ID</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getCustomApplicationsById",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The unique identifier of the custom endpoint application",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndPointApplication"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/customApps/lite": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves name-ID pairs of custom endpoint applications. To learn more, see <a href=\"/zia/adding-dlp-and-endpoint-resources\" target=\"_blank\">Adding DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getCustomApplicationsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against custom application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Page size. Default is 100 if not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplicationLite"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/getCategoriesWithNonEmptyApps": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "Retrieves the categories that currently have endpoint applications grouped within them",
+          "operationId": "EndPointApplicationResource_getCategoriesWithNonEmptyApps",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "type": "string"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of endpoint applications. You can use the endpoint applications in Endpoint DLP and other policies (e.g., SSL/TLS Inspection, Firewall Filtering, and DNS Control). To learn more, see <a href=\"/zia/about-dlp-endpoint-resources\" target=\"_blank\">About DLP & Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getApplications",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against endpoint application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "applicationType",
+              "in": "query",
+              "description": "Filters the results by application type (e.g., Custom, Discovered, and Well-Known)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplication"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/lite": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves name-ID pairs of endpoint applications. You can use the endpoint applications in Endpoint DLP and other policies (e.g., SSL/TLS Inspection, Firewall Filtering, and DNS Control). To learn more, see <a href=\"/zia/about-dlp-endpoint-resources\" target=\"_blank\">About DLP & Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getApplicationsLite",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "applicationType",
+              "in": "query",
+              "description": "Filters the results by application type (e.g., Custom, Discovered, and Well-Known)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplicationLite"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/{id}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates information for the endpoint application with the specified ID. To learn more, see <a href=\"/zia/editing-dlp-and-endpoint-resources-context\" target=\"_blank\">Editing DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_updateApplication",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The application's unique identifier",
+              "required": true,
+              "type": "string"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndPointApplication"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointApplications/cloudApps": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of well-known and discovered endpoint applications. Well-known is a dynamic classification of applications that are frequently seen within the Zero Trust Exchange (ZTE) security cloud. Applications that are discovered on endpoints by the Zscaler service are classified as discovered applications. To learn more, see <a href=\"/zia/about-dlp-endpoint-resources\" target=\"_blank\">About DLP and Endpoint Resources</a> and <a href=\"/zia/about-endpoint-context\" target=\"_blank\">About Endpoint Context</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_getZdpApplications",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "search",
+              "in": "query",
+              "description": "The search string used to match against application names.",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "osType",
+              "in": "query",
+              "description": "Filters the results by operating system (e.g., Windows OS and Mac OS)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "applicationType",
+              "in": "query",
+              "description": "Filters the results by application type (e.g., Discovered and Well-Known)",
+              "required": false,
+              "type": "string"
+            },
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 100 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 100,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplication"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/customApp": {
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Adds a new custom endpoint application. To learn more, see <a href=\"/zia/adding-dlp-and-endpoint-resources\" target=\"_blank\">Adding DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_addDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplications/customApp/{id}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Update information for the custom endpoint application with the specified ID. To learn more, see <a href=\"/zia/editing-dlp-and-endpoint-resources-context\" target=\"_blank\">Editing DLP and Endpoint Resources</a>.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_updateDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The unique identifier of the custom application resource.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            },
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResource"
+              }
+            }
+          }
+        },
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Deletes a custom endpoint application. Applications identified as discovered or well-known by the Zscaler service cannot be deleted.</p><p><b>Note</b>: The <code>/endPointApplications</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/dlpEndpointResource</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationResource_deleteDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "The unique resource identifier of the custom application resource.",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointApplicationGroups/policies": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the policy rules currently associated with the specified application tag group. To learn more, see <a href=\"/zia/adding-resource-tags\" target=\"_blank\">Adding Resource Tags</a>.</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_getPoliciesAssociatedWithGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "resourceId",
+              "in": "query",
+              "description": "Identifier for the endpoint application group. This value corresponds to the <code>groupId</code> field returned by <code>GET /endPointApplicationGroups</code>",
+              "required": false,
+              "type": "array",
+              "items": {
+                "type": "integer",
+                "format": "int32"
+              },
+              "collectionFormat": "multi"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/AssociatedRulesDetails"
+                }
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplicationGroups": {
+        "get": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Retrieves the list of application tag groups. To learn more, see <a href=\"/zia/adding-resource-tags\" target=\"_blank\">Adding Resource Tags</a>.</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_getEndpointApplicationGroups",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "page",
+              "in": "query",
+              "description": "Specifies the page offset",
+              "required": false,
+              "type": "integer",
+              "default": 1,
+              "format": "int32"
+            },
+            {
+              "name": "pageSize",
+              "in": "query",
+              "description": "Specifies the page size. A default size of 5,000 applies if value is not specified.",
+              "required": false,
+              "type": "integer",
+              "default": 5000,
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "type": "array",
+                "items": {
+                  "$ref": "#/definitions/EndPointApplicationGroup"
+                }
+              }
+            }
+          }
+        },
+        "post": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Adds a new endpoint application tag group. To learn more, see <a href=\"/zia/adding-resource-tags\" target=\"_blank\">Adding Resource Tags</a>.</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_createResourceGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplicationGroups/{id}": {
+        "delete": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Deletes the endpoint application tag with the specified ID</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_deleteDlpEndpointResource",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "name": "id",
+              "in": "path",
+              "description": "System-generated ID for the endpoint application tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "default": {
+              "description": "Successful Operation"
+            }
+          }
+        }
+      },
+      "/endPointApplicationGroups/{groupId}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates information for the endpoint application tag with the specified ID. However, endpoint applications associated with the tag cannot be modified with this request. To modify application association, use PUT <code>/endPointApplicationGroups/resources/{groupId}</code>.</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_modifyResourceGroup",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated identifier of the endpoint application tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpResourceGroup"
+              }
+            }
+          }
+        }
+      },
+      "/endPointApplicationGroups/resources/{groupId}": {
+        "put": {
+          "tags": [
+            "Endpoint Data Loss Prevention"
+          ],
+          "description": "<p>Updates endpoint applications association for the specified tag group.</p><p><b>Note</b>: The <code>/endPointApplicationGroups</code> endpoints are exclusive to API operations related to Application File Access and Clipboard channels. For operations related to other channels, use the <code>/endPointDlpResourceGroups</code> endpoints with appropriate resources.</p>",
+          "operationId": "EndPointApplicationGroupResource_modifyGroupAssociation",
+          "consumes": [
+            "application/json"
+          ],
+          "produces": [
+            "application/json"
+          ],
+          "parameters": [
+            {
+              "in": "body",
+              "name": "body",
+              "required": false,
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpGroupToResourceAssociation"
+              }
+            },
+            {
+              "name": "groupId",
+              "in": "path",
+              "description": "System-generated identifier of the endpoint application tag",
+              "required": true,
+              "type": "integer",
+              "format": "int32"
+            }
+          ],
+          "responses": {
+            "200": {
+              "description": "Successful Operation",
+              "schema": {
+                "$ref": "#/definitions/EndpointDlpGroupToResourceAssociation"
+              }
+            }
+          }
+        }
+      }
+    },
+    "definitions": {
+      "EndpointDlpRule": {
+        "type": "object",
+        "required": [
+          "action",
+          "dataTransferMethod",
+          "name",
+          "order",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated unique identifier for the Endpoint DLP rule"
+          },
+          "name": {
+            "type": "string",
+            "description": "Endpoint DLP rule name"
+          },
+          "state": {
+            "type": "string",
+            "description": "The current operational state of the Endpoint DLP rule. An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ]
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The rule's execution order relative to other Endpoint DLP rules"
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank value from 0–7 (0 is the highest rank) that determines the rule order you can choose. You can select the rank assigned to you or a lower rank. This field is required when admin rank-based access restriction is enabled.",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "dlpEngines": {
+            "type": "array",
+            "description": "The list of DLP engines (as name-ID pairs) that must be used for content inspection for this rule. Set <code>NULL</code> to include all DLP engines for this rule. Content Matching must be enabled for the rule to use DLP engines.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "fileTypes": {
+            "type": "string",
+            "description": "The file type categories to which the rule applies. The list of available file types changes based on whether you're using DLP engines for content inspection. If no specific value is set, the rule applies to all file types. The list of available file types changes based on whether you're using DLP engines for content inspection.",
+            "enum": [
+              "ANY",
+              "NONE",
+              "FTCATEGORY_JAVASCRIPT",
+              "FTCATEGORY_FLASH",
+              "FTCATEGORY_JAVA_APPLET",
+              "FTCATEGORY_ZIP",
+              "FTCATEGORY_GZIP",
+              "FTCATEGORY_TAR",
+              "FTCATEGORY_BZIP2",
+              "FTCATEGORY_RAR",
+              "FTCATEGORY_STUFFIT",
+              "FTCATEGORY_ISO",
+              "FTCATEGORY_CAB",
+              "FTCATEGORY_P7Z",
+              "FTCATEGORY_SCZIP",
+              "FTCATEGORY_XZ",
+              "FTCATEGORY_FCL",
+              "FTCATEGORY_ZIPX",
+              "FTCATEGORY_CPIO",
+              "FTCATEGORY_LZH",
+              "FTCATEGORY_MP3",
+              "FTCATEGORY_WAV",
+              "FTCATEGORY_OGG_VORBIS",
+              "FTCATEGORY_M3U",
+              "FTCATEGORY_VPR",
+              "FTCATEGORY_AAC",
+              "FTCATEGORY_ADE",
+              "FTCATEGORY_DB2",
+              "FTCATEGORY_SQL",
+              "FTCATEGORY_ACCDB",
+              "FTCATEGORY_DBF",
+              "FTCATEGORY_VIRTUAL_HARD_DISK",
+              "FTCATEGORY_DB",
+              "FTCATEGORY_SDB",
+              "FTCATEGORY_KDBX",
+              "FTCATEGORY_DXL",
+              "FTCATEGORY_WINDOWS_EXECUTABLES",
+              "FTCATEGORY_WINDOWS_LIBRARY",
+              "FTCATEGORY_PYTHON",
+              "FTCATEGORY_POWERSHELL",
+              "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+              "FTCATEGORY_BASH_SCRIPTS",
+              "FTCATEGORY_SHELL_SCRAP",
+              "FTCATEGORY_APPX",
+              "FTCATEGORY_MSC",
+              "FTCATEGORY_ELF",
+              "FTCATEGORY_DRV",
+              "FTCATEGORY_MSIX",
+              "FTCATEGORY_BITMAP",
+              "FTCATEGORY_PHOTOSHOP",
+              "FTCATEGORY_WINDOWS_META_FORMAT",
+              "FTCATEGORY_GIF",
+              "FTCATEGORY_JPEG",
+              "FTCATEGORY_PNG",
+              "FTCATEGORY_TIFF",
+              "FTCATEGORY_DCM",
+              "FTCATEGORY_GREENSHOT",
+              "FTCATEGORY_IMG",
+              "FTCATEGORY_HIGH_EFFICIENCY_IMAGE_FILES",
+              "FTCATEGORY_VECTOR_GRAPHIC_FILES",
+              "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+              "FTCATEGORY_ONENOTE",
+              "FTCATEGORY_CATALOG",
+              "FTCATEGORY_NETMON",
+              "FTCATEGORY_HIVE",
+              "FTCATEGORY_MS_POWERPOINT",
+              "FTCATEGORY_MS_WORD",
+              "FTCATEGORY_MS_EXCEL",
+              "FTCATEGORY_MS_RTF",
+              "FTCATEGORY_MS_MDB",
+              "FTCATEGORY_MS_MSG",
+              "FTCATEGORY_MS_PST",
+              "FTCATEGORY_VSDX",
+              "FTCATEGORY_OAB",
+              "FTCATEGORY_OLM",
+              "FTCATEGORY_MS_PUB",
+              "FTCATEGORY_TNEF",
+              "FTCATEGORY_MS_PROJ",
+              "FTCATEGORY_OPEN_OFFICE_DOC",
+              "FTCATEGORY_OPEN_OFFICE_DRAWINGS",
+              "FTCATEGORY_OPEN_OFFICE_PRESENTATIONS",
+              "FTCATEGORY_OPEN_OFFICE_SPREADSHEETS",
+              "FTCATEGORY_ALL_OUTBOUND",
+              "FTCATEGORY_ENCRYPT",
+              "FTCATEGORY_UTF8BOM",
+              "FTCATEGORY_UTF16LE",
+              "FTCATEGORY_UTF16BE",
+              "FTCATEGORY_PDF_DOCUMENT",
+              "FTCATEGORY_POSTSCRIPT",
+              "FTCATEGORY_COMPILED_HTML_HELP",
+              "FTCATEGORY_DWG",
+              "FTCATEGORY_CGR",
+              "FTCATEGORY_SOLIDWORKFILES",
+              "FTCATEGORY_TXT",
+              "FTCATEGORY_FORM_DATA_POST",
+              "FTCATEGORY_CSV",
+              "FTCATEGORY_STL",
+              "FTCATEGORY_CERT",
+              "FTCATEGORY_PCAP",
+              "FTCATEGORY_CER",
+              "FTCATEGORY_DER",
+              "FTCATEGORY_P7B",
+              "FTCATEGORY_PEM",
+              "FTCATEGORY_JKS",
+              "FTCATEGORY_KEY",
+              "FTCATEGORY_P12",
+              "FTCATEGORY_CHEMDRAW_FILES",
+              "FTCATEGORY_CML",
+              "FTCATEGORY_CP",
+              "FTCATEGORY_MM",
+              "FTCATEGORY_INF",
+              "FTCATEGORY_APPLE_DOCUMENTS",
+              "FTCATEGORY_TABLEAU_FILES",
+              "FTCATEGORY_AUTOCAD",
+              "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+              "FTCATEGORY_LOG_FILES",
+              "FTCATEGORY_EML_FILES",
+              "FTCATEGORY_DAT",
+              "FTCATEGORY_INI",
+              "FTCATEGORY_IGS",
+              "FTCATEGORY_TMP",
+              "FTCATEGORY_MUI",
+              "FTCATEGORY_HBS",
+              "FTCATEGORY_ICS",
+              "FTCATEGORY_PUB",
+              "FTCATEGORY_DRAWIO",
+              "FTCATEGORY_PRT",
+              "FTCATEGORY_PS2",
+              "FTCATEGORY_PS3",
+              "FTCATEGORY_ACIS",
+              "FTCATEGORY_VDA",
+              "FTCATEGORY_PARASOLID",
+              "FTCATEGORY_PGP",
+              "FTCATEGORY_BIN",
+              "FTCATEGORY_JSON",
+              "FTCATEGORY_XML",
+              "FTCATEGORY_HTTP",
+              "FTCATEGORY_BINHEX",
+              "FTCATEGORY_QUARKXPRESS",
+              "FTCATEGORY_APPINSTALLER",
+              "FTCATEGORY_GO_FILES",
+              "FTCATEGORY_RUBY_FILES",
+              "FTCATEGORY_PERL_FILES",
+              "FTCATEGORY_MATLAB_FILES",
+              "FTCATEGORY_INCLUDE_FILES",
+              "FTCATEGORY_JAVA_FILES",
+              "FTCATEGORY_MAKE_FILES",
+              "FTCATEGORY_YAML_FILES",
+              "FTCATEGORY_VISUAL_BASIC_FILES",
+              "FTCATEGORY_C_FILES",
+              "FTCATEGORY_XAML",
+              "FTCATEGORY_BASIC_SOURCE_CODE",
+              "FTCATEGORY_SCT",
+              "FTCATEGORY_A_FILE",
+              "FTCATEGORY_MS_CPP_FILES",
+              "FTCATEGORY_ASM",
+              "FTCATEGORY_BORLAND_CPP_FILES",
+              "FTCATEGORY_COBOL",
+              "FTCATEGORY_CSX",
+              "FTCATEGORY_DELPHI",
+              "FTCATEGORY_DMD",
+              "FTCATEGORY_DSP",
+              "FTCATEGORY_F_FILES",
+              "FTCATEGORY_NATVIS",
+              "FTCATEGORY_NCB",
+              "FTCATEGORY_NFM",
+              "FTCATEGORY_POD",
+              "FTCATEGORY_QLIKVIEW_FILES",
+              "FTCATEGORY_RES_FILES",
+              "FTCATEGORY_RPY",
+              "FTCATEGORY_RSP",
+              "FTCATEGORY_SAS",
+              "FTCATEGORY_SC",
+              "FTCATEGORY_SCALA",
+              "FTCATEGORY_TLH",
+              "FTCATEGORY_TLI",
+              "FTCATEGORY_VISUAL_CPP_FILES",
+              "FTCATEGORY_X1B",
+              "FTCATEGORY_IFC",
+              "FTCATEGORY_BCP",
+              "FTCATEGORY_FOR",
+              "FTCATEGORY_AU3",
+              "FTCATEGORY_BGI",
+              "FTCATEGORY_MANIFEST",
+              "FTCATEGORY_NLS",
+              "FTCATEGORY_TLB",
+              "FTCATEGORY_ASHX",
+              "FTCATEGORY_EXP",
+              "FTCATEGORY_FLASH_VIDEO",
+              "FTCATEGORY_AVI",
+              "FTCATEGORY_MPEG",
+              "FTCATEGORY_MP4",
+              "FTCATEGORY_3GPP",
+              "FTCATEGORY_QUICKTIME_VIDEO",
+              "FTCATEGORY_WINDOWS_MEDIA_MOVIE",
+              "FTCATEGORY_MKV",
+              "FTCATEGORY_WEBM",
+              "FTCATEGORY_VS4",
+              "FTCATEGORY_TS"
+            ]
+          },
+          "dataTransferMethod": {
+            "type": "string",
+            "description": "The data transfer method or channel targeted by this rule",
+            "enum": [
+              "NETWORK_DRIVE_TRANSFER",
+              "PRINTING",
+              "REMOVABLE_DRIVE_TRANSFER",
+              "APPLICATION_FILE_ACCESS"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the rule"
+          },
+          "minSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The minimum file size (in KB) required for rule evaluation. Setting <code>0 KB</code> removes the minimum data size requirement."
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users to whom the rule applies. If no specific value is set, the rule applies to all users.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups to which the rule applies. If no specific value is set, the rule applies to all groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 8,
+            "minItems": 0
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments to which the rule applies. If no specific value is set, the rule applies to all departments.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 8,
+            "minItems": 0
+          },
+          "devices": {
+            "type": "array",
+            "description": "Name-ID pairs of devices to which the rule applies. If no specific value is set, the rule applies to all devices.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of device groups to which the rule applies. If no specific value is set, the rule applies to all device groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "The list of device trust levels to which the rule applies. High, Medium, and Low trust level evaluations are applicable only to Zscaler Client Connector traffic, whereas Unknown applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "Name-ID pairs of time windows during which the rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "action": {
+            "type": "string",
+            "description": "The action to perform when the rule triggers",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "CONFIRM",
+              "PROTECT"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of labels associated with the rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "externalAuditorEmail": {
+            "type": "string",
+            "description": "The email address of the external auditor to whom Endpoint DLP email alerts are sent"
+          },
+          "notificationTemplate": {
+            "description": "Notification template used for DLP email alerts sent to the external auditor. This field is required when the auditor information (from a hosted database or external) is provided.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "auditor": {
+            "description": "Auditor information from the hosted database specified in name-ID pairs. You can retrieve auditor details from a hosted database using the <code>GET /users/auditors</code> request.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedBy": {
+            "description": "Login ID of the user who last modified this rule. This is a read-only field returned only in GET requests.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the rule was last modified. This is a read-only field."
+          },
+          "parentRule": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent rule ID applicable when configuring exception rules"
+          },
+          "endPointApplications": {
+            "type": "array",
+            "description": "The list of endpoint applications to which the rule applies. This field is configurable only for the Application File Access channel.",
+            "items": {
+              "$ref": "#/definitions/EndPointApplication"
+            }
+          },
+          "endPointApplicationGroups": {
+            "type": "array",
+            "description": "The list of endpoint application tags to which the rule applies. This field is configurable only for the Application File Access channel.",
+            "items": {
+              "$ref": "#/definitions/EndPointApplicationGroup"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "description": "The list of DLP resources, such as printers, removable storage devices, network shares, and personal clouds to which the rule applies. This field is configurable for Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. The DLP resources are specified in name-ID pairs.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "resourceGroups": {
+            "type": "array",
+            "description": "The list of DLP resource tags (as name-ID pairs) to which the rule applies. This field is configurable for Printing, Removable Storage, Network Share, and Personal Cloud Storage channels.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "description": "The severity of rule violation selected from predefined values. Selecting no value ignores this criterion in the policy evaluation.",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          },
+          "userRiskScoreLevels": {
+            "type": "array",
+            "description": "The user risk score levels to which the rule applies. Selecting no value ignores this criterion in the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            }
+          },
+          "receiver": {
+            "description": "DLP Incident Receiver details to forward information about content that triggers the policy rule via secure Internet Content Adaptation Protocol (ICAP)",
+            "$ref": "#/definitions/IncidentReceiver"
+          },
+          "eunEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether end user notifications (EUNs) are enabled for this rule or not",
+            "enum": [
+              true,
+              false
+            ]
+          },
+          "eunTemplateId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the EUN associated with the rule"
+          },
+          "ucTemplateId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the user confirmation template associated with the rule. This field is configurable only when the <b>Confirm</b> action is selected."
+          },
+          "networkType": {
+            "type": "string",
+            "description": "Indicates the network type used by the endpoints based on which the rule applies. This field is configurable only for Network Share and Printing channels.",
+            "enum": [
+              "TRUSTED",
+              "OFFTRUSTED",
+              "VPN",
+              "ANY"
+            ]
+          },
+          "withoutContentInspection": {
+            "type": "boolean",
+            "description": "A true value indicates that Content Matching is not enabled, whereas false indicates that it is enabled.",
+            "enum": [
+              true,
+              false
+            ]
+          },
+          "subRules": {
+            "description": "Endpoint DLP exception rule configuration",
+            "type": "array",
+            "items": {
+              "$ref": "#/definitions/EndpointDlpSubRule"
+            }
+          }
+        },
+        "description": "Endpoint DLP policy rule configuring details. To learn more, see <a href=\"/zia/configuring-endpoint-dlp-policy-rules#Rules\" target=\"_blank\">Configuring Endpoint DLP Policy Rules</a>."
+      },
+      "FileTypeCategoryDTO": {
+        "type": "object",
+        "description": "File type information",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "File type ID"
+          },
+          "name": {
+            "type": "string",
+            "description": "File type name"
+          },
+          "parent": {
+            "type": "string",
+            "enum": [
+              "ANY",
+              "NONE",
+              "EXECUTABLES",
+              "OFFICE_DOCUMENTS",
+              "OTHER_DOCUMENTS",
+              "ACTIVE_WEB_CONTENTS",
+              "ARCHIVES",
+              "AUDIO",
+              "VIDEO",
+              "IMAGES",
+              "MOBILE",
+              "OTHER",
+              "GAMING",
+              "SOURCE_CODE",
+              "DATABASE",
+              "MICROSOFT",
+              "MEDIA",
+              "OPEN_OFFICE_FILES",
+              "USER_DEFINED"
+            ],
+            "description": "Parent category of the file type"
+          }
+        }
+      },
+      "EndpointDlpSubRule": {
+        "type": "object",
+        "required": [
+          "action",
+          "dataTransferMethod",
+          "name",
+          "order",
+          "state"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated unique identifier for the exception rule"
+          },
+          "name": {
+            "type": "string",
+            "description": "The rule name is inherited from the parent rule and cannot be modified"
+          },
+          "state": {
+            "type": "string",
+            "description": "The current operational state of the exception rule. An enabled rule is actively enforced. A disabled rule is not actively enforced but does not lose its place in the rule order. The service skips it and moves to the next rule.",
+            "enum": [
+              "ENABLED",
+              "DISABLED"
+            ]
+          },
+          "order": {
+            "type": "integer",
+            "format": "int32",
+            "description": "All parent rules are evaluated. If multiple rules match, the rule with the most restrictive action and highest rule order is applied. Exception rule evaluation stops at the first match, and an exception replaces a parent rule upon match."
+          },
+          "rank": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Admin rank value from 0–7 (0 is the highest rank) that determines the rule order you can choose. You can select the rank assigned to you or a lower rank. This field is required when admin rank-based access restriction is enabled.",
+            "minimum": 0,
+            "maximum": 7
+          },
+          "dlpEngines": {
+            "type": "array",
+            "description": "The list of DLP engines (as name-ID pairs) that must be used for content inspection for this exception rule. Set <code>NULL</code> to include all DLP engines for this rule. Content Matching must be enabled for the rule to use DLP engines.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "fileTypes": {
+            "type": "string",
+            "description": "The file type categories to which the rule applies. The list of available file types changes based on whether you're using DLP engines for content inspection. If no specific value is set, the rule applies to all file types. The list of available file types changes based on whether you're using DLP engines for content inspection.",
+            "enum": [
+              "ANY",
+              "NONE",
+              "FTCATEGORY_JAVASCRIPT",
+              "FTCATEGORY_FLASH",
+              "FTCATEGORY_JAVA_APPLET",
+              "FTCATEGORY_ZIP",
+              "FTCATEGORY_GZIP",
+              "FTCATEGORY_TAR",
+              "FTCATEGORY_BZIP2",
+              "FTCATEGORY_RAR",
+              "FTCATEGORY_STUFFIT",
+              "FTCATEGORY_ISO",
+              "FTCATEGORY_CAB",
+              "FTCATEGORY_P7Z",
+              "FTCATEGORY_SCZIP",
+              "FTCATEGORY_XZ",
+              "FTCATEGORY_FCL",
+              "FTCATEGORY_ZIPX",
+              "FTCATEGORY_CPIO",
+              "FTCATEGORY_LZH",
+              "FTCATEGORY_MP3",
+              "FTCATEGORY_WAV",
+              "FTCATEGORY_OGG_VORBIS",
+              "FTCATEGORY_M3U",
+              "FTCATEGORY_VPR",
+              "FTCATEGORY_AAC",
+              "FTCATEGORY_ADE",
+              "FTCATEGORY_DB2",
+              "FTCATEGORY_SQL",
+              "FTCATEGORY_ACCDB",
+              "FTCATEGORY_DBF",
+              "FTCATEGORY_VIRTUAL_HARD_DISK",
+              "FTCATEGORY_DB",
+              "FTCATEGORY_SDB",
+              "FTCATEGORY_KDBX",
+              "FTCATEGORY_DXL",
+              "FTCATEGORY_WINDOWS_EXECUTABLES",
+              "FTCATEGORY_WINDOWS_LIBRARY",
+              "FTCATEGORY_PYTHON",
+              "FTCATEGORY_POWERSHELL",
+              "FTCATEGORY_VISUAL_BASIC_SCRIPT",
+              "FTCATEGORY_BASH_SCRIPTS",
+              "FTCATEGORY_SHELL_SCRAP",
+              "FTCATEGORY_APPX",
+              "FTCATEGORY_MSC",
+              "FTCATEGORY_ELF",
+              "FTCATEGORY_DRV",
+              "FTCATEGORY_MSIX",
+              "FTCATEGORY_BITMAP",
+              "FTCATEGORY_PHOTOSHOP",
+              "FTCATEGORY_WINDOWS_META_FORMAT",
+              "FTCATEGORY_GIF",
+              "FTCATEGORY_JPEG",
+              "FTCATEGORY_PNG",
+              "FTCATEGORY_TIFF",
+              "FTCATEGORY_DCM",
+              "FTCATEGORY_GREENSHOT",
+              "FTCATEGORY_IMG",
+              "FTCATEGORY_HIGH_EFFICIENCY_IMAGE_FILES",
+              "FTCATEGORY_VECTOR_GRAPHIC_FILES",
+              "FTCATEGORY_WINDOWS_SCRIPT_FILES",
+              "FTCATEGORY_ONENOTE",
+              "FTCATEGORY_CATALOG",
+              "FTCATEGORY_NETMON",
+              "FTCATEGORY_HIVE",
+              "FTCATEGORY_MS_POWERPOINT",
+              "FTCATEGORY_MS_WORD",
+              "FTCATEGORY_MS_EXCEL",
+              "FTCATEGORY_MS_RTF",
+              "FTCATEGORY_MS_MDB",
+              "FTCATEGORY_MS_MSG",
+              "FTCATEGORY_MS_PST",
+              "FTCATEGORY_VSDX",
+              "FTCATEGORY_OAB",
+              "FTCATEGORY_OLM",
+              "FTCATEGORY_MS_PUB",
+              "FTCATEGORY_TNEF",
+              "FTCATEGORY_MS_PROJ",
+              "FTCATEGORY_OPEN_OFFICE_DOC",
+              "FTCATEGORY_OPEN_OFFICE_DRAWINGS",
+              "FTCATEGORY_OPEN_OFFICE_PRESENTATIONS",
+              "FTCATEGORY_OPEN_OFFICE_SPREADSHEETS",
+              "FTCATEGORY_ALL_OUTBOUND",
+              "FTCATEGORY_ENCRYPT",
+              "FTCATEGORY_UTF8BOM",
+              "FTCATEGORY_UTF16LE",
+              "FTCATEGORY_UTF16BE",
+              "FTCATEGORY_PDF_DOCUMENT",
+              "FTCATEGORY_POSTSCRIPT",
+              "FTCATEGORY_COMPILED_HTML_HELP",
+              "FTCATEGORY_DWG",
+              "FTCATEGORY_CGR",
+              "FTCATEGORY_SOLIDWORKFILES",
+              "FTCATEGORY_TXT",
+              "FTCATEGORY_FORM_DATA_POST",
+              "FTCATEGORY_CSV",
+              "FTCATEGORY_STL",
+              "FTCATEGORY_CERT",
+              "FTCATEGORY_PCAP",
+              "FTCATEGORY_CER",
+              "FTCATEGORY_DER",
+              "FTCATEGORY_P7B",
+              "FTCATEGORY_PEM",
+              "FTCATEGORY_JKS",
+              "FTCATEGORY_KEY",
+              "FTCATEGORY_P12",
+              "FTCATEGORY_CHEMDRAW_FILES",
+              "FTCATEGORY_CML",
+              "FTCATEGORY_CP",
+              "FTCATEGORY_MM",
+              "FTCATEGORY_INF",
+              "FTCATEGORY_APPLE_DOCUMENTS",
+              "FTCATEGORY_TABLEAU_FILES",
+              "FTCATEGORY_AUTOCAD",
+              "FTCATEGORY_INTEGRATED_CIRCUIT_FILES",
+              "FTCATEGORY_LOG_FILES",
+              "FTCATEGORY_EML_FILES",
+              "FTCATEGORY_DAT",
+              "FTCATEGORY_INI",
+              "FTCATEGORY_IGS",
+              "FTCATEGORY_TMP",
+              "FTCATEGORY_MUI",
+              "FTCATEGORY_HBS",
+              "FTCATEGORY_ICS",
+              "FTCATEGORY_PUB",
+              "FTCATEGORY_DRAWIO",
+              "FTCATEGORY_PRT",
+              "FTCATEGORY_PS2",
+              "FTCATEGORY_PS3",
+              "FTCATEGORY_ACIS",
+              "FTCATEGORY_VDA",
+              "FTCATEGORY_PARASOLID",
+              "FTCATEGORY_PGP",
+              "FTCATEGORY_BIN",
+              "FTCATEGORY_JSON",
+              "FTCATEGORY_XML",
+              "FTCATEGORY_HTTP",
+              "FTCATEGORY_BINHEX",
+              "FTCATEGORY_QUARKXPRESS",
+              "FTCATEGORY_APPINSTALLER",
+              "FTCATEGORY_GO_FILES",
+              "FTCATEGORY_RUBY_FILES",
+              "FTCATEGORY_PERL_FILES",
+              "FTCATEGORY_MATLAB_FILES",
+              "FTCATEGORY_INCLUDE_FILES",
+              "FTCATEGORY_JAVA_FILES",
+              "FTCATEGORY_MAKE_FILES",
+              "FTCATEGORY_YAML_FILES",
+              "FTCATEGORY_VISUAL_BASIC_FILES",
+              "FTCATEGORY_C_FILES",
+              "FTCATEGORY_XAML",
+              "FTCATEGORY_BASIC_SOURCE_CODE",
+              "FTCATEGORY_SCT",
+              "FTCATEGORY_A_FILE",
+              "FTCATEGORY_MS_CPP_FILES",
+              "FTCATEGORY_ASM",
+              "FTCATEGORY_BORLAND_CPP_FILES",
+              "FTCATEGORY_COBOL",
+              "FTCATEGORY_CSX",
+              "FTCATEGORY_DELPHI",
+              "FTCATEGORY_DMD",
+              "FTCATEGORY_DSP",
+              "FTCATEGORY_F_FILES",
+              "FTCATEGORY_NATVIS",
+              "FTCATEGORY_NCB",
+              "FTCATEGORY_NFM",
+              "FTCATEGORY_POD",
+              "FTCATEGORY_QLIKVIEW_FILES",
+              "FTCATEGORY_RES_FILES",
+              "FTCATEGORY_RPY",
+              "FTCATEGORY_RSP",
+              "FTCATEGORY_SAS",
+              "FTCATEGORY_SC",
+              "FTCATEGORY_SCALA",
+              "FTCATEGORY_TLH",
+              "FTCATEGORY_TLI",
+              "FTCATEGORY_VISUAL_CPP_FILES",
+              "FTCATEGORY_X1B",
+              "FTCATEGORY_IFC",
+              "FTCATEGORY_BCP",
+              "FTCATEGORY_FOR",
+              "FTCATEGORY_AU3",
+              "FTCATEGORY_BGI",
+              "FTCATEGORY_MANIFEST",
+              "FTCATEGORY_NLS",
+              "FTCATEGORY_TLB",
+              "FTCATEGORY_ASHX",
+              "FTCATEGORY_EXP",
+              "FTCATEGORY_FLASH_VIDEO",
+              "FTCATEGORY_AVI",
+              "FTCATEGORY_MPEG",
+              "FTCATEGORY_MP4",
+              "FTCATEGORY_3GPP",
+              "FTCATEGORY_QUICKTIME_VIDEO",
+              "FTCATEGORY_WINDOWS_MEDIA_MOVIE",
+              "FTCATEGORY_MKV",
+              "FTCATEGORY_WEBM",
+              "FTCATEGORY_VS4",
+              "FTCATEGORY_TS"
+            ]
+          },
+          "dataTransferMethod": {
+            "type": "string",
+            "description": "This field is inherited from the parent rule and cannot be changed",
+            "enum": [
+              "NETWORK_DRIVE_TRANSFER",
+              "PRINTING",
+              "REMOVABLE_DRIVE_TRANSFER",
+              "APPLICATION_FILE_ACCESS"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the exception rule"
+          },
+          "minSize": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The minimum size requirement that data must meet before the exception rule applies. Setting <code>0 KB</code> removes the minimum data size requirement."
+          },
+          "users": {
+            "type": "array",
+            "description": "Name-ID pairs of users to whom the exception rule applies. If no specific value is set, the rule applies to all users.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 4,
+            "minItems": 0
+          },
+          "groups": {
+            "type": "array",
+            "description": "Name-ID pairs of user groups to which the exception rule applies. If no specific value is set, the rule applies to all groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 8,
+            "minItems": 0
+          },
+          "departments": {
+            "type": "array",
+            "description": "Name-ID pairs of departments to which the exception rule applies. If no specific value is set, the rule applies to all departments.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            },
+            "maxItems": 8,
+            "minItems": 0
+          },
+          "devices": {
+            "type": "array",
+            "description": "Name-ID pairs of devices to which the exception rule applies. If no specific value is set, the rule applies to all devices.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceGroups": {
+            "type": "array",
+            "description": "Name-ID pairs of device groups to which the exception rule applies. If no specific value is set, the rule applies to all device groups.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "deviceTrustLevels": {
+            "type": "array",
+            "description": "The list of device trust levels to which the exception rule applies. High, Medium, and Low trust level evaluations are applicable only to Zscaler Client Connector traffic, whereas Unknown applies to all traffic. The trust levels are assigned to the devices based on your posture configurations in Zscaler Client Connector. If no value is set, this field is ignored during the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "UNKNOWN_DEVICETRUSTLEVEL",
+                "LOW_TRUST",
+                "MEDIUM_TRUST",
+                "HIGH_TRUST"
+              ]
+            }
+          },
+          "timeWindows": {
+            "type": "array",
+            "description": "Name-ID pairs of time windows during which the exception rule is applied",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "action": {
+            "type": "string",
+            "description": "The action to perform when the exception rule triggers",
+            "enum": [
+              "ALLOW",
+              "BLOCK",
+              "CONFIRM",
+              "PROTECT"
+            ]
+          },
+          "labels": {
+            "type": "array",
+            "description": "Name-ID pairs of labels associated with the exception rule",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "externalAuditorEmail": {
+            "type": "string",
+            "description": "The email address of the external auditor to whom alerts are sent when the exception rule is triggered"
+          },
+          "notificationTemplate": {
+            "description": "Notification template used for the email alert sent to the external auditor. This field is required when the auditor information (from a hosted database or external) is provided.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "auditor": {
+            "description": "Auditor information from the hosted database specified in name-ID pairs. You can retrieve auditor details from a hosted database using the <code>GET /users/auditors</code> request.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedBy": {
+            "description": "Login ID of the user who last modified this exception rule. This is a read-only field returned only in GET requests.",
+            "$ref": "#/definitions/EntityReference"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Timestamp of when the exception rule was last modified. This is a read-only field."
+          },
+          "parentRule": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Parent rule ID for the exception rule. This field is required when configuring an exception rule."
+          },
+          "endPointApplications": {
+            "type": "array",
+            "description": "The list of endpoint applications to which the exception rule applies. This field is configurable only for the Application File Access channel.",
+            "items": {
+              "$ref": "#/definitions/EndPointApplication"
+            }
+          },
+          "endPointApplicationGroups": {
+            "type": "array",
+            "description": "The list of endpoint application tags to which the exception rule applies. This field is configurable only for the Application File Access channel.",
+            "items": {
+              "$ref": "#/definitions/EndPointApplicationGroup"
+            }
+          },
+          "resources": {
+            "type": "array",
+            "description": "The list of DLP resources, such as printers, removable storage devices, network shares, and personal clouds to which the exception rule applies. This field is configurable for Printing, Removable Storage, Network Share, and Personal Cloud Storage channels. The DLP resources are specified in name-ID pairs.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "resourceGroups": {
+            "type": "array",
+            "description": "The list of DLP resource tags (as name-ID pairs) to which the rule applies. This field is configurable for Printing, Removable Storage, Network Share, and Personal Cloud Storage channels.",
+            "items": {
+              "$ref": "#/definitions/EntityReference"
+            }
+          },
+          "severity": {
+            "type": "string",
+            "description": "The severity of rule violation selected from predefined values. Selecting no value ignores this criterion in the policy evaluation.",
+            "enum": [
+              "RULE_SEVERITY_HIGH",
+              "RULE_SEVERITY_MEDIUM",
+              "RULE_SEVERITY_LOW",
+              "RULE_SEVERITY_INFO"
+            ]
+          },
+          "userRiskScoreLevels": {
+            "type": "array",
+            "description": "The user risk score levels to which the exception rule applies. Selecting no value ignores this criterion in the policy evaluation.",
+            "items": {
+              "type": "string",
+              "enum": [
+                "ANY",
+                "LOW",
+                "MEDIUM",
+                "HIGH",
+                "CRITICAL"
+              ]
+            }
+          },
+          "receiver": {
+            "description": "DLP Incident Receiver details to forward information about content that triggers the exception rule via secure Internet Content Adaptation Protocol (ICAP)",
+            "$ref": "#/definitions/IncidentReceiver"
+          },
+          "eunEnabled": {
+            "type": "boolean",
+            "description": "A Boolean value indicating whether end user notifications (EUNs) are enabled for this exception rule or not",
+            "enum": [
+              true,
+              false
+            ]
+          },
+          "eunTemplateId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the EUN associated with the exception rule"
+          },
+          "ucTemplateId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "Unique identifier of the user confirmation template associated with the rule. This field is configurable only when the <b>Confirm</b> action is selected."
+          },
+          "networkType": {
+            "type": "string",
+            "description": "Indicates the network type used by the endpoints based on which the exception rule applies. This field is configurable only for Network Share and Printing channels.",
+            "enum": [
+              "TRUSTED",
+              "OFFTRUSTED",
+              "VPN",
+              "ANY"
+            ]
+          },
+          "withoutContentInspection": {
+            "type": "boolean",
+            "description": "A true value indicates that Content Matching is not enabled, whereas false indicates that it is enabled.",
+            "enum": [
+              true,
+              false
+            ]
+          }
+        },
+        "description": "Exception rule configuration details. Exception rules automatically inherit the channel and rule structure of the parent rule. You cannot assign a different channel to the exception rule, but you can customize most other rule settings. To learn more, see <a href=\"/zia/configuring-endpoint-dlp-policy-rules#ExceptionRules\" target=\"_blank\">Configuring Endpoint DLP Policy Rules</a>."
+      },
+      "EndpointDlpResource": {
+        "type": "object",
+        "required": [
+          "channel",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the endpoint DLP resource (e.g., printers, network shares, and removable storage devices) or endpoint application"
+          },
+          "name": {
+            "type": "string",
+            "description": "The name of the Endpoint DLP resource",
+            "minLength": 0,
+            "maxLength": 128
+          },
+          "channel": {
+            "type": "string",
+            "description": "The data transfer method or channel associated with the resource, such as Network Shares, Printers, Removable Storage Devices, and Applications.",
+            "enum": [
+              "NETWORK_DRIVE_TRANSFER",
+              "PRINTING",
+              "REMOVABLE_DRIVE_TRANSFER",
+              "APPLICATION_FILE_ACCESS"
+            ]
+          },
+          "isPredefined": {
+            "type": "boolean",
+            "description": "Indicates whether the Endpoint DLP resource is predefined by the system"
+          },
+          "networkDriveType": {
+            "type": "string",
+            "description": "The name of the server used for a network drive, if applicable. This field is required if <code>networkDrives</code> is not set.",
+            "enum": [
+              "ALL_DIRECTORIES"
+            ]
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the endpoint DLP resource",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          "serverName": {
+            "type": "string",
+            "description": "Server name used for network drive. This field is only applicable when configuring a network share resource."
+          },
+          "appId": {
+            "type": "integer",
+            "format": "int64"
+          },
+          "printer": {
+            "description": "Contains the printer configuration for the Endpoint DLP resource. This field is only applicable when configuring a printer resource.",
+            "$ref": "#/definitions/DlpPrinter"
+          },
+          "networkDrives": {
+            "type": "array",
+            "description": "Details about the removable storage device configured for the Endpoint DLP resource. This field is only applicable when configuring a network share resource.",
+            "items": {
+              "$ref": "#/definitions/DlpNetworkDrive"
+            }
+          },
+          "removableStorage": {
+            "description": "Removable Storage Device resource details for Endpoint DLP. This field is only applicable when configuring a removable storage device resource.",
+            "$ref": "#/definitions/DlpRemovableStorage"
+          },
+          "application": {
+            "description": "Details about the application configured as an Endpoint DLP resource. This field is only applicable when configuring an endpoint application resource.",
+            "$ref": "#/definitions/DlpApplication"
+          }
+        },
+        "description": "Represents the DLP resource or endpoint application for a specific channel. This model can contain information about a DLP resource (e.g., printer, network share, or removable storage device) or an endpoint application depending on the API endpoints in which they are used."
+      },
+      "EntityReference": {
+        "type": "object",
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "A unique identifier for an entity"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the entity",
+            "readOnly": true
+          },
+          "externalId": {
+            "type": "string",
+            "description": "An external identifier used for an entity that is managed outside of ZIA. Examples include <code>zpaServerGroup</code> and <code>zpaAppSegments</code>. This field is not applicable to ZIA-managed entities."
+          },
+          "extensions": {
+            "type": "object",
+            "description": "Additional information about the entity",
+            "additionalProperties": {
+              "type": "string"
+            }
+          }
+        },
+        "description": "This is an immutable reference to an entity that mainly consists of id and name"
+      },
+      "EndpointDlpResourceGroup": {
+        "type": "object",
+        "required": [
+          "channel",
+          "name"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the DLP resource or endpoint application tag group"
+          },
+          "channel": {
+            "type": "string",
+            "description": "The data transfer channel type of the tag group",
+            "enum": [
+              "NETWORK_DRIVE_TRANSFER",
+              "PRINTING",
+              "REMOVABLE_DRIVE_TRANSFER",
+              "APPLICATION_FILE_ACCESS"
+            ]
+          },
+          "name": {
+            "type": "string",
+            "description": "Tag group name",
+            "minLength": 0,
+            "maxLength": 128
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the tag group",
+            "minLength": 0,
+            "maxLength": 256
+          },
+          "resources": {
+            "type": "array",
+            "description": "The list of DLP resources (e.g., printers, network drives, and removable storage devices) or endpoint applications associated with this tag",
+            "items": {
+              "$ref": "#/definitions/EndpointDlpResource"
+            }
+          },
+          "resourceCount": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The total number of resources associated with this tag"
+          }
+        },
+        "description": "Represents a tag that groups DLP resources (e.g., printers, network shares, and removable storage devices) or endpoint applications for a specific channel. This model can represent tags grouping DLP resources or endpoint applications depending on the API endpoints in which they are used."
+      },
+      "EndpointDlpGroupToResourceAssociation": {
+        "type": "object",
+        "properties": {
+          "resourcesToBeAdded": {
+            "type": "array",
+            "description": "IDs of DLP resources to be added to the tag group",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          },
+          "resourcesToBeDeleted": {
+            "type": "array",
+            "description": "IDs for DLP resources to be deleted from the tag group",
+            "items": {
+              "type": "integer",
+              "format": "int32"
+            }
+          }
+        },
+        "description": "DLP resources to be associated or removed from an existing tag group"
+      },
+      "EndPointApplication": {
+        "type": "object",
+        "description": "Endpoint application configuration details",
+        "properties": {
+          "resourceId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier of the DLP resource for an organization. This is a common ID applicable across DLP resources (e.g., printers, network shares, and removable storage devices) and endpoint applications."
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the application"
+          },
+          "osType": {
+            "type": "string",
+            "description": "The operating system for which the endpoint application is configured",
+            "enum": [
+              "ANY",
+              "OTHER_OS",
+              "IOS",
+              "ANDROID_OS",
+              "WINDOWS_OS",
+              "MAC_OS",
+              "LINUX"
+            ]
+          },
+          "applicationName": {
+            "type": "string",
+            "description": "The display name of the application"
+          },
+          "bundleID": {
+            "type": "string",
+            "description": "The bundle identifier that uniquely identifies the application"
+          },
+          "filename": {
+            "type": "string",
+            "description": "The name of the executable that runs the application"
+          },
+          "originalFileName": {
+            "type": "string",
+            "description": "The original file name of the executable, applicable for Windows. This name can be located on the Details tab in the Properties for the executable file in Windows."
+          },
+          "digitallySigned": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the application file must be digitally signed by a trusted provider"
+          },
+          "modUId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The user who last modified the application"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The timestamp of when the application was last modified"
+          },
+          "applicationType": {
+            "type": "string",
+            "description": "The endpoint application type as determined by the Zscaler service",
+            "enum": [
+              "WELLKNOWN",
+              "DISCOVERED",
+              "CUSTOM"
+            ]
+          },
+          "version": {
+            "description": "The parent (aggregate) version entry representing 'All Versions'. It presents the overall risk level for the application, which is either the maximum risk level across all child versions or a user-overridden value.",
+            "$ref": "#/definitions/EndPointApplicationVersion"
+          },
+          "versions": {
+            "type": "array",
+            "description": "The list of individual version entries for the application. Each entry represents a specific version with its own risk level, threat type, and signing status.",
+            "items": {
+              "$ref": "#/definitions/EndPointApplicationVersion"
+            }
+          },
+          "zappId": {
+            "description": "The application-specific identifier",
+            "type": "string"
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Indicates whether the application has been soft-deleted"
+          }
+        }
+      },
+      "AssociatedRulesDetails": {
+        "type": "object",
+        "description": "Information about policy rules associated with DLP resources",
+        "properties": {
+          "ruleName": {
+            "type": "string",
+            "description": "Associated policy rule name"
+          },
+          "ruleType": {
+            "type": "string",
+            "description": "Associated policy rule type"
+          },
+          "id": {
+            "type": "string",
+            "description": "<p>An associated identifier.</p><b>Note</b>: This identifier is applicable only for specific features. In other API requests (e.g., policy rule association for endpoint applications), this field is not populated and is shown as <code>null</code>.</p>"
+          }
+        }
+      },
+      "EndPointApplicationLite": {
+        "type": "object",
+        "properties": {
+          "resourceId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier of the DLP resource for an organization. This is a common ID applicable across DLP resources (e.g., printers, network shares, and removable storage devices) and endpoint applications."
+          },
+          "osType": {
+            "type": "string",
+            "description": "The operating system for which the endpoint application is configured",
+            "enum": [
+              "ANY",
+              "OTHER_OS",
+              "IOS",
+              "ANDROID_OS",
+              "WINDOWS_OS",
+              "MAC_OS",
+              "LINUX"
+            ]
+          },
+          "z_ver_id_md32": {
+            "type": "integer",
+            "format": "int32",
+            "description": "This attribute is for Zscaler internal use only. It is a version identifier for a specific endpoint application version."
+          },
+          "threatLevel": {
+            "type": "string",
+            "description": "The application's threat level as determined by the Zscaler service",
+            "enum": [
+              "UNKNOWN_ZCSAPPTHREATLEVEL",
+              "LOW",
+              "MEDIUM",
+              "HIGH"
+            ]
+          },
+          "applicationName": {
+            "type": "string",
+            "description": "The display name of the application"
+          },
+          "bundleID": {
+            "type": "string",
+            "description": "The bundle identifier that uniquely identifies the application"
+          },
+          "filename": {
+            "type": "string",
+            "description": "The name of the executable that runs the application"
+          },
+          "originalFileName": {
+            "type": "string",
+            "description": "The original file name of the executable, applicable for Windows. This name can be located on the Details tab in the Properties for the executable file in Windows."
+          },
+          "digitallySigned": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the application file must be digitally signed by a trusted provider"
+          },
+          "applicationType": {
+            "type": "string",
+            "description": "The endpoint application type as determined by the Zscaler service",
+            "enum": [
+              "WELLKNOWN",
+              "DISCOVERED",
+              "CUSTOM"
+            ]
+          },
+          "deleted": {
+            "type": "boolean",
+            "description": "Indicates whether the application has been soft-deleted"
+          },
+          "zappId": {
+            "type": "string",
+            "description": "The application-specific identifier"
+          }
+        }
+      },
+      "EndPointApplicationGroup": {
+        "type": "object",
+        "description": "Endpoint application tag group details",
+        "properties": {
+          "groupId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "System-generated identifier for the endpoint application tag group"
+          },
+          "name": {
+            "type": "string",
+            "description": "Endpoint application tag name"
+          },
+          "description": {
+            "type": "string",
+            "description": "Additional information about the endpoint application tag"
+          },
+          "modUId": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The user who last modified the endpoint application tag"
+          },
+          "lastModifiedTime": {
+            "type": "integer",
+            "format": "int32",
+            "description": "The timestamp of when the endpoint application tag was last modified"
+          },
+          "endPointApplications": {
+            "type": "array",
+            "description": "The list of endpoint applications that are included in the tag group",
+            "items": {
+              "$ref": "#/definitions/EndPointApplication"
+            }
+          }
+        }
+      },
+      "EndPointApplicationVersion": {
+        "type": "object",
+        "properties": {
+          "version": {
+            "type": "string",
+            "description": "The version string of the application binary. For the parent entry (aggregate across all versions), this is set to a sentinel value representing 'All Versions'."
+          },
+          "z_ver_id_md32": {
+            "type": "integer",
+            "description": "This attribute is for Zscaler internal use only. It is a version identifier for a specific endpoint application version.",
+            "format": "int32"
+          },
+          "threat_type": {
+            "type": "integer",
+            "description": "The threat type classification for this application version as determined by Zscaler",
+            "format": "int32"
+          },
+          "threat_level": {
+            "type": "string",
+            "description": "The risk level for this version as determined by the Zscaler service"
+          },
+          "bundle_id": {
+            "type": "string",
+            "description": "The bundle identifier associated with this version"
+          },
+          "code_signing_certificate_status": {
+            "type": "integer",
+            "description": "The code signing certificate status for this version, indicating whether the binary is digitally signed and the signature is valid",
+            "format": "int32"
+          },
+          "threatLevelUpdated": {
+            "type": "boolean",
+            "description": "Indicates whether the risk level for this version is updated by an admin"
+          }
+        }
+      },
+      "IncidentReceiver": {
+        "type": "object",
+        "description": "Information about the DLP Incident Receiver",
+        "required": [
+          "type"
+        ],
+        "properties": {
+          "id": {
+            "type": "integer",
+            "format": "int64",
+            "description": "ID of the Incident Receiver"
+          },
+          "name": {
+            "type": "string",
+            "description": "The configured name of the Incident Receiver"
+          },
+          "type": {
+            "type": "string",
+            "description": "Incident Receiver type",
+            "enum": [
+              "ICAP",
+              "ZIR",
+              "C2CIR"
+            ]
+          },
+          "tenant": {
+            "description": "Name-ID pair of the SaaS application tenant, applicable when the Cloud-to-Cloud Incident Forwarding type is used.",
+            "$ref": "#/definitions/EntityReference"
+          }
+        }
+      },
+      "DlpPrinter": {
+        "type": "object",
+        "properties": {
+          "unc": {
+            "type": "string",
+            "description": "The Universal Naming Convention (UNC) path to the network printer"
+          },
+          "ipAddress": {
+            "type": "string",
+            "description": "The IP address of the network printer"
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain associated with the printer. This field is optional."
+          }
+        },
+        "description": "Represents a printer resource used in Endpoint DLP policy rules"
+      },
+      "DlpNetworkDrive": {
+        "type": "object",
+        "required": [
+          "networkPath"
+        ],
+        "properties": {
+          "networkPath": {
+            "type": "string",
+            "description": "The full path of the network drive"
+          }
+        },
+        "description": "Represents a network drive resource used in Endpoint DLP policy rules"
+      },
+      "DlpRemovableStorage": {
+        "type": "object",
+        "properties": {
+          "vendorId": {
+            "type": "string",
+            "description": "The vendor ID that identifies the manufacturer of the removable storage device"
+          },
+          "productId": {
+            "type": "string",
+            "description": "The product ID of the removable storage device"
+          },
+          "serialNumber": {
+            "type": "string",
+            "description": "The serial number of the removable storage device"
+          }
+        },
+        "description": "Represents a removable storage resource used in Endpoint DLP policy rules"
+      },
+      "DlpApplication": {
+        "type": "object",
+        "required": [
+          "osType"
+        ],
+        "properties": {
+          "osType": {
+            "type": "string",
+            "description": "The operating system for which the application is configured",
+            "enum": [
+              "EPTDLP_RESOURCE_APP_OS_WINDOWS_OS",
+              "EPTDLP_RESOURCE_APP_OS_MAC_OS"
+            ]
+          },
+          "fileName": {
+            "type": "string",
+            "description": "The name of the executable that runs the application"
+          },
+          "originalFileName": {
+            "type": "string",
+            "description": "The original file name of the executable, applicable for Windows. This name can be located on the Details tab in the Properties for the executable file in Windows."
+          },
+          "bundleID": {
+            "type": "string",
+            "description": "The bundle ID for the macOS application. Limited to maximum length of 256 characters."
+          },
+          "digitallySigned": {
+            "type": "boolean",
+            "description": "A Boolean value that indicates whether the application file must be digitally signed by a trusted provider"
+          }
+        },
+        "description": "Represents an application configured as an Endpoint DLP resource"
+      }
+    }
+  }
+}

@@ -1,0 +1,220 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Managing Application Load Balancing and High Availability Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/managing-application-load-balancing-and-high-availability-using-api",
+    "node": "1486006",
+    "revision": "3160731",
+    "updated": "2026-01-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information for managing application load balancing configurations on application segments using API. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "Before managing application load balancing on an application segment, you must get the application ID of the application segment. To learn more, see Configuring Application Segments Using API."
+    },
+    {
+      "heading": "Getting Details of an Application Load Balancing Configuration",
+      "level": 1
+    },
+    {
+      "text": "To get details of the application load balancing configuration of an application segment:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "applicationId: The application segment ID.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217329507000909824/application/217329507000909927/weightedLbConfig?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"applicationId\": \"217329507000909927\", \"weightedLoadBalancing\": true, \"applicationToServerGroupMappings\": [ { \"id\": \"217329507000909879\", \"weight\": \"12\", \"passive\": false, \"name\": \"ServerGrp6Updated\" }, { \"id\": \"217329507000909868\", \"weight\": \"30\", \"passive\": false, \"name\": \"testExampleSrvrGrp\" }, { \"id\": \"217329507000909872\", \"weight\": \"500\", \"passive\": false, \"name\": \"Test Example Server Grp1\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating the Application Load Balancing Configuration",
+      "level": 1
+    },
+    {
+      "text": "To update the application load balancing configuration of an application segment:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/application/{applicationId}/weightedLbConfig?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "applicationId: The application segment ID.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/217329507000909824/application/217329507000909927/weightedLbConfig?microtenantId=0.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the following JSON payload and provide the following information:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The application segment ID.",
+      "depth": 1
+    },
+    {
+      "item": "Include the weightedLoadBalancing field set to true.",
+      "depth": 1
+    },
+    {
+      "item": "The application-to-server-group mappings. This model is highlighted in red, and includes the following fields:",
+      "depth": 1
+    },
+    {
+      "item": "id: The unique identifier of the server groups captured in Getting Details of Application Load Balancing Configurations.",
+      "depth": 2
+    },
+    {
+      "item": "weight: The weight of the load balancing configuration. This is an integer between 0 and 1,000. To learn more, see Adding Field Descriptions.",
+      "depth": 2
+    },
+    {
+      "item": "passive: If set to false, the server groups are in an active state and can load balance. If true, the server groups stay passive.",
+      "depth": 2
+    },
+    {
+      "item": "name: The name of the server group.",
+      "depth": 2
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"applicationId\": \"<applicationId>\", \"weightedLoadBalancing\": boolean, \"applicationToServerGroupMappings\": [ { \"id\": \"<serverGroupId>\", \"weight\": \"int\", \"passive\": boolean, \"name\": \"<serverGroupName>\" }, { \"id\": \"<serverGroupId>\", \"weight\": \"int\", \"passive\": boolean, \"name\": \"<serverGroupName>\" }, { \"id\": \"<serverGroupId>\", \"weight\": \"int\", \"passive\": boolean, \"name\": \"<serverGroupName>\" } ] }",
+      "depth": 0
+    },
+    {
+      "item": "View the example payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"applicationId\": \"217329507000909927\", \"weightedLoadBalancing\": true, \"applicationToServerGroupMappings\": [ { \"id\": \"217329507000909879\", \"weight\": \"12\", \"passive\": false, \"name\": \"ServerGrp6Updated\" }, { \"id\": \"217329507000909868\", \"weight\": \"30\", \"passive\": false, \"name\": \"testSrvrGrp\" }, { \"id\": \"217329507000909872\", \"weight\": \"500\", \"passive\": false, \"name\": \"Test Server Grp1\" } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response yields code 204, meaning the application segment is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Description",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the application load balancing configuration use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "applicationId",
+          "The application segment ID. To learn more, see Configuring Application Segments Using API.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "weightedLoadBalancing",
+          "Indicates if the application load balancing configuration for application segments is enabled (true) or disabled (false)",
+          "Yes",
+          "Boolean Supported values: true false Default value: false"
+        ],
+        [
+          "id",
+          "The unique identifier of the server group",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "weight",
+          "The weight of the load balancing configuration. Weights with a lower value indicate that a lesser number of requests are served by the App Connectors linked to the server group. Weights with a higher value than other server groups indicate that the App Connectors linked to the server group serve a greater number of requests. Server groups with weights set to 0 do not route requests.",
+          "Yes",
+          "Integer Supported values are [0–1,000]"
+        ],
+        [
+          "passive",
+          "Indicates if the server groups are in an active state and can load balance (false), or if the server groups stay passive (true)",
+          "Yes",
+          "Boolean Supported values: true false"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. Pass microtenantId as null to retrieve data from all customers associated with the tenant. If the microtenantId is not passed in the request endpoint when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    }
+  ]
+}

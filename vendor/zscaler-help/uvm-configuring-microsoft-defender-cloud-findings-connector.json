@@ -1,0 +1,958 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the Microsoft Defender for Cloud Findings Connector",
+  "source": {
+    "url": "https://help.zscaler.com/uvm/configuring-microsoft-defender-cloud-findings-connector",
+    "node": "1531041",
+    "revision": "3225676",
+    "updated": "2026-08-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Microsoft Defender for Cloud is a cloud-native application protection platform (CNAPP) that safeguards cloud-based applications from cyber threats through unified security management, breach prevention, and workload protection."
+    },
+    {
+      "text": "The Microsoft Defender for Cloud Findings connector retrieves security findings for cloud assets, providing details on vulnerabilities, compliance issues, and recommended remediations."
+    },
+    {
+      "text": "This connector retrieves cloud data only."
+    },
+    {
+      "text": "For Azure Cloud Assets, see Configuring the Azure Cloud Assets Connector. For Microsoft Defender for Endpoints, see Configuring the Microsoft Defender for Endpoints Connector."
+    },
+    {
+      "text": "To learn more, see Zscaler and Microsoft Defender for Cloud Apps Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "To configure the Microsoft Defender for Cloud Findings connector, you need to configure the appropriate roles and permissions. You also need the source authentication configuration. The following parameters are required:"
+    },
+    {
+      "item": "Application (client) ID and Directory (tenant) ID",
+      "depth": 0
+    },
+    {
+      "item": "The Application (client) ID and the Directory (tenant) ID are located on the Overview tab of an application.",
+      "depth": 0
+    },
+    {
+      "item": "To create a new application:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter App registrations. From the drop-down menu, select App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          132,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "On the App registrations page, click New registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the application.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Support account types: Select Accounts in this organizational directory only.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          76
+        ]
+      ]
+    },
+    {
+      "item": "Redirect URI (optional): Optionally configure these settings.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Register to create the application.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "The application Overview section appears.",
+      "depth": 1,
+      "strong": [
+        [
+          16,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Overview section, copy the generated Application (client) ID and the Directory (tenant) ID.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          44,
+          67
+        ],
+        [
+          76,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret",
+      "depth": 0
+    },
+    {
+      "item": "On the application Certificates & secrets tab, generate and copy a client secret for the application.",
+      "depth": 0,
+      "strong": [
+        [
+          19,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "To generate a client secret:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter App registrations. From the drop-down menu, select App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          132,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "On the App registrations page, select your app registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "From the left-side navigation, from the Manage drop-down menu, select Certificates & secrets.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          40,
+          46
+        ],
+        [
+          70,
+          92
+        ]
+      ]
+    },
+    {
+      "item": "Click New client secret.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Optionally, enter a description.",
+      "depth": 2
+    },
+    {
+      "item": "Enter an expiration date.",
+      "depth": 2
+    },
+    {
+      "item": "Click Add.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Copy the client secret value.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Save the client secret value. The client secret is not displayed again after you leave this page.",
+      "depth": 1
+    },
+    {
+      "text": "To enable Microsoft Defender for Cloud for your Azure subscriptions, refer to the Microsoft documentation."
+    },
+    {
+      "heading": "Roles and Permissions",
+      "level": 2
+    },
+    {
+      "text": "On the application API permission tab, assign the permissions to the application."
+    },
+    {
+      "item": "View instructions.",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter App registrations. From the drop-down menu, select App registrations.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          132,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "On the App registrations page, select your app registration.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In your app registration, in the left-side navigation, from the Manage drop-down menu, select API permissions.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          64,
+          70
+        ],
+        [
+          94,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "In the Configured permissions section, click Add a permission.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          45,
+          61
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Microsoft APIs tab.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Select Microsoft Graph.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select Application permissions.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Add the PrivilegedAccess.Read.AzureResources permission.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          8,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Add permissions.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "If admin consent is required for these permissions, select Grant admin consent.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          59,
+          78
+        ]
+      ]
+    },
+    {
+      "item": "Click Yes to confirm the action.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "heading": "Configuring the Connector",
+      "level": 1
+    },
+    {
+      "text": "To create the Microsoft Defender for Cloud Findings data source in the Zscaler Security Operations (SecOps) platform:"
+    },
+    {
+      "item": "Go to Configure > Sources.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          15
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Search for and select the connector tile from the available data sources.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring Retrieval Filters and Specifications",
+      "level": 2
+    },
+    {
+      "text": "After you create the Microsoft Defender for Cloud Findings data source, enter the following information in the source setup Retrieval section:"
+    },
+    {
+      "item": "Authentication",
+      "depth": 0
+    },
+    {
+      "item": "To configure authentication:",
+      "depth": 0
+    },
+    {
+      "item": "In the Authentication section, click Create New.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          37,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "The Microsoft Defender for Cloud Authentication window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "In the Microsoft Defender for Cloud Authentication window, enter the information from the Prerequisites section.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, see Configuring Authentications and Managing Authentications.",
+      "depth": 0
+    },
+    {
+      "item": "Specific Subscription IDs",
+      "depth": 0
+    },
+    {
+      "item": "Enter the subscription IDs from which you want to retrieve data.",
+      "depth": 0
+    },
+    {
+      "item": "In the subscriptions service, retrieve the subscription ID for the relevant subscriptions and configure the role assignment.",
+      "depth": 0
+    },
+    {
+      "item": "To retrieve your subscription ID:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter Subscriptions. From the drop-down menu, select Subscriptions.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          128,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "On the Subscriptions page, select the subscription you want to use.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Overview tab, copy the Subscription ID.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          30,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You can enter multiple subscription IDs in the platform.",
+      "depth": 1
+    },
+    {
+      "item": "To assign the Reader role to a single subscription:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter Subscriptions. From the drop-down menu, select Subscriptions.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          128,
+          141
+        ]
+      ]
+    },
+    {
+      "item": "On the Subscriptions page, from the left-side navigation, select Access control (IAM).",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          65,
+          85
+        ]
+      ]
+    },
+    {
+      "item": "On the Access control (IAM) tab, click Add > Add role assignment to configure the following:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          39,
+          42
+        ],
+        [
+          45,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "On the Role tab, select the Reader role.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          28,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "On the Members tab, select User, group, or service principal.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click + Select members and select the application you registered previously.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Assignment type tab, set the assignment duration.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + assign tab, review the assignment and click Review + assign.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          60,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, refer to the Microsoft documentation.",
+      "depth": 1
+    },
+    {
+      "item": "All Subscription IDs in org",
+      "depth": 0
+    },
+    {
+      "item": "Data is retrieved from all subscriptions in your organization. If you have multiple subscriptions, you can organize them into a single management group to set access control in bulk.",
+      "depth": 0
+    },
+    {
+      "item": "To assign the Reader role to multiple subscriptions:",
+      "depth": 0
+    },
+    {
+      "item": "Log in to the Microsoft Azure Portal.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "On the home page, in the Search resources, services, and docs (G+/) field, enter Management groups. From the drop-down menu, select Management groups.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          25,
+          67
+        ],
+        [
+          132,
+          149
+        ]
+      ]
+    },
+    {
+      "item": "On the Management groups page, click Create to configure the following:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          37,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Management group ID: The directory unique identifier that is used to submit commands on this management group. You cannot edit this ID after creation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Management group display name: (Optional) The name displayed in the Azure portal.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "On the Management groups page, click the name of the management group you created.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Add subscription. The Add subscription window appears.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          22
+        ],
+        [
+          28,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "In the Add subscription window, select the subscription you want to add to the management group.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Select the name of the subscription group you added.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "On the subscription group page, from the left-side navigation, click Access control (IAM).",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          69,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "Click Add > Add role assignment to configure the following:",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          9
+        ],
+        [
+          12,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the Role tab, select the Reader role.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          28,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "On the Members tab, select User, group, or service principal.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          27,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "Click + Select members and select the application you registered previously.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Select members, and then select the application you registered previously.",
+      "depth": 2,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "On the Review + assign tab, review the assignment and click Review + assign.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          60,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "To learn more, refer to the Microsoft documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Findings Types drop-down menu",
+      "depth": 0
+    },
+    {
+      "item": "Select the finding type that you want to include in the scope of data ingestion (i.e., CVEs, Misconfigurations, or both).",
+      "depth": 0
+    },
+    {
+      "text": "For complete configuration instructions, see Creating Data Sources."
+    }
+  ]
+}

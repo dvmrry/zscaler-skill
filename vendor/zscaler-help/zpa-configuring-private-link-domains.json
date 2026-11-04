@@ -1,0 +1,166 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Private Link Domains",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/configuring-private-link-domains",
+    "node": "1539671",
+    "revision": "3249082",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This feature is in limited availability. To learn more or to enable this feature, contact Zscaler Support."
+    },
+    {
+      "text": "Configuring private link domains enables Private Access (ZPA) to identify and route traffic to applications hosted behind a private link (e.g., Azure Private Link). When enabled, Private Access evaluates CNAME records returned during DNS resolution to determine whether the destination is associated with a configured private link domain."
+    },
+    {
+      "text": "If the returned CNAME record matches a configured private link domain, Private Access forwards the request through the configured application segment to securely access the private resource."
+    },
+    {
+      "heading": "How Private Link Domain Resolution Works",
+      "level": 1
+    },
+    {
+      "text": "When a user accesses a resource using its standard public domain name, the following sequence describes how DNS resolution and Private Access determine whether the request is routed through a private link endpoint."
+    },
+    {
+      "item": "User Access: A user attempts to access an application using its public domain name (e.g., companyserver.database.windows.net).",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "DNS Resolution: During DNS resolution, Private Access evaluates the returned DNS records to determine whether the resource is associated with a private link endpoint.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Private Link Resolution: DNS resolution returns a CNAME record that points to a private link alias (e.g., company.server.privatelink.database.windows.net). This alias resolves to a private IP address within the Azure virtual network.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Application Segment Matching: Private Access evaluates up to 5 CNAME records (from left to right in ascending order) in the public DNS response.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "For private link routing to occur:"
+    },
+    {
+      "item": "The resolved CNAME must match a configured private link domain.",
+      "depth": 0
+    },
+    {
+      "item": "The corresponding private link alias (e.g., *.privatelink.database.windows.net) must be defined in an application segment, including associated ports and protocols.",
+      "depth": 0
+    },
+    {
+      "text": "This ensures that only traffic mapped to valid application segments is routed through Private Access."
+    },
+    {
+      "heading": "Configuring a Private Link Domain",
+      "level": 1
+    },
+    {
+      "text": "To route private resources through Private Access, you can configure a public domain (e.g., *.database.windows.net) in an application segment. However, configuring a broad domain can cause all traffic for that domain—including resources not associated with a private link—to be routed through Private Access, which can result in unnecessary or incorrect routing."
+    },
+    {
+      "text": "Private link domains address this issue by allowing Private Access to evaluate returned CNAME records and route only traffic that matches configured private link domains."
+    },
+    {
+      "text": "To configure a private link domain:"
+    },
+    {
+      "item": "From the navigation menu, go to Private Access > Private Applications > Defined Application Segment.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          69
+        ],
+        [
+          72,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "Click the Column Menu icon (), and select Private Link Domains.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          21
+        ],
+        [
+          42,
+          62
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The Private Link Domains window opens.",
+      "strong": [
+        [
+          4,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "In the Frontend Wildcard Domains for DNS Request and CNAME Match field, enter a valid private link domain.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          64
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "For example, enter the regular expression *.database.windows.net to match Azure SQL private link domains. When the DNS response contains a matching CNAME record, the alias resolves to a private IP address within the Azure virtual network."
+    },
+    {
+      "item": "Ensure an application segment is defined under Defined Application Segments that includes the private link alias (CNAME target), such as *.privatelink.database.windows.net, along with the required ports and protocols. When the DNS response contains a matching CNAME record, Private Access evaluates up to 5 CNAMEs and routes traffic only if both the domain and application segment conditions are met.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          47,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    }
+  ]
+}

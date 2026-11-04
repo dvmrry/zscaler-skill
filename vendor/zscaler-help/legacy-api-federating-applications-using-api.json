@@ -1,0 +1,206 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Federating Applications Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/federating-applications-using-api",
+    "node": "1540989",
+    "revision": "3226260",
+    "updated": "2026-07-20",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-03",
+  "blocks": [
+    {
+      "text": "This article provides information on Zscaler Private Access (ZPA) application federation use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting, Federating Defined Application Segments, and Understanding Business-to-Business (B2B) Federation."
+    },
+    {
+      "heading": "Getting a List of Federated Applications from the Host Partner",
+      "level": 1
+    },
+    {
+      "text": "To get a list of federated applications shared by the specified host partner by filtering, sorting, and pagination:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/application/host/{host_id}?microtenantId={microtenantId}&page=1&pagesize=20&search=<search>.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "host_id: The application segment ID from the host partner. This is the partnerGid value returned when getting active federated partners.",
+      "depth": 1
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format fieldName operator fieldValue. Only search string values that correspond to the values for valid fields and filters are supported. For example, the string enabled%20EQ%20true is supported for the Enabled filter, using the Equals (EQ) operator, for the true filter value.",
+      "depth": 1,
+      "strong": [
+        [
+          267,
+          274
+        ],
+        [
+          293,
+          304
+        ]
+      ]
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/application/host/145260601092866519?page=1&pagesize=20&scopeId=145260601092866314&search=enabled%20EQ%20true.",
+      "depth": 0
+    },
+    {
+      "text": "The endpoint to get a list of federated applications shared by the host partner is used by the host partner to view what is already shared, or by a guest partner when called against a host_id they have visibility into to view what was shared with them."
+    },
+    {
+      "item": "View an example response.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\": \"1\", \"totalCount\": \"1\", \"list\": [ { \"id\": 145260601092866990, \"name\": \"rdp-internal-host.com\", \"domainNames\": [ \"rdp-internal-host.com\" ], \"tcpPortRanges\": [3389, 3389], \"udpPortRanges\": [], \"hostInfo\": { \"partnerGid\": 72057595111669760, \"partnerName\": \"Acme Corp\", \"partnerScopeName\": \"Default\", \"approvalStatus\": \"APPROVED\", \"federationStatus\": \"ACTIVE\" } } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Federating an Application with Guest Partners",
+      "level": 1
+    },
+    {
+      "text": "To federate an existing application segment from a host partner with one or more guest partners:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/application/federate?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/72057595111669760/application/federate?microtenantId=145260601092866314.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to provide information about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Provide the following JSON payload and include the following details:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "applicationGid: The GID of the host application segment that you want to federate. To learn more, see Getting a List of Federated Applications from the Host Partner.",
+      "depth": 1
+    },
+    {
+      "item": "guestGid: The list of guest partner GIDs to share the application with. This array must be the partners the host has an active federation with. To learn more, see Federating Partners Using API.",
+      "depth": 1
+    },
+    {
+      "item": "View the minimum criteria JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"applicationGid\": 0, \"guestGids\": [ 0 ] }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload.",
+      "depth": 0
+    },
+    {
+      "item": "{ \"applicationGid\": 145260601092866519, \"guestGids\": [ 72057595111669761, 72057595111669762 ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the federating applications use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "customerId",
+          "The unique identifier of the ZPA tenant",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "host_id",
+          "The application segment ID from the host partner. This is the partnerGid value returned when getting active federated partners.",
+          "Yes",
+          "Integer"
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained from the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations is limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ],
+        [
+          "search",
+          "The search string used to support search by features and fields for the API",
+          "No",
+          "String For example: guestGid EQ 123 enabled EQ true domainNames CONTAINS example.com"
+        ],
+        [
+          "page",
+          "Specifies the page number",
+          "No",
+          "Integer This field is 1 by default."
+        ],
+        [
+          "pagesize",
+          "Specifies the page size",
+          "No",
+          "Integer If not provided, the default page size is 20. The maximum page size is 500."
+        ]
+      ]
+    }
+  ]
+}

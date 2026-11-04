@@ -1,0 +1,1805 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring Access Policies Using API",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/configuring-access-policies-using-api",
+    "node": "1484771",
+    "revision": "3249110",
+    "updated": "2026-10-09",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article provides information on managing Zscaler Private Access (ZPA) access policy use cases using APIs. All APIs are rate limited. To learn more, see Understanding Rate Limiting."
+    },
+    {
+      "text": "After policy groups and policy group rules are enabled, legacy access policy API calls are not supported for managing policies. Ensure that cloud service API automation and workflows for legacy access policies API calls are updated before enabling global rules and policy groups. To learn more, contact Zscaler Support."
+    },
+    {
+      "heading": "Prerequisite API Call",
+      "level": 1
+    },
+    {
+      "text": "To get the policySetId by policy type:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/policyType/{policyType}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the policyType, the value for differentiating the policy types, in the request endpoint. The supported values are:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/policyType/ACCESS_POLICY."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303020009\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1627689868\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1480979629\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303025242\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Global_Policy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"enabled\":true,",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"The rules in this policy set are executed first.\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"1\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports pagination. To get a paginated response:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 0
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 1
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 1
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 1
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 1
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 1
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 1
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 1
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 1
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 1
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 1
+    },
+    {
+      "item": "Valid values for page and page size parameters.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/217246660302995456/policySet/rules/policyType/ACCESS_POLICY?page=1&pagesize=2."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"totalPages\":\"16\",",
+      "depth": 0
+    },
+    {
+      "item": "\"list\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303025578\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"Test all access\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"31\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635818\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"OR\",",
+      "depth": 0
+    },
+    {
+      "item": "\"negated\":false,",
+      "depth": 0
+    },
+    {
+      "item": "\"operands\":[",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635819\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"APP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025577\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST-MOCK\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635820\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"APP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025612\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST-COPY\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635821\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"APP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025613\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST-MOCK2\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635822\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"APP_GROUP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025575\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST-MOCK\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635823\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"APP_GROUP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025610\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST-COPY\"",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"635824\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1643242692\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"217246660303024774\",",
+      "depth": 0
+    },
+    {
+      "item": "\"objectType\":\"TEST APP_GROUP\",",
+      "depth": 0
+    },
+    {
+      "item": "\"lhs\":\"id\",",
+      "depth": 0
+    },
+    {
+      "item": "\"rhs\":\"217246660303025615\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"TEST_COPY2\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "],",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"ALLOW\",",
+      "depth": 0
+    },
+    {
+      "item": "\"customMsg\":\"TEST access rule\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "},",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"217246660303023504\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedTime\":\"1642482351\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057594037995189\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"All_Test\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"2\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"31\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"ALLOW\",",
+      "depth": 0
+    },
+    {
+      "item": "\"customMsg\":\"Have fun\",",
+      "depth": 0
+    },
+    {
+      "item": "\"defaultRule\":false",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "item": "]",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "This API supports a search option to get rules by action. To search by features and fields:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/rules/policyType/{policyType}?page=1&pagesize=20&search={searchString}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policyType: The value for differentiating the policy types. The supported values are:",
+      "depth": 1
+    },
+    {
+      "item": "ACCESS_POLICY or GLOBAL_POLICY (i.e., access policy)",
+      "depth": 2
+    },
+    {
+      "item": "TIMEOUT_POLICY or REAUTH_POLICY (i.e., timeout policy)",
+      "depth": 2
+    },
+    {
+      "item": "BYPASS_POLICY or CLIENT_FORWARDING_POLICY (i.e., client forwarding policy)",
+      "depth": 2
+    },
+    {
+      "item": "INSPECTION_POLICY (i.e., AppProtection policy)",
+      "depth": 2
+    },
+    {
+      "item": "ISOLATION_POLICY (i.e., Isolation policy)",
+      "depth": 2
+    },
+    {
+      "item": "REDIRECTION_POLICY (i.e., redirection policy)",
+      "depth": 2
+    },
+    {
+      "item": "CAPABILITIES_POLICY (i.e., privileged capabilities policy)",
+      "depth": 2
+    },
+    {
+      "item": "CREDENTIAL_POLICY (i.e., privileged credential policy)",
+      "depth": 2
+    },
+    {
+      "item": "CLIENTLESS_SESSION_PROTECTION_POLICY (i.e., Browser Protection policy)",
+      "depth": 2
+    },
+    {
+      "item": "PRIVILEGED_PORTAL_POLICY (i.e., privileged portal policy)",
+      "depth": 2
+    },
+    {
+      "item": "Valid page and page size values.",
+      "depth": 1
+    },
+    {
+      "item": "Valid search string values. The search string values are in the format action OPERATOR ruleAction. The supported ruleAction values for access policies are ALLOW and DENY. The supported value for OPERATOR is EQ (i.e., equals). Only search string values that correspond to the values for valid rule actions and operators are supported. For example, the string action%20EQ%ALLOW is supported for the Rule Action filter, using the Equals operator, for the ALLOW rule action.",
+      "depth": 1,
+      "strong": [
+        [
+          397,
+          408
+        ],
+        [
+          427,
+          433
+        ]
+      ]
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/rules/policyType/ACCESS_POLICY?page=1&pagesize=500&search=action%20EQ%20ALLOW.",
+      "depth": 0
+    },
+    {
+      "text": "If not provided, the default page size is 20. The maximum page size is 500."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"totalPages\":\"1\", \"totalCount\":\"0\", \"list\":[ { \"id\":\"72057594037928147\", \"modifiedTime\":\"1690194270\", \"modifiedBy\":\"72057594037941138\", \"name\":\"yob\", \"ruleOrder\":\"1\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"ALLOW\", \"defaultRule\":false, \"restrictedEntity\":false }, { \"id\":\"72057594038004605\", \"modifiedTime\":\"1675769235\", \"modifiedBy\":\"72057594037959293\", \"name\":\"test232\", \"ruleOrder\":\"3\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"ALLOW\", \"defaultRule\":false, \"restrictedEntity\":false }, { \"id\":\"72057594038007682\", \"creationTime\":\"1676967351\", \"modifiedBy\":\"72057594037993505\", \"name\":\"adfasf\", \"description\":\"asfas\", \"ruleOrder\":\"4\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"ALLOW\", \"defaultRule\":false, \"restrictedEntity\":false } ] }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting the Required Policy Criteria Details",
+      "level": 2
+    },
+    {
+      "text": "Before creating a new access policy rule, you must get the following required details for the policy criteria:"
+    },
+    {
+      "item": "Application Segment. To learn more, see Configuring Application Segments Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Client types. To learn more, see Getting Details of All Client Types.",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Connector Group. To learn more, see Obtaining Cloud Connector Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "IdP. To learn more, see Obtaining IdP Configuration Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Machine Group. To learn more, see Obtaining Machine Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Platform types. To learn more, see Getting Platform Types for a Customer.",
+      "depth": 0
+    },
+    {
+      "item": "Posture profile. To learn more, see Obtaining Posture Profile Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SAML attribute. To learn more, see Obtaining SAML Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Segment Group. To learn more, see Configuring Segment Groups Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM attribute value. To learn more, see Obtaining SCIM Attribute Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM Group. To learn more, see Obtaining SCIM Group Details Using API.",
+      "depth": 0
+    },
+    {
+      "item": "Trusted network. To learn more, see Obtaining Trusted Network Details Using API.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating a New Access Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To add a new access policy rule for a given policy set and for a given customerId:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in Prerequisite API Call.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/217316918451765248/policySet/217316918451765253/rule.",
+      "depth": 0
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 1
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 1
+    },
+    {
+      "item": "Use the entire JSON payload and provide the policy criteria you want for the criteria.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"<policySetId>\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"<applicationId>\", \"<applicationId>\", \"<applicationId>\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"<segmentGroupId>\" ] } ] } ], \"name\": \"<Example Policy Rule Name>\", \"description\": \"<Example Policy Rule Description>\", \"action\": \"ALLOW\", \"appConnectorGroups\": [ { \"id\": \"<appConnectorGroupId>\", \"name\": \"<Example App Connector Group Name>\" }, { \"id\": \"<appConnectorGroupId>\", \"name\": \"<Example App Connector Group Name 2>\" } ], \"appServerGroups\": [], \"customMsg\": \"MsgString\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"72057615512764594\", \"creationTime\":\"1612289724\", \"modifiedBy\":\"72057615512764593\", \"name\":\"PolicyName\", \"description\":\"Description\", \"ruleOrder\":\"5\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"ALLOW\", \"customMsg\":\"MsgString\", \"auditMessage\":\"string\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Privileged Remote Access (PRA) Support",
+      "level": 2
+    },
+    {
+      "text": "To create an access policy rule with a required approval:"
+    },
+    {
+      "item": "Send a POST request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the Prerequisite API Call section.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/policySet/289370814522851333/rule?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Ensure action is set to REQUIRE_APPROVAL",
+      "depth": 0
+    },
+    {
+      "item": "The policy criteria you want to include.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"action\":\"REQUIRE_APPROVAL\", \"actionId\":0, \"appServerGroups\":[ { \"configSpace\":\"DEFAULT\", \"creationTime\":0, \"description\":\"string\", \"enabled\":true, \"id\":0, \"learningEnabled\":true, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"restrictedEntity\":true } ], \"connectorGroups\":[ { \"connectors\":[ { \"applicationStartTime\":0, \"connectorGroupId\":\"string\", \"connectorGroupName\":\"string\", \"controlChannelStatus\":\"UNKNOWN\", \"creationTime\":0, \"ctrlBrokerName\":\"string\", \"currentVersion\":\"string\", \"description\":\"string\", \"enabled\":true, \"expectedUpgradeTime\":0, \"expectedVersion\":\"string\", \"fingerprint\":\"string\", \"id\":0, \"ipAcl\":[ \"string\" ], \"issuedCertId\":0, \"lastBrokerConnectTime\":0, \"lastBrokerConnectTimeDuration\":\"string\", \"lastBrokerDisconnectTime\":0, \"lastBrokerDisconnectTimeDuration\":\"string\", \"lastUpgradeTime\":0, \"latitude\":0, \"location\":\"string\", \"longitude\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"nonceId\":0, \"nonceName\":\"string\", \"platform\":\"string\", \"platformDetail\":\"string\", \"previousVersion\":\"string\", \"privateIp\":\"string\", \"publicIp\":\"string\", \"restrictedEntity\":true, \"sargeVersion\":\"string\", \"signingCert\":{ \"additionalProp1\":\"string\", \"additionalProp2\":\"string\", \"additionalProp3\":\"string\" }, \"upgradeAttempt\":0, \"upgradeStatus\":\"COMPLETE\" } ], \"cityCountry\":\"string\", \"countryCode\":\"string\", \"creationTime\":0, \"description\":\"string\", \"dnsQueryType\":\"IPV4_IPV6\", \"enabled\":true, \"geoLocationId\":0, \"id\":0, \"ipAcl\":[ \"string\" ], \"latitude\":\"string\", \"location\":\"string\", \"longitude\":\"string\", \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"overrideVersionProfile\":true, \"restrictedEntity\":true, \"serverGroups\":[ { \"configSpace\":\"DEFAULT\", \"creationTime\":0, \"description\":\"string\", \"enabled\":true, \"id\":0, \"learningEnabled\":true, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"restrictedEntity\":true } ], \"lssAppConnectorGroup\":true, \"tcpQuickAckApp\":true, \"tcpQuickAckAssistant\":true, \"tcpQuickAckReadAssistant\":true, \"upgradeDay\":\"string\", \"upgradeTimeInSecs\":\"string\", \"versionProfileId\":0, \"versionProfileName\":\"string\", \"versionProfileVisibilityScope\":\"ALL\" } ], \"conditions\":[ { \"creationTime\":0, \"id\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"negated\":true, \"operands\":[ { \"creationTime\":0, \"id\":0, \"idpId\":0, \"lhs\":\"string\", \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"objectType\":\"USER\", \"rhs\":\"string\" } ], \"operator\":\"AND\" } ], \"creationTime\":0, \"customMsg\":\"string\", \"defaultRule\":true, \"defaultRuleName\":\"string\", \"description\":\"string\", \"id\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"operator\":\"AND\", \"policySetId\":0, \"policyType\":0, \"priority\":0, \"reauthIdleTimeout\":0, \"reauthTimeout\":0, \"restrictedEntity\":true, \"ruleOrder\":0, \"zpnCbiProfileId\":0, \"zpnInspectionProfileId\":0, \"zpnInspectionProfileName\":\"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"289370814522851333\", \"conditions\":[ ], \"name\":\"krishna-test1\", \"description\":\"krishna-test1\", \"action\":\"REQUIRE_APPROVAL\", \"connectorGroups\":[ ], \"appServerGroups\":[ ], \"customMsg\":\"krishna-test1\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{ \"id\":\"289370814522851657\", \"creationTime\":\"1669729158\", \"modifiedBy\":\"72057594038624153\", \"name\":\"krishna-test1\", \"description\":\"krishna-test1\", \"microtenantId\":145260601092866314, \"ruleOrder\":\"12\", \"priority\":\"1\", \"policyType\":\"1\", \"operator\":\"AND\", \"action\":\"REQUIRE_APPROVAL\", \"customMsg\":\"krishna-test1\", \"policySetId\":\"289370814522851333\", \"privilegedCapabilities\":{ }, \"defaultRule\":false }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 201. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Adding Field Descriptions",
+      "level": 1
+    },
+    {
+      "text": "The following table includes descriptions of available fields you can use for the access policy use cases:"
+    },
+    {
+      "table": [
+        [
+          "Field",
+          "Description",
+          "Required",
+          "Value"
+        ],
+        [
+          "name",
+          "This is the name of the access policy rule",
+          "Yes",
+          "String"
+        ],
+        [
+          "description",
+          "This is the description of the access policy rule",
+          "No",
+          "String"
+        ],
+        [
+          "action",
+          "This is for providing the rule action",
+          "Yes",
+          "Supported values: ALLOW (default value) DENY REQUIRE_APPROVAL"
+        ],
+        [
+          "customerMsg",
+          "This is for providing a customer message for the user",
+          "No",
+          "String"
+        ],
+        [
+          "conditions",
+          "This is for providing the set of conditions for the policy",
+          "No",
+          "Array of operands"
+        ],
+        [
+          "appConnectorGroups",
+          "The IDs and names of the App Connector groups for the application that you want the access policy to use. If no App Connector groups are specified in the payload, then all App Connector groups for the application are selected. The maximum limit of selected App Connector groups is 48. If all App Connector groups for the application are selected, then only 48 App Connector groups are used. This limit applies to newly created or edited policy rules after March 4, 2024.",
+          "No",
+          ""
+        ],
+        [
+          "operands",
+          "This signifies the various policy criteria",
+          "No",
+          "Array of attributes (objectType, lhs, rhs, name)"
+        ],
+        [
+          "objectType",
+          "This is for specifying the policy criteria",
+          "No",
+          "Supported values: AAE_PROFILE: Denotes the Adaptive Access Profiles policy criteria. APP: Denotes the Applications policy criteria. APP_GROUP: Denotes the segments groups for the Applications policy criteria. BRANCH_CONNECTOR_GROUP: Denotes the Branch Connector Groups policy criteria. CHROME_ENTERPRISE: Denotes the Chrome Enterprise Browser policy criteria. CHROME_POSTURE_PROFILE: Denotes the Chrome posture profiles for the Chrome Enterprise Browser policy criteria. CLIENT_TYPE: Denotes the Client Types policy criteria. CONSOLE: Denotes the console ID for the Chrome Enterprise Browser policy criteria. COUNTRY_CODE: Denotes the Country Code policy criteria. EDGE_CONNECTOR_GROUP: Denotes the Cloud Connector Groups policy criteria. EXTRANET_LOCATION: Denotes the extranet locations for the Extranet Location policy criteria. EXTRANET_LOCATION_GROUP: Denotes the extranet location groups for the Extranet Location policy criteria. IAM_IDP_ID: Denotes the external Identity Provider (IdP) IDs for the SAML and SCIM Attributes policy critera. IDP: Denotes the IdP for the SAML and SCIM Attributes policy criteria. LOCATION: Denotes the Locations policy criteria. MACHINE_GRP: Denotes the Machine Groups policy criteria. PLATFORM: Denotes the Platforms policy criteria. POSTURE: Denotes the Client Connector Posture Profiles policy criteria. PRIVILEGE_PORTAL: Denotes the Privileged Portals policy criteria. RISK_FACTOR_TYPE: Denotes the Risk Scores policy criteria. SAML: Denotes the SAML attributes for the SAML and SCIM Attributes policy criteria. SCIM: Denotes the SCIM attributes for the SAML and SCIM Attributes policy criteria. SCIM_GROUP: Denotes the SCIM groups for the SAML and SCIM Attributes policy criteria. TRUSTED_NETWORK: Denotes the Client Connector Trusted Networks policy criteria. WORKLOAD_TAG_GROUP: Denotes the Workload Groups policy criteria. To learn more, see LHS and RHS Values. POSTURE and TRUSTED_NETWORK values are only supported for the CLIENT_TYPE."
+        ],
+        [
+          "lhs",
+          "This signifies the key for the object type",
+          "No",
+          "String ID example: \"id\""
+        ],
+        [
+          "rhs",
+          "This denotes the value for the given object type. Its value depends upon the key.",
+          "No",
+          "For APP, APP_GROUP, and IDP, the supported value is entity id. For CLIENT_TYPE, the supported values are zpn_client_type_zapp (for Zscaler Client Connector) and zpn_client_type_exporter (for Clientless). For POSTURE, the supported values are: true (verified), false (verification failed). For TRUSTED_NETWORK, the supported value is true."
+        ],
+        [
+          "operator",
+          "This denotes the operation type",
+          "No",
+          "Supported values: AND, OR."
+        ],
+        [
+          "microtenantId",
+          "The unique identifier of the Microtenant for the ZPA tenant. If you are within a Microtenant, you must pass the microtenantId field when making an API call to retrieve data from that Microtenant. The microtenantId can be obtained in the API Keys page, or can be obtained programmatically using the ZPA cloud service API. Access to certain operations are limited when you are within a Microtenant. If you are within the Default Microtenant, pass microtenantId as 0 when making requests to retrieve data from the Default Microtenant. If the microtenantId is not passed in the request when creating or updating a resource, then the resource is created or updated in the Default Microtenant. To learn more, see Configuring Microtenants Using API.",
+          "No",
+          "Integer"
+        ]
+      ]
+    },
+    {
+      "heading": "LHS and RHS Values",
+      "level": 2
+    },
+    {
+      "text": "LHS and RHS values differ based on object types. If the objectType value within the operands model is set to any of the following, then you must include attributes in the values model (i.e., an array of strings) inside each of the operands:"
+    },
+    {
+      "item": "AAE_PROFILE: Denotes the Adaptive Access Profiles policy criteria. The supported attribute is an array of adaptive access profile IDs.",
+      "depth": 0
+    },
+    {
+      "item": "APP: Denotes the Applications policy criteria. The supported attribute is an array of application IDs.",
+      "depth": 0
+    },
+    {
+      "item": "APP_GROUP: Denotes the segments groups for the Applications policy criteria. The supported attribute is an array of segment group IDs.",
+      "depth": 0
+    },
+    {
+      "item": "BRANCH_CONNECTOR_GROUP: Denotes the Branch Connector Groups policy criteria. The supported attribute is an array of Branch Connector group IDs.",
+      "depth": 0
+    },
+    {
+      "item": "CLIENT_TYPE: Denotes the Client Types policy criteria. The supported attribute is an array of client types. The following attributes are supported for CLIENT_TYPE:",
+      "depth": 0
+    },
+    {
+      "item": "0: \"zpn_client_type_branch_connector\": Denotes the Branch Connector client type.",
+      "depth": 1
+    },
+    {
+      "item": "1: \"zpn_client_type_zapp_partner\": Denotes the Client Connector Partner client type.",
+      "depth": 1
+    },
+    {
+      "item": "2: \"zpn_client_type_ip_anchoring\": Denotes the ZIA Service Edge client type.",
+      "depth": 1
+    },
+    {
+      "item": "3: \"zpn_client_type_zapp\": Denotes the Client Connector client type.",
+      "depth": 1
+    },
+    {
+      "item": "4: \"zpn_client_type_eas_client\": Denotes the Extranet client type.",
+      "depth": 1
+    },
+    {
+      "item": "5: \"zpn_client_type_vdi\": Denotes the Client Connector for VDI client type.",
+      "depth": 1
+    },
+    {
+      "item": "6: \"zpn_client_type_edge_connector\": Denotes the Cloud Connector client type.",
+      "depth": 1
+    },
+    {
+      "item": "7: \"zpn_client_type_machine_tunnel\": Denotes the Machine Tunnel client type.",
+      "depth": 1
+    },
+    {
+      "item": "8: \"zpn_client_type_exporter\": Denotes the Web Browser client type.",
+      "depth": 1
+    },
+    {
+      "item": "CHROME_POSTURE_PROFILE: Denotes the Chrome posture profiles for the Chrome Enterprise Profile policy criteria. The supported attribute is an array of Chrome posture profile IDs.",
+      "depth": 0
+    },
+    {
+      "item": "CONSOLE: Denotes the console ID for the Chrome Enterprise Browser policy criteria. The supported attribute is an array of console IDs.",
+      "depth": 0
+    },
+    {
+      "item": "EDGE_CONNECTOR_GROUP: Denotes the Cloud Connector groups for the Cloud Connector Group policy criteria. The supported attribute is an array of Cloud Connector group IDs.",
+      "depth": 0
+    },
+    {
+      "item": "IAM_IDP_ID: Denotes the external Identity Provider (IdP) IDs for the SAML and SCIM Attributes policy critera. Use this field instead of the IDP field that includes all IdP types to target third-party IdPs after migration to Authentication Service. The supported attribute is an array of IdP IDs.",
+      "depth": 0
+    },
+    {
+      "item": "IDP : Denotes the IdPs for the SAML and SCIM Attributes policy criteria. The supported attribute is an array of IdP IDs.",
+      "depth": 0
+    },
+    {
+      "item": "LOCATION: Denotes the Locations policy criteria. The supported attribute is an array of location IDs.",
+      "depth": 0
+    },
+    {
+      "item": "MACHINE_GRP: Denotes the Machine Groups policy criteria. The supported attribute is an array of machine group IDs.",
+      "depth": 0
+    },
+    {
+      "item": "PRIVILEGE_PORTAL: Denotes the Privileged Portals policy criteria. The supported attribute is an array of privileged portal IDs.",
+      "depth": 0
+    },
+    {
+      "item": "WORKLOAD_TAG_GROUP: Denotes the Workload Groups policy criteria. The supported attribute is an array of workload group IDs.",
+      "depth": 0
+    },
+    {
+      "text": "In the following example payload, the values models are highlighted in red:"
+    },
+    {
+      "item": "View the example payload",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"72057594038619453\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"72057594038619463\" ] } ] },",
+      "depth": 0
+    },
+    {
+      "text": "If the objectType value within the operands model is set to the following, then the entryValues property must be added to include the related lhs and rhs values:"
+    },
+    {
+      "item": "EXTRANET_LOCATION: Denotes the extranet locations for the Extranet Location policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "EXTRANET_LOCATION_GROUP: Denotes the extranet location groups for the Extranet Location policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "PLATFORM: Denotes the Platforms policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "POSTURE: Denotes the Client Connector Posture Profiles policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "RISK_FACTOR_TYPE: Denotes the Risk Scores policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "SAML: Denotes the SAML attributes for the SAML and SCIM Attributes policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM: Denotes the SCIM attributes for the SAML and SCIM Attributes policy criteria.",
+      "depth": 0
+    },
+    {
+      "item": "SCIM_GROUP: Denotes the SCIM groups for the SAML and SCIM Attributes policy",
+      "depth": 0
+    },
+    {
+      "item": "If you are subscribed to Authentication Service for users, SCIM and SCIM_GROUP are replaced by USER and USER_GROUP values.",
+      "depth": 0
+    },
+    {
+      "item": "TRUSTED_NETWORK: Denotes the Client Connector Trusted Networks policy criteria.",
+      "depth": 0
+    },
+    {
+      "text": "In the following example payload, the entryValues model is highlighted in red:"
+    },
+    {
+      "item": "View the example payload",
+      "depth": 0
+    },
+    {
+      "item": "\"conditions\": [ { \"operands\": [ { \"objectType\": \"SAML\", \"entryValues\": [ { \"lhs\": \"72057594038637267\", \"rhs\": \"A\" } ] } ], \"operator\": \"OR\" } ],",
+      "depth": 0
+    },
+    {
+      "text": "Refer to the following table for the supported LHS and RHS values per object type:"
+    },
+    {
+      "table": [
+        [
+          "Object Type",
+          "LHS",
+          "RHS"
+        ],
+        [
+          "AAE_PROFILE",
+          "\"<ID>\"",
+          "\"<profile ID>\""
+        ],
+        [
+          "APP",
+          "\"<ID>\"",
+          "\"<application segment ID>\" (e.g., \"144118148382065459\")"
+        ],
+        [
+          "APP_GROUP",
+          "\"<ID>\"",
+          "\"<app segment group ID>\" (e.g., \"144118148382065533\")"
+        ],
+        [
+          "BRANCH_CONNECTOR_GROUP",
+          "\"<ID>\"",
+          "\"Branch Connector group ID>\" (e.g., \"73203803771372526\")"
+        ],
+        [
+          "CHROME_ENTERPRISE",
+          "\"managed\"",
+          "\"true\""
+        ],
+        [
+          "CHROME_POSTURE_PROFILE",
+          "\"<ID>\"",
+          "\"<posture profile ID>\" (e.g., \"72057594038857098\")"
+        ],
+        [
+          "CONSOLE",
+          "\"<ID>\"",
+          "\"<console ID>\" (e.g., \"73237706095733389\")"
+        ],
+        [
+          "CLIENT_TYPE",
+          "\"<ID>\"",
+          "The following values are supported: 0: \"zpn_client_type_branch_connector\": Denotes the Branch Connector client type. 1: \"zpn_client_type_zapp_partner\": Denotes the Client Connector Partner client type. 2: \"zpn_client_type_ip_anchoring\": Denotes the ZIA Service Edge client type. 3: \"zpn_client_type_zapp\": Denotes the Client Connector client type. 4: \"zpn_client_type_eas_client\": Denotes the Extranet client type. 5: \"zpn_client_type_vdi\": Denotes the Client Connector for VDI client type. 6: \"zpn_client_type_edge_connector\": Denotes the Cloud Connector client type. 7: \"zpn_client_type_machine_tunnel\": Denotes the Machine Tunnel client type. 8: \"zpn_client_type_exporter\": Denotes the Web Browser client type."
+        ],
+        [
+          "COUNTRY_CODE",
+          "\"<country code>\" (e.g., \"US\")",
+          "\"true\""
+        ],
+        [
+          "EDGE_CONNECTOR_GROUP",
+          "\"<ID>\"",
+          "\"<Cloud Connector group ID>\" (e.g., \"257257305596685695\")"
+        ],
+        [
+          "EXTRANET_LOCATION",
+          "\"<Location ID or location group ID>\" (e.g., \"145259708813412201\")",
+          "\"Extranet Resource ID\" (e.g., \"145259708813412202\")"
+        ],
+        [
+          "EXTRANET_LOCATION_GROUP",
+          "\"<Extranet Resource ID>\" (e.g., \"145259708813412201\")",
+          "\"<Extranet location group ID>\" (e.g., \"145259708813412203\")"
+        ],
+        [
+          "IDP",
+          "\"<ID>\"",
+          "<IdP ID> (e.g., \"145259708813412532\")"
+        ],
+        [
+          "LOCATION",
+          "\"<ID>\"",
+          "<location ID> (e.g., \"145259708813412273\")"
+        ],
+        [
+          "MACHINE_GRP",
+          "\"<ID>\"",
+          "<Machine group ID> (e.g., \"144118148382065458\")"
+        ],
+        [
+          "PLATFORM",
+          "\"<platform>\" Supported values: Windows (e.g., \"windows\") Linux (e.g., \"linux\") Android (e.g., \"android\") iOS (e.g., \"ios\") Mac (e.g., \"mac\")",
+          "\"true\""
+        ],
+        [
+          "POSTURE",
+          "<posture network ID> (e.g., \"23b0d678b-180f-45ee-8b7d-82bff70f840b\")",
+          "\"true\" or \"false\""
+        ],
+        [
+          "PRIVILEGE_PORTAL",
+          "",
+          ""
+        ],
+        [
+          "RISK_FACTOR_TYPE",
+          "\"ZIA\"",
+          "Supported values: \"UNKNOWN\" \"LOW\" \"MEDIUM\" \"HIGH\" \"CRITICAL\""
+        ],
+        [
+          "SAML",
+          "\"<SAML attribute ID>\" (e.g., \"72057594038620864\")",
+          "\"<Attribute value to match>\" (e.g., \"Department\")"
+        ],
+        [
+          "SCIM",
+          "\"<SCIM attribute ID>\" (e.g. \"72057594037988776\")",
+          "\"<Attribute value to match>\" (e.g., \"John Doe\")"
+        ],
+        [
+          "SCIM_GROUP",
+          "\"<SCIM group attribute ID>\" (e.g., \"72057594037961373\")",
+          "\"<Attribute value to match>\" (e.g., \"20470\")"
+        ],
+        [
+          "TRUSTED_NETWORK",
+          "\"<trusted network ID>\"",
+          "\"true\""
+        ],
+        [
+          "WORKLOAD_TAG_GROUP",
+          "\"<ID>\"",
+          "\"<workload group ID>\" (e.g., \"73214221214576058\")"
+        ]
+      ]
+    },
+    {
+      "heading": "Getting a Particular Access Policy Rule Details",
+      "level": 1
+    },
+    {
+      "text": "Before you get details for a particular access policy rule, you must get the policySetId captured in the Prerequisite API Calls section."
+    },
+    {
+      "text": "To get details for a particular access policy rule:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the Global policy set captured in the Prerequisite API Call section.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Access Policy Rule section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764594/rule/72057615512764594."
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"id\":\"72057615512764607\",",
+      "depth": 0
+    },
+    {
+      "item": "\"creationTime\":\"1612396045\",",
+      "depth": 0
+    },
+    {
+      "item": "\"modifiedBy\":\"72057615512764606\",",
+      "depth": 0
+    },
+    {
+      "item": "\"name\":\"PolicyName\",",
+      "depth": 0
+    },
+    {
+      "item": "\"description\":\"Description\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ruleOrder\":\"6\",",
+      "depth": 0
+    },
+    {
+      "item": "\"priority\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policyType\":\"1\",",
+      "depth": 0
+    },
+    {
+      "item": "\"operator\":\"AND\",",
+      "depth": 0
+    },
+    {
+      "item": "\"action\":\"ALLOW\",",
+      "depth": 0
+    },
+    {
+      "item": "\"customMsg\":\"MsgString\",",
+      "depth": 0
+    },
+    {
+      "item": "\"auditMessage\":\"{\\\"policyType\\\":\\\"Access Policy\\\",\\\"name\\\":\\\"PolicyName\\\",\\\"description\\\":\\\"Description\\\",\\\"action\\\":\\\"ALLOW\\\",\\\"ruleOrder\\\":\\\"6\\\",\\\"messageToUser\\\":\\\"MsgString\\\"}\",",
+      "depth": 0
+    },
+    {
+      "item": "\"policySetId\":\"72057615512764421\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating an Access Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To update the details of an access policy rule in the policy set:"
+    },
+    {
+      "item": "Get the policySetId provided in Prerequisite API Call.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the entire JSON payload from Creating a New Access Rule V2 and send a PUT request to the following endpoint: /mgmtconfig/v2/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Provide the following values in the request endpoint:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in Prerequisite API Call.",
+      "depth": 1
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Access Rule V2.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v2/admin/customers/217316918451765248/policySet/217316918451765253/rule/217316918451766917.",
+      "depth": 0
+    },
+    {
+      "text": "If the objectType value within the operands model is set to specific values (e.g., APP or APP_GROUP), then you must include attributes in the values model (i.e., an array of strings) inside each of the operands as well. If the objectType value within the operands model is set to specific values (e.g., POSTURE, SAML, SCIM, or SCIM_GROUP), then the entryValues property must be added to include the related lhs and rhs values. To learn more, see LHS and RHS Values."
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\": \"72057594037928135\", \"id\": \"72057594038848450\", \"conditions\": [ { \"operands\": [ { \"objectType\": \"APP\", \"values\": [ \"72057594038619453\" ] }, { \"objectType\": \"APP_GROUP\", \"values\": [ \"72057594038619463\" ] } ] }, { \"operands\": [ { \"objectType\": \"SAML\", \"entryValues\": [ { \"lhs\": \"72057594038637267\", \"rhs\": \"A\" } ] } ], \"operator\": \"OR\" } ], \"name\": \"Example Name\", \"description\": \"\", \"disabled\": 0, \"action\": \"ALLOW\", \"assistantGroups\": [], \"appServerGroups\": [], \"extranetEnabled\": false, \"extranetDTO\": {}, \"customMsg\": \"\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the access policy rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "PRA Support",
+      "level": 2
+    },
+    {
+      "text": "To update an access policy rule with a required approval:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule?microtenantId={microtenantId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the global policy set captured in the Prerequisite API Call section.",
+      "depth": 0
+    },
+    {
+      "item": "microtenantId: The unique identifier of the Microtenant for the ZPA tenant. To learn more, see Configuring Microtenants Using API.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/289370814522851328/policySet/289370814522851333/rule?microtenantId=145260601092866314."
+    },
+    {
+      "item": "Include the request headers to specify the following parameters about the request context:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Content-Type: application/json",
+      "depth": 0
+    },
+    {
+      "item": "Authorization: Bearer <access_token>",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the following:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Ensure action is set to REQUIRE_APPROVAL",
+      "depth": 0
+    },
+    {
+      "item": "The policy criteria you want to include.",
+      "depth": 0
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"action\":\"REQUIRE_APPROVAL\", \"actionId\":0, \"appServerGroups\":[ { \"configSpace\":\"DEFAULT\", \"creationTime\":0, \"description\":\"string\", \"enabled\":true, \"id\":0, \"learningEnabled\":true, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"restrictedEntity\":true } ], \"connectorGroups\":[ { \"connectors\":[ { \"applicationStartTime\":0, \"connectorGroupId\":\"string\", \"connectorGroupName\":\"string\", \"controlChannelStatus\":\"UNKNOWN\", \"creationTime\":0, \"ctrlBrokerName\":\"string\", \"currentVersion\":\"string\", \"description\":\"string\", \"enabled\":true, \"expectedUpgradeTime\":0, \"expectedVersion\":\"string\", \"fingerprint\":\"string\", \"id\":0, \"ipAcl\":[ \"string\" ], \"issuedCertId\":0, \"lastBrokerConnectTime\":0, \"lastBrokerConnectTimeDuration\":\"string\", \"lastBrokerDisconnectTime\":0, \"lastBrokerDisconnectTimeDuration\":\"string\", \"lastUpgradeTime\":0, \"latitude\":0, \"location\":\"string\", \"longitude\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"nonceId\":0, \"nonceName\":\"string\", \"platform\":\"string\", \"platformDetail\":\"string\", \"previousVersion\":\"string\", \"privateIp\":\"string\", \"publicIp\":\"string\", \"restrictedEntity\":true, \"sargeVersion\":\"string\", \"signingCert\":{ \"additionalProp1\":\"string\", \"additionalProp2\":\"string\", \"additionalProp3\":\"string\" }, \"upgradeAttempt\":0, \"upgradeStatus\":\"COMPLETE\" } ], \"cityCountry\":\"string\", \"countryCode\":\"string\", \"creationTime\":0, \"description\":\"string\", \"dnsQueryType\":\"IPV4_IPV6\", \"enabled\":true, \"geoLocationId\":0, \"id\":0, \"ipAcl\":[ \"string\" ], \"latitude\":\"string\", \"location\":\"string\", \"longitude\":\"string\", \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"overrideVersionProfile\":true, \"restrictedEntity\":true, \"serverGroups\":[ { \"configSpace\":\"DEFAULT\", \"creationTime\":0, \"description\":\"string\", \"enabled\":true, \"id\":0, \"learningEnabled\":true, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"restrictedEntity\":true } ], \"lssAppConnectorGroup\":true, \"tcpQuickAckApp\":true, \"tcpQuickAckAssistant\":true, \"tcpQuickAckReadAssistant\":true, \"upgradeDay\":\"string\", \"upgradeTimeInSecs\":\"string\", \"versionProfileId\":0, \"versionProfileName\":\"string\", \"versionProfileVisibilityScope\":\"ALL\" } ], \"conditions\":[ { \"creationTime\":0, \"id\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"negated\":true, \"operands\":[ { \"creationTime\":0, \"id\":0, \"idpId\":0, \"lhs\":\"string\", \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"objectType\":\"USER\", \"rhs\":\"string\" } ], \"operator\":\"AND\" } ], \"creationTime\":0, \"customMsg\":\"string\", \"defaultRule\":true, \"defaultRuleName\":\"string\", \"description\":\"string\", \"id\":0, \"modifiedBy\":0, \"modifiedTime\":0, \"name\":\"string\", \"operator\":\"AND\", \"policySetId\":0, \"policyType\":0, \"priority\":0, \"reauthIdleTimeout\":0, \"reauthTimeout\":0, \"restrictedEntity\":true, \"ruleOrder\":0, \"zpnCbiProfileId\":0, \"zpnInspectionProfileId\":0, \"zpnInspectionProfileName\":\"string\" }",
+      "depth": 0
+    },
+    {
+      "item": "View an example JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "{ \"policySetId\":\"289370814522851333\", \"conditions\":[ ], \"name\":\"krishna-test1\", \"description\":\"krishna-test1\", \"action\":\"REQUIRE_APPROVAL\", \"connectorGroups\":[ ], \"appServerGroups\":[ ], \"customMsg\":\"krishna-test1\" }",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the access rule is updated. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Updating a Rule Order",
+      "level": 1
+    },
+    {
+      "text": "To update a rule order:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}/reorder/{newOrder}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following parameters in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the policy set.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule.",
+      "depth": 0
+    },
+    {
+      "item": "newOrder: The new order of the rule.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057594037927936/policySet/72057594037938994/rule/72057615512764641/reorder/4."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rule order is updated. To learn more, see About Error Codes."
+    },
+    {
+      "text": "Updating the rule order of an access policy configured using Zscaler Deception is not supported. When changing the rule order of a regular access policy and there is an access policy configured using Deception, the rule order of the regular access policy must be greater than the rule order for an access policy configured using Deception."
+    },
+    {
+      "heading": "Bulk Updating the Rule Order of All Rules in a Policy Set",
+      "level": 1
+    },
+    {
+      "text": "To bulk update the rule order of all rules in a policy set:"
+    },
+    {
+      "item": "Send a PUT request to the following endpoint: /mgmtconfig/v1/customers/{customerId}/policySet/{policySet}/reorder.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following in the request endpoint:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 1
+    },
+    {
+      "item": "policySetId: The unique identifier of the policy set.",
+      "depth": 1
+    },
+    {
+      "item": "For example: /mgmtconfig/v1/customers/217246660302995456/policySet/217246660303020009/reorder.",
+      "depth": 0
+    },
+    {
+      "item": "Use the following JSON payload and provide the new order of rule IDs for the rules in the policy set as an array of integers:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "View the JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "[ <ruleId1>, <ruleId2>, <ruleId3> ]",
+      "depth": 0
+    },
+    {
+      "item": "View the sample JSON payload",
+      "depth": 0
+    },
+    {
+      "item": "[ 217316918451765311, 217316918451765312, 217316918451765310, 217316918451765255 ]",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 204, meaning the rules within the policy set are reordered."
+    },
+    {
+      "text": "Zscaler recommends you are aware of the following when bulk updating the rule order of all rules within a policy set:"
+    },
+    {
+      "item": "A default rule exists for timeout policies, client forwarding policies, and isolation policies. This default rule cannot be reordered. For PUT requests to bulk update the rule order of timeout policies, client forwarding policies, and isolation policies, the rule ID of the last rule must be placed in the last index of input for the array of rule IDs. If the order of the default rule is changed from the last index, then the exception default.rule.reorder.notallowed - Reordering not allowed for default rule <ruleId> is returned.",
+      "depth": 0
+    },
+    {
+      "item": "All rule IDs for the rules within the policy set must be included in the payload when making the request, otherwise error code 400 is returned with “reason” : “resource input length is not valid”.",
+      "depth": 0
+    },
+    {
+      "item": "If a rule ID from the policy set is missing from the array of rule IDs in the payload, the error missing.rule - Missing ruleIds: <ruleId1, ruleId2> from policySet <policySetId> is returned.",
+      "depth": 0
+    },
+    {
+      "item": "If any invalid rule IDs are passed in the payload when making the request, error code 400 is returned with “reason”: “The ruleId: <ruleId> does not belong to the policySetId: <policySetId>”.",
+      "depth": 0
+    },
+    {
+      "item": "If a rule in the policy set is a restricted entity (e.g., a rule configured using Deception) and its order is changed in the index of input for the array of rule IDs, then the error \"reason\": \"Rule id <ruleId> is a restricted entity and cannot be reordered\" is returned.",
+      "depth": 0
+    },
+    {
+      "heading": "Deleting an Access Policy Rule",
+      "level": 1
+    },
+    {
+      "text": "To delete an access policy rule:"
+    },
+    {
+      "item": "Send a DELETE request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/policySet/{policySetId}/rule/{ruleId}.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the following key-value pairs in the request body:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "customerId: The ZPA tenant ID of the customer.",
+      "depth": 0
+    },
+    {
+      "item": "policySetId: The ID of the Global policySet captured in the Prerequisite API Call section.",
+      "depth": 0
+    },
+    {
+      "item": "ruleId: The ID of the rule you created in Creating a New Access Rule section.",
+      "depth": 0
+    },
+    {
+      "text": "For example: /mgmtconfig/v1/admin/customers/72057615512764416/policySet/72057615512764421/rule/72057615512764594."
+    },
+    {
+      "text": "A successful response returns code 204, meaning the access policy rule is deleted. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "text": "If an access policy is configured using Deception, then the update and delete options are unavailable."
+    },
+    {
+      "heading": "Getting Details of All Client Types",
+      "level": 1
+    },
+    {
+      "text": "To get details of all client types:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/clientTypes.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/clientTypes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter\": \"Web Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_exporter_noauth\": \"Web Browser Unauthenticated\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_machine_tunnel\": \"Machine Tunnel\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_edge_connector\": \"Cloud Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zia_inspection\": \"ZIA Inspection\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp\": \"Client Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_slogger\": \"ZPA LSS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_browser_isolation\": \"Cloud Browser\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_ip_anchoring\": \"ZIA Service Edge\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_zapp_partner\": \"Client Connector Partner\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_branch_connector\": \"Branch Connector\",",
+      "depth": 0
+    },
+    {
+      "item": "\"zpn_client_type_vdi\":\"Client Connector for VDI\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    },
+    {
+      "heading": "Getting Platform Types for a Customer",
+      "level": 1
+    },
+    {
+      "text": "To get the platform types for a customer:"
+    },
+    {
+      "item": "Send a GET request to the following endpoint: /mgmtconfig/v1/admin/customers/{customerId}/platform.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Provide the customerId, the ZPA tenant ID of the customer, in the request endpoint. For example: /mgmtconfig/v1/admin/customers/217246660302995456/platform.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "View an example response",
+      "depth": 0
+    },
+    {
+      "item": "{",
+      "depth": 0
+    },
+    {
+      "item": "\"linux\":\"Linux\",",
+      "depth": 0
+    },
+    {
+      "item": "\"android\":\"Android\",",
+      "depth": 0
+    },
+    {
+      "item": "\"windows\":\"Windows\",",
+      "depth": 0
+    },
+    {
+      "item": "\"ios\":\"iOS\",",
+      "depth": 0
+    },
+    {
+      "item": "\"mac\":\"Mac\"",
+      "depth": 0
+    },
+    {
+      "item": "}",
+      "depth": 0
+    },
+    {
+      "text": "A successful response returns code 200. To learn more, see API Response Codes and Error Messages."
+    }
+  ]
+}

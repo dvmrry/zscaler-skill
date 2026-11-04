@@ -1,0 +1,850 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Distributing a PAC File URL to Users",
+  "source": {
+    "url": "https://help.zscaler.com/zia/distributing-pac-file-url-my-users",
+    "node": "1399431",
+    "revision": "3243744",
+    "updated": "2026-09-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "If your organization uses Active Directory along with Microsoft Internet Explorer, Microsoft Edge, Google Chrome, Mozilla Firefox, or Opera, you can use Group Policy Objects (GPOs) to distribute a PAC file URL to all Windows (Professional, Enterprise, Education, and Ultimate Editions only) and Windows Server devices in your organization. When you configure Internet Explorer to use a PAC file, browsers such as Microsoft Edge, Google Chrome, and Opera follow the same configuration. However, Mozilla Firefox requires a separate method of configuration. To distribute a PAC file URL to Firefox browsers using GPOs, download the ADMX templates for Firefox at https://support.mozilla.org/en-US/kb/customizing-firefox-using-group-policy-windows."
+    },
+    {
+      "heading": "Distributing a PAC File URL to Mozilla Firefox",
+      "level": 1
+    },
+    {
+      "text": "To distribute a PAC file URL to Mozilla Firefox:"
+    },
+    {
+      "item": "1. Download and install GPO templates for Mozilla Firefox.",
+      "depth": 0
+    },
+    {
+      "item": "Mozilla Firefox does not follow the system proxy configuration like the other browsers do. You must download and install separate Group Policy templates for Firefox to use GPOs to deploy and enforce the PAC file setting.",
+      "depth": 0
+    },
+    {
+      "item": "Download and install Mozilla Firefox GPO templates for Windows Server Core.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to a domain-joined Windows 10 client as a user with administrative permissions on the domain.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Open a remote PowerShell session into your domain controller.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Execute the following PowerShell commands:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Invoke-WebRequest -Uri https://github.com/mozilla/policy-templates/archive/master.zip -OutFile .\\master.zip Expand-Archive -Path .\\master.zip -DestinationPath .\\master Copy-Item -Path .\\master\\policy-templates-master\\windows\\*.admx -Destination C:\\Windows\\PolicyDefinitions Copy-Item -Path .\\master\\policy-templates-master\\windows\\en-US\\*.adml -Destination C:\\Windows\\PolicyDefinitions\\en-US",
+      "depth": 1
+    },
+    {
+      "item": "If you are using a Group Policy Central Store, replace the file path in the Destination parameter with that of your Central Store.",
+      "depth": 1
+    },
+    {
+      "item": "Download and install Mozilla Firefox GPO templates for Windows Server with Desktop Experience.",
+      "depth": 1
+    },
+    {
+      "item": "Log in to your domain controller with administrative permissions on the domain.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Open the Start Menu > Windows PowerShell folder. Right-click on Windows PowerShell and select Run as administrator.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          21
+        ],
+        [
+          22,
+          40
+        ],
+        [
+          64,
+          82
+        ],
+        [
+          94,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "Execute the following PowerShell commands:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "Invoke-WebRequest -Uri https://github.com/mozilla/policy-templates/archive/master.zip -OutFile .\\master.zip Expand-Archive -Path .\\master.zip -DestinationPath .\\master Copy-Item -Path .\\master\\policy-templates-master\\windows\\*.admx -Destination C:\\Windows\\PolicyDefinitions Copy-Item -Path .\\master\\policy-templates-master\\windows\\en-US\\*.adml -Destination C:\\Windows\\PolicyDefinitions\\en-US",
+      "depth": 1
+    },
+    {
+      "item": "If you are using a Group Policy Central Store, replace the file path in the Destination parameter with that of your Central Store.",
+      "depth": 1
+    },
+    {
+      "item": "2. Create a new GPO.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the Group Policy Management Console (GPMC) to create a new GPO for distributing a PAC file URL to the Windows devices in your organization. To access the GPMC on a Windows Server Core, you need a Windows client machine (Professional, Enterprise, Education, and Ultimate Editions only) that is installed with Remote Server Administration Tools (RSAT).",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that your client machine is compatible with your server version and has the appropriate administrative permissions on your domain.",
+      "depth": 0
+    },
+    {
+      "item": "On a Windows Server with Desktop Experience, the GPMC is already installed.",
+      "depth": 0
+    },
+    {
+      "item": "To create a new GPO:",
+      "depth": 0
+    },
+    {
+      "item": "Open the GPMC.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Group Policy management tree, navigate to the forest, domain, or organizational unit to which you are applying the GPO.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Right-click on the forest, domain, or organizational unit and select Create a GPO in this domain, and Link it here.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          69,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "The New GPO window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the New GPO window, provide a name for the GPO and leave the Source Starter GPO field blank.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          64,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "A new GPO is created under your domain or organizational unit.",
+      "depth": 0
+    },
+    {
+      "item": "Right-click on the newly created GPO and then select Link Enabled.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          53,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select your forest, domain, or organizational unit and then move the new GPO to Link Order 1 under the Linked Group Policy Objects tab.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          80,
+          92
+        ],
+        [
+          103,
+          130
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "It might take up to 20 minutes for the GPO to be replicated to your Windows client machine.",
+      "depth": 0
+    },
+    {
+      "item": "3. Deploy and enforce PAC file setting for Mozilla Firefox using GPO.",
+      "depth": 0
+    },
+    {
+      "item": "To deploy and enforce the PAC file setting for Mozilla Firefox:",
+      "depth": 0
+    },
+    {
+      "item": "Open the GPMC.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Navigate to the domain or organizational unit to which you applied the GPO and expand it.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Right-click on the newly created GPO and select Edit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "To apply the policy to the entire computer, navigate to Computer Configuration > Policies > Administrative Templates > Mozilla > Firefox.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          56,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To apply the policy only for the domain users, navigate to User Configuration > Policies > Administrative Templates > Mozilla > Firefox.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          59,
+          135
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the Firefox folder, double-click Proxy Settings.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          38,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "The Proxy Settings window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Under Proxy Settings, select Enabled.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          29,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Under Options, configure the following fields:",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Don’t allow proxy settings to be changed: Select this option to enforce the PAC file settings.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Connection Type: Select Manual proxy configuration to configure your custom proxy settings. To use the proxy configured in your system, choose Use system proxy settings.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          24,
+          50
+        ],
+        [
+          143,
+          168
+        ]
+      ]
+    },
+    {
+      "item": "SOCKS Version: Select SOCKS v5.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          14
+        ],
+        [
+          22,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Automatic proxy configuration URL: Enter the PAC file URL in this field if you selected Manual proxy configuration in the Connection Type field.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          34
+        ],
+        [
+          88,
+          114
+        ],
+        [
+          122,
+          137
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Users can no longer modify the proxy settings in Mozilla Firefox.",
+      "depth": 0
+    },
+    {
+      "heading": "Distributing a PAC File URL to Other Browsers",
+      "level": 1
+    },
+    {
+      "text": "To distribute a PAC file URL using browsers other than Mozilla Firefox, such as Microsoft Internet Explorer, Microsoft Edge, Google Chrome, or Opera:"
+    },
+    {
+      "item": "1. Create a new GPO.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the GPMC to create a new GPO for distributing a PAC file URL to the Windows devices in your organization. To access GPMC from a Windows server core, you need a Windows client machine (Professional, Enterprise, Education, or Ultimate Editions only) that is installed with Remote Server Administration Tools (RSAT).",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that your client machine is compatible with your server version and has the appropriate administrative permissions on your domain.",
+      "depth": 0
+    },
+    {
+      "item": "On a Windows server with Desktop Experience, the GPMC is already installed.",
+      "depth": 0
+    },
+    {
+      "item": "To create a new GPO:",
+      "depth": 0
+    },
+    {
+      "item": "Open the GPMC.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the Group Policy management tree, navigate to the forest, domain, or organizational unit to which you are applying the GPO.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Right-click on the forest, domain, or organizational unit and select Create a GPO in this domain, and Link it here.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          69,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "The New GPO window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "In the New GPO window, provide a name for the GPO and leave the Source Starter GPO field blank.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          14
+        ],
+        [
+          64,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "2. Distribute the PAC file URL.",
+      "depth": 0
+    },
+    {
+      "item": "To distribute the PAC file URL using the GPO:",
+      "depth": 0
+    },
+    {
+      "item": "Open the GPMC.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Navigate to the domain or organizational unit to which you applied the GPO and expand it.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Right-click on the newly created GPO and select Edit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Navigate to User Configuration > Preferences > Control Panel Settings.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          12,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Right-click on Internet Settings and select New > Internet Explorer 10.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          15,
+          32
+        ],
+        [
+          44,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "From the Connections tab, click LAN settings.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          9,
+          20
+        ],
+        [
+          32,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the PAC file URL in the Address field.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "If you see a red dotted underline in the Address field, ensure to place your cursor in the text box and press the F6 function key. This enables the field and is indicated by a solid green underline.",
+      "depth": 0,
+      "strong": [
+        [
+          41,
+          48
+        ],
+        [
+          114,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click OK.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "(Optional) If you want to apply the GPO to the entire computer irrespective of the signed in user:",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Navigate to Computer Configuration > Policies > Administrative Templates > Windows Components > Internet Explorer in the GPMC.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          12,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "From the Internet Explorer folder, double-click Make proxy settings per-machine (rather than per-user).",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          9,
+          26
+        ],
+        [
+          48,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "The Make proxy settings per-machine (rather than per-user) window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          58
+        ]
+      ]
+    },
+    {
+      "item": "Under Make proxy settings per-machine (rather than per-user), select Enabled and click OK.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          60
+        ],
+        [
+          69,
+          76
+        ],
+        [
+          87,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You can use the Group Policy Results wizard to verify the policy settings of the users or computers in the domain.",
+      "depth": 0
+    },
+    {
+      "item": "3. Enforce the PAC file setting.",
+      "depth": 0
+    },
+    {
+      "item": "You can enforce the PAC file setting so that the users in your organization cannot modify it even when logged in as an administrator.",
+      "depth": 0
+    },
+    {
+      "item": "To enforce the PAC file setting:",
+      "depth": 0
+    },
+    {
+      "item": "Open the GPMC.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Navigate to the domain or organizational unit to which you applied the GPO and expand it.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Right-click on the newly created GPO and select Edit.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "To apply the policy to the entire computer, navigate to Computer Configuration > Policies > Administrative Templates > Windows Components > Internet Explorer.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          56,
+          157
+        ]
+      ]
+    },
+    {
+      "item": "To apply the policy only for the domain users, navigate to User Configuration > Policies > Administrative Templates > Windows Components > Internet Explorer.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          59,
+          156
+        ]
+      ]
+    },
+    {
+      "item": "From the Internet Explorer folder, double-click Disable changing Automatic Configuration settings.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          9,
+          26
+        ],
+        [
+          48,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "The Disable changing Automatic Configuration settings window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "Under Disable changing Automatic Configuration settings, select Enabled and click OK.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          55
+        ],
+        [
+          64,
+          71
+        ],
+        [
+          82,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Double-click Prevent changing proxy settings.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          13,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "The Prevent changing proxy settings window appears.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Under Prevent changing proxy settings, select Enabled and click OK.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          37
+        ],
+        [
+          46,
+          53
+        ],
+        [
+          64,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Users can no longer change the proxy settings.",
+      "depth": 0
+    },
+    {
+      "item": "Based on your authentication configuration, your users must log in to the service at least once for the service to start protecting their web traffic. If the users log in to a captive portal, such as those present on public Wi-Fi networks (e.g., Starbucks and McDonalds), they must close the browser and open it again to reload the PAC file. The browser tries to fetch the PAC file only when there is a PAC URL timeout.",
+      "depth": 0
+    }
+  ]
+}

@@ -1,0 +1,611 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SCIM Configuration Guide for Okta",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/scim-configuration-guide-okta",
+    "node": "1484911",
+    "revision": "3243381",
+    "updated": "2026-09-18",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide provides information on how to configure and install the Zscaler Private Access (ZPA) 2.0 app in Okta. Zscaler Private Access 2.0 enables you to use SAML as your method of authentication and SCIM as your method of provisioning."
+    },
+    {
+      "text": "Zscaler and Okta are technology partners. To learn more about integrating Zscaler and Okta, see the Zscaler and Okta Deployment Guide."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Ensure that you have:"
+    },
+    {
+      "item": "An Okta account with admin privileges.",
+      "depth": 0
+    },
+    {
+      "item": "An existing directory in Okta.",
+      "depth": 0
+    },
+    {
+      "item": "A Private Access account with an administrator role that allows you to add a SCIM configuration.",
+      "depth": 0
+    },
+    {
+      "item": "A SCIM provisioning subscription for Okta. Contact your Okta representative to ensure your organization has the appropriate subscription.",
+      "depth": 0
+    },
+    {
+      "heading": "Configuring SCIM for Identity Management",
+      "level": 1
+    },
+    {
+      "text": "Using SCIM allows you to quickly remove users from Private Access when you delete them in your user directory. SCIM also ensures that information flows to Private Access and policies are updated accordingly when you make a change to the group information for a user. To use SCIM, you must enable it in Okta."
+    },
+    {
+      "text": "The following procedures apply to SCIM configurations for the Private Access application in Okta. You need to begin the SCIM configuration process in the Zscaler Admin Console to get the SCIM Service Provider Endpoint and bearer token required in steps 4 and 5."
+    },
+    {
+      "text": "To configure SCIM in Okta:"
+    },
+    {
+      "item": "Click the Provisioning tab.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Configure API Integration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select the Enable API Integration checkbox.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the Base URL field, enter the SCIM Service Provider Endpoint that is provided when enabling SCIM in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          15
+        ],
+        [
+          33,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "In the API Token field, enter the Bearer Token that is provided when enabling SCIM in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Click Test API Credentials. Okta attempts to connect to the SCIM endpoint. When the connection is successful, a verification message appears.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          26
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If the attempt fails, make sure you save your IdP configuration in the Zscaler Admin Console when enabling SCIM, and then try again."
+    },
+    {
+      "item": "Click Save after a successful connection to save your credentials.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "After the To App settings load, click Edit next to Provisioning to App.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          38,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "For Create Users, select the Enable checkbox.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          4,
+          16
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "For Update User Attributes, select the Enable checkbox.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          4,
+          26
+        ],
+        [
+          39,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "For Deactivate Users, select the Enable checkbox.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          33,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "After SCIM is enabled, Zscaler checks if a user is present in the SCIM database. Based on this information, Zscaler decides if the user is allowed or blocked access to Private Access. Customers need to ensure SCIM user sync is complete prior to enabling SCIM policies for these users, otherwise the Private Access service does not recognize the users and evaluate policies for them. Before enabling SCIM for policies, Zscaler recommends monitoring the user and group count in the Zscaler Admin Console until it is equal to the user and group count in Okta. The duration of the SCIM sync is dependent on the number of users and groups that are being synced. This can take up to a week in certain scenarios. To learn more, see Enabling SCIM for Identity Management."
+    },
+    {
+      "text": "To assign users or groups to Zscaler Private Access 2.0:"
+    },
+    {
+      "item": "Click the Assignments tab.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Assign drop-down menu, you can:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Select Assign to People: Assigns a user.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Assign to Groups: Assigns a group of users.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After finding the correct users or groups, click Assign.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          49,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "Click Done.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "When assigning users to an application, Zscaler recommends creating one assignment group with all Okta users to leverage assignments and define policies in the Zscaler Admin Console. After the assignments are complete, push the groups you want to sync with Zscaler Private Access 2.0."
+    },
+    {
+      "text": "To sync groups with Zscaler Private Access 2.0:"
+    },
+    {
+      "item": "Click the Push Groups tab.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Click the Push Groups drop-down menu.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "To define which groups are synced with the service provider:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Select Find groups by name: Searches for specific groups to push.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Find groups by rule: Creates a search rule that pushes any groups that match the rule.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After searching for the group by name or rule, click Save or Save & Add Another.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          53,
+          57
+        ],
+        [
+          61,
+          79
+        ]
+      ]
+    },
+    {
+      "text": "To sync attributes (e.g. department, job title) with Private Access SCIM:"
+    },
+    {
+      "item": "Select Directory.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Select Profile Editor.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select the relevant SCIM application configured for Private Access authentication.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Click Add Attribute.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Enter the necessary information:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Data type: Select string.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Display name: Enter the attribute you are going to sync (e.g., department, job title).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Variable name: Enter the attribute you are going to sync (e.g., department, job title).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "External name: Enter the attribute you are going to sync (e.g., department, job title).",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "External namespace: Enter the url urn:ietf:params:scim:schemas:extension:enterprise:2.0:User",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Description: The description for the attribute, if available.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "Fill in the additional fields if necessary."
+    },
+    {
+      "item": "Click Save attribute.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Select the relevant SCIM application again.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "Click Mappings.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click the Okta Users to Zscaler Private Access tab.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          10,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "Enter the necessary information:",
+      "depth": 0,
+      "number": 10
+    },
+    {
+      "item": "Locate the attribute name in the right column under the SCIM application name.",
+      "depth": 1
+    },
+    {
+      "item": "In the left field, next to the attribute name enter user. with the attribute (e.g. user.department, user.jobtitle).",
+      "depth": 1
+    },
+    {
+      "item": "Click Save Mappings.",
+      "depth": 0,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Profile Editor.",
+      "depth": 0,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Review the attributes to confirm that the new attribute is synced.",
+      "depth": 0,
+      "number": 13
+    },
+    {
+      "item": "On the SCIM Users page (Administration > Private Access Authentication > SCIM Users), click the View icon next to an internal user ID to confirm that the SCIM user is reflected in the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 14,
+      "strong": [
+        [
+          96,
+          100
+        ]
+      ]
+    }
+  ]
+}

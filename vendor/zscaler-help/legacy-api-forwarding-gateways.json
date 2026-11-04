@@ -1,0 +1,371 @@
+{
+  "schema_version": 1,
+  "kind": "help-api-spec",
+  "title": "Forwarding Gateways",
+  "source": {
+    "url": "https://help.zscaler.com/legacy-apis/forwarding-gateways",
+    "node": "1528431",
+    "revision": "3165736",
+    "file_url": "https://help.zscaler.com/sites/default/files/api-docs/Forwarding%20Gateways_1.json?VersionId=HERRbPoZdemD.g7LIc9tPdlAord0XQXY",
+    "updated": "2026-01-27",
+    "updated_basis": "file-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "spec": {
+    "openapi": "3.0.1",
+    "info": {
+      "title": "Zscaler Cloud & Branch Connector API",
+      "contact": {
+        "email": "support@zscaler.com"
+      },
+      "version": "v1.0"
+    },
+    "servers": [
+      {
+        "url": "https://{host}:{port}/wapi/v1",
+        "variables": {
+          "host": {
+            "description": "Private APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      },
+      {
+        "url": "https://{host}:{port}/api/v1",
+        "variables": {
+          "host": {
+            "description": "Public APIs Server IP/Domain name hosting Cloud Connector Services",
+            "default": "connector.zscaler.net"
+          },
+          "port": {
+            "default": "443",
+            "enum": [
+              "443",
+              "8443",
+              "1443"
+            ]
+          }
+        }
+      }
+    ],
+    "tags": [
+      {
+        "name": "Forwarding Gateways"
+      }
+    ],
+    "paths": {
+      "/gateways": {
+        "get": {
+          "description": "Retrieves the list of ZIA gateways and Log and Control gateways. To learn more, see <a href=\"/cloud-branch-connector/about-zia-gateways\" target=\"_blank\">ZIA gateways</a> and <a href=\"/cloud-branch-connector/about-log-and-control-gateways\" target=\"_blank\">Log and Control gateways</a>.",
+          "operationId": "EcGatewayZResource_getGateways",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcGateway"
+                    }
+                  }
+                }
+              },
+              "description": "Default Response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        },
+        "post": {
+          "description": "Adds a new ZIA gateway or Log and Control gateway based on the specified parameters. To learn more, see <a href=\"/cloud-branch-connector/configuring-zia-gateway\" target=\"_blank\">Configuring a ZIA Gateway</a> and <a href=\"/cloud-branch-connector/configuring-log-and-control-gateway\" target=\"_blank\">Configuring a Log and Control Gateway</a>.",
+          "operationId": "EcGatewayZResource_addGateway",
+          "requestBody": {
+            "description": "Gateway configuration details.",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcGateway"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcGateway"
+                  }
+                }
+              },
+              "description": "Default Response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        }
+      },
+      "/gateways/lite": {
+        "get": {
+          "description": "Retrieves the list of <a href=\"/cloud-branch-connector/about-zia-gateways\" target=\"_blank\">ZIA gateways</a> and <a href=\"/cloud-branch-connector/about-log-and-control-gateways\" target=\"_blank\">Log and Control gateways</a>. This request retrieves basic information about gateways. For extensive details, use the <code>GET /gateways</code> request.",
+          "operationId": "EcGatewayZResource_getEcGatewayLite",
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "type": "array",
+                    "items": {
+                      "$ref": "#/components/schemas/EcGateway"
+                    }
+                  }
+                }
+              },
+              "description": "Default Response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        }
+      },
+      "/gateways/{gatewayId}": {
+        "get": {
+          "operationId": "EcGatewayZResource_getGatewayById",
+          "description": "Retrieves a ZIA gateway or log and control gateway based on the specified gateway ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "gatewayId",
+              "description": "The ID of the gateway.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcGateway"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        },
+        "put": {
+          "operationId": "EcGatewayZResource_editGateway",
+          "description": "Updates the ZIA gateway or log and control gateway based on the specified gateway ID.",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "gatewayId",
+              "description": "The ID of the gateway.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "requestBody": {
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/EcGateway"
+                }
+              }
+            }
+          },
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {
+                  "schema": {
+                    "$ref": "#/components/schemas/EcGateway"
+                  }
+                }
+              },
+              "description": "default response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        },
+        "delete": {
+          "description": "Deletes a ZIA gateway or Log and Control gateway based on the specified ID.",
+          "operationId": "EcGatewayZResource_deleteGateway",
+          "parameters": [
+            {
+              "in": "path",
+              "name": "gatewayId",
+              "description": "ID of the gateway.",
+              "required": true,
+              "schema": {
+                "type": "integer",
+                "format": "int32"
+              }
+            }
+          ],
+          "responses": {
+            "default": {
+              "content": {
+                "application/json": {}
+              },
+              "description": "Default Response"
+            }
+          },
+          "tags": [
+            "Forwarding Gateways"
+          ]
+        }
+      }
+    },
+    "components": {
+      "schemas": {
+        "EcGateway": {
+          "description": "Information about the forwarding gateway.",
+          "type": "object",
+          "properties": {
+            "id": {
+              "description": "ID of the gateway.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "name": {
+              "description": "Name of the gateway.",
+              "type": "string"
+            },
+            "type": {
+              "description": "Type of the gateway. Supported types are <code>ZIA</code> and <code>ECSELF</code> (Log and Control gateway).",
+              "type": "string",
+              "enum": [
+                "PROXYCHAIN",
+                "ZIA",
+                "ECSELF"
+              ]
+            },
+            "description": {
+              "description": "Description of the gateway.",
+              "type": "string"
+            },
+            "lastModifiedBy": {
+              "description": "Name-ID pair of the user who last modified the gateway.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "lastModifiedTime": {
+              "description": "Timestamp when the gateway was last modified.",
+              "type": "integer",
+              "format": "int32"
+            },
+            "failClosed": {
+              "description": "A true value indicates that traffic must be dropped when both primary and secondary proxies defined in the gateway are unreachable. A false value indicates that traffic must be allowed.",
+              "type": "boolean"
+            },
+            "manualPrimary": {
+              "description": "Specifies the primary proxy through which traffic must be forwarded. Depending on the type of proxy forwarding, this field includes a preconfigured data center, or a specified IP address or domain name.",
+              "type": "string"
+            },
+            "manualSecondary": {
+              "description": "Specifies the secondary proxy through which traffic must be forwarded. Depending on the type of proxy forwarding, this field includes a preconfigured data center, or a specified IP address or domain name.",
+              "type": "string"
+            },
+            "subcloudPrimary": {
+              "description": "Not applicable to Cloud & Branch Connector.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "subcloudSecondary": {
+              "description": "Not applicable to Cloud & Branch Connector.",
+              "$ref": "#/components/schemas/EntityReference"
+            },
+            "primaryType": {
+              "description": "Type of the primary proxy, such as automatic proxy (<code>AUTO</code>), manual proxy (<code>DC</code>) that forwards traffic through selected data centers, or override (<code>MANUAL_OVERRIDE</code>) that forwards traffic through a specified IP address or domain.",
+              "type": "string",
+              "enum": [
+                "NONE",
+                "AUTO",
+                "MANUAL_OVERRIDE",
+                "SUBCLOUD",
+                "VZEN",
+                "PZEN",
+                "DC"
+              ]
+            },
+            "secondaryType": {
+              "description": "Type of the secondary proxy, such as automatic proxy (<code>AUTO</code>), manual proxy (<code>DC</code>) that forwards traffic through selected data centers, or override (<code>MANUAL_OVERRIDE</code>) that forwards traffic through a specified IP address or domain.",
+              "type": "string",
+              "enum": [
+                "NONE",
+                "AUTO",
+                "MANUAL_OVERRIDE",
+                "SUBCLOUD",
+                "VZEN",
+                "PZEN",
+                "DC"
+              ]
+            }
+          }
+        },
+        "EntityReference": {
+          "type": "object",
+          "description": "An immutable reference to an entity, which consists of ID, name, etc.",
+          "properties": {
+            "id": {
+              "type": "integer",
+              "format": "int64",
+              "description": "An ID that uniquely identifies an entity."
+            },
+            "name": {
+              "type": "string",
+              "description": "The name of the entity."
+            },
+            "isNameL10nTag": {
+              "type": "boolean",
+              "description": "Indicates whether the entity is localized for internationalization."
+            },
+            "extensions": {
+              "type": "object",
+              "description": "An object for storing additional properties related to entity configuration.",
+              "additionalProperties": {
+                "type": "string",
+                "description": "Custom attributes within the extensions object."
+              }
+            },
+            "deleted": {
+              "type": "boolean",
+              "description": "Indicates the deletion status of the entity."
+            },
+            "externalId": {
+              "type": "string",
+              "description": "The external ID of the entity."
+            },
+            "associationTime": {
+              "type": "integer",
+              "format": "int32",
+              "description": "The timestamp when the entity was linked or associated."
+            }
+          }
+        }
+      }
+    }
+  }
+}

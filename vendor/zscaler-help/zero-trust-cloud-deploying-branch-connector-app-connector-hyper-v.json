@@ -1,0 +1,716 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Deploying Branch Connector & App Connector with Hyper-V",
+  "source": {
+    "url": "https://help.zscaler.com/zero-trust-cloud/deploying-branch-connector-app-connector-hyper-v",
+    "node": "1478961",
+    "revision": "3203449",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This deployment guide provides information on prerequisites, how to deploy Zscaler Branch Connector & App Connector as a virtual machine (VM) on Hyper-V platforms, and post-deployment configurations."
+    },
+    {
+      "text": "Infrastructure as Code (IaC) deployment templates are not available for Branch Connector & App Connector deployment on Hyper-V platforms."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "The role that you assign to an admin dictates the level of access they have to the Zscaler Admin Console. Zscaler provides a default admin account that provides full access to the portal and scope over the entire organization. Admins must have this access to perform the procedures in this article. To learn more, see About Role Management and Adding Admin Roles."
+    },
+    {
+      "text": "Make sure the following prerequisites are met:"
+    },
+    {
+      "item": "In the Zscaler Admin Console, create a dedicated username for the Branch Connector & App Connector deployment.",
+      "depth": 0
+    },
+    {
+      "item": "In the Zscaler Admin Console, create a dedicated password for the Branch Connector & App Connector deployment. The password must be at least 8 characters in length and include at least one uppercase letter, one number, and one special character. The password must not contain a $, &, >, <, ;, ', or \". If the password does not meet these requirements, the deployment fails.",
+      "depth": 0
+    },
+    {
+      "item": "Configure a Branch Configuration Template and copy the Branch Configuration URL for later use.",
+      "depth": 0
+    },
+    {
+      "item": "Download the Branch Connector Virtual Hard Disk v2 (VHDX) image from the Branch Connector Images page for Hyper-V.",
+      "depth": 0
+    },
+    {
+      "item": "Branch Connector uses an API key to authenticate and register the VM with the Zscaler service. If you do not already have an API key, generate a new key. Then copy the API key from the API Key Management page.",
+      "depth": 0
+    },
+    {
+      "item": "Review the following Branch Connector & App Connector specifications and sizing requirements:",
+      "depth": 0
+    },
+    {
+      "item": "Small VM: Requires 16 GB of memory, 2 CPU cores, 128 GB data disk size, and 3 network interface cards (NICs).",
+      "depth": 1
+    },
+    {
+      "item": "Medium VM: Requires 32 GB of memory, 4 CPU cores, 128 GB data disk size, and 5 NICs.",
+      "depth": 1
+    },
+    {
+      "item": "If a Hyper-V virtual switch does not exist, create one.",
+      "depth": 0
+    },
+    {
+      "item": "VM specification for Branch Connector & App Connector deployed in high availability (HA): MAC Address Spoofing must be enabled on each network adapter.",
+      "depth": 0
+    },
+    {
+      "heading": "Creating and Applying User Data",
+      "level": 1
+    },
+    {
+      "text": "You must create a text file containing user data information for your Branch Connector & App Connector VM. You apply this information to the VM in the Hyper-V Manager UI with an International Organization for Standardization (ISO) file that is mounted via a virtual CD-ROM drive."
+    },
+    {
+      "text": "List of network drivers to specify in the user data information"
+    },
+    {
+      "text": "The following lists Ethernet devices and the drivers that support them. In the template, replace <Driver> with the value associated with the device you will select during deployment. (The values used in the examples are for illustration only, and are not necessarily typical for the hypervisor type.)"
+    },
+    {
+      "item": "Windows VirtIO: vtnet",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Intel e1000: em",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Intel Gigabit: igb",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Intel 10 Gigabit: ix",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "VMware Vxnet3: vmx",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Hyper-V: hn",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Create your user data in a text file named userdata.cfg using one of the following templates, formatted in YAML:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Branch Connector with Management DHCP Template",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035 #Optional to change the port for load balancer status checks from the default value 50001 to 50035. api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - type: dhcp version: '1' #ssh keys are optional ssh_authorized_keys: - ssh-rsa <Key>",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with default HTTP probe port and no SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vmx type: physical subnets: - type: dhcp version: '1'",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with non-default HTTP probe port and SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC http_probe_port: 50035 api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vmx type: physical subnets: - type: dhcp version: '1' ssh_authorized_keys: - ssh-rsa <Key> AAAAB3NzaC1yc2EAAAADAQABAAABgQCh3ru9CCnEow69WlQyJuxvZJGHcjhcgJzp8XnoKTJk6o1bit+rq4BNyjS0orauMF6fNMHAyGZqDWw6RICvoeh386xNqnD7+AGE9VGz4cPv0CjoV2HvkKnA2Dj8KZFFJ/bBV0BndNdGATsbDnhq0wkJ+WXFmamb9kx4dSDL5ZD15SybFop0b/3JoqXoU+9pxFc0bQ/cediaifCztliI9i7NAmvIUinLy2OlDW/uPEcB8nBgXhAAc9ALe6+Q4wZt8JUdrcF04bgoAHYsNuzyEk4dNvov97JyExCAwzSLomiHFtdzhGw7/o6KhfhxxBRodKy4wQBwDzPbD6EbN9iCqoK8DY4HZ2L7HyQKRjhnnY/Y0uldO0tleogElbk+4LsoyAPjPAbogu89xSOa6D7sl2G+dPpqTlFBmO/3m/2JhBnGU= admin@branchpc",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: <CC_URL> http_probe_port: 50035 #Optional to change the port for load balancer status checks from the default value 50001 to 50035. api_key: <API Key> password: <Admin Password> username: <Admin Username> network: config: - name: <Driver> type: physical subnets: - address: <IP Address/Netmask> gateway: <Gateway> type: static - type: nameserver address: - <IP Address> - <IP Address> search: - zscaler.net version: '1' #ssh keys are optional ssh_authorized_keys: - ssh-rsa <Key>",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with default HTTP probe port and no SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vtnet type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254",
+      "depth": 1
+    },
+    {
+      "item": "type: static - type: nameserver address: - 8.8.8.8 - 8.8.4.4 search: - zscaler.net version: '1'",
+      "depth": 1
+    },
+    {
+      "item": "Example user data with non-default HTTP probe port and SSH key",
+      "depth": 1
+    },
+    {
+      "item": "ZSCALER: cc_url: connector.zscaler.net/api/v1/provUrl?name=DemoBC http_probe_port: 50035 api_key: adfads2sd password: demopass username: bac-demoadmin@12345689.zscaler.net network: config: - name: vtnet type: physical subnets: - address: 10.66.118.71/24 gateway: 10.66.118.254 type: static - type: nameserver address: - 8.8.8.8 - 8.8.4.4 search: - zscaler.net version: '1' ssh_authorized_keys: - ssh-rsa <Key> AAAAB3NzaC1yc2EAAAADAQABAAABgQCh3ru9CCnEow69WlQyJuxvZJGHcjhcgJzp8XnoKTJk6o1bit+rq4BNyjS0orauMF6fNMHAyGZqDWw6RICvoeh386xNqnD7+AGE9VGz4cPv0CjoV2HvkKnA2Dj8KZFFJ/bBV0BndNdGATsbDnhq0wkJ+WXFmamb9kx4dSDL5ZD15SybFop0b/3JoqXoU+9pxFc0bQ/cediaifCztliI9i7NAmvIUinLy2OlDW/uPEcB8nBgXhAAc9ALe6+Q4wZt8JUdrcF04bgoAHYsNuzyEk4dNvov97JyExCAwzSLomiHFtdzhGw7/o6KhfhxxBRodKy4wQBwDzPbD6EbN9iCqoK8DY4HZ2L7HyQKRjhnnY/Y0uldO0tleogElbk+4LsoyAPjPAbogu89xSOa6D7sl2G+dPpqTlFBmO/3m/2JhBnGU= admin@branchpc",
+      "depth": 1
+    },
+    {
+      "item": "Branch Connector with Static Management IP Template",
+      "depth": 1
+    },
+    {
+      "item": "Apply your user data to the VM as an ISO image using one of the following procedures:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Windows",
+      "depth": 1
+    },
+    {
+      "item": "Install the Development Tools component from the Windows ADK.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Add oscdimg.exe to your PATH Windows environment variable.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "Use PowerShell or Command Prompt (CMD) to generate the ISO.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir\\user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "> oscdimg.exe -j1 -u1 -lcidata .\\isodir\\user-data",
+      "depth": 2
+    },
+    {
+      "item": "macOS",
+      "depth": 1
+    },
+    {
+      "item": "Install cdrtools using a method such as Homebrew. (This procedure uses Homebrew.)",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "$ brew install cdrtools",
+      "depth": 2
+    },
+    {
+      "item": "Use Terminal to generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> mkisofs -output user-data.iso -volid cidata -joliet -rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "item": "Linux",
+      "depth": 1
+    },
+    {
+      "item": "Install genisoimage.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "On Centos, RedHat, or Rocky Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo yum install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "On Ubuntu or Debian Linux:",
+      "depth": 3
+    },
+    {
+      "item": "sudo apt install genisoimage",
+      "depth": 3
+    },
+    {
+      "item": "Generate the ISO.",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "> mkdir isodir",
+      "depth": 2
+    },
+    {
+      "item": "Edit isodir/user-data and insert the contents of your userdata.cfg file. The user data file must be named user-data.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "> geniosimage -o user-data.iso -volid cidata -joliet -rational-rock isodir/user-data",
+      "depth": 2
+    },
+    {
+      "heading": "Deploying the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "After you have met all the prerequisites, created user data, and applied user data to the VM, perform the following procedure to deploy your Branch Connector & App Connector with Hyper-V."
+    },
+    {
+      "text": "Deployment Procedure"
+    },
+    {
+      "item": "In Hyper-V Manager, right-click your desired host and select New > Virtual Machine.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          64
+        ],
+        [
+          67,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Complete the New Virtual Machine Wizard.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          13,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "If the Before You Begin tab is displayed, click Next.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ],
+        [
+          48,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Name and Location tab, enter the Name. Select the Store the virtual machine in a different location checkbox if you do not want to use the default folder. Then click Next.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          48,
+          52
+        ],
+        [
+          65,
+          114
+        ],
+        [
+          181,
+          185
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Specify Generation tab, select Generation 1 as the VM generation to support your VHDX file. Then click Next.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          38,
+          50
+        ],
+        [
+          110,
+          114
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Assign Memory tab, in the Startup memory field, enter 16384 for a Small VM or 32768 for a Medium VM. Deselect the Use Dynamic Memory for this virtual machine checkbox. Then click Next.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          33,
+          47
+        ],
+        [
+          121,
+          164
+        ],
+        [
+          186,
+          190
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Configure Networking tab, select the virtual switch you want the provided network adapter to use. Then click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          116,
+          120
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Connect Virtual Hard Disk tab, select Use an existing virtual hard disk and select the location you specified for the VHDX file you downloaded earlier. Then click Next.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          32
+        ],
+        [
+          45,
+          78
+        ],
+        [
+          170,
+          174
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On Completing the New Virtual Machine Wizard, select the Summary tab, review the information, and then click Finish.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          3,
+          44
+        ],
+        [
+          57,
+          64
+        ],
+        [
+          109,
+          115
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In Hyper-V Manager, right-click the VM and select Settings > Hardware.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          50,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Select Processor. In the Number of virtual processors field, select 4 for a Small VM or 6 for a Medium VM. Then click Apply.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          25,
+          53
+        ],
+        [
+          68,
+          69
+        ],
+        [
+          88,
+          89
+        ],
+        [
+          118,
+          123
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select DVD Drive under IDE Controller 1. Select Image file and map the user data ISO file you created to the DVD drive. Then click Apply.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          16
+        ],
+        [
+          23,
+          39
+        ],
+        [
+          48,
+          58
+        ],
+        [
+          131,
+          136
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select Add Hardware > Network Adapter. Click Add, and select the required virtual switch. If you require VLAN tagging, select the VLAN ID checkbox. Then click Apply.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          19
+        ],
+        [
+          22,
+          37
+        ],
+        [
+          45,
+          48
+        ],
+        [
+          130,
+          137
+        ],
+        [
+          159,
+          164
+        ]
+      ]
+    },
+    {
+      "item": "Repeat this step as needed for a total of 3 network adapters for a Small VM or 4 network adapters for a Medium VM.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "For each network adapter, click + and select Advanced Features. Under MAC address, select the Enable MAC address spoofing checkbox. Then click Apply.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          32,
+          33
+        ],
+        [
+          45,
+          62
+        ],
+        [
+          70,
+          81
+        ],
+        [
+          94,
+          121
+        ],
+        [
+          143,
+          148
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "MAC address spoofing must be enabled for high availability (HA) deployments. Zscaler recommends that you enable MAC address spoofing for non-HA deployments, as well.",
+      "depth": 1
+    },
+    {
+      "item": "Select BIOS. In the boot device Startup order list, move IDE above CD. Then click OK.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          32,
+          45
+        ],
+        [
+          57,
+          60
+        ],
+        [
+          67,
+          69
+        ],
+        [
+          82,
+          84
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In Hyper-V Manager, right-click the VM and select Start.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          50,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Managing the Branch Connector & App Connector",
+      "level": 1
+    },
+    {
+      "text": "After your VM is fully deployed, you can manage the Branch Connector & App Connector VM from the Zscaler Admin Console. A deployed VM is displayed in the dashboard. The Branch Connector Monitoring page provides information on the name, group, location, geolocation, and status of the VMs deployed in your branch account."
+    },
+    {
+      "text": "After verifying deployment, you can configure the following policies:"
+    },
+    {
+      "item": "Traffic Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "Log and Control Forwarding",
+      "depth": 0
+    },
+    {
+      "item": "DNS Filtering",
+      "depth": 0
+    }
+  ]
+}

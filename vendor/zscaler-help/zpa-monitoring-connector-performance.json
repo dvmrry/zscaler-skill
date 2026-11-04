@@ -1,0 +1,594 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Monitoring App Connector Performance",
+  "source": {
+    "url": "https://help.zscaler.com/zpa/monitoring-connector-performance",
+    "node": "1484611",
+    "revision": "3247221",
+    "updated": "2026-09-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "There are a variety of things to consider when monitoring App Connectors and their performance. The most important thing is to make sure your App Connectors are deployed in a manner that follows Zscaler's recommendations for image sizing and scalability, supported platform requirements, deployment best practices, networking configurations, and other essential guidelines. To learn more, see App Connector Deployment Prerequisites and Networking Deployed Software Components."
+    },
+    {
+      "text": "Within the Zscaler Admin Console, you can use the App Connector Dashboard and Health Dashboard to help you monitor your organization's App Connectors."
+    },
+    {
+      "text": "When monitoring App Connectors directly, consider the following:"
+    },
+    {
+      "item": "CPU Utilization",
+      "depth": 0
+    },
+    {
+      "item": "Peak CPU utilization should be less than 75%. The value needs to take into account all connectors in the group. The CPU utilization of the group's App Connectors should be able to manage additional load and allow each App Connector to operate under 75% utilization in the event one of the App Connectors becomes unavailable. For example, if you only have two App Connectors and they are both at 50%, this is below the 75% threshold. However, if one App Connector goes down, then the other App Connector is running above 75%.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor CPU utilization:",
+      "depth": 0
+    },
+    {
+      "item": "Review logs in the Log Streaming Service.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Status logs can be streamed to a SIEM or a syslog server using the Log Streaming Service (LSS). App Connector Status logs are generated periodically for each connector, and the field CPUUtilization displays the App Connector host’s CPU utilization at that instance. For more information, see About App Connector Status Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          197,
+          211
+        ]
+      ]
+    },
+    {
+      "item": "Review Status logs of the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector logs can be viewed on the App Connector host whenever the App Connector is running. The information displayed in the App Connector logs includes the log output of the App Connector to the local system logging facilities. CPU steal percentage is the CPU time stolen from the VM by a Hypervisor and is reported every minute in the status log. When the CPU steal percentage is high, the Hypervisor is busy, resulting in degraded performance for the App Connector.",
+      "depth": 1
+    },
+    {
+      "item": "To reduce and balance the load among the VMs:",
+      "depth": 1
+    },
+    {
+      "item": "Ensure the Hypervisor is healthy.",
+      "depth": 2
+    },
+    {
+      "item": "Change the Hypervisor setup accordingly.",
+      "depth": 2
+    },
+    {
+      "item": "Use CLI commands on the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities to view CPU utilization using Command Line Interface (CLI) commands. For example:",
+      "depth": 1
+    },
+    {
+      "item": "The top command reports the sum of utilization across all cores on all processors.",
+      "depth": 2
+    },
+    {
+      "item": "The sysstat package contains different tools for performance and usage.",
+      "depth": 2
+    },
+    {
+      "item": "You can also create a script that periodically reports the App Connector host’s CPU utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "If the CPU utilization is more than 100%, it might be due to multiple CPU cores on the App Connector host. For example, if there are 4 cores, the top output could show usage at 400%. Use the lscpu command to check the number of CPU cores. In this case, the calculation of peak CPU should be normalized across the number of cores.",
+      "depth": 1
+    },
+    {
+      "item": "Use simple network management protocol.",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. CPU information on the App Connector host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well known SNMP OIDs for monitoring CPU utilization on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Percentage of user CPU time: .1.3.6.1.4.1.2021.11.9.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw user CPU time: .1.3.6.1.4.1.2021.11.50.0",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of system CPU time: .1.3.6.1.4.1.2021.11.10.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw system CPU time: .1.3.6.1.4.1.2021.11.52.0",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of idle CPU time: .1.3.6.1.4.1.2021.11.11.0",
+      "depth": 2
+    },
+    {
+      "item": "Raw idle CPU time: .1.3.6.1.4.1.2021.11.53.0",
+      "depth": 2
+    },
+    {
+      "item": "To reduce the CPU utilization on individual App Connector hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy additional App Connectors into the App Connector group to distribute users across additional connectors.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated App Connector groups for specific application segments to reduce the number of applications that are requested through each App Connector group.",
+      "depth": 1
+    },
+    {
+      "item": "Memory Utilization",
+      "depth": 0
+    },
+    {
+      "item": "Peak memory utilization should be less than 90%. The value needs to take into account all connectors in the group. The memory of the group's App Connectors should be able to manage additional load and allow each App Connector to operate under 90% utilization in the event one of the App Connectors becomes unavailable. For example, if you only have two App Connectors, and they are both at 50%, this is below the 90% threshold. However, if one App Connector goes down, then the other App Connector is running above 90%",
+      "depth": 0
+    },
+    {
+      "item": "To monitor memory:",
+      "depth": 0
+    },
+    {
+      "item": "Review logs in the Log Streaming Service.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Status logs can be streamed to a SIEM or a syslog server using Log Streaming Service (LSS). App Connector Status logs are generated periodically for each connector, and the field MemUtilization displays the App Connector host’s memory utilization at that instance. For more information, see About App Connector Status Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          193,
+          207
+        ]
+      ]
+    },
+    {
+      "item": "Use CLI commands on the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities such as free, top, cat /proc/meminfo, htop, and others to view memory utilization using CLI commands. You can create a script that periodically reports the App Connector host’s memory utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "Use simple network management protocol.",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Memory information on the App Connector host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well known SNMP OIDs for monitoring memory on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Total RAM in machine: .1.3.6.1.4.1.2021.4.5.0",
+      "depth": 2
+    },
+    {
+      "item": "Total RAM used: .1.3.6.1.4.1.2021.4.6.0",
+      "depth": 2
+    },
+    {
+      "item": "Total RAM Free: .1.3.6.1.4.1.2021.4.11.0",
+      "depth": 2
+    },
+    {
+      "item": "To reduce memory utilization on individual App Connector hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Increase the amount of available memory on the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy additional App Connectors into the App Connector group to distribute users across additional connectors.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated App Connector groups for specific application segments to reduce the number of applications that are requested through each App Connector group.",
+      "depth": 1
+    },
+    {
+      "item": "Data Throughput",
+      "depth": 0
+    },
+    {
+      "item": "Peak throughput based on recommended App Connector specifications should be less than 500 Mbps.",
+      "depth": 0
+    },
+    {
+      "item": "500 Mbps of throughput is an aggregate of multiple streams of traffic.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor App Connector throughput:",
+      "depth": 0
+    },
+    {
+      "item": "Review logs in the Log Streaming Service.",
+      "depth": 1
+    },
+    {
+      "item": "App Connector Status logs can be streamed to a SIEM or a syslog server using Log Streaming Service (LSS). App Connector Status logs are generated periodically for each connector, and the fields TotalBytesRx and TotalBytesTx display the App Connector host’s throughput at that instance. For more information, see About App Connector Status Log Fields.",
+      "depth": 1,
+      "strong": [
+        [
+          194,
+          206
+        ],
+        [
+          211,
+          223
+        ]
+      ]
+    },
+    {
+      "item": "Use CLI commands on the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides several utilities such as nload, iftop, nethogs, bmon, and others to view bandwidth statistics on the App Connector host interface using CLI commands. You can create a script that periodically reports the host’s bandwidth utilization to a separate statistics collection server.",
+      "depth": 1
+    },
+    {
+      "item": "Use simple network management protocol.",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Data throughput information on the App Connector host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well known SNMP OIDs for monitoring App Connector throughput on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "The total number of bytes received on the interface: .1.3.6.1.2.1.2.2.1.10",
+      "depth": 2
+    },
+    {
+      "item": "The total number of bytes transmitted on the interface: .1.3.6.1.2.1.2.2.1.16",
+      "depth": 2
+    },
+    {
+      "item": "To reduce data throughput on individual App Connector hosts, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy additional App Connectors into the App Connector group to distribute users across additional connectors.",
+      "depth": 1
+    },
+    {
+      "item": "Deploy dedicated App Connector groups for specific application segments to reduce the number of applications that are requested through each App Connector group.",
+      "depth": 1
+    },
+    {
+      "item": "Source Port Consumption",
+      "depth": 0
+    },
+    {
+      "item": "The number of used and free ports can be obtained from the App Connector host by using the ss command. In the following example, 11 is the number of UDP ports and 13 is the number of TCP ports in use.",
+      "depth": 0
+    },
+    {
+      "item": "[root@ip-10-0-0-116 admin]# sudo su [root@ip-10-0-0-116 admin]# ss -uln | wc -l && ss -tn state connected | wc -l 11 13",
+      "depth": 0
+    },
+    {
+      "item": "If the in-use count for either TCP or UDP ports is equal or close to the available ports, the App Connector host is likely to experience port exhaustion and the App Connector might not be able to connect to the application servers.",
+      "depth": 0
+    },
+    {
+      "item": "In the following example, the sysctl command is still used. It shows the difference of 60999-32768=28231, which indicates the number of ports available for use on this App Connector host. The count of in-use UDP and TCP ports must be lower than 28231.",
+      "depth": 0
+    },
+    {
+      "item": "[root@ip-10-0-0-116 admin]# sysctl net.ipv4.ip_local_port_range net.ipv4.ip_local_port_range = 32768 60999",
+      "depth": 0
+    },
+    {
+      "item": "To adjust port usage, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Increase the available max number of ports.",
+      "depth": 1
+    },
+    {
+      "item": "For a non-permanent increase in ports, which does not persist across the App Connector host restart, use one of the following options. The text in red shows example port ranges:",
+      "depth": 1
+    },
+    {
+      "item": "Use echo",
+      "depth": 2
+    },
+    {
+      "item": "echo 32768 65000 > /proc/sys/net/ipv4/ip_local_port_range",
+      "depth": 1
+    },
+    {
+      "item": "Use sysctl",
+      "depth": 2
+    },
+    {
+      "item": "sysctl -w net.ipv4.ip_local_port_range=\"32768 65000\"",
+      "depth": 1
+    },
+    {
+      "item": "For a permanent increase in ports, add the following to /etc/sysctl.conf. The text in red shows example port ranges:",
+      "depth": 1
+    },
+    {
+      "item": "net.ipv4.ip_local_port_range = 32768 65000",
+      "depth": 1
+    },
+    {
+      "item": "Assign a secondary IP address to the existing interface.",
+      "depth": 1
+    },
+    {
+      "item": "The number of TCP ports available to the App Connector host can be increased by adding another IP address to the existing interface. This allows the host to access applications using the secondary IP address in combination with an additional set of TCP ports.",
+      "depth": 1
+    },
+    {
+      "item": "Add another interface to access internal applications.",
+      "depth": 1
+    },
+    {
+      "item": "Create an additional interface on the App Connector host. The additional interface enables the host to use an additional set of TCP ports when accessing applications through this interface.",
+      "depth": 1
+    },
+    {
+      "item": "Applications Reachability Monitoring",
+      "depth": 0
+    },
+    {
+      "item": "Starting with App Connector version 20.11.20, each App Connector records the number of applications that it is currently monitoring for reachability. This value is stored in the current_target_count field of the App Connector status logs.",
+      "depth": 0
+    },
+    {
+      "item": "An App Connector can only monitor a maximum of 6,000 application targets at any given time. Customers must distribute their application definitions across multiple Application Segments and App Connector groups to ensure that the maximum application targets monitored by an App Connector are less than 6,000. In the case that an App Connector reaches the maximum 6,000 application targets, the On Access health reporting of your application is converted to None, which means that the App Connector does not check and report reachability to the application.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor application reachability:",
+      "depth": 0
+    },
+    {
+      "item": "Review the App Connector status log.",
+      "depth": 1
+    },
+    {
+      "item": "You can view the App Connector status log in the Zscaler Admin Console. To learn more, see About App Connector Status Diagnostics.",
+      "depth": 1
+    },
+    {
+      "item": "Use CLI commands on the App Connector host.",
+      "depth": 1
+    },
+    {
+      "item": "Linux provides utilities to understand application reachability using CLI commands. The following example, shows one such way to check:",
+      "depth": 1
+    },
+    {
+      "item": "[root@ip-10-0-0-228 admin]# journalctl -n1000 | grep target Apr 13 20:15:31 ip-10-0-0-228.us-west-2.compute.internal zpa-connector-child[32623]: Registered apps count 1, alive apps 1, apps with on-access health 1, service count 0, target count 3466, target alive 3466",
+      "depth": 1
+    },
+    {
+      "item": "To reduce the number of applications per App Connector, consider the following:",
+      "depth": 0
+    },
+    {
+      "item": "Deploy dedicated App Connector groups for specific application segments to reduce the number of applications that are requested through each App Connector group.",
+      "depth": 1
+    },
+    {
+      "item": "Disk Space Utilization",
+      "depth": 0
+    },
+    {
+      "item": "App Connectors generate logs that are stored on the disk during the normal course of operation. To ensure adequate disk space is available for App Connector logs and software updates, monitor the disk space for consumption.",
+      "depth": 0
+    },
+    {
+      "item": "The App Connector process restarts if there is less than 100 MB of disk space left, and it generates a log in /var/log/message file to reflect the cause of the restart. This is done to ensure software updates for the App Connector can download successfully.",
+      "depth": 0
+    },
+    {
+      "item": "If the App Connector runs other software, it can generate large volumes of logs that can fill up the disk space.",
+      "depth": 0
+    },
+    {
+      "item": "To monitor disk space:",
+      "depth": 0
+    },
+    {
+      "item": "Review the amount of free disk space.",
+      "depth": 1
+    },
+    {
+      "item": "The sudo df -h command displays free disk space on the App Connector host. For example:",
+      "depth": 1
+    },
+    {
+      "item": "[admin@ip-10-0-0-228 ~]$ sudo df -h Filesystem Size Used Avail Use% Mounted on /dev/nvme0n1p1 8.0G 1.7G 6.4G 21% / devtmpfs 1.9G 0 1.9G 0% /dev tmpfs 1.9G 0 1.9G 0% /dev/shm tmpfs 1.9G 181M 1.7G 10% /run tmpfs 1.9G 0 1.9G 0% /sys/fs/cgroup tmpfs 375M 0 375M 0% /run/user/1000",
+      "depth": 1
+    },
+    {
+      "item": "Check the top process that consumes disk space.",
+      "depth": 1
+    },
+    {
+      "item": "Use the following command to see the top process that consumes disk space:",
+      "depth": 1
+    },
+    {
+      "item": "sudo du -a /| sort -n -r | head -n 20",
+      "depth": 1
+    },
+    {
+      "item": "Review the number of system log lines generated.",
+      "depth": 1
+    },
+    {
+      "item": "Use the following command to get a rough estimate of the lines of syslogd written by App Connector process:",
+      "depth": 1
+    },
+    {
+      "item": "sudo grep -v \"zpa-connector\" /var/log/messages | wc -l sudo grep \"zpa-connector\" /var/log/messages | wc -l",
+      "depth": 1
+    },
+    {
+      "item": "Use simple network management protocol.",
+      "depth": 1
+    },
+    {
+      "item": "Simple Network Management Protocol (SNMP) provides a well-defined interface for periodically monitoring performance metrics on host servers. Disk space information on the App Connector host can be read using SNMP object identifiers (OIDs).",
+      "depth": 1
+    },
+    {
+      "item": "Some of the well known SNMP OIDs for monitoring disk space utilization on a Linux OS are:",
+      "depth": 1
+    },
+    {
+      "item": "Available space on the disk: .1.3.6.1.4.1.2021.9.1.7.1",
+      "depth": 2
+    },
+    {
+      "item": "Used space on the disk: .1.3.6.1.4.1.2021.9.1.8.1",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of space used on disk: .1.3.6.1.4.1.2021.9.1.9.1",
+      "depth": 2
+    },
+    {
+      "item": "Percentage of inodes used on disk: .1.3.6.1.4.1.2021.9.1.10.1",
+      "depth": 2
+    },
+    {
+      "item": "Path where the disk is mounted: .1.3.6.1.4.1.2021.9.1.2.1",
+      "depth": 2
+    },
+    {
+      "item": "Path of the device for the partition: .1.3.6.1.4.1.2021.9.1.3.1",
+      "depth": 2
+    },
+    {
+      "item": "Total size of the disk/partion (kBytes): .1.3.6.1.4.1.2021.9.1.6.1",
+      "depth": 2
+    },
+    {
+      "item": "To reduce disk space on individual App Connector hosts, use the following options:",
+      "depth": 0
+    },
+    {
+      "item": "Disable rsyslogd for App Connector process.",
+      "depth": 1
+    },
+    {
+      "item": "To reduce the log volume generated on the disk, execute the following commands to stop the connector processes from logging to rsyslogd:",
+      "depth": 1
+    },
+    {
+      "item": "echo ‘:programname, isequal, “zpa-connector-child” stop’ >> /etc/rsyslog.d/zpa-connector.conf echo ‘:programname, isequal, “zpa-connector” stop’ >> /etc/rsyslog.d/zpa-connector.conf systemctl restart rsyslogd",
+      "depth": 1
+    },
+    {
+      "item": "Archive the files.",
+      "depth": 1
+    },
+    {
+      "item": "Use a Linux utility like logrotate to archive files on a regular basis (e.g., daily, weekly, or monthly) with the /etc/logrotate.conf command.",
+      "depth": 1
+    },
+    {
+      "item": "Some ways to use logrotate for archiving are:",
+      "depth": 1
+    },
+    {
+      "item": "Archive log files daily: daily",
+      "depth": 2
+    },
+    {
+      "item": "Keep 7 days worth of logs: rotate 7",
+      "depth": 2
+    },
+    {
+      "item": "Create new (empty) log files after archiving old ones: create",
+      "depth": 2
+    },
+    {
+      "item": "Use a date as a suffix of the archived file: dateext",
+      "depth": 2
+    },
+    {
+      "item": "Un-comment to compress log files: compress",
+      "depth": 2
+    },
+    {
+      "item": "Remove the files.",
+      "depth": 1
+    },
+    {
+      "item": "Run a cron job to delete log files or use the rm command to remove any files you think are not necessary, including archived files. For example, there is no functional implication for deleting /var/log/messages. Before deleting, check if you require the files for App Connector troubleshooting.",
+      "depth": 1
+    },
+    {
+      "item": "If you archive files to reduce disk space, you do not need to remove files as well.",
+      "depth": 1
+    },
+    {
+      "item": "Create more log space.",
+      "depth": 1
+    },
+    {
+      "item": "To create more space in /var/log/journal use the vacuum-size or the vacuum-time commands. For example:",
+      "depth": 1
+    },
+    {
+      "item": "sudo journalctl --vacuum-size=100m sudo journalctl --vacuum-time=1d",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler recommends at least disabling rsyslogd to reduce disk space.",
+      "depth": 0
+    },
+    {
+      "item": "File Descriptors Exhaustion",
+      "depth": 0
+    },
+    {
+      "item": "If the number of file descriptors is not sufficient on the App Connector host, transactions can fail due to file descriptor exhaustion. To address this, increase the SYSTEM_FD limit by executing the following command:",
+      "depth": 0
+    },
+    {
+      "item": "sudo sysctl -w fs.file-max=1000000",
+      "depth": 0
+    }
+  ]
+}
