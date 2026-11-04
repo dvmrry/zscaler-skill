@@ -1,0 +1,526 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Internet & SaaS File Type Control Policy Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/internet-saas-filetype-control-policy-support-troubleshooting-runbook",
+    "node": "1533832",
+    "revision": "3226378",
+    "updated": "2026-07-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Internet & SaaS File Type Control Policy Support Troubleshooting Runbook provides step-by-step troubleshooting instructions for resolving common File Type Control issues encountered in Internet & SaaS."
+    },
+    {
+      "heading": "Understanding How File Type Control Detection Works",
+      "level": 1
+    },
+    {
+      "text": "Zscaler’s File Type Control policy enables administrators to create filtering rules to restrict the upload or download of specific file types, including unknown or unrecognized ones."
+    },
+    {
+      "text": "To ensure efficient and accurate enforcement of these rules, Zscaler leverages file signatures, MIME types, and extensions to detect a file’s true type. This helps Zscaler validate files beyond just their extensions."
+    },
+    {
+      "text": "To learn more, see the following articles:"
+    },
+    {
+      "item": "About File Type Control for additional information on File Type Control policies.",
+      "depth": 0
+    },
+    {
+      "item": "Understanding Policy Enforcement for details on how File Type Control policies fit into the broader Zscaler policy enforcement workflow.",
+      "depth": 0
+    },
+    {
+      "heading": "Validate if the Issue is Related to File Type Control Policy",
+      "level": 1
+    },
+    {
+      "text": "Before troubleshooting a reported issue, it is essential to confirm whether File Type Control is responsible for the block or unexpected behavior. Various security policies, such as Malware Protection, Sandbox, Cloud App Control, or other upstream security solutions, can also impact file upload/download. To ensure accurate troubleshooting, first verify the logs and user experience to determine if the issue is indeed related to File Type Control."
+    },
+    {
+      "text": "End User Notification"
+    },
+    {
+      "text": "Validate if the issue or block is related to File Type Control by reviewing the End User Notification."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Web Insights Log"
+    },
+    {
+      "text": "You can also validate from the Web Insights Logs if the block is related to File Type Control. The following are the Web Insights Logs related to File Type Control:"
+    },
+    {
+      "table": [
+        [
+          "Policy Action",
+          "Download File Type",
+          "Download File Name",
+          "Blocked Policy Type"
+        ],
+        [
+          "File Type download cautioned File Type upload cautioned File Type upload/download cautioned",
+          "<File Type Cautioned>",
+          "<Cautioned Filename>",
+          "File Type Control"
+        ],
+        [
+          "Not allowed to access this file type Not allowed to upload/download files of this type",
+          "<File Type Blocked>",
+          "<Blocked Filename>",
+          "File Type Control"
+        ]
+      ]
+    },
+    {
+      "heading": "Policy Behavior Issues",
+      "level": 1
+    },
+    {
+      "text": "Users can report cases where files are incorrectly blocked or files are not correctly identified. These issues can arise due to policy misconfigurations or forwarding errors. The following sections outline common policy-related issues and steps to resolve them."
+    },
+    {
+      "text": "Files Not Allowed or Blocked as Per the Policy"
+    },
+    {
+      "text": "Users can report that a specific File Type Control policy is not applied correctly (e.g., download/upload is not blocked as expected)."
+    },
+    {
+      "heading": "Validate SSL Inspection",
+      "level": 3
+    },
+    {
+      "text": "File Type Control policies require SSL Inspection to function properly."
+    },
+    {
+      "heading": "Check Web Insights Logs",
+      "level": 4
+    },
+    {
+      "text": "To check the Web Insights Logs:"
+    },
+    {
+      "item": "Filter logs for the affected domain and inspect the SSL Policy Reason column.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          52,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Confirm that the policies in the Policy Reason column are inspected.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          33,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If SSL Policy Reason is Bypassed:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          3,
+          20
+        ],
+        [
+          24,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Review your SSL Inspection policies.",
+      "depth": 1
+    },
+    {
+      "item": "Update the policies as needed to ensure SSL Inspection is applied appropriately.",
+      "depth": 1
+    },
+    {
+      "heading": "Verify Supported Protocols",
+      "level": 3
+    },
+    {
+      "text": "To verify supported protocols:"
+    },
+    {
+      "item": "Ensure the protocol involved in the transaction is supported by File Type Control policies. The supported protocols are:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "HTTP",
+      "depth": 1
+    },
+    {
+      "item": "HTTPS",
+      "depth": 1
+    },
+    {
+      "item": "FTP over HTTP",
+      "depth": 1
+    },
+    {
+      "item": "Native FTP",
+      "depth": 1
+    },
+    {
+      "item": "Filter Web Insights Logs and review the Protocol column.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "If the protocol is unsupported, File Type Control policies are not applicable.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Confirm Rule Match Conditions",
+      "level": 3
+    },
+    {
+      "text": "If the File Type Control policy relies on specific attributes (e.g., URL Category, Cloud App, User, Location), ensure these conditions match."
+    },
+    {
+      "item": "Filter Web Insights Logs for the affected domain.",
+      "depth": 0
+    },
+    {
+      "item": "Review these key fields and any other fields configured as the policy criteria:",
+      "depth": 0
+    },
+    {
+      "item": "URL Category",
+      "depth": 1
+    },
+    {
+      "item": "Cloud App",
+      "depth": 1
+    },
+    {
+      "item": "User",
+      "depth": 1
+    },
+    {
+      "item": "Location",
+      "depth": 1
+    },
+    {
+      "item": "Adjust the policy if the conditions do not align. Test the updated policy behavior.",
+      "depth": 0
+    },
+    {
+      "heading": "Review Criteria for Active Content or Unscannable Files",
+      "level": 3
+    },
+    {
+      "item": "Active Content: Only applies to Microsoft Office and PDF files.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Unscannable Files: Refers to files Zscaler cannot scan.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Check the Web Insights logs for the Unscannable Type entry. If None is logged, the file was successfully scanned. In this case, rules targeting Unscannable Files do not apply.",
+      "depth": 0,
+      "strong": [
+        [
+          36,
+          52
+        ],
+        [
+          63,
+          67
+        ],
+        [
+          144,
+          161
+        ]
+      ]
+    },
+    {
+      "item": "Temporarily deselect the Active Content or Unscannable Files criteria in the policy to identify if these settings are causing the issue.",
+      "depth": 0,
+      "strong": [
+        [
+          25,
+          39
+        ],
+        [
+          43,
+          60
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "Archive File Policy Mismatch"
+    },
+    {
+      "text": "When users report issues such as archive files (e.g., ZIP) are blocked despite having an allow policy, the contents in the archive might trigger policy rules. Zscaler uses deep packet inspection to analyze files inside archives. If a blocked file type (e.g., an image file) exists within the archive, the entire archive is blocked."
+    },
+    {
+      "text": "For instance, if your goal is to block image files while allowing archive files, you would first configure a policy to block image files, followed by an allow rule for archive files, as demonstrated in the following image."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "In this case, if the ZIP file contains blocked file types (e.g., images), the upload/download of the archive file is blocked by the image file rule. This is confirmed by using the Web Insights Logs under the Blocked Policy Name field.",
+      "strong": [
+        [
+          208,
+          227
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "This is expected behavior because Zscaler uses deep packet inspection to scan and apply policies to individual files inside the archive. Any priority rule blocking access to the actual file inside Archive blocks the connection."
+    },
+    {
+      "text": "Ensure rules blocking the specific inner file types are deprioritized after the allow rule for archives."
+    },
+    {
+      "text": "Allowed Files Blocked as Not Allowed to Upload/Download Unscannable File Formats"
+    },
+    {
+      "text": "Even if a file type (e.g., .bz2) is allowed by an File Type Control policy, users can encounter a block message stating Not allowed to upload/download unscannable file formats."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Zscaler Malware Protection > Unscannable Files Block settings take precedence over File Type Control policies. If the Malware Protection setting is configured to block unscannable files, it overrides File Type Control allow rules.",
+      "strong": [
+        [
+          8,
+          26
+        ],
+        [
+          29,
+          52
+        ],
+        [
+          118,
+          136
+        ]
+      ]
+    },
+    {
+      "heading": "Explain Unscannable Files in Malware Protection Policy",
+      "level": 3
+    },
+    {
+      "item": "Applies to upload or download files that the Zscaler service is unable to scan.",
+      "depth": 0
+    },
+    {
+      "item": "Unscannable files are files that Zscaler cannot scan due to:",
+      "depth": 0
+    },
+    {
+      "item": "Unrecognized file format: Malformed, truncated, or encrypted files.",
+      "depth": 1
+    },
+    {
+      "item": "Excessive file size: Files (e.g., Microsoft Office documents) exceeding specific size limits, such as 400 MB.",
+      "depth": 1
+    },
+    {
+      "item": "Excessive compression: Files compressed or archived more than 5 times.",
+      "depth": 1
+    },
+    {
+      "item": "Review the Web Insights Logs to confirm Blocked Policy Type as Malware Protection.",
+      "depth": 0,
+      "strong": [
+        [
+          40,
+          59
+        ],
+        [
+          63,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Verify that the error message matches the description.",
+      "depth": 0
+    },
+    {
+      "item": "Create a security exception for the relevant URLs:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Policies > Cybersecurity > Malware Protection > Security Exceptions.",
+      "depth": 1,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          30
+        ],
+        [
+          33,
+          51
+        ],
+        [
+          54,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "Add the specific URLs under Do Not Scan Content from these URLs.",
+      "depth": 1,
+      "strong": [
+        [
+          28,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Test and confirm that the file is uploaded or downloaded.",
+      "depth": 0
+    },
+    {
+      "text": "File Type is Incorrectly Identified"
+    },
+    {
+      "text": "There are instances where files are blocked because their file type is misidentified. For example, a Dynamic Link Library (.dll) file might be detected as an .exe file, resulting in a block if .exe files are restricted."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "As in this example, the website is utilizing a .dll extension that Zscaler identifies as an .exe file. If the organization's policy restricts .exe files, the upload/download is blocked, causing the reported issue."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "This issue can occur because Zscaler does not solely rely on file extensions to identify file types. Instead, it validates the true file type by analyzing the file signature, which represent the file’s actual structure."
+    },
+    {
+      "text": "Discrepancies can occur due to:"
+    },
+    {
+      "item": "Mismatch Between File Extension and True File Type: The file extension was renamed manually without altering the file’s contents.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "Corrupted or Incomplete Files: The file could have been partially overwritten, leading to incorrect magic bytes.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Website-Specific Behaviors: Some websites can use non-standard file naming conventions or mechanisms.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "text": "Validate the file’s true type by analyzing its file signature."
+    },
+    {
+      "heading": "How to Analyze the True File Type",
+      "level": 3
+    },
+    {
+      "text": "To identify the true file type of a file, you can analyze its hex signature on a Linux OS. You can use a file utility to confirm the true file type of a file."
+    },
+    {
+      "text": "mmir@PF3QYHZJ:~$ file image.png image.png: PNG image data, 800 x 600, 8-bit/color RGBA, non-interlaced"
+    },
+    {
+      "text": "mmir@PF3QYHZJ:~$ file GT.CIP.IRG.Client.dll GT.CIP.IRG.Client.dll: PE32 executable (console) Intel 80386 Mono/.Net assembly, for MS Windows"
+    },
+    {
+      "text": "Compare the identified file type with the policy rules. If the true type is blocked due to policy restrictions:"
+    },
+    {
+      "item": "Modify the File Type Control policy specific to this domain or file type, if appropriate.",
+      "depth": 0
+    },
+    {
+      "item": "Contact the destination vendor for clarification and identifying the mismatch between the file signature and file extension.",
+      "depth": 0
+    }
+  ]
+}

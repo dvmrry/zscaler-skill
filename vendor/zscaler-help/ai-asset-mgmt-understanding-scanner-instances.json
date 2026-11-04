@@ -1,0 +1,246 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Understanding Scanner Instances",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/understanding-scanner-instances",
+    "node": "1539732",
+    "revision": "3226351",
+    "updated": "2026-07-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "AI Security creates transitory scanner instances in the respective regions to perform data scanning on different data stores such as storage, compute, and databases. The orchestrator instance creates the scanner instances with a unique identity. Zscaler's applications are installed in these scanner instances to perform data scanning. For each data store, AI Security creates up to a maximum of 10 scanner instances each with a configuration of 16 vCPU and 32 GiB memory, depending upon the number of data stores that must be scanned."
+    },
+    {
+      "text": "You need to ensure that sufficient vCPU quotas are enabled in the orchestrator account. Such high configurations are required as AI Security scans huge amounts of data, and a high configuration of scanner instances ensures data scans are completed faster than the lower configuration instances that take a longer duration to perform a data scan. The scanner instance automatically pushes the data scan results to AI Security."
+    },
+    {
+      "text": "All scanner instances are created with tags and the tags must not be deleted or tampered with. The image required to launch the scanner instance is property of Zscaler and it is shared with the customer’s orchestrator account for data scanning purposes. Inbound access to scanner instances is restricted only from the orchestrator instance."
+    },
+    {
+      "text": "The following tags are added to the scanner instances. You can enable these tags in AWS to track the cost allocation for AI Security. To learn more, refer to the AWS documentation."
+    },
+    {
+      "item": "z-ais-resource = true",
+      "depth": 0
+    },
+    {
+      "item": "z-ais-scanner-resource= true",
+      "depth": 0
+    },
+    {
+      "item": "z-ais-tenant-id = <tenant_id>",
+      "depth": 0
+    },
+    {
+      "item": "z-ais-tenant-name = <tenant_name>",
+      "depth": 0
+    },
+    {
+      "item": "z-ais-scan-id = <scan_id>",
+      "depth": 0
+    },
+    {
+      "heading": "Default Scanner Instances",
+      "level": 1
+    },
+    {
+      "text": "The scanner instances for the following cloud types:"
+    },
+    {
+      "item": "AWS",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Data Store Type",
+          "Scan Type",
+          "Instance Type",
+          "Instance Configuration",
+          "Disk Configuration"
+        ],
+        [
+          "S3",
+          "Full",
+          "c5a.4xlarge",
+          "16 core vCPUs and 32 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ],
+        [
+          "S3",
+          "Incremental",
+          "t3.xlarge",
+          "4 core vCPUs and 16 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ],
+        [
+          "EC2",
+          "Full",
+          "c6in.4xlarge",
+          "16 core vCPUs and 32 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ],
+        [
+          "RDS",
+          "Full",
+          "c5a.4xlarge db.r6g.large",
+          "16 core vCPUs and 32 GiB Memory",
+          "Root Disk: 20 GB GP4"
+        ],
+        [
+          "RDS",
+          "Sampling",
+          "t3.medium db.r6g.large",
+          "2 core vCPUs and 4 GiB Memory 2 core vCPUs and 16 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ],
+        [
+          "DynamoDB",
+          "Full",
+          "t3.xlarge",
+          "4 core vCPUs and 16 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ],
+        [
+          "DynamoDB",
+          "Sampling",
+          "t3.xlarge",
+          "4 core vCPUs and 16 GiB Memory",
+          "Root Disk: 20 GB GP3"
+        ]
+      ]
+    },
+    {
+      "item": "Azure",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Data Store Type",
+          "Scan Type",
+          "Instance Type",
+          "Instance Configuration",
+          "Disk Configuration"
+        ],
+        [
+          "Blob Container",
+          "Full",
+          "Standard_F16s_v2",
+          "16 core vCPUs and 32 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "Blob Container",
+          "Incremental",
+          "Standard_D4s_v3",
+          "4 core vCPUs and 16 GiB Memory",
+          "30 GB GP5"
+        ],
+        [
+          "Virtual Machine",
+          "Full",
+          "Standard_F16s_v2",
+          "16 core vCPUs and 32 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "File Share",
+          "Full",
+          "Standard_F16s_v2",
+          "16 core vCPUs and 32 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "File Share",
+          "Incremental",
+          "Standard_D4s_v3",
+          "4 core vCPUs and 16 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "SQL Server PostgreSQL-Flexible Server",
+          "Full",
+          "Standard_F16s_v2",
+          "16 core vCPUs and 32 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "SQL Server PostgreSQL-Flexible Server",
+          "Sampling",
+          "Standard_B2ls_v2",
+          "2 core vCPUs and 4 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ],
+        [
+          "Azure Cosmos DB for NoSQL",
+          "Sampling",
+          "Standard_B2ls_v2",
+          "2 core vCPUs and 4 GiB Memory",
+          "30 GB Premium SSD LRS"
+        ]
+      ]
+    },
+    {
+      "item": "GCP",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Data Store Type",
+          "Scan Type",
+          "Instance Type",
+          "Instance Configuration",
+          "Disk Configuration"
+        ],
+        [
+          "Cloud Storage Bucket",
+          "Full",
+          "e2-standard-16",
+          "16 core vCPUs and 64 GiB Memory",
+          "20 GB Standard persistent disk"
+        ],
+        [
+          "Cloud Storage Bucket",
+          "Incremental",
+          "e2-standard-8",
+          "4 core vCPUs and 16 GiB Memory",
+          "20 GB GP6"
+        ],
+        [
+          "Cloud Platform Compute",
+          "Full",
+          "e2-standard-16",
+          "16 core vCPUs and 32 GiB Memory",
+          "20 GB Standard persistent disk"
+        ],
+        [
+          "Cloud Platform Cloud SQL",
+          "Full",
+          "e2-standard-16",
+          "16 core vCPUs and 32 GiB Memory",
+          "20 GB Standard persistent disk"
+        ],
+        [
+          "Cloud Platform Cloud SQL",
+          "Sampling",
+          "e2-standard-2",
+          "2 core vCPUs and 4 GiB Memory",
+          "20 GB Standard persistent disk"
+        ],
+        [
+          "Cloud Platform BigQuery",
+          "Sampling",
+          "e2-standard-2",
+          "2 core vCPUs and 4 GiB Memory",
+          "20 GB Standard persistent disk"
+        ]
+      ]
+    }
+  ]
+}

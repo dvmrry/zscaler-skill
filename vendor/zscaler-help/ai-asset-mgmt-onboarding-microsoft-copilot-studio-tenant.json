@@ -1,0 +1,1490 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding Microsoft Copilot Studio Tenant",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/onboarding-microsoft-copilot-studio-tenant",
+    "node": "1541053",
+    "revision": "3251650",
+    "updated": "2026-11-02",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Microsoft Copilot Studio onboarding in AI Security lets you quickly connect your Microsoft tenant so AI Security can discover and inventory Copilot Studio–related AI assets and surface security relevant findings in a centralized view. Using Account Onboarding, you authorize access to your Copilot Studio environment, assign a friendly tenant alias for identification, and complete the integration so AI Security can begin discovering agents and associated resources for monitoring and investigation."
+    },
+    {
+      "text": "When onboarding, you must select an authentication type to establish a secure connection between AI Security and Microsoft Copilot. You can choose either Client Secret, which uses a shared secret key generated in your Azure app registration, or Certificate, which uses a PEM file for certificate-based authentication. The authentication type you select determines the credentials you need to provide during the onboarding process."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Before onboarding a Microsoft Copilot Studio tenant, ensure user permissions"
+    },
+    {
+      "table": [
+        [
+          "Scope",
+          "Role",
+          "Purpose"
+        ],
+        [
+          "Entra ID",
+          "Application Developer",
+          "To create app registrations (creator becomes owner, enabling secret/cert/token/API config)"
+        ],
+        [
+          "Entra ID",
+          "Cloud Application Administrator",
+          "To grant admin consent on API permissions"
+        ],
+        [
+          "Entra ID",
+          "Power Platform Administrator",
+          "To manage Power Platform environments, add S2S app users, use admin connectors in flows"
+        ],
+        [
+          "Power Platform Environment",
+          "System Administrator",
+          "To assign security roles (Service Reader) to app user in Dataverse"
+        ],
+        [
+          "Power Platform Environment",
+          "Environment Maker",
+          "To create flows in the target environment"
+        ],
+        [
+          "Licensing",
+          "Power Automate license",
+          "To create and run Power Automate flows"
+        ]
+      ]
+    },
+    {
+      "text": "are in place and complete the following:"
+    },
+    {
+      "item": "Registered an app in the Azure Portal",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "To register an app in the Azure Portal, do the following:",
+      "depth": 0
+    },
+    {
+      "item": "1. Create an app in Entra ID",
+      "depth": 1
+    },
+    {
+      "item": "To create an app in Entra ID:",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the Azure portal.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to App Registrations.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click + New registration.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Register an application page:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a unique name for the application.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Supported account types: Retain the default selection.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Register.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The application is registered and details are displayed on the Overview page. Copy the Application (client) ID details and ensure you have saved the details. The client ID is required while updating the Configuration Details in the AI Security Admin Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          63,
+          71
+        ],
+        [
+          87,
+          110
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "2. Add a Client Secret",
+      "depth": 1
+    },
+    {
+      "item": "In the Microsoft Entra admin center or Azure portal, click the newly created application.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > Certificates & secrets.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          41
+        ],
+        [
+          44,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "In the Client secrets tab, click + New client secret.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          33,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "In the Add a client secret drawer:",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Description: Enter a description for the client secret.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Expires: Select the expiration time from the drop-down menu. By default, 180 days (6 months) is selected.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Click Add.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The client secret is generated and displayed.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the secret immediately and save it for later use.",
+      "depth": 2,
+      "number": 6
+    },
+    {
+      "item": "3. Add API Permissions",
+      "depth": 1
+    },
+    {
+      "item": "To add API Permissions:",
+      "depth": 1
+    },
+    {
+      "item": "In the All applications tab, click the newly created application.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, go to Manage > API permissions.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          43
+        ],
+        [
+          44,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Click + Add a permission.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          8,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Request API Permissions drawer, select Microsoft Graph > Application Permissions.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          46,
+          61
+        ],
+        [
+          64,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Search and add all the six required permissions from Microsoft Graph (one by one). The list of permissions are:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          53,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Application.Read.All",
+      "depth": 3
+    },
+    {
+      "item": "AuditLog.Read.All",
+      "depth": 3
+    },
+    {
+      "item": "Directory.Read.All",
+      "depth": 3
+    },
+    {
+      "item": "LicenseAssignment.Read.All",
+      "depth": 3
+    },
+    {
+      "item": "User.Read.All",
+      "depth": 3
+    },
+    {
+      "item": "User.Read (by default)",
+      "depth": 3
+    },
+    {
+      "item": "After all permissions are added, click Add permissions.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          39,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "In the Configured permissions section, click Grant admin consent for <your Azure tenant name>.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          29
+        ],
+        [
+          45,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Verify all permissions show a Granted status (green checkmarks).",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          30,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "4. Configure token",
+      "depth": 1
+    },
+    {
+      "item": "To configure token (Optional claims):",
+      "depth": 1
+    },
+    {
+      "item": "Go to Token configuration.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "In the Optional claims section, click Add optional claim.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          22
+        ],
+        [
+          38,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "In the Add optional claim drawer, select the Token type as Access.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          45,
+          55
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Select the aud Claim and click Add.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          14
+        ],
+        [
+          31,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Power Platform Admin Portal Setup",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "To add an application user and assign security role:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the Power Platform Admin Center.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "In the left navigation, locate Manage > Environments.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Select the environment you want to onboard.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Access > S2S apps, click See All.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          24
+        ],
+        [
+          31,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click + New app user.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          8,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a new app user drawer, click Add an app.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ],
+        [
+          43,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the Add an app from Microsoft Entra ID, search for the application by the name registered in Create an app registration.",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the app and click Add.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          25,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Select the Business Unit ID.",
+      "depth": 1,
+      "number": 9,
+      "strong": [
+        [
+          11,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Under Security Roles, click Edit and assign the Service Reader role.",
+      "depth": 1,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          28,
+          32
+        ],
+        [
+          48,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Click Save to confirm the role assignment.",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 12,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Verify that the Service Reader role appears under the app user's permissions.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          16,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Created a Power Automate Flow",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "To create a flow URL:",
+      "depth": 0
+    },
+    {
+      "item": "1. Create an Instant Cloud Flow",
+      "depth": 1
+    },
+    {
+      "item": "To create an instant cloud flow:",
+      "depth": 1
+    },
+    {
+      "item": "Navigate to the Power Automate flow URL, e.g., https://make.powerautomate.com/environments/<env id>/flows.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          16,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click New Flow > Instant cloud flow.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          14
+        ],
+        [
+          17,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Build an instant cloud flow window, enter a flow name.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "In the Choose how to trigger this flow section, select the trigger as When an HTTP request is received.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          38
+        ],
+        [
+          70,
+          102
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click the manual trigger node.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          10,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "In the Parameters tab, select Specific user from my tenant in the Who can trigger the flow field.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          30,
+          58
+        ],
+        [
+          66,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Go to your Enterprise Application in Microsoft Entra ID and search for your application name.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          11,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the Object ID of the application and paste it into the Allowed users field in the flow.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          9,
+          18
+        ],
+        [
+          60,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Power Automate flow must be created in the same environment where you are onboarding to ensure that the connection details are discovered correctly.",
+      "depth": 1
+    },
+    {
+      "item": "2. Add Get Connection as Admin Action",
+      "depth": 1
+    },
+    {
+      "item": "To add Get Connections as an Admin action:",
+      "depth": 1
+    },
+    {
+      "item": "Click + to add a new step and action to the flow.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "In the Add an action window, under the Power Apps for Admins section, locate and select the Get Connections as Admin option.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          39,
+          60
+        ],
+        [
+          92,
+          116
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The Get Connection as Admin step is added.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Environment ID fetched from Manage > Environments > Details in the Power Platform Admin Center.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          24
+        ],
+        [
+          38,
+          69
+        ],
+        [
+          77,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "To configure the Response step, search and add Response from the Request section.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          17,
+          25
+        ],
+        [
+          47,
+          55
+        ],
+        [
+          65,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "In the Body field, click the Insert Dynamic Content icon.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          11
+        ],
+        [
+          29,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Search with body text and select the body response content under Get Connections as admin field.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          65,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "The response gets inserted in the Body field.",
+      "depth": 2,
+      "strong": [
+        [
+          34,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save to save the flow.",
+      "depth": 2,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "A flow URL is generated.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Get the Flow URL from the Manual node.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          8,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Save to save the flow.",
+      "depth": 2,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "heading": "Onboarding Microsoft Copilot Studio Tenant",
+      "level": 1
+    },
+    {
+      "text": "To onboard a Microsoft Copilot Studio Tenant, do the following:"
+    },
+    {
+      "item": "Go to Administration > Account Onboarding.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Add New.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The Start Onboarding window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select SaaS Platforms.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Under Select SaaS Platform, click the Microsoft Copilot Studio tile.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          26
+        ],
+        [
+          38,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "The Add Microsoft Copilot Studio Tenant window appears.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "In the Tenant Details drawer:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Tenant Alias: Enter a unique name for the tenant as registered in the Azure Portal.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Tenant ID: Enter the Microsoft Entra tenant ID.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Tenant Name: Enter the name of the tenant that you want to onboard.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Configuration Details:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Authentication Type: Select one of the following from the drop-down menu:",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret",
+      "depth": 3
+    },
+    {
+      "item": "Enter the following information:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "Client ID: The Application (client) ID you copied and saved from the Overview page in the Azure portal.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          69,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Client Secret: The client secret created for the app registration.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Environment URL: Enter the environment URL available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          75,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Environment ID: Enter the environment ID available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          73,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Region: Enter the region name available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          62,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Business Units: Select the business unit from the drop-down menu.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Flow URL: Enter the flow URL that is generated in Power Automate Flow.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to add multiple flows.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Client Certificate",
+      "depth": 3
+    },
+    {
+      "item": "Client ID: The Application (client) ID you copied and saved from the Overview page in the Azure portal.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          69,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Environment URL: Enter the environment URL available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          75,
+          82
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Environment ID: Enter the environment ID available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          73,
+          80
+        ]
+      ]
+    },
+    {
+      "item": "Power Platform Region: Enter the region name available in the Details section of your environment in the Power Platform admin center.",
+      "depth": 4,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          22
+        ],
+        [
+          62,
+          69
+        ]
+      ]
+    },
+    {
+      "item": "Business Units: Select the business unit from the drop-down menu.",
+      "depth": 4,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Flow URL: Enter the flow URL that is generated in Power Automate Flow.",
+      "depth": 4,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click Add to add multiple flows.",
+      "depth": 4,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "Click Save & Next.",
+      "depth": 4,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "In the Download Certificate drawer, click the Download Certificate tab to download the certificate.",
+      "depth": 4,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          46,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 4
+    },
+    {
+      "item": "Upload the certificate to your Copilot Studio app registration (Service Principal).",
+      "depth": 4,
+      "number": 10
+    },
+    {
+      "item": "In the Azure Portal, open the app registration for your Copilot Studio tenant (Service Principal).",
+      "depth": 5,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Go to Certificates & secrets > Certificates > Upload Certificate.",
+      "depth": 5,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Upload the downloaded PEM file and click Add.",
+      "depth": 5,
+      "number": 3,
+      "strong": [
+        [
+          41,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 5
+    },
+    {
+      "item": "Return to the Download Certificate section in AI Security and click Validate.",
+      "depth": 4,
+      "number": 11,
+      "strong": [
+        [
+          14,
+          34
+        ],
+        [
+          68,
+          76
+        ]
+      ]
+    },
+    {
+      "text": "The tenant is onboarded and is displayed on the Account Onboarding page."
+    }
+  ]
+}

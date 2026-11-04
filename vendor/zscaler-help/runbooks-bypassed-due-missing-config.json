@@ -1,0 +1,163 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Bypassed Due to Missing Config",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/bypassed-due-missing-config",
+    "node": "1539088",
+    "revision": "3224133",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This action is logged in the rare circumstances when the Public Service Edge fails to establish a connection with the Zscaler Central Authority (CA) and consequently some traffic is allowed through Zscaler Firewall without policy enforcement."
+    },
+    {
+      "text": "This typically only happens when traffic from a specific user or location arrives at the Service Edge for the first time and the Service Edge needs to download the policy config for that user or location, but the connection to the Zscaler Central Authority (CA) does not succeed due to problems outside Zscaler's network."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "How frequently is this value seen in your firewall logs for the past day or the past week?"
+    },
+    {
+      "item": "Go to Firewall Insights > Select Chart Type as Table and Units as Sessions.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          26,
+          43
+        ],
+        [
+          47,
+          52
+        ],
+        [
+          57,
+          62
+        ],
+        [
+          66,
+          74
+        ]
+      ]
+    },
+    {
+      "item": "Note the number of sessions in Overall Traffic for the previous day or previous week. For the purposes of your calculations, this is called TOTAL_SESSIONS.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          31,
+          46
+        ],
+        [
+          140,
+          154
+        ]
+      ]
+    },
+    {
+      "item": "Go to Firewall Logs > Apply and use the same time range as in the previous steps. Select the Bypassed due to missing config in Action filter. You can see the total count of sessions that were bypassed. For the purposes of your calculations, this is called COUNT_BYPASSED.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          19
+        ],
+        [
+          22,
+          27
+        ],
+        [
+          93,
+          133
+        ],
+        [
+          256,
+          270
+        ]
+      ]
+    },
+    {
+      "item": "If COUNT_BYPASSED is greater than 25K, you can try downloading this data to a CSV. If the COUNT_BYPASSED in the CSV is equal to 100,000, then you can either reduce the time period or look up these logs in your security information and event management (SIEM), if Nanolog Streaming Service (NSS) has been correctly deployed. To learn more, see Understanding Nanolog Streaming Service.",
+      "depth": 0
+    },
+    {
+      "item": "The percentage of bypassed transactions equals COUNT_BYPASSED x 100 divided by TOTAL_SESSIONS.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "If the percentage of bypassed transactions is less than or equal to 0.05% of total sessions:"
+    },
+    {
+      "item": "This is the most general case. For instance, if the percentage of these bypassed sessions is 0.001% for a given day or week, it implies that the Zscaler service is correctly enforcing firewall policy for 99.999% of all the sessions for your organization.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service provides a resilient cloud service that enables real-time policy enforcement on hundreds of nodes across the world, so it is bound to have small numbers of disconnections due to reasons outside its direct control. However, the Zscaler Engineering team is continuously working on further improving the resiliency of our configuration delivery mechanisms against these external factors.",
+      "depth": 0
+    },
+    {
+      "item": "If you would like to have better control over the number of sessions that get bypassed due to missing config, see the Solution section.",
+      "depth": 0
+    },
+    {
+      "text": "If the percentage of bypassed transactions is more than 0.05% of total sessions, submit a case to Zscaler Support. Enable Remote Assistance, or share the Firewall Insights logs showing all the columns for the policy action Bypassed due to missing configuration.",
+      "strong": [
+        [
+          223,
+          231
+        ]
+      ]
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler Engineering team is working on providing a solution to control these transactions from your Zscaler Admin Console. However, if you'd like to change the policy behavior immediately, you can choose one of the following modes for this traffic and submit a case to Zscaler Support with the selected mode:"
+    },
+    {
+      "item": "Fail-Open Mode: This is the default mode. In this mode, if the Service Edge fails to establish a connection with the CA, the Service Edge bypasses policy evaluation for some transactions.",
+      "depth": 0
+    },
+    {
+      "item": "Fail-Closed Mode: If your business prioritizes security over connectivity, a fail-closed mode can be configured. In this mode, the Service Edge blocks traffic by default and logs it in the Firewall Insights.",
+      "depth": 0
+    },
+    {
+      "item": "Best Effort Policies: These policies provide an improved implementation of the fail-open mode. In this mode, the Service Edge applies a subset of Firewall rules defined in your Zscaler Admin Console. This subset includes:",
+      "depth": 0
+    },
+    {
+      "item": "All the rules without any user, group, or location criteria.",
+      "depth": 1
+    },
+    {
+      "item": "All the rules with user, group, or location criteria if this Service Edge had received traffic from those users, groups, or locations before the disconnection.",
+      "depth": 1
+    },
+    {
+      "item": "All the rules for the Miscellaneous Unauthenticated Transactions user (noauth-misc). To learn more, see Configuring Policies for Unauthenticated Traffic.",
+      "depth": 1,
+      "strong": [
+        [
+          22,
+          64
+        ]
+      ]
+    }
+  ]
+}

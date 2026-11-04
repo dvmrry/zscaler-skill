@@ -1,0 +1,1179 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "IAM Roles and Permissions for AWS",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/iam-roles-and-permissions-aws",
+    "node": "1539939",
+    "revision": "3251243",
+    "updated": "2026-10-30",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "As part of the onboarding process, you need to deploy the AI Security templates that create roles and permissions in the AWS organization. These templates create multiple IAM roles with the required permissions to establish a trust relationship between AI Security, the orchestrator account, and target accounts. Each role has permissions for various services and actions such as resource discovery, CloudTrail log collection, etc."
+    },
+    {
+      "heading": "IAM Roles",
+      "level": 1
+    },
+    {
+      "text": "AI Security creates the following IAM roles to access the AWS accounts:"
+    },
+    {
+      "item": "Resource Discovery Role",
+      "depth": 0
+    },
+    {
+      "item": "Mandatory Permissions",
+      "depth": 1
+    },
+    {
+      "item": "The resource discovery role is required for AI Security to discover resources within the onboarded accounts and collect CloudTrail logs. The role has the following permissions:",
+      "depth": 1
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Effect",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "logs:ListLogDeliveries",
+          "Allow",
+          "Monitored Accounts",
+          "To list the log delivery settings for a specific log group"
+        ],
+        [
+          "wafv2:ListResourcesForWebACL",
+          "Allow",
+          "Monitored Accounts",
+          "To list all the resources that are associated with a specific AWS WAFv2 web ACL"
+        ],
+        [
+          "bedrock:List*",
+          "Allow",
+          "Monitored Accounts",
+          "To list all Amazon Bedrock resources such as models, agents, and knowledge bases"
+        ],
+        [
+          "bedrock:Get*",
+          "Allow",
+          "Monitored Accounts",
+          "To retrieve detailed configuration and metadata for Amazon Bedrock resources"
+        ],
+        [
+          "s3:GetReplicationConfiguration",
+          "Allow",
+          "Monitored Accounts",
+          "To retrieve the replication configuration set on an S3 bucket"
+        ],
+        [
+          "s3:GetObject",
+          "Deny",
+          "Monitored Accounts",
+          ""
+        ],
+        [
+          "dynamodb:BatchGetItem",
+          "Deny",
+          "Monitored Accounts",
+          ""
+        ],
+        [
+          "dynamodb:GetItem",
+          "Deny",
+          "Monitored Accounts",
+          ""
+        ],
+        [
+          "dynamodb:Query",
+          "Deny",
+          "Monitored Accounts",
+          ""
+        ],
+        [
+          "dynamodb:Scan",
+          "Deny",
+          "Monitored Accounts",
+          ""
+        ]
+      ]
+    },
+    {
+      "item": "Additional Permissions for AWS Bedrock Resources",
+      "depth": 1
+    },
+    {
+      "item": "If the AWS Bedrock resources are encrypted with KMS keys, AI Security fails to collect the metadata. To enable metadata collection, explicitly add the kms:Decrypt and kms:GenerateDataKey permissions to the resource discovery role.",
+      "depth": 1
+    },
+    {
+      "item": "To add the permissions:",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS Management Console and go to IAM.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Roles.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Search and select the resource discovery role created by AI Security.",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "On the Permissions tab, click AIS-BASIC-CUSTOM-POLICY.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          18
+        ],
+        [
+          30,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "In the Policy editor, add the following permissions and click Next.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          62,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "kms:GenerateDataKey",
+      "depth": 3
+    },
+    {
+      "item": "kms:Decrypt",
+      "depth": 3
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Orchestrator Instance Profile Role",
+      "depth": 0
+    },
+    {
+      "item": "The orchestrator instance profile role is used by the orchestrator instance present in the primary region to organize data scanning. The role has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Effect",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "sqs:ReceiveMessage",
+          "Allow",
+          "Orchestrator Account",
+          "To retrieve one or more messages from an SQS queue"
+        ],
+        [
+          "sqs:List*",
+          "Allow",
+          "Orchestrator Account",
+          "To list SQS queues and their attributes"
+        ],
+        [
+          "rds:RestoreDBClusterFromSnapshot",
+          "Allow",
+          "Orchestrator Account",
+          "To restore database cluster from a snapshot of an RDS database cluster"
+        ],
+        [
+          "rds:RestoreDBInstanceFromDBSnapshot",
+          "Allow",
+          "Orchestrator Account",
+          "To restore database instance from a snapshot of an RDS database instance"
+        ],
+        [
+          "rds:CreateDBCluster",
+          "Allow",
+          "Orchestrator Account",
+          "To create an RDS cluster"
+        ],
+        [
+          "rds:CreateDBInstance",
+          "Allow",
+          "Orchestrator Account",
+          "To create an RDS instance"
+        ],
+        [
+          "rds:CopyDBSnapshot",
+          "Allow",
+          "Orchestrator Account",
+          "To copy a snapshot of an RDS database instance"
+        ],
+        [
+          "rds:CopyDBClusterSnapshot",
+          "Allow",
+          "Orchestrator Account",
+          "To copy a snapshot of an RDS database cluster"
+        ],
+        [
+          "rds:ModifyDBClusterSnapshotAttribute",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To modify the attributes of a database cluster snapshot"
+        ],
+        [
+          "rds:AddTagsToResource",
+          "Allow",
+          "Orchestrator Account",
+          "To add tags to an RDS resource"
+        ],
+        [
+          "rds:List*",
+          "Allow",
+          "Orchestrator Account",
+          "To list various RDS resources"
+        ],
+        [
+          "rds:Describe*",
+          "Allow",
+          "Orchestrator Account",
+          "To describe various RDS resources, such as database instances, snapshots, and clusters"
+        ],
+        [
+          "rds:ModifyDBInstance",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To modify an RDS instance"
+        ],
+        [
+          "rds:ModifyDBCluster",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To modify an RDS cluster"
+        ],
+        [
+          "rds:DeleteDBClusterSnapshot",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete a snapshot of Zscaler AI Security’s RDS database cluster created for scanning"
+        ],
+        [
+          "rds:DeleteDBSnapshot",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete a snapshot of Zscaler AI Security’s RDS database instance created for scanning"
+        ],
+        [
+          "rds:ModifyDBSnapshot",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To modify a snapshot of Zscaler AI Security’s RDS database instance created for scanning"
+        ],
+        [
+          "rds:ModifyDBSnapshotAttribute",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To share the Zscaler AI Security’s database snapshot created for scanning"
+        ],
+        [
+          "rds:DeleteDBInstance",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the Zscaler AI Security’s RDS database instance created for scanning"
+        ],
+        [
+          "rds:DeleteDBCluster",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the Zscaler AI Security’s RDS database cluster created for scanning"
+        ],
+        [
+          "s3:GetObjectAcl",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To retrieve the access control list (ACL) of an S3 object from resources created by AI Security (based on tags)"
+        ],
+        [
+          "s3:GetObject",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To retrieve the S3 object from resources created by AI Security (based on tags)"
+        ],
+        [
+          "s3:DeleteObjectVersion",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the specific version of the S3 object from resources created by AI Security (based on tags)"
+        ],
+        [
+          "s3:ListBucket",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To list the objects in resources created by AI Security (based on tags)"
+        ],
+        [
+          "s3:DeleteObject",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete an S3 object from resources created by AI Security (based on tags)"
+        ],
+        [
+          "iam:PassRole",
+          "Allow",
+          "Orchestrator Account",
+          "To pass an IAM role"
+        ],
+        [
+          "ec2:RunInstance*",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To start the scanner instance"
+        ],
+        [
+          "ec2:StartInstances",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To start the scanner instance"
+        ],
+        [
+          "ec2:CreateVolume",
+          "Allow",
+          "Orchestrator Account",
+          "To create volume for scanning"
+        ],
+        [
+          "ec2:CreateTags",
+          "Allow",
+          "Orchestrator Account",
+          "To create tags for EC2 resources"
+        ],
+        [
+          "ec2:CreateSnapshot*",
+          "Allow",
+          "Orchestrator Account",
+          "To create snapshot of EC2 volumes"
+        ],
+        [
+          "ec2:List*",
+          "Allow",
+          "Orchestrator Account",
+          "To list the EC2 resources"
+        ],
+        [
+          "ec2:Get*",
+          "Allow",
+          "Orchestrator Account",
+          "To get EC2 resources"
+        ],
+        [
+          "kms:Decrypt",
+          "Allow",
+          "Orchestrator Account",
+          "To decrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "kms:Encrypt",
+          "Allow",
+          "Orchestrator Account",
+          "To encrypt plaintext using a KMS key"
+        ],
+        [
+          "kms:ReEncrypt*",
+          "Allow",
+          "Orchestrator Account",
+          "To re-encrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "kms:GenerateDataKey*",
+          "Allow",
+          "Orchestrator Account",
+          "To generate a data key without plaintext"
+        ],
+        [
+          "kms:List*",
+          "Allow",
+          "Orchestrator Account",
+          "To list various KMS resources, such as keys and grants"
+        ],
+        [
+          "kms:Get*",
+          "Allow",
+          "Orchestrator Account",
+          "To retrieve various KMS resources, such as keys and grants"
+        ],
+        [
+          "kms:Describe*",
+          "Allow",
+          "Orchestrator Account",
+          "To describe various KMS resources, such as keys and grants"
+        ],
+        [
+          "kms:CreateGrant",
+          "Allow",
+          "Orchestrator Account",
+          "To create a grant for a KMS key"
+        ],
+        [
+          "secretsmanager:GetSecretValue",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To retrieve the value of a secret"
+        ],
+        [
+          "secretsmanager:PutSecretValue",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To create or update the value of a secret"
+        ],
+        [
+          "secretsmanager:TagResource",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To tag a secret"
+        ],
+        [
+          "secretsmanager:UpdateSecret",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To update the Zscaler AI Security’s secret"
+        ],
+        [
+          "secretsmanager:DeleteSecret",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the Zscaler AI Security’s secret"
+        ],
+        [
+          "secretsmanager:PutResourcePolicy",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To update the Zscaler AI Security’s secret policy"
+        ],
+        [
+          "secretsmanager:CreateSecret",
+          "Allow",
+          "Orchestrator Account",
+          "To create a secret"
+        ],
+        [
+          "ec2:TerminateInstances",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To terminate Zscaler AI Security’s EC2 instances"
+        ],
+        [
+          "ec2:StopInstances",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To stop Zscaler AI Security’s EC2 instances"
+        ],
+        [
+          "ec2:DetachVolume",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To detach Zscaler AI Security’s volumes from scanner EC2 instances"
+        ],
+        [
+          "ec2:DeleteVolume",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete Zscaler AI Security’s volumes"
+        ],
+        [
+          "ec2:AttachVolume",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To attach Zscaler AI Security’s volumes to scanner EC2 instances"
+        ],
+        [
+          "iam:CreateServiceLinkedRole",
+          "Allow",
+          "Orchestrator Account",
+          "To create RDS service-linked role if it does not exist"
+        ],
+        [
+          "autoscaling:UpdateAutoScalingGroup",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To update the Zscaler AI Security auto-scaling group"
+        ],
+        [
+          "ec2:CreateNetworkInsightsPath",
+          "Allow",
+          "Orchestrator Account",
+          "To create a Network Insights path. This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:DescribeNetworkInsightsPaths",
+          "Allow",
+          "Orchestrator Account",
+          "To describe one or more Network Insights paths This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:DeleteNetworkInsightsPath",
+          "Allow",
+          "Orchestrator Account",
+          "To delete a Network Insights path This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:StartNetworkInsightsAnalysis",
+          "Allow",
+          "Orchestrator Account",
+          "To start a Network Insights analysis This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:DescribeNetworkInsightsAnalyses",
+          "Allow",
+          "Orchestrator Account",
+          "To describe one or more Network Insights analyses This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:DeleteNetworkInsightsAnalysis",
+          "Allow",
+          "Orchestrator Account",
+          "To delete a Network Insights analysis This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "tiros:CreateQuery",
+          "Allow",
+          "Orchestrator Account",
+          "To create a VPC reachability query This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "tiros:ExtendQuery",
+          "Allow",
+          "Orchestrator Account",
+          "To extend a VPC reachability query This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "tiros:GetQueryAnswer",
+          "Allow",
+          "Orchestrator Account",
+          "To get the VPC reachability query answer This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "tiros:GetQueryExplanation",
+          "Allow",
+          "Orchestrator Account",
+          "To get the VPC reachability query explanation This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "tiros:GetQueryExtensionAccounts",
+          "Allow",
+          "Orchestrator Account",
+          "To list accounts that might be useful in a new query This permission is conditional and only required if Custom Network is used."
+        ],
+        [
+          "ec2:CreateLaunchTemplateVersion",
+          "Allow",
+          "Orchestrator Account",
+          "To create a new version of a launch template"
+        ],
+        [
+          "autoscaling:UpdateAutoScalingGroup",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To update Zscaler AI Security’s Auto Scaling group"
+        ],
+        [
+          "ec2:TerminateInstances",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To terminate one or more Zscaler AI Security’s Amazon EC2 instances"
+        ],
+        [
+          "kms:GenerateDataKey",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To generate a data key for Zscaler AI Security’s key that can be used to encrypt data"
+        ],
+        [
+          "kms:Decrypt",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To decrypt ciphertext that was encrypted using Zscaler AI Security’s key in the AWS Key Management Service (KMS)"
+        ],
+        [
+          "sqs:PurgeQueue",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To purge the messages from AI Security-created queues"
+        ]
+      ]
+    },
+    {
+      "item": "Scanner Instance Profile Role",
+      "depth": 0
+    },
+    {
+      "item": "The scanner instance profile role is used by the scanner instances to perform data scanning and has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Allow",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "secretsmanager:GetSecretValue",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To get the value of a secret"
+        ],
+        [
+          "sqs:ReceiveMessage",
+          "Allow",
+          "AI Security Queues",
+          "To retrieve one or more messages from an SQS queue"
+        ],
+        [
+          "sqs:DeleteMessage",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To delete a message from an SQS queue"
+        ],
+        [
+          "sqs:List*",
+          "Allow",
+          "AI Security Queues",
+          "To list SQS queues and their attributes"
+        ],
+        [
+          "kms:Decrypt",
+          "Allow",
+          "All resources",
+          "To decrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "s3:GetObjectAcl",
+          "Allow",
+          "Only resources created by AI Security (based on tags)",
+          "To retrieve the access control list (ACL) of an S3 object from AI Security export bucket"
+        ],
+        [
+          "s3:GetObject",
+          "Allow",
+          "AI Security Export Bucket",
+          "To retrieve the S3 object from AI Security export bucket"
+        ],
+        [
+          "s3:ListBucket",
+          "Allow",
+          "AI Security Export Bucket",
+          "To list the objects in AI Security export bucket"
+        ]
+      ]
+    },
+    {
+      "item": "Target Role",
+      "depth": 0
+    },
+    {
+      "item": "The target role is an IAM role created in the target accounts containing permissions to CreateSnapshot, GetObject from S3, etc. The role has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Data Store Type or Managed Policy",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "dynamodb:ExportTableToPointInTime",
+          "DynamoDB",
+          "Monitored Account",
+          "To export a DynamoDB table to Amazon S3 at a specific point in time"
+        ],
+        [
+          "s3:AbortMultipartUpload",
+          "DynamoDB",
+          "AI Security S3 export bucket in orchestrator account",
+          "To abort a multipart upload to the export S3 bucket"
+        ],
+        [
+          "s3:PutObject",
+          "DynamoDB",
+          "AI Security S3 export bucket in orchestrator account",
+          "To upload an object to the export S3 bucket"
+        ],
+        [
+          "s3:PutObjectAcl",
+          "DynamoDB",
+          "AI Security S3 export bucket in orchestrator account",
+          "To set the access control list (ACL) for an object in the export S3 bucket"
+        ],
+        [
+          "events:Describe*",
+          "EventBridge",
+          "Monitored Accounts",
+          "To describe various resources in Amazon EventBridge"
+        ],
+        [
+          "events:List*",
+          "EventBridge",
+          "Monitored Accounts",
+          "To list various resources in Amazon EventBridge"
+        ],
+        [
+          "events:EnableRule",
+          "EventBridge",
+          "Monitored Accounts",
+          "To enable a rule in Amazon EventBridge"
+        ],
+        [
+          "events:PutRule",
+          "EventBridge",
+          "Monitored Accounts",
+          "To create or update a rule in Amazon EventBridge"
+        ],
+        [
+          "events:PutTargets",
+          "EventBridge",
+          "Monitored Accounts",
+          "To add or update targets for a rule in Amazon EventBridge"
+        ],
+        [
+          "iam:PassRole",
+          "EventBridge",
+          "Monitored Accounts",
+          "To pass an IAM role to Amazon EventBridge"
+        ],
+        [
+          "events:DisableRule",
+          "EventBridge",
+          "Monitored Accounts",
+          "To disable an Amazon EventBridge rule"
+        ],
+        [
+          "kms:RetireGrant",
+          "RDS",
+          "Monitored Accounts",
+          "To retire a grant for a KMS key"
+        ],
+        [
+          "kms:CreateGrant",
+          "RDS",
+          "Monitored Accounts",
+          "To create a grant for a KMS key"
+        ],
+        [
+          "rds:CreateDBClusterSnapshot",
+          "RDS",
+          "Monitored Accounts",
+          "To create a snapshot of an RDS database cluster"
+        ],
+        [
+          "rds:CreateDBSnapshot",
+          "RDS",
+          "Monitored Accounts",
+          "To create a snapshot of an RDS database instance"
+        ],
+        [
+          "rds:CopyDBSnapshot",
+          "RDS",
+          "Monitored Accounts",
+          "To copy a snapshot of an RDS database instance"
+        ],
+        [
+          "rds:CopyDBClusterSnapshot",
+          "RDS",
+          "Monitored Accounts",
+          "To copy a snapshot of an RDS database cluster"
+        ],
+        [
+          "rds:ModifyDBClusterSnapshotAttribute",
+          "RDS",
+          "Monitored Accounts",
+          "To modify the attributes of a database cluster snapshot"
+        ],
+        [
+          "rds:RestoreDBInstanceFromDBSnapshot",
+          "RDS",
+          "Monitored Account",
+          "To restore a database instance from a snapshot"
+        ],
+        [
+          "rds:AddTagsToResource",
+          "RDS",
+          "Monitored Accounts",
+          "To add tags to an RDS resource"
+        ],
+        [
+          "rds:List*",
+          "RDS",
+          "Monitored Accounts",
+          "To list various RDS resources"
+        ],
+        [
+          "rds:Describe*",
+          "RDS",
+          "Monitored Accounts",
+          "To describe various RDS resources, such as database instances, snapshots, and clusters"
+        ],
+        [
+          "rds:DeleteDBClusterSnapshot",
+          "RDS",
+          "Only resources created by AI Security (based on tags)",
+          "To delete a snapshot of Zscaler AI Security’s RDS database cluster created for scanning"
+        ],
+        [
+          "rds:DeleteDBSnapshot",
+          "RDS",
+          "Only resources created by AI Security (based on tags)",
+          "To delete a snapshot of Zscaler AI Security’s RDS database instance created for scanning"
+        ],
+        [
+          "rds:ModifyDBSnapshotAttribute",
+          "RDS",
+          "Only resources created by AI Security (based on tags)",
+          "To share the Zscaler AI Security’s database snapshot created for scanning"
+        ],
+        [
+          "rds:DeleteDBInstance",
+          "RDS",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the Zscaler AI Security’s RDS database instance created for scanning"
+        ],
+        [
+          "s3:Get*",
+          "S3",
+          "Monitored Accounts",
+          "To retrieve objects from an S3 bucket"
+        ],
+        [
+          "s3:List*",
+          "S3",
+          "Monitored Accounts",
+          "To list objects in an S3 bucket"
+        ],
+        [
+          "s3:GetReplicationConfiguration",
+          "S3",
+          "Monitored Accounts",
+          "To retrieve the replication configuration for an S3 bucket"
+        ],
+        [
+          "bedrock:ListImportedModels",
+          "AWS Bedrock",
+          "Monitored Accounts",
+          "To enable scanning for custom and imported models"
+        ],
+        [
+          "bedrock:GetImportedModel",
+          "AWS Bedrock",
+          "Monitored Accounts",
+          "To enable scanning for custom and imported models"
+        ],
+        [
+          "ecr:DescribeRepositories",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To discover ECR repositories"
+        ],
+        [
+          "ecr:ListImages",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To list images within a repository"
+        ],
+        [
+          "ecr:DescribeImages",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To describe images within a repository"
+        ],
+        [
+          "ecr:BatchGetImage",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To get image manifest information"
+        ],
+        [
+          "ecr:GetDownloadUrlForLayer",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To get a download URL for an image layer"
+        ],
+        [
+          "ecr:BatchCheckLayerAvailability",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To check the availability of image layers"
+        ],
+        [
+          "ecr:GetAuthorizationToken",
+          "Container Image Repository",
+          "Monitored Accounts",
+          "To retrieve an authentication token to access an Amazon ECR registry."
+        ],
+        [
+          "ec2:CreateSnapshot*",
+          "Workload",
+          "Monitored Accounts",
+          "To create a snapshot of an EC2 instance's root volume or a specific volume"
+        ],
+        [
+          "ec2:CreateTags",
+          "Workload",
+          "Monitored Accounts",
+          "To create tags for EC2 resources"
+        ],
+        [
+          "ec2:List*",
+          "Workload",
+          "Monitored Accounts",
+          "To list various EC2 resources"
+        ],
+        [
+          "ec2:Get*",
+          "Workload",
+          "Monitored Accounts",
+          "To retrieve various EC2 resources"
+        ],
+        [
+          "ec2:CopySnapshot",
+          "Workload",
+          "Monitored Accounts",
+          "To copy an EC2 snapshot"
+        ],
+        [
+          "kms:Decrypt",
+          "Workload",
+          "Monitored Accounts",
+          "To decrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "kms:Encrypt",
+          "Workload",
+          "Monitored Accounts",
+          "To encrypt plaintext using a KMS key"
+        ],
+        [
+          "kms:ReEncrypt*",
+          "Workload",
+          "Monitored Account",
+          "To re-encrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "kms:GenerateDataKeyWithoutPlaintext",
+          "Workload",
+          "Monitored Accounts",
+          "To generate a data key without plaintext"
+        ],
+        [
+          "kms:List*",
+          "Workload",
+          "Monitored Accounts",
+          "To list various KMS resources, such as keys and grants"
+        ],
+        [
+          "kms:Get*",
+          "Workload",
+          "Monitored Accounts",
+          "To retrieve various KMS resources, such as keys and grants"
+        ],
+        [
+          "kms:Describe*",
+          "Workload",
+          "Monitored Accounts",
+          "To describe various KMS resources, such as keys and grants"
+        ],
+        [
+          "ec2:ModifySnapshotAttribute",
+          "Workload",
+          "Only resources created by AI Security (based on tags)",
+          "To modify the attributes of Zscaler AI Security’s ec2 snapshot created for scanning"
+        ],
+        [
+          "ec2:DeleteSnapshot",
+          "Workload",
+          "Only resources created by AI Security (based on tags)",
+          "To delete the Zscaler AI Security’s snapshot created for scanning"
+        ],
+        [
+          "secretsmanager:GetSecretValue",
+          "Unmanaged Database",
+          "Monitored Account",
+          "To read the secret value from the secret manager This permission is conditional and only required if Custom Network is used with Unmanaged DB Scanning."
+        ]
+      ]
+    },
+    {
+      "item": "Put Evidence Role",
+      "depth": 0
+    },
+    {
+      "item": "The Put Evidence role is required for AI Security to store evidence data snippets in the specified S3 bucket. The role has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Effect",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "s3:PutObject",
+          "Allow",
+          "Evidence Bucket only",
+          "To put objects into the S3 bucket"
+        ],
+        [
+          "s3:PutObjectAcl",
+          "Allow",
+          "Evidence Bucket only",
+          "To set the Access Control List (ACL) for an object in the export S3 bucket"
+        ],
+        [
+          "s3:GetBucketAcl",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the ACL"
+        ],
+        [
+          "s3:GetBucketLocation",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the region where a specific Amazon S3 bucket is located"
+        ],
+        [
+          "s3:DeleteObject",
+          "Allow",
+          "Evidence Bucket only",
+          "To delete objects in the S3 bucket"
+        ],
+        [
+          "kms:Encrypt",
+          "Allow",
+          "Evidence KMS Key",
+          "To encrypt plaintext using a KMS key"
+        ],
+        [
+          "kms:ReEncrypt",
+          "Allow",
+          "Evidence KMS Key",
+          "To reencrypt ciphertext that was encrypted using a KMS key"
+        ],
+        [
+          "kms:GenerareDataKey",
+          "Allow",
+          "Evidence KMS Key",
+          "To generate a data key for evidence KMS key to encrypt data"
+        ],
+        [
+          "kms:DescribeKey",
+          "Allow",
+          "Evidence KMS Key",
+          "To describe the KMS key"
+        ],
+        [
+          "kms:Decrypt",
+          "Allow",
+          "Evidence KMS Key",
+          "To decrypt ciphertext that was encrypted using a KMS key"
+        ]
+      ]
+    },
+    {
+      "item": "Get Evidence Role",
+      "depth": 0
+    },
+    {
+      "item": "The Get Evidence role is required for AI Security to retrieve evidence data snippets from the specified S3 bucket. The role has the following permissions:",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "Permission",
+          "Effect",
+          "Scope",
+          "Purpose"
+        ],
+        [
+          "s3:GetObjectAcl",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the Access Control List (ACL) of an S3 object from AI Security export bucket"
+        ],
+        [
+          "s3:GetObject",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the S3 object from AI Security export bucket"
+        ],
+        [
+          "s3:GetBucketAcl",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the ACL"
+        ],
+        [
+          "s3:GetBucketLocation",
+          "Allow",
+          "Evidence Bucket only",
+          "To retrieve the region where a specific Amazon S3 bucket is located"
+        ],
+        [
+          "s3:ListBucket",
+          "Allow",
+          "Evidence Bucket only",
+          "To list the objects in the AI Security export bucket"
+        ],
+        [
+          "kms:Decrypt",
+          "Allow",
+          "Evidence KMS Key",
+          "To decrypt ciphertext that was encrypted using a KMS key"
+        ]
+      ]
+    }
+  ]
+}

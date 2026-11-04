@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Access Denied Due to Bad Server Certificate",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/access-denied-due-bad-server-certificate",
+    "node": "1538845",
+    "revision": "3224153",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This issue implies the following scenarios for the website's server certificate:"
+    },
+    {
+      "item": "The server does not present the complete certificate chain during the SSL handshake.",
+      "depth": 0
+    },
+    {
+      "item": "The certificate shows as revoked in the OCSP revocation check.",
+      "depth": 0
+    },
+    {
+      "item": "The certificate is expired.",
+      "depth": 0
+    },
+    {
+      "item": "The certificate is self-signed.",
+      "depth": 0
+    },
+    {
+      "text": "The website has to provide all the intermediate certificates in the chain, because Zscaler does not manually add intermediate certifications to its trust store. Only trust anchors (i.e., root CA certificates are stored in the trust stores of our nodes). The following is generally how the chain validation happens for a simple scenario with only three certificates in a chain:"
+    },
+    {
+      "item": "The Common Name (CN), or one of the Subject Alternative Names (SAN) in the website's certificate, must match the domain part of the URL.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          4,
+          20
+        ],
+        [
+          36,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "The issuer's value in the website's certificate must match the CN in the intermediate issuer's certificate.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Then, the issuer value in the intermediate issuer's certificate must match the CN in the root certificate.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The following is an example where the chain validation fails because the chain is complete, but the names don't match as mentioned above:"
+    },
+    {
+      "item": "1st cert CN: ipma-wa.com, issuer: Network Solutions RSA DV SSL CA 3",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "2nd cert CN: Network Solutions DV Server CA 2, Issuer: USERTrust RSA Certification Authority",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "3rd cert CN: USERTrust RSA Certification Authority, issuer: USERTrust RSA Certification Authority",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The chain is broken because the server certification is issued by Network Solutions RSA DV SSL CA 3, but the chain includes the intermediate cert of Network Solutions DV Server CA 2."
+    },
+    {
+      "text": "Zscaler uses OCSP stapling to obtain the revocation status of a certificate. When enabled in the SSL Inspection policy, the Internet & SaaS Service Edge checks the revocation status of the certificate regardless of other certificate attributes. If the issuing CA revokes the certificate, the Public Service Edge for Internet & SaaS treats the certificate as untrusted. The action for such transactions is determined by the Untrusted Server Certificates configuration."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "The following are troubleshooting steps:"
+    },
+    {
+      "item": "Try to access the website without Zscaler in the path and observe the SSL handshake.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use an external tool to validate the server's SSL configuration.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "When the Zscaler Service Edge either cannot complete the handshake with a web server or detects the certificate as untrusted or bad, it's best to cross-validate certain attributes of the public website's SSL configuration. To learn more, see How to Validate the SSL Configuration of a Web Server.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Look at the Web log values for the following columns:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Certificate Chain Validity: If the value is Fail, then it's very likely that this web server is not serving the complete chain during the SSL handshake. Typically, these issues can be fixed at the source if the web server's configuration can be rectified to send the complete chain from all the applicable servers. If you see that some transactions for the same domain show Pass or Fail in this column when passing through the same DC, it could be due to one of the following reasons :",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          44,
+          48
+        ],
+        [
+          374,
+          378
+        ],
+        [
+          382,
+          386
+        ]
+      ]
+    },
+    {
+      "item": "When the full chain is not presented by the server, if you have the intermediate certificate present in our intermediate CA cert cache, you verify the chain and allow the connection.",
+      "depth": 2
+    },
+    {
+      "item": "Sometimes the web service is served by multiple physical servers hidden behind a single VIP. If some of those physical servers are configured to serve the complete chain while some are not, you might also see this behavior.",
+      "depth": 2
+    },
+    {
+      "item": "How do I validate the server certificate configured in one specific physical server? You can specify the server IP using a syntax similar to this:",
+      "depth": 2
+    },
+    {
+      "item": "https://www.ssllabs.com/ssltest/analyze.html?d=xyz.com&s=11.11.11.11&latest.",
+      "depth": 2
+    },
+    {
+      "item": "In this case, the tool validates the certificates configured in the server at 11.11.11.11 for the website xyz.com.",
+      "depth": 2
+    },
+    {
+      "item": "Some websites are configured to provide more than one trust chains. One of these chains may have a configuration problem.",
+      "depth": 2
+    },
+    {
+      "item": "These issues are sometimes not seen without Zscaler because some web browsers are configured to perform AIA fetching to fix the incomplete certificate chain, which hides the certificate chain issues from the end user.",
+      "depth": 2
+    },
+    {
+      "item": "Server Certificate Self Signed: This field's value must not be Yes. The SME verifies the server certificate against a preinstalled list of certificate authorities. Self-signed certificates are considered untrusted.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          30
+        ],
+        [
+          63,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Certificate Expiry: If the value is Yes, then that's the reason the certificate was marked bad. Verify that the current date lies between the Issued on and Expires on dates mentioned in the certificate.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          36,
+          39
+        ],
+        [
+          142,
+          151
+        ],
+        [
+          156,
+          166
+        ]
+      ]
+    },
+    {
+      "item": "Server Connection OCSP Result: If the value shows Revoked, that's why the certificate was considered bad.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          29
+        ],
+        [
+          50,
+          57
+        ]
+      ]
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "The following steps provide solution options:"
+    },
+    {
+      "item": "Zscaler recommends adding an SSL policy with a Pass Through action for untrusted certificates or configure allow policy for a given URL only if it's trusted by your business. In this case, any warnings related to the certificate is passed through to the end user.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "If the error is shown because the OCSP check fails for the certificate, the customer can choose to disable OCSP check in the SSL policy rule for a specific domain (but Zscaler does not recommend this action).",
+      "depth": 0
+    },
+    {
+      "item": "If none of the above helps understand the problem, submit a case to Zscaler Support with the following information:",
+      "depth": 0
+    },
+    {
+      "item": "If Remote Assistance is enabled, the URL and the timestamp when a user tried accessing the web application via Zscaler. Otherwise, the Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1,
+      "strong": [
+        [
+          3,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "A screenshot of the error seen in the browser or the application.",
+      "depth": 1
+    },
+    {
+      "item": "Any detailed error messages or application logs, if available.",
+      "depth": 1
+    }
+  ]
+}

@@ -1,0 +1,1976 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the AWS Network",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/configuring-aws-network",
+    "node": "1540256",
+    "revision": "3211811",
+    "updated": "2026-06-25",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "AI Security requires a specific network configuration to be able to access the services, scan the data in the resources, compute, and report the findings. You must configure a custom network in your organization by creating the following control plane and worker plane virtual private clouds (VPCs) in the orchestrator account:"
+    },
+    {
+      "item": "Control Plane VPC: Create this VPC only in the primary region where the orchestrator is going to run.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Worker Plane VPC: Create this VPC in all the regions where the resources exist. For example, if the S3 buckets are stored in US West and US East regions, create the worker plane VPCs in both regions.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "Ensure that both control and worker planes do not have overlapping Classless Inter-Domain Routing (CIDR)."
+    },
+    {
+      "heading": "Configure AWS Network",
+      "level": 1
+    },
+    {
+      "text": "You can configure the AWS network manually or deploy the predefined templates:"
+    },
+    {
+      "item": "Manual Configuration",
+      "depth": 0
+    },
+    {
+      "item": "1. Create the control plane VPC.",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to the VPC page and click Create VPC.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          13
+        ],
+        [
+          29,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Under Create VPC:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Resources to create: Select VPC and more.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Name tag auto-generation: Enter the name tag for the VPC and its associated resources.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "IPV4 CIDR block: Enter the IPV4 address range for the VPC, preferably /24.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "IPv6 CIDR block: Select No IPv6 CIDR block.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Tenancy: Retain the default value.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Number of Availability Zones (AZs): Select at least 1 AZ.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Customize AZs: Retain the default value.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Number of public subnets: Select 1.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Number of private subnets: Select 1.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Customize subnets CIDR blocks: Retain the default value.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "NAT Gateways: Select In 1AZ.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "VPC endpoints: Select S3 Gateway.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "DNS options: Select the Enable DNS hostnames and Enable DNS resolution checkboxes.",
+      "depth": 3,
+      "number": 13,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          24,
+          30
+        ],
+        [
+          31,
+          44
+        ],
+        [
+          49,
+          55
+        ],
+        [
+          56,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Create VPC.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "2. Create the worker plane VPC.",
+      "depth": 1
+    },
+    {
+      "item": "Sign in to the AWS console.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "Go to the VPC page and click Create VPC.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          13
+        ],
+        [
+          29,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Under Create VPC:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Resources to create: Select VPC and more.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Name tag auto-generation: Enter the name tag for the VPC and its associated resources.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "IPV4 CIDR block: Enter the IPV4 address range for the VPC, preferably /24.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "IPv6 CIDR block: Select No IPv6 CIDR block.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Tenancy: Retain the default value.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Number of Availability Zones (AZs): Select at least 2 AZs.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          34
+        ],
+        [
+          43,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "Customize AZs: Retain the default value.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Number of public subnets: Select 2.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          33,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Number of private subnets: Select 2.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          34,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Customize subnets CIDR blocks: Retain the default value.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Private subnet: Ensure that at least 50 IPs are available.",
+      "depth": 3,
+      "number": 11,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "NAT gateways: Select In 1 AZ.",
+      "depth": 3,
+      "number": 12,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "VPC endpoints: Select S3 Gateway.",
+      "depth": 3,
+      "number": 13,
+      "strong": [
+        [
+          0,
+          13
+        ],
+        [
+          22,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "DNS options: Select the Enable DNS hostnames and Enable DNS resolution checkboxes.",
+      "depth": 3,
+      "number": 14,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          24,
+          30
+        ],
+        [
+          31,
+          44
+        ],
+        [
+          49,
+          55
+        ],
+        [
+          56,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Create VPC.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the steps for other target regions.",
+      "depth": 2
+    },
+    {
+      "item": "3. Create the control plane security group.",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS console, go to the Security group page.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Security Group.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Name and Description for the security group.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          19,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select the Control plane VPC created in the previous section.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          11,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Do not add any inbound rules.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "In the Outbound rules section:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Type: Select HTTPS",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "CIDR: Select 0.0.0.0/0.",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          13,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Add tags if required.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Click Create Security Group.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "4. Create the worker plane security group.",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS console, go to the Security group page.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Security Group.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Name and Description for the security group.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          19,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select the worker plane VPC created in the previous section.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "In the Inbound rules section, select the following from the Type and Source drop-down menus respectively:",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ],
+        [
+          60,
+          64
+        ],
+        [
+          69,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "HTTPS, Control plane VPC",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "PostgreSQL, Worker plane VPC",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          12,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "MYSQL/Aurora, Worker plane VPC",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          14,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "In the Outbound rules section, select the following from the Type and Destination drop-down menus respectively:",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          21
+        ],
+        [
+          61,
+          65
+        ],
+        [
+          70,
+          81
+        ]
+      ]
+    },
+    {
+      "item": "HTTPS, 0.0.0.0/0",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          5
+        ],
+        [
+          7,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "PostgreSQL, 0.0.0.0/24",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          12,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "MYSQL/Aurora, 0.0.0.0/24",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          14,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Custom TCP, 0.0.0.0/0",
+      "depth": 3,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Add tags if required.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "Click Create Security Group.",
+      "depth": 2,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Repeat the steps for other target regions.",
+      "depth": 2
+    },
+    {
+      "item": "5. Create the DB subnet group.",
+      "depth": 1
+    },
+    {
+      "item": "The DB subnet group is required for AI Security to be able to scan the RDS databases.",
+      "depth": 1
+    },
+    {
+      "item": "In the AWS console, go to the Subnet group page.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Create DB subnet group.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Enter the Name and Description for the DB subnet group.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          19,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "Select the worker plane VPC from the drop-down menu.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "Select at least two AZs and their corresponding private subnet in those zones.",
+      "depth": 2,
+      "number": 5
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The DB subnet group is created. Repeat the steps to create DB subnet groups in other target regions.",
+      "depth": 2
+    },
+    {
+      "item": "Deploy Predefined Templates",
+      "depth": 0
+    },
+    {
+      "item": "To deploy the templates, identify the template type you want to use.",
+      "depth": 0
+    },
+    {
+      "item": "CloudFormation Template",
+      "depth": 1
+    },
+    {
+      "item": "To deploy the CloudFormation template:",
+      "depth": 1
+    },
+    {
+      "item": "1. Download the CloudFormation template.",
+      "depth": 2
+    },
+    {
+      "item": "Download the CloudFormation templates file as a ZIP file and extract it to a folder on your system.",
+      "depth": 2
+    },
+    {
+      "item": "Download the CloudFormation templates",
+      "depth": 2
+    },
+    {
+      "item": "The .zip file includes two YAML files that contains policies and permissions required for AI Security to create required network configurations in the AWS organization.",
+      "depth": 2
+    },
+    {
+      "item": "2. Create Stack for control plane VPC in the AWS Management Console.",
+      "depth": 2
+    },
+    {
+      "item": "Before creating a new Stack for the new control plane, delete the old control plane's existing infrastructure to avoid conflicts.",
+      "depth": 2
+    },
+    {
+      "item": "Sign in to the root account AWS Management Console and go to CloudFormation.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stack.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Stack, and then select With new resources (standard).",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          36,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Choose a template page:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Prerequisite - Prepare template: Select Choose an existing template.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file and click Choose file. Browse to the location where the downloaded .zip file is extracted, select the aws_control_plane_network_components_cft.yml file, and then click Open.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ],
+        [
+          58,
+          69
+        ],
+        [
+          150,
+          194
+        ],
+        [
+          216,
+          220
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Stack Details page:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Stack name: Enter a unique name for the Stack.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "For the Parameters section:",
+      "depth": 4,
+      "strong": [
+        [
+          8,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name for the network components: Enter the name for the network components.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Control plane VPC CIDR range: Enter the IPV4 address range for the VPC, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Control plane public subnet CIDR range: Enter the IPV4 address range for the public subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Control plane private subnet CIDR range: Enter the IPV4 address range for the private subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Review page, review the Stack details of control plane VPC.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "If you encounter a conflicting S3 bucket error during Stack creation, try deleting the existing bucket and retry the Stack creation. To learn more, refer to the AWS documentation.",
+      "depth": 2
+    },
+    {
+      "item": "3. Create Stack for worker plane VPC in the AWS Management Console.",
+      "depth": 2
+    },
+    {
+      "item": "Sign in to the root account AWS Management Console and go to CloudFormation.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          61,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, select Stacks.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          36,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Stack, and then select With new resources (standard).",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          18
+        ],
+        [
+          36,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "On the Create stack page:",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Prerequisite - Prepare template: Select Choose an existing template.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          31
+        ],
+        [
+          40,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "Specify template: Select Upload a template file and click Choose file. Browse to the location where the downloaded .zip file is extracted, select the aws_worker_plane_network_components_cft.yml file, and then click Open.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          16
+        ],
+        [
+          25,
+          47
+        ],
+        [
+          58,
+          69
+        ],
+        [
+          150,
+          193
+        ],
+        [
+          215,
+          219
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Specify Stack Details page:",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Stack name: Enter a unique name for the Stack.",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "For the Parameters section:",
+      "depth": 4,
+      "strong": [
+        [
+          8,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Name for the network components: Enter the name for the network components.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Worker plane VPC CIDR range: Enter the IPV4 address range for the VPC, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Worker plane public subnet A CIDR range: Enter the IPV4 address range for the first public subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Worker plane public subnet B CIDR range: Enter the IPV4 address range for the second public subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "Worker plane private subnet A CIDR range: Enter the IPV4 address range for the first private subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Worker plane private subnet B CIDR range: Enter the IPV4 address range for the second private subnet CIDR, preferably /24.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          40
+        ]
+      ]
+    },
+    {
+      "item": "Control plane VPC CIDR range: Enter the IPv4 address range for the control plane VPC.",
+      "depth": 5,
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configure Stack options page, click Next.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          7,
+          30
+        ],
+        [
+          43,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "On the Review and create page, review the Stack details of worker plane VPC.",
+      "depth": 3,
+      "number": 9,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Click Submit.",
+      "depth": 3,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Repeat steps for all other worker regions.",
+      "depth": 2
+    },
+    {
+      "item": "If you encounter a conflicting S3 bucket error during Stack creation, try deleting the existing bucket and retry the Stack creation. To learn more, refer to the AWS documentation.",
+      "depth": 2
+    },
+    {
+      "item": "Terraform Template",
+      "depth": 1
+    },
+    {
+      "item": "To deploy the Terraform template:",
+      "depth": 1
+    },
+    {
+      "item": "1. Download the Terraform template.",
+      "depth": 2
+    },
+    {
+      "item": "Download the Terraform templates file as a ZIP file and extract it to a folder on your system.",
+      "depth": 2
+    },
+    {
+      "item": "Download the Terraform templates",
+      "depth": 2
+    },
+    {
+      "item": "The .zip file includes two folders, one for the worker plane and another for the control plane that contain policies and permissions required for AI Security to create required network configurations in the AWS organization.",
+      "depth": 2
+    },
+    {
+      "item": "2. Update and deploy Terraform to create control plane VPC.",
+      "depth": 2
+    },
+    {
+      "item": "Open a file explorer and browse to the location where the downloaded .zip file was extracted. Then, open the control-plane folder.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Locate and open the backend.tf file in a text editor.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Update the file with the name of the storage services where you want to store the Terraform state files.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "For example:",
+      "depth": 3
+    },
+    {
+      "item": "resource_group_name: \"<resource_group_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "storage_account_name: \"<storage_account_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "container_name: \"<container_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "key: \"aisec-control-plane-network-configuration.tfstate\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Replace the placeholders with the actual values for your storage services.",
+      "depth": 3
+    },
+    {
+      "item": "Save the updated file.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 4
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 4
+    },
+    {
+      "item": "To execute the planned changes to your infrastructure:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "terraform apply -auto-approve",
+      "depth": 4
+    },
+    {
+      "item": "The -auto-approve flag skips the interactive approval step, automatically applying the changes.",
+      "depth": 4
+    },
+    {
+      "item": "Executing these steps creates the control plane network components.",
+      "depth": 3
+    },
+    {
+      "item": "3. Update and deploy Terraform to create worker plane VPC.",
+      "depth": 2
+    },
+    {
+      "item": "Open a file explorer and browse to the location where the downloaded .zip file was extracted. Then, open the worker-plane folder.",
+      "depth": 3,
+      "number": 1
+    },
+    {
+      "item": "Locate and open the backend.tf file in a text editor.",
+      "depth": 3,
+      "number": 2
+    },
+    {
+      "item": "Update the file with the name of the storage services where you want to store the Terraform state files.",
+      "depth": 3,
+      "number": 3
+    },
+    {
+      "item": "For example:",
+      "depth": 3
+    },
+    {
+      "item": "resource_group_name: \"<resource_group_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "storage_account_name: \"<storage_account_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "container_name: \"<container_name>\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "key: \"<name>.tfstate\"",
+      "depth": 4,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Replace the placeholders with the actual values for your storage services.",
+      "depth": 3
+    },
+    {
+      "item": "Save the updated file.",
+      "depth": 3,
+      "number": 4
+    },
+    {
+      "item": "Run the following commands:",
+      "depth": 3,
+      "number": 5
+    },
+    {
+      "item": "To initialize the Terraform working directory:",
+      "depth": 4,
+      "number": 1
+    },
+    {
+      "item": "terraform init",
+      "depth": 4
+    },
+    {
+      "item": "To verify the changes in the Terraform configuration:",
+      "depth": 4,
+      "number": 2
+    },
+    {
+      "item": "terraform plan",
+      "depth": 4
+    },
+    {
+      "item": "To execute the planned changes to your infrastructure:",
+      "depth": 4,
+      "number": 3
+    },
+    {
+      "item": "terraform apply -auto-approve",
+      "depth": 4
+    },
+    {
+      "item": "The -auto-approve flag skips the interactive approval step, automatically applying the changes.",
+      "depth": 4
+    },
+    {
+      "item": "Executing these steps creates the worker plane network components.",
+      "depth": 3
+    },
+    {
+      "text": "After the control plane and worker plane network components are created, peer the VPCs between the control plane and all worker plane."
+    },
+    {
+      "heading": "Peer the VPCs",
+      "level": 1
+    },
+    {
+      "text": "After creating the control and worker plane VPC, you need to peer these VPCs, so they can communicate with each other. This step is common for both manual and template-based configurations."
+    },
+    {
+      "item": "In the AWS console, go to the Peering Connections page.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          30,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Click Create peering connection.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "On the Create peering connection page:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VPC peering connection.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "VPC ID (Requestor): Select the control plane VPC.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "VPC ID (Accepter): Select the worker plane VPC.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Create peering connection.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "The peering connection is displayed on the Peering connections page, and it is in the Pending acceptance state.",
+      "depth": 0,
+      "strong": [
+        [
+          43,
+          62
+        ],
+        [
+          86,
+          104
+        ]
+      ]
+    },
+    {
+      "item": "From the Actions drop-down menu, select Accept request.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          9,
+          16
+        ],
+        [
+          40,
+          54
+        ]
+      ]
+    },
+    {
+      "item": "Review the details and click Accept request.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          29,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Update the route tables for both control plane and worker plane VPCs to enable traffic flow between the VPCs.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Update control plane VPC route table",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Route Tables, and select the route table associated with the control plane VPC.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Routes tab, click Edit routes.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Add route and configure:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Enter the IP address of your worker plane VPC.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target: Select Peering Connection, and then choose the appropriate peering connection.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Update worker plane VPC route table",
+      "depth": 1
+    },
+    {
+      "item": "Go to the Route Tables, and select the route table associated with the worker plane VPC.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "In the Routes tab, click Edit routes.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          25,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "Click Add route and configure:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Destination: Enter the IP address of your control plane VPC.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Target: Select Peering Connection, and then choose the appropriate peering connection.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ],
+        [
+          15,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Click Save changes.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "Add the private subnets of the control and worker planes.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "For NAT Gateway, add a route with destination 0.0.0.0/0 as needed.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          4,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "Confirm that the route tables reflect the correct peering connections and IP ranges.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "text": "Repeat the steps for other target regions."
+    }
+  ]
+}

@@ -1,0 +1,757 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "SSL Policy Reason Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/ssl-policy-reason-runbook",
+    "node": "1538875",
+    "revision": "3224157",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The following sections of this Zscaler runbook discuss various SSL policies and how they are applied to URLs:"
+    },
+    {
+      "item": "Not Inspected Because of Microsoft 365 Bypass",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of Mutual TLS Authentication",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of UCaaS Bypass",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of Undecryptable Traffic",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of Zscaler Best Practices",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of Zscaler Service Domains",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of HSM Error",
+      "depth": 0
+    },
+    {
+      "item": "Not Inspected Because of SSL Policy",
+      "depth": 0
+    },
+    {
+      "heading": "Not Inspected Because of Microsoft 365 Bypass",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs that are not inspected because of a Microsoft 365 bypass."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "This reason is logged when the Microsoft-Recommended Office 365 One Click Configuration option is enabled. It corresponds to the predefined Office 365 rule present in the SSL Inspection Policy.",
+      "strong": [
+        [
+          31,
+          87
+        ]
+      ]
+    },
+    {
+      "heading": "Why Is It Recommended Microsoft 365 Traffic Bypasses SSL Inspection?",
+      "level": 2
+    },
+    {
+      "text": "To provide the best-performing and most secure user experience, Microsoft 365 applications use a wide variety of protocols, connection optimizations, strong in-transit encryption technologies, and advanced security checks for their connections and traffic going to Microsoft 365. Many of these connections are also sensitive to inline network protocol and data processing, inspection, and preauthentication actions."
+    },
+    {
+      "text": "For these reasons, Microsoft does not recommend and does not offer support for inline decryption and inspection of Microsoft 365 traffic (to learn more, refer to the Microsoft documentation)."
+    },
+    {
+      "text": "Internet & SaaS (ZIA) fully complies with these Microsoft recommendations for Microsoft 365 traffic by implementing One Click Microsoft 365 Configuration. When One Click configuration is enabled (by default), Microsoft 365 traffic is optimized through the Zscaler systems and bypasses SSL inspection and preauthentication layers for the fastest performance and best interoperability.",
+      "strong": [
+        [
+          116,
+          153
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see About Microsoft One Click Options."
+    },
+    {
+      "heading": "How to Configure Microsoft-Recommended One Click Configuration?",
+      "level": 2
+    },
+    {
+      "text": "To enable the Microsoft-Recommended Office 365 One Click Configuration option:"
+    },
+    {
+      "item": "Go to Policy > URL & Cloud App Control.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Go to the Advanced Policy Settings tab.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Select Enable Microsoft-Recommended One Click Office 365 Configuration.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Click Save, and then activate the changes.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "What Are the Effects of Enabling Microsoft-Recommended One Click Configuration?",
+      "level": 2
+    },
+    {
+      "text": "After this setting is enabled and activated, the following policies get automatically created in the Admin Portal:"
+    },
+    {
+      "item": "SSL Inspection Policy: Policy to identify Microsoft 365 web traffic (based on REST API) and then bypass SSL Inspection (and authentication). Other Zscaler policies are also bypassed for this traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service has a predefined rule called Zscaler Recommended Exemptions (ZRE) that provides a set of predefined SSL inspection bypass rules for various cloud applications and services, including Office 365. These exemptions are designed to ensure compatibility and optimal performance for specific cloud services.",
+      "depth": 0,
+      "strong": [
+        [
+          49,
+          79
+        ]
+      ]
+    },
+    {
+      "item": "DNS Control Policy: DNS policy to optimize the path and connect to the nearest front door application endpoint.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Firewall Control Policy: You can't configure or delete this rule. It's automatically created to process Office 365 traffic in our Firewall module without inspecting the traffic. This rule allows Office 365 traffic whose destination IP matches Office 365 categories.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Cloud App Control Policy: A predefined rule is created, under each of the following cloud app categories, by going to Policy > URL & Cloud App Control > Cloud App Control Policy on the Cloud App Control Policy page:",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          24
+        ],
+        [
+          118,
+          124
+        ],
+        [
+          127,
+          150
+        ],
+        [
+          153,
+          177
+        ],
+        [
+          185,
+          209
+        ]
+      ]
+    },
+    {
+      "item": "Collaboration & Online Meetings: The predefined rule in this category allows the Cloud App Control traffic destined to the following Office 365 cloud applications:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Yammer",
+      "depth": 2
+    },
+    {
+      "item": "SharePoint Online",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Teams",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Sway",
+      "depth": 2
+    },
+    {
+      "item": "Productivity and CRM Tools: The predefined rule in this category allows the Cloud App Control traffic destined to the following Office 365 cloud applications:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Common Office 365 Applications",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Dynamics 365",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Delve",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Power BI",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Planner",
+      "depth": 2
+    },
+    {
+      "item": "File Sharing: The predefined rule in this category allows the Cloud App Control traffic destined to the OneDrive cloud application.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "Hosting Providers: The predefined rule in this category allows the Cloud App Control traffic destined to the Microsoft Azure cloud application.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "IT Services: The predefined rule in this category allows the Cloud App Control traffic destined to the following Office 365 cloud applications:",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Microsoft Azure AD",
+      "depth": 2
+    },
+    {
+      "item": "Microsoft Intune",
+      "depth": 2
+    },
+    {
+      "item": "Webmail: The predefined rule in this category allows the Cloud App Control traffic destined to the Outlook cloud application.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "You can't configure or delete these cloud app rules, but you can change their rule order, if required.",
+      "depth": 0
+    },
+    {
+      "heading": "How Does It Work?",
+      "level": 2
+    },
+    {
+      "text": "When Office 365 traffic is sent to the firewall, the service fingerprints the application. All the fingerprinted information is logged and is viewable on the Office 365 dashboard:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The Zscaler service overrides the destination IP of Office 365 traffic with the closest CDN destination for the Office 365 application and leverages DNS servers at each of our data centers to provide a better user experience and improved application performance."
+    },
+    {
+      "item": "DNS optimization occurs automatically when the Microsoft-Recommended Office 365 One Click Configuration option is enabled.",
+      "depth": 0,
+      "strong": [
+        [
+          47,
+          103
+        ]
+      ]
+    },
+    {
+      "item": "Microsoft's peering partnership with Zscaler allows for minimal hops into the Microsoft backbone for Office 365 traffic, resulting in a better user experience.",
+      "depth": 0
+    },
+    {
+      "item": "The Zscaler service exempts some IP addresses, FQDNs, and URLs from One Click if they are part of the Default category. Default category endpoints can be treated like regular destinations, which allows customers to apply the appropriate security controls. To learn more about Microsoft categories, see New Office 365 endpoint categories.",
+      "depth": 0
+    },
+    {
+      "heading": "What are Some Potential Solutions?",
+      "level": 2
+    },
+    {
+      "text": "If you want the Microsoft 365 Application traffic to be inspected, you can disable the One Click rule or change the SSL Inspection policy order in order to change the behaviour."
+    },
+    {
+      "text": "If you wish to implement Tenant Restriction while keeping Microsoft-Recommended One Click configuration enabled, you can do this by creating an SSL Inspection rule for Microsoft Login Services with a rule order higher than Office 365 One Click Rule. To learn more, see Adding Tenant Profiles."
+    },
+    {
+      "heading": "Not Inspected Because of Mutual TLS Authentication",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to mutual TLS authentication."
+    },
+    {
+      "heading": "When Is this SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "Zscaler does not support mutual TLS authentication for decryption, which means a Zscaler Service Edge cannot decrypt a transaction if the remote web server requires client authentication using certificates. If the SSL Inspection Policy requires inspection for such traffic and undecryptable traffic is configured to be blocked, these transactions are blocked by Zscaler."
+    },
+    {
+      "heading": "What Does Mutual TLS Authentication Look Like?",
+      "level": 2
+    },
+    {
+      "text": "When a website requests a client certificate (Certificate Request) to authenticate the identity of the client. To learn more, see this article about Client Authentications."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "How Can These Connections be Allowed?",
+      "level": 2
+    },
+    {
+      "text": "If you trust the domain in question, create an SSL Inspection Policy rule for it with the Block Undecryptable Traffic option disabled. In this case, any transactions to the domain which require client certificate aren't inspected and thus are allowed.",
+      "strong": [
+        [
+          90,
+          117
+        ]
+      ]
+    },
+    {
+      "heading": "Not Inspected Because of UCaaS Bypass",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs that are not inspected due to UCaaS bypass."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "This reason indicates that the SSL inspection was not performed due to a bypass rule for Unified Communications as a Service (UCaaS). This means that the traffic related to UCaaS was allowed to pass through without being inspected for SSL."
+    },
+    {
+      "heading": "What Is UCaaS?",
+      "level": 2
+    },
+    {
+      "text": "UCaaS is a cloud delivery model that offers communications and audio/video-based collaboration services. It's rapidly being adopted by enterprises of all sizes. The Zscaler service enables direct-to-cloud access for UCaaS applications like Zoom, GoTo, RingCentral, and Webex by enabling organizations to send traffic directly to application servers over the internet, instead of backhauling traffic over costly MPLS circuits."
+    },
+    {
+      "text": "The Zscaler service simplifies your UCaaS deployment by taking advantage of our global Zero Trust Exchange (ZTE), which improves user experience and application performance for your organization. The Zscaler service provides a One Click Configuration option for UCaaS applications which allows the Zscaler service to identify and map all IP ranges and domains, including ports and protocols for secure connectivity and better user experience. Zscaler partners with all major UCaaS vendors (Zoom, GoTo, RingCentral, and Webex) and leverages the REST-based web services to dynamically keep this mapping up to date.",
+      "strong": [
+        [
+          227,
+          250
+        ]
+      ]
+    },
+    {
+      "text": "When any of these options is enabled, it creates a predefined SSL Inspection rule with the action Do Not Inspect for the corresponding destinations. In addition, a UCaaS One Click Rule is automatically created in the following policies:",
+      "strong": [
+        [
+          98,
+          112
+        ],
+        [
+          164,
+          184
+        ]
+      ]
+    },
+    {
+      "item": "Firewall Control Policy and DNS Control Policy: The rule is created to allow traffic from Firewall.",
+      "depth": 0
+    },
+    {
+      "item": "Cloud App Control Policy: The rule is created under the Collaboration & Online Meetings category to allow traffic destined to the Zoom, GoTo, RingCentral, or Webex UCaaS applications.",
+      "depth": 0,
+      "strong": [
+        [
+          56,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "What Are Potential Solutions?",
+      "level": 2
+    },
+    {
+      "text": "If you don't want to use the One Click solution, then disabling the UCaaS option should remove all the automatically created rules, allowing you to configure granular rules as required."
+    },
+    {
+      "text": "However, if you wish to retain the facility of these One Click options while also enforcing SSL Inspection on some transactions, you can choose to reorder your SSL Inspection rules such that more specific rules are at a higher order than the UCaaS One Click rule."
+    },
+    {
+      "heading": "Not Inspected Because of Undecryptable Traffic",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to undecryptable traffic."
+    },
+    {
+      "heading": "When Does Zscaler Mark Transactions as Undecryptable?",
+      "level": 2
+    },
+    {
+      "text": "The Zscaler service considers a transaction undecryptable in the following scenarios:"
+    },
+    {
+      "item": "Unsupported cipher suites: If the website being accessed uses one of the following ciphers that Zscaler does not support: EXP, DSS, RC4-MD5, RC4-SHA, DES-CBC-SHA, DES-CBC3-SHA, 3DES-CBC-SHA. To learn more, see Supported Cipher Suites in SSL Inspection.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "An example of traffic destined to a website with unsupported ciphers shows Blocked due to Server Probe failure in the Policy Action column, and the SSL Policy reason should show Not Inspected because of undecryptable traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          75,
+          110
+        ],
+        [
+          118,
+          131
+        ],
+        [
+          148,
+          158
+        ],
+        [
+          178,
+          224
+        ]
+      ]
+    },
+    {
+      "item": "Application traffic that generates non-web traffic over SSL: Zscaler allows you to configure HTTPS Services under Services Forwarded to HTTP Web Proxy. If any applications send non-SSL traffic using the ports configured for HTTPS services, the Zscaler service identifies such transactions as undecryptable traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          59
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "text": "Verify that the server does not use any unsupported cipher suites."
+    },
+    {
+      "heading": "Use an External Tool to Validate the Server's SSL Configuration",
+      "level": 2
+    },
+    {
+      "text": "To use an external toll to validate the server's SSL configuration, see How to Validate the SSL Configuration of a Web Server."
+    },
+    {
+      "heading": "What Are Potential Solutions?",
+      "level": 2
+    },
+    {
+      "item": "The policy action for undecryptable traffic is controlled by the option Block Undecryptable Traffic in the SSL Inspection Policy. You should enable it, if you want to block all undecryptable traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          72,
+          99
+        ]
+      ]
+    },
+    {
+      "item": "If you trust a specific domain which requires non-SSL communication using HTTPS ports, you can either configure a rule for that domain with Do Not Inspect action or disable the Block Undecryptable Traffic option.",
+      "depth": 0,
+      "strong": [
+        [
+          140,
+          154
+        ],
+        [
+          177,
+          204
+        ]
+      ]
+    },
+    {
+      "item": "If an application's traffic to a non-standard TCP port is considered undecryptable, review whether your organization accesses any HTTPS applications over that port and accordingly update the services configured as HTTPS Services under Administration > Advanced Settings > Services Forwarded to HTTP Web Proxy.",
+      "depth": 0,
+      "strong": [
+        [
+          235,
+          249
+        ],
+        [
+          252,
+          269
+        ],
+        [
+          272,
+          308
+        ]
+      ]
+    },
+    {
+      "heading": "Not Inspected Because of Zscaler Best Practices",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to Zscaler best practices."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "item": "Any transactions destined to the predefined URL Category Zscaler-Recommended Exemptions are not inspected.",
+      "depth": 0,
+      "strong": [
+        [
+          57,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "The Zscaler-Recommended Exemptions URL category contains a few dozen trusted destinations that cannot be SSL inspected for various reasons, such as certificate pinning.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "To discover the traffic that is not getting SSL inspected due to this rule, you can search the weblogs using the SSL Policy Reason field for the reason Not inspected because of Zscaler best practices. The percentage of traffic that matches this rule is commonly very small and less than 1%.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see About SSL Inspection Policy.",
+      "depth": 0
+    },
+    {
+      "heading": "What Are Potential Solutions?",
+      "level": 2
+    },
+    {
+      "item": "While Zscaler recommends not inspecting these domains, you can always disable the rule with Edit.",
+      "depth": 0,
+      "strong": [
+        [
+          92,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Alternatively, you can leave the rule enabled, but create higher order inspect rules if you want to inspect only specific domains outside the list.",
+      "depth": 0
+    },
+    {
+      "heading": "Not Inspected Because of Zscaler Service Domains",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to Zscaler service domains."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "This reason implies that the corresponding transaction was destined to domains that Zscaler owns."
+    },
+    {
+      "text": "This category covers all the service domains that the Zscaler service uses for control plane traffic."
+    },
+    {
+      "heading": "Should This Traffic Be Inspected?",
+      "level": 2
+    },
+    {
+      "text": "Zscaler strongly recommends against inspecting any control traffic destined to the Zscaler cloud as it may break vital communication and result in service issues."
+    },
+    {
+      "heading": "Not Inspected Because of HSM Error",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to Hardware Security Module (HSM) error."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "This reason indicates a problem with the Hardware Security HSM during the SSL inspection process. This is a rare problem, and it's typically caused by API errors. However, if you notice this error recurring in your logs, open a case with Zscaler Support and attach the web insights logs."
+    },
+    {
+      "heading": "Not Inspected Because of SSL Policy",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe URLs not inspected due to SSL policy."
+    },
+    {
+      "heading": "When Is This SSL Policy Reason Logged in the Web Insights Logs?",
+      "level": 2
+    },
+    {
+      "text": "This SSL policy reason indicates that the traffic was not inspected due to the SSL policy rules. This happens when an SSL Inspection policy rule is configured with the action Do Not Inspect.",
+      "strong": [
+        [
+          175,
+          189
+        ]
+      ]
+    },
+    {
+      "text": "If you make any changes to the default rule for Zscaler Recommended Exemptions URL category, then the transactions bypassed by this rule might also show the value Not Inspected because of SSL Policy.",
+      "strong": [
+        [
+          48,
+          82
+        ],
+        [
+          163,
+          198
+        ]
+      ]
+    },
+    {
+      "heading": "Which SSL Inspection Policy Rule Led to this Exemption?",
+      "level": 2
+    },
+    {
+      "text": "In order to identify the rule, you can refer to the column SSL Policy Name in Web Insights logs for the corresponding transactions."
+    },
+    {
+      "heading": "How Can These Transactions be Configured for SSL Inspection?",
+      "level": 2
+    },
+    {
+      "text": "You can add a new SSL Inspection rule with the action Inspect and more specific criteria just above the rule shown in the Web Insights logs.",
+      "strong": [
+        [
+          54,
+          61
+        ]
+      ]
+    }
+  ]
+}

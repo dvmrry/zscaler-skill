@@ -1,0 +1,108 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Untrusted Server Certificate Gets Allowed",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/untrusted-server-certificate-gets-allowed",
+    "node": "1538902",
+    "revision": "3224159",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article describes how to determine whether URLs weren't inspected because an untrusted server certificate was allowed."
+    },
+    {
+      "heading": "Description",
+      "level": 1
+    },
+    {
+      "text": "A Block action is configured for Untrusted Server Certificates in the SSL Inspection policy rule, but some connections with such certificates get allowed."
+    },
+    {
+      "text": "The expected behavior in such cases is to block the connection with the Policy Action Access denied due to bad server certificate."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "text": "Verify that the server certificate is indeed untrusted."
+    },
+    {
+      "heading": "Use an External Tool to Validate the Server's SSL Configuration",
+      "level": 2
+    },
+    {
+      "text": "To learn more, see How to Validate the SSL Configuration of a Web Server."
+    },
+    {
+      "text": "If the server certificate is indeed untrusted, review the following conditions:"
+    },
+    {
+      "item": "When the SSL inspection for a domain is manually configured to Do Not Inspect, then the Zscaler service doesn't decrypt it and can't read the certificate. The browser must show any certificate warnings for such traffic because the Zscaler service simply bridges these connections depending on the policy evaluation.",
+      "depth": 0,
+      "strong": [
+        [
+          63,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "If a web server requests the client certificate (look for the SSL Policy reason Not Inspected because of mutual TLS authentication) and the undecryptable traffic option is disabled, the Zscaler Service Edge simply aborts decryption of the SSL handshake and bridges the connection. If the protocol TLS 1.3 is used (Server Connection TLS Version column in Web Insights logs), the Service Edge cannot read the certificate while bridging, so the connection will be allowed regardless of the server certificate's validity.",
+      "depth": 0,
+      "strong": [
+        [
+          80,
+          131
+        ],
+        [
+          314,
+          343
+        ]
+      ]
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "Possible solutions include:"
+    },
+    {
+      "item": "Change the action in the SSL Inspection rule for this domain to Inspect if your business policy permits that.",
+      "depth": 0,
+      "strong": [
+        [
+          64,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "If you wish to block such domains, you can configure an SSL Inspection rule with the Block Undecryptable Traffic option enabled.",
+      "depth": 0,
+      "strong": [
+        [
+          85,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "If none of the above steps help, submit a case to Zscaler Support with the following information:",
+      "depth": 0
+    },
+    {
+      "item": "If you enabled Remote Assistance, the URL and the timestamp when a user tried accessing the web application via the Zscaler service. Otherwise, send the Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 1
+    }
+  ]
+}

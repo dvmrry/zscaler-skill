@@ -1,0 +1,1234 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Integrating with Amazon Security Lake",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/integrating-amazon-security-lake",
+    "node": "1420996",
+    "revision": "2750486",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "You can integrate Zscaler Posture Control (ZPC) with the Amazon Security Lake service to export and store the alert data in a dedicated Amazon Simple Storage Service (S3) bucket that is pre-configured as part of the Amazon Security Lake setup."
+    },
+    {
+      "text": "Amazon Security Lake is a data lake for security logs, built into the customer’s account. The data lake is backed by an Amazon S3 bucket and organizes data as a set of Lake Formation tables. Amazon Security Lake is designed to optimize the cost of storing and querying massive security logs. Amazon Security Lake uses the Open Cybersecurity Schema Framework (OCSF) as the selected format for the alert information and requires the Parquet file format for the stored alerts. To learn more, see the AWS documentation."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 1
+    },
+    {
+      "text": "Complete the following steps before exporting the alert data to Amazon Security Lake."
+    },
+    {
+      "item": "1. Configure the Amazon Security Lake Service",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have a configured Amazon Security Lake service that is connected to an S3 bucket in your AWS account. To learn more, see the Amazon Security Lake documentation.",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the Custom Source",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler is regarded as a source integration for Amazon Security Lake. To enable the integration, you must generate a custom source in Amazon Security Lake. To learn more, see the Amazon Security Lake documentation.",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to your AWS account.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Open the Security Lake console.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "From the Security Lake left-navigation menu, select customized sources.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          63,
+          70
+        ]
+      ]
+    },
+    {
+      "item": "Scroll down to the Customized source details section.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          30,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Data source name: Provide a name for this custom source. This name determines the path in the S3 bucket to which the alert files will be written. Amazon Security Lake generates a new folder for each custom source.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Event class: Make sure you use the Security_Finding event class.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region from the drop-down menu. The custom source is created in the region where the AWS console is connected. You need to specify this region while setting up the Security Lake integration on the ZPC Admin Portal.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Account ID: Enter the account ID that you copied from the Cloud Storage page in the ZPC Admin Portal.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          10
+        ],
+        [
+          58,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "External ID: Enter the external ID that you copied from the Cloud Storage page in the ZPC Admin Portal. To learn more, see the AWS documentation.",
+      "depth": 2,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          60,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "The AWS Account ID and External ID are identifiers of the custom source (ZPC) that writes logs and events to the data lake.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          18
+        ],
+        [
+          23,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The Amazon Security Lake custom source is created.",
+      "depth": 1
+    },
+    {
+      "item": "On the Customized sources page, search for the custom source you created.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Copy the ARN IAM role. You need to provide this value while setting up the Security Lake integration on the ZPC Admin Portal.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "3. Collect the S3 Bucket Details",
+      "depth": 0
+    },
+    {
+      "item": "Make sure you have the following information for setting up the ZPC integration:",
+      "depth": 0
+    },
+    {
+      "item": "The Amazon Security Lake S3 region",
+      "depth": 1
+    },
+    {
+      "item": "The S3 bucket name (e.g., aws-security-data-lake-us-east-2-o-4g8wg3sx9z)",
+      "depth": 1
+    },
+    {
+      "item": "The folder prefix for the custom source path on the S3 bucket (e.g., /ext/zpc-security-alerts)",
+      "depth": 1
+    },
+    {
+      "heading": "Integrating ZPC with Amazon Security Lake",
+      "level": 1
+    },
+    {
+      "text": "To configure the Amazon Security Lake integration:"
+    },
+    {
+      "item": "Go to Administration > Integrations.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Click Add for cloud storage integration.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "On the Add Cloud Storage Integration page:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "For Integration Name, enter a unique name for the integration.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "For Cloud Storage, select Amazon Security Lake.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          26,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Cloud Storage page:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "ZPC AWS Account: Copy the ZPC AWS Account ID and paste it in the Account ID field while creating the custom source on the Amazon Security Lake console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          65,
+          75
+        ]
+      ]
+    },
+    {
+      "item": "External ID: Copy the External ID and paste it in the External ID field while creating the custom source on the Amazon Security Lake console.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          11
+        ],
+        [
+          54,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "IAM Role: Enter the AWS Identity and Access Management (IAM) ARN role that you copied after creating the custom source. This role allows the ZPC AWS account to write data to Security Lake.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Amazon S3 Bucket Name: Provide the Amazon S3 bucket name.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Bucket Region: Select the bucket region from the drop-down menu. You should have these details from the Prerequisites step.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Folder Location: Provide the folder path for the S3 bucket set for Amazon Security Lake. You should have these details from the Prerequisites step.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Test Connection to verify the connection between ZPC and the AWS service. The test connection validates that the S3 bucket exists.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "A message is displayed that the connection is successful.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Review the integration summary. Click the Edit icon if you want to make any changes.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          42,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "You can see the integration details on the Integrations page. The initial status shows as Pending because data is not yet sent to the Amazon Security Lake. Once you configure and associate the alert rules with this integration, and when ZPC starts sending the alert data to Amazon Security Lake, the status changes to Success. See image."
+    },
+    {
+      "heading": "Adding Alert Rules for Amazon Security Lake",
+      "level": 1
+    },
+    {
+      "text": "Once the integration is set up, you must configure the alert rules on the ZPC Admin Portal. Alert rules define which alerts should be sent to the integrated Amazon Security Lake service."
+    },
+    {
+      "text": "To add an alert rule:"
+    },
+    {
+      "item": "Go to Alerts > Notifications.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          12
+        ],
+        [
+          15,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Click Create Rule.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Under General Information:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "For Alert Rule Name, enter a unique name for the rule.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For Alert Type, select Cloud.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          14
+        ],
+        [
+          23,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "To enable the alert rule immediately after it’s created, set the Alert Rule Status to Enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          65,
+          82
+        ],
+        [
+          86,
+          93
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Under Scope:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Select the scope for which you want to receive alert notifications. You can filter the scope by Business Units, Clouds, Accounts, Regions, or Tags. To learn more about scope, see About Administrators.",
+      "depth": 1
+    },
+    {
+      "item": "Select the policies that must be associated with this alert rule, so alert notifications are sent whenever those policies are impacted. You can filter the policies by Compliance, Severity, Threat Category, and Policy Type. To learn more, see About Security Policies.",
+      "depth": 1,
+      "strong": [
+        [
+          167,
+          177
+        ],
+        [
+          179,
+          187
+        ],
+        [
+          189,
+          204
+        ],
+        [
+          210,
+          221
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Under Notifications:",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "For Cloud Storage, select Amazon Security Lake.",
+      "depth": 1,
+      "strong": [
+        [
+          4,
+          17
+        ],
+        [
+          26,
+          46
+        ]
+      ]
+    },
+    {
+      "item": "From the drop-down menu that appears, select the relevant Amazon Security Lake integration you previously configured.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Review the alert rule summary. Click the Edit icon if you want to make any changes.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          41,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Finish.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Partitioning",
+      "level": 1
+    },
+    {
+      "text": "Partitioning is a technique for organizing datasets so they can be queried efficiently. ZPC alerts are exported in Open Cybersecurity Schema Framework (OCSF) format to Amazon Security Lake and are stored in Parquet files. The Parquet format is a column-based data format."
+    },
+    {
+      "text": "The files are limited by size. A new file is generated and posted whenever the file size reaches 256 MB or after 5 minutes. The files are stored under the root path created for the custom source. The folder structure is: region=<awsregion>/accountid=<cloudaccountid>/eventDay=<YYYYMMDD>."
+    },
+    {
+      "text": "New folders are generated to host new alert files."
+    },
+    {
+      "heading": "OCSF Mapping",
+      "level": 1
+    },
+    {
+      "text": "The Open Cybersecurity Schema Framework (OCSF) includes an open specification for the normalization of security telemetry across a wide range of security products and services, as well as open-source tools that provide support for using the OCSF schema. To learn more, see the GitHub page on OCSF."
+    },
+    {
+      "text": "The following tables provide the list of cloud alert and IaC alert data logs that are written to OCSF."
+    },
+    {
+      "item": "Cloud Alert Payload",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "OCSF Field",
+          "ZPC Cloud Alert Field",
+          "Static Value"
+        ],
+        [
+          "category_name",
+          "",
+          "Findings"
+        ],
+        [
+          "category_uid",
+          "",
+          "2"
+        ],
+        [
+          "class_name",
+          "",
+          "Security Finding"
+        ],
+        [
+          "class_uid",
+          "",
+          "2001"
+        ],
+        [
+          "time",
+          "csp_event_timestamp",
+          ""
+        ],
+        [
+          "time_dt",
+          "csp_event_timestamp",
+          ""
+        ],
+        [
+          "activity",
+          "alert_status",
+          ""
+        ],
+        [
+          "activity_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_name",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_uid",
+          "alert_status",
+          ""
+        ],
+        [
+          "state_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "status",
+          "alert_status",
+          ""
+        ],
+        [
+          "status_detail",
+          "alert_status_description",
+          ""
+        ],
+        [
+          "message",
+          "alert_description",
+          ""
+        ],
+        [
+          "severity",
+          "risk",
+          ""
+        ],
+        [
+          "severity_id",
+          "risk",
+          ""
+        ],
+        [
+          "finding.uid",
+          "alert_id",
+          ""
+        ],
+        [
+          "finding.title",
+          "policy_name",
+          ""
+        ],
+        [
+          "finding.created_time",
+          "alert_created_dt",
+          ""
+        ],
+        [
+          "finding.modified_time",
+          "alert_updated_dt",
+          ""
+        ],
+        [
+          "finding.desc",
+          "",
+          "ocfs_finding_desc.txt"
+        ],
+        [
+          "finding.types.0",
+          "policy_type",
+          ""
+        ],
+        [
+          "finding.threat_category",
+          "policy_threat_category",
+          ""
+        ],
+        [
+          "finding.theme",
+          "policy_theme",
+          ""
+        ],
+        [
+          "finding.age",
+          "age",
+          ""
+        ],
+        [
+          "cloud.account_name",
+          "account_name",
+          ""
+        ],
+        [
+          "cloud.org_name",
+          "organisation_name",
+          ""
+        ],
+        [
+          "cloud.provider",
+          "csp",
+          ""
+        ],
+        [
+          "cloud.resource_uid",
+          "resource_id",
+          ""
+        ],
+        [
+          "cloud.account_uid",
+          "account_id",
+          ""
+        ],
+        [
+          "cloud.org_uid",
+          "organisation_id",
+          ""
+        ],
+        [
+          "resources.0.account_uid",
+          "account_id",
+          ""
+        ],
+        [
+          "resources.0.name",
+          "resource_name",
+          ""
+        ],
+        [
+          "resources.0.type",
+          "resource_type",
+          ""
+        ],
+        [
+          "resources.0.labels.0",
+          "tags",
+          ""
+        ],
+        [
+          "resources.0.details",
+          "",
+          "ocfs_resource_details.txt"
+        ],
+        [
+          "resources.0.clusterName",
+          "cluster_name",
+          ""
+        ],
+        [
+          "resources.0.clusterType",
+          "cluster_type",
+          ""
+        ],
+        [
+          "resources.0.namespace",
+          "namespace",
+          ""
+        ],
+        [
+          "resources.0.associatedCloud",
+          "associated_cloud",
+          ""
+        ],
+        [
+          "resources.0.owner.name",
+          "",
+          "“”"
+        ],
+        [
+          "resources.0.owner.uid",
+          "identity_id",
+          ""
+        ],
+        [
+          "resources.0.owner.type",
+          "identity_type",
+          ""
+        ],
+        [
+          "resources.0.owner.type_id",
+          "",
+          "0"
+        ],
+        [
+          "resources.0.owner.domain",
+          "identity_source",
+          ""
+        ],
+        [
+          "resources.0.owner.email_addr",
+          "identity_name",
+          ""
+        ],
+        [
+          "resources.0.owner.groups.0.name",
+          "identity_power_category",
+          ""
+        ],
+        [
+          "resources.Owner.TypeId",
+          "",
+          "0"
+        ],
+        [
+          "metadata.product.name",
+          "",
+          "zpc"
+        ],
+        [
+          "metadata.product.vendor_name",
+          "",
+          "zscaler"
+        ],
+        [
+          "metadata.version",
+          "",
+          "2.2"
+        ],
+        [
+          "compliance.requirements.0",
+          "compliance_benchmark",
+          ""
+        ],
+        [
+          "compliance.requirements.1",
+          "compliance_control_number",
+          ""
+        ],
+        [
+          "attacks.0.tactics.0.uid",
+          "NA",
+          "NA"
+        ],
+        [
+          "attacks.0.technique.uid",
+          "NA",
+          "NA"
+        ],
+        [
+          "attacks.0.version",
+          "",
+          "\"ATT&CK v13\""
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          10
+        ],
+        [
+          0,
+          1,
+          0,
+          21
+        ],
+        [
+          0,
+          2,
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "IaC Alert Payload",
+      "depth": 0
+    },
+    {
+      "table": [
+        [
+          "OCSF Field",
+          "ZPC IaC Alert Field",
+          "Static Value"
+        ],
+        [
+          "category_name",
+          "",
+          "Findings"
+        ],
+        [
+          "category_uid",
+          "",
+          "2"
+        ],
+        [
+          "class_name",
+          "",
+          "Security Finding"
+        ],
+        [
+          "class_uid",
+          "",
+          "2001"
+        ],
+        [
+          "time",
+          "alert_created_dt",
+          ""
+        ],
+        [
+          "time_dt",
+          "alert_created_dt",
+          ""
+        ],
+        [
+          "activity",
+          "alert_status",
+          ""
+        ],
+        [
+          "activity_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_name",
+          "alert_status",
+          ""
+        ],
+        [
+          "type_uid",
+          "alert_status",
+          ""
+        ],
+        [
+          "state_id",
+          "alert_status",
+          ""
+        ],
+        [
+          "status",
+          "alert_status",
+          ""
+        ],
+        [
+          "status_detail",
+          "alert_status_description",
+          ""
+        ],
+        [
+          "message",
+          "alert_description",
+          ""
+        ],
+        [
+          "severity",
+          "severity",
+          ""
+        ],
+        [
+          "severity_id",
+          "severity",
+          ""
+        ],
+        [
+          "finding.uid",
+          "alert_id",
+          ""
+        ],
+        [
+          "finding.age",
+          "age",
+          ""
+        ],
+        [
+          "finding.title",
+          "policy_name",
+          ""
+        ],
+        [
+          "finding.created_time",
+          "alert_created_dt",
+          ""
+        ],
+        [
+          "finding.modified_time",
+          "alert_updated_dt",
+          ""
+        ],
+        [
+          "finding.desc",
+          "",
+          "ocfs_finding_desc.txt"
+        ],
+        [
+          "cloud.provider",
+          "scan_plugin",
+          ""
+        ],
+        [
+          "resources.0.name",
+          "resource_name",
+          ""
+        ],
+        [
+          "resources.0.uid",
+          "resource_id",
+          ""
+        ],
+        [
+          "resources.0.labels",
+          "tags",
+          ""
+        ],
+        [
+          "metadata.product.name",
+          "",
+          "zpc"
+        ],
+        [
+          "metadata.product.vendor_name",
+          "",
+          "zscaler"
+        ],
+        [
+          "metadata.version",
+          "",
+          "2.2"
+        ],
+        [
+          "compliance.requirements.0.name",
+          "compliance_benchmark",
+          ""
+        ],
+        [
+          "compliance.requirements.0.uid",
+          "compliance_control_number",
+          ""
+        ],
+        [
+          "policy.theme",
+          "policy_theme",
+          ""
+        ],
+        [
+          "policy.uid",
+          "policy_id",
+          ""
+        ],
+        [
+          "policy.type",
+          "policy_type",
+          ""
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          10
+        ],
+        [
+          0,
+          1,
+          0,
+          19
+        ],
+        [
+          0,
+          2,
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends the following resolutions for issues that you might encounter while integrating and using ZPC with Amazon Security Lake."
+    },
+    {
+      "table": [
+        [
+          "Issue",
+          "Resolution"
+        ],
+        [
+          "The ZPC alert data is available in the Amazon Security Lake S3 bucket, but the Glue Crawler fails to parse the data into the Security Lake.",
+          "This issue typically occurs when the custom source that is created for the integration is using the wrong event class. Make sure you create the custom source with the Security Finding event class."
+        ],
+        [
+          "The Amazon Security Lake integration object on the ZPC Integrations page shows a Failed status.",
+          "This indicates that ZPC does not have the permission to access the Amazon Security Lake S3 bucket. While integrating ZPC with Amazon Security Lake, make sure you have applied the required policy to grant ZPC access to the S3 bucket."
+        ],
+        [
+          "New alerts are present on the ZPC Admin Portal but are not exported to the Amazon Security Lake.",
+          "Make sure you've configured the alert rule notification and check the scope of the alert rule."
+        ]
+      ],
+      "strong": [
+        [
+          0,
+          0,
+          0,
+          5
+        ],
+        [
+          0,
+          1,
+          0,
+          10
+        ]
+      ]
+    }
+  ]
+}

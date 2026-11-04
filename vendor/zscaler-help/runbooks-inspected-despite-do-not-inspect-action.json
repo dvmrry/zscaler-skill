@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Inspected Despite a Do Not Inspect Action",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/inspected-despite-do-not-inspect-action",
+    "node": "1538871",
+    "revision": "3224155",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article describes how to check why Internet & SaaS (ZIA) access policies inspected a URL despite a configured Do Not Inspect action."
+    },
+    {
+      "heading": "How Is This Traffic Forwarded to Zscaler?",
+      "level": 1
+    },
+    {
+      "text": "If the traffic from a known location is explicitly forwarded to Zscaler service on port 9443, the Service Edge always decrypts such traffic regardless of the SSL Inspection rules. To learn more, see Deployment Scenarios for SSL Inspection."
+    },
+    {
+      "heading": "How Is the SSL Inspection Rule Configured?",
+      "level": 1
+    },
+    {
+      "text": "The following list helps determine how the SSL inspection rule is configured:"
+    },
+    {
+      "item": "Is Show Notifications for Blocked Traffic enabled in the rule?",
+      "depth": 0,
+      "strong": [
+        [
+          3,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "The Zscaler service must decrypt the transaction in order to display the End User Notification (EUN) in the user's browser. Generally in such cases, Zscaler service doesn't connect to the remote server because the policy decision based on the SSL handshake was to block the transaction.",
+      "depth": 0
+    },
+    {
+      "item": "The Service Edge has access to more Layer 7 information in the web request due to this forced decryption, and then it might enforce an allow policy based on any additional criteria (if applicable). In that case, even though the Zscaler service initially decided to inspect the session only to show the EUN, the transaction is eventually allowed without displaying any EUN, or blocked if the transaction matches a more specific policy rule.",
+      "depth": 0
+    },
+    {
+      "heading": "Have You Enabled AI/ML-Based Content Categorization?",
+      "level": 1
+    },
+    {
+      "text": "To determine if you have enabled AI/ML-based content categorization:"
+    },
+    {
+      "item": "If you have enabled this feature and configured SSL inspection for the Miscellaneous URL category, the Zscaler service initially inspects the transaction. However, the Service Edge can then determine a specific URL category based on the content in the server's response from content categorization that's based on artificial intelligence (AI) or machine learning (ML).",
+      "depth": 0
+    },
+    {
+      "item": "As a result, the Web logs can show that the category (e.g., Finance) URL transaction was inspected. But in this particular case, it was inspected because the URL was initially categorized as Miscellaneous.",
+      "depth": 0,
+      "strong": [
+        [
+          191,
+          204
+        ]
+      ]
+    },
+    {
+      "heading": "Does the URL Category Value in the Web Logs Match the Expected Category for this URL?",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe how to determine if the URL category value in the Web logs match the expected category for the URL."
+    },
+    {
+      "item": "You don't need to create a custom category for every URL that must be allowed. For example, if you want to allow a URL that is logged as Professional Services, but it gets blocked with the reason Not allowed to browse this category, you need to first evaluate whether your business must block Professional Services for the given criteria.",
+      "depth": 0
+    },
+    {
+      "item": "If your business requires blocking Professional Services for the concerned criteria, then you must create a Custom URL category that allows a set of one or more URLs while still blocking the parent category.",
+      "depth": 0
+    },
+    {
+      "heading": "No",
+      "level": 2
+    },
+    {
+      "text": "For more information on how to proceed if the URLs don't match, see How to Resolve User-Defined Category Conflicts."
+    },
+    {
+      "heading": "Yes",
+      "level": 2
+    },
+    {
+      "text": "Ideally, the rule works as designed if the URL is correctly categorized. If you wish to choose a different action for this access using specific criteria, then create a rule above the applied rule with that action and more specific criteria."
+    },
+    {
+      "heading": "Does this Concern a Domain in the Miscellaneous URL Category?",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe what to do if a domain is in the miscellaneous URL category."
+    },
+    {
+      "heading": "Yes",
+      "level": 2
+    },
+    {
+      "item": "Determine whether the domain is added under a user-defined URL category:",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          59,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "As soon as you add a URL to a user-defined URL category, it gets removed from the Miscellaneous category by design.",
+      "depth": 1,
+      "strong": [
+        [
+          43,
+          46
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Note that the Miscellaneous category is a catch-all category for all the uncategorized URLs. In other words, for Miscellaneous or Unknown URLs, the behavior of URLs retaining parent category and Keywords retaining parent category is the same as Custom URLs and Custom Keywords respectively.",
+      "depth": 1,
+      "strong": [
+        [
+          14,
+          27
+        ],
+        [
+          113,
+          126
+        ],
+        [
+          130,
+          137
+        ],
+        [
+          160,
+          190
+        ],
+        [
+          195,
+          229
+        ],
+        [
+          245,
+          256
+        ],
+        [
+          261,
+          276
+        ]
+      ]
+    },
+    {
+      "item": "Solution: if you want a specific uncategorized domain to match the policy for Miscellaneous category, you must remove it from any custom categories. Else, you must define a similar policy rule for the user-defined category.",
+      "depth": 1
+    },
+    {
+      "item": "Suspicious New Domains Lookup is enabled under Advanced Policy Settings for URL & Cloud App Control. If it is enabled, then any Newly Registered or Observed Domain is also classified under the Miscellaneous category.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          47,
+          71
+        ],
+        [
+          76,
+          99
+        ],
+        [
+          128,
+          144
+        ],
+        [
+          148,
+          163
+        ],
+        [
+          193,
+          206
+        ]
+      ]
+    },
+    {
+      "item": "Review the URL's category in site review. If the Current Categories column shows the value Newly Registered and Observed Domains, it means the domain in question was either recently registered or observed; in both these cases, Zscaler considers a domain suspicious for 30 days after its detection.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          49,
+          67
+        ],
+        [
+          91,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Note that even if Miscellaneous doesn't show as the category, all these domains are also treated as Miscellaneous because they aren't classified under a specific predefined category.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          18,
+          31
+        ],
+        [
+          100,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "If you have different policy rules for the Miscellaneous, Newly Registered, and Observed Domains categories, then the rule at the top is enforced.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          43,
+          56
+        ],
+        [
+          58,
+          74
+        ],
+        [
+          80,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "Either ensure that both rules have the same action, or move the rule with the desired action just above the other rule. For example, if you want to block Newly Registered and Observed Domains categories, while allowing Miscellaneous, your block rule for the Newly Registered and Observed Domains category should be above the Allow rule for the Miscellaneous category.",
+      "depth": 0,
+      "strong": [
+        [
+          154,
+          170
+        ],
+        [
+          175,
+          191
+        ],
+        [
+          219,
+          232
+        ],
+        [
+          258,
+          274
+        ],
+        [
+          279,
+          295
+        ],
+        [
+          325,
+          330
+        ],
+        [
+          344,
+          357
+        ]
+      ]
+    },
+    {
+      "item": "If you have enabled AI/ML based Content Categorization under Advanced Policy Settings for URL & Cloud App Control, then policy enforcement for SSL Inspected transactions to a URL in the Miscellaneous category is deferred until Zscaler receives the response from the server.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          61,
+          85
+        ],
+        [
+          90,
+          113
+        ],
+        [
+          143,
+          156
+        ],
+        [
+          186,
+          199
+        ]
+      ]
+    },
+    {
+      "item": "If the server does not respond or if the client terminates the connection due to a timeout while the server has yet to provide a complete response, this may lead to policy not getting applied. In this case, the received bytes column should also show 0 in the web logs.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "There's no real issue here as the connection wasn't established between the client and the server because the client decided to terminate the connection. However, if a more consistent logging behavior is desired, you can disable AI/ML-based Content Categorization. Note that this is a global change.",
+      "depth": 0,
+      "strong": [
+        [
+          241,
+          263
+        ]
+      ]
+    },
+    {
+      "text": "If none of the above steps help, please submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "If you have enabled Remote Assistance, the URL and the timestamp when a user tried accessing the web application via Zscaler. Otherwise, send Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 0
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 0
+    }
+  ]
+}

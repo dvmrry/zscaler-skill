@@ -1,0 +1,120 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Undecryptable Traffic Block",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/undecryptable-traffic-block",
+    "node": "1538901",
+    "revision": "3224158",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This article describes how to determine whether a URL wasn't inspected due to an undecryptable traffic block."
+    },
+    {
+      "heading": "Description",
+      "level": 1
+    },
+    {
+      "text": "The Zscaler service considers a transaction undecryptable in the following scenarios:"
+    },
+    {
+      "item": "Unsupported cipher suites: The website being accessed uses one of the following ciphers that Zscaler does not support: EXP, DSS, RC4-MD5, RC4-SHA, DES-CBC-SHA, DES-CBC3-SHA, 3DES-CBC-SHA. To learn more, see Supported Cipher Suites in SSL Inspection. An example of traffic destined to a website with unsupported ciphers shows Blocked due to Server Probe failure in the Policy Action column and the SSL Policy reason shows Not Inspected because of undecryptable traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          25
+        ],
+        [
+          325,
+          360
+        ],
+        [
+          368,
+          381
+        ],
+        [
+          397,
+          407
+        ],
+        [
+          421,
+          467
+        ]
+      ]
+    },
+    {
+      "item": "Application traffic that generates non-web traffic over SSL: The Zscaler service allows you to configure HTTPS Services under Services Forwarded to HTTP Web Proxy. If any applications send non-SSL traffic using the ports configured for HTTPS Services, the Zscaler service identifies such transactions as undecryptable traffic.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          59
+        ],
+        [
+          126,
+          162
+        ]
+      ]
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 2
+    },
+    {
+      "text": "Verify that the server does not use any unsupported cipher suites."
+    },
+    {
+      "heading": "Use an External Tool to Validate the Server's SSL Configuration",
+      "level": 2
+    },
+    {
+      "text": "To learn more, see How to Validate the SSL Configuration of a Web Server."
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "Possible solutions include:"
+    },
+    {
+      "item": "If you trust a specific domain that requires non-SSL communication using HTTPS ports, you can either configure a rule for that domain with Do Not Inspect action or disable the Block Undecryptable Traffic option.",
+      "depth": 0
+    },
+    {
+      "item": "If an application's traffic to a nonstandard TCP port is considered undecryptable, review whether your organization accesses any HTTPS applications over that port and accordingly update the services configured as HTTPS Services under Administration > Advanced Settings > Services Forwarded to HTTP Web Proxy. To learn more, see Configuring Advanced Settings.",
+      "depth": 0,
+      "strong": [
+        [
+          234,
+          248
+        ],
+        [
+          251,
+          268
+        ],
+        [
+          271,
+          307
+        ]
+      ]
+    },
+    {
+      "item": "If none of the above steps help, please submit a case to Zscaler Support with the following information:",
+      "depth": 0
+    },
+    {
+      "item": "If you enabled Remote Assistance, the URL and the timestamp when a user tried accessing the web application via the Zscaler service. Otherwise, send the Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 1
+    }
+  ]
+}

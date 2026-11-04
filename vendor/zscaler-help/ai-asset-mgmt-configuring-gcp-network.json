@@ -1,0 +1,1969 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring the GCP Network",
+  "source": {
+    "url": "https://help.zscaler.com/ai-asset-mgmt/configuring-gcp-network",
+    "node": "1541997",
+    "revision": "3218501",
+    "updated": "2026-08-07",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "AI Security requires a specific network configuration to be able to access the GCP services, scan the resources, compute, and report the findings. You must configure a custom network in your organization by creating the following virtual private cloud (VPC) in the orchestrator project:"
+    },
+    {
+      "item": "Control Plane VPC: Create this VPC only in the primary region where the orchestrator is going to run.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Worker Plane VPC: Create this VPC in all the regions where the resources exist. For example, if the GCP projects are stored in East US and Central US regions, create the worker plane VPC in both regions.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "Ensure that both control and worker plane VPC do not have overlapping Classless Inter-Domain Routing (CIDR)."
+    },
+    {
+      "text": "You can configure the GCP network manually or deploy the predefined templates:"
+    },
+    {
+      "item": "1. Create the control plane VPC and associated resources.",
+      "depth": 0
+    },
+    {
+      "item": "Sign in to the Google Cloud console, select the resource from the drop-down menu and then select the orchestrator project.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and click CREATE VPC NETWORK.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          39,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create a VPC network page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Subnet creation mode: Select Custom",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Subnets: Click ADD SUBNET and provide a name for the subnet.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          15,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the primary region where the orchestrator will be deployed.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 range: Enter an IPv4 range for the subnet.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Private Google Access: Select On.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Retain the remaining VPC and subnet configurations with their default settings.",
+      "depth": 2,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The VPC and subnet for the control plane are created.",
+      "depth": 0
+    },
+    {
+      "item": "2. Configure the control plane network firewall rules.",
+      "depth": 0
+    },
+    {
+      "item": "After creating the control plane VPC, edit the created VPC to configure the firewall rules.",
+      "depth": 0
+    },
+    {
+      "item": "To add a rule to deny outbound communication to the orchestrator:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter deny-all-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 1000.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Egress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Deny.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To add a rule to allow outbound communication from the orchestrator to AI Security:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter allow-https-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 0.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Egress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Allow.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select Specified protocols and ports.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "TCP: Select the checkbox.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Ports: Enter 443.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The control plane firewall rules are configured.",
+      "depth": 1
+    },
+    {
+      "item": "3. Create the worker plane VPC and associated resources.",
+      "depth": 0
+    },
+    {
+      "item": "Go to the VPC networks page, and click CREATE VPC NETWORK.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ],
+        [
+          39,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "On the Create a VPC network page:",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          27
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter a name for the VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Subnet creation mode. Select Custom.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          29,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "Subnets: Click ADD SUBNET and provide a name for the subnet.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          15,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the primary region where the data stores are located.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "IPv4 range: Enter an IPv4 range for the subnet.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Private Google Access: Select On.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          21
+        ],
+        [
+          30,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "To add multiple subnets in different regions, click ADD SUBNET and repeat these steps for each additional subnet as required.",
+      "depth": 2,
+      "strong": [
+        [
+          52,
+          62
+        ]
+      ]
+    },
+    {
+      "item": "Retain the remaining VPC and subnet configurations with their default settings.",
+      "depth": 2,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Click Create.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The VPC and subnet for the worker plane are created.",
+      "depth": 0
+    },
+    {
+      "item": "After creating the worker plane VPC, create and configure the Cloud NAT gateway resources for the new subnet and region in the worker plane.",
+      "depth": 0
+    },
+    {
+      "item": "4. Configure the worker plane network firewall rules.",
+      "depth": 0
+    },
+    {
+      "item": "After creating the worker plane VPC network, edit the created VPC to configure the firewall rules.",
+      "depth": 0
+    },
+    {
+      "item": "To add a rule to deny outbound communication to the orchestrator:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created worker plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter deny-all-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 1000.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Egress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Deny.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To add a rule to allow inbound communication from the orchestrator to the scanner VPC:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter allow-orchestrator-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 0.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Ingress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Allow.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select Specified protocols and ports.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "TCP: Select the checkbox.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Ports: Enter 443.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To add a rule to allow outbound communication from the scanner to AI Security:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter allow-https-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 1.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Egress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Allow.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select Specified protocols and ports.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "TCP: Select the checkbox.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Ports: Enter 443.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "To add a rule to allow outbound communication from the scanner to GCP Cloud SQL instances:",
+      "depth": 1
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the Firewalls tab, and click Add Firewall Rule.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          20
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The Create a firewall rule window appears.",
+      "depth": 2,
+      "strong": [
+        [
+          4,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a firewall rule window, provide the following values in the respective fields to deny all outbound communication to the orchestrator:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter allow-db-outbound-rule.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Priority: Enter 2.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Direction: Select Egress.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          9
+        ],
+        [
+          18,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "Action on match: Select Allow.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          15
+        ],
+        [
+          24,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "Targets: Select All Instances in the network.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          16,
+          44
+        ]
+      ]
+    },
+    {
+      "item": "Destination filter: Select IPv4 ranges.",
+      "depth": 3,
+      "number": 6,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          27,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "Destination IPv4 ranges: Enter 0.0.0.0/0.",
+      "depth": 3,
+      "number": 7,
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Protocols and ports: Select Specified protocols and ports.",
+      "depth": 3,
+      "number": 8,
+      "strong": [
+        [
+          0,
+          19
+        ],
+        [
+          28,
+          57
+        ]
+      ]
+    },
+    {
+      "item": "TCP: Select the checkbox.",
+      "depth": 4,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Ports: Enter 3306, 5432, 1433.",
+      "depth": 4,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create to save the rule.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The worker plane firewall rules are configured.",
+      "depth": 1
+    },
+    {
+      "item": "5. Set up private service access in the worker plane VPC.",
+      "depth": 0
+    },
+    {
+      "item": "After the worker plane VPC is created, set up private service access in the worker plane VPC. This is used for scanning GCP Cloud SQL instances.",
+      "depth": 0
+    },
+    {
+      "item": "To set up private access in the worker plane VPC:",
+      "depth": 0
+    },
+    {
+      "item": "Select the worker plane VPC network.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Select the Private Services Access tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          34
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the ALLOCATED IP RANGES FOR SERVICES tab.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          11,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "Click ALLOCATE IP RANGE and enter the following values:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Name: Enter private-service-access-ip-range.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "IP range: Select Automatic.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          17,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Prefix length: Enter 16.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Click ALLOCATE.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the PRIVATE CONNECTIONS TO SERVICES tab.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Click CREATE CONNECTION and enter the following values:",
+      "depth": 1,
+      "number": 7,
+      "strong": [
+        [
+          6,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Connected service producer: Select Google Cloud Platform.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          26
+        ],
+        [
+          35,
+          56
+        ]
+      ]
+    },
+    {
+      "item": "Assigned allocation: Select the IP Range created in the previous step.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "item": "Click OK.",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          8
+        ]
+      ]
+    },
+    {
+      "item": "Click CONNECT.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "After the private service access is configured, Google adds peering from the worker plane VPC to servicenetworking.",
+      "depth": 0
+    },
+    {
+      "item": "6. Peer the control and worker plane VPCs.",
+      "depth": 0
+    },
+    {
+      "item": "After the control and worker plane VPCs are created, they need to be peered so that the control and worker planes can communicate.",
+      "depth": 0
+    },
+    {
+      "item": "To peer the control and worker plane VPCs:",
+      "depth": 0
+    },
+    {
+      "item": "Go to the VPC networks page, and select the created control plane VPC network.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "On the VPC network details page, select the VPC NETWORK PEERING tab.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          26
+        ],
+        [
+          44,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "Click ADD PEERING.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "On the Create peering connection page:",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "Provide a name for the peering connection.",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "In the Peered VPC network dropdown, select the worker plane VPC in the orchestrator project.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          7,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Retain the default selections for the remaining configurations.",
+      "depth": 2
+    },
+    {
+      "item": "Click CREATE.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "The peering status in the control plane VPC is Inactive.",
+      "depth": 1,
+      "strong": [
+        [
+          47,
+          55
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Repeat the steps for the worker plane VPC, selecting the control plane VPC in the Peered VPC network drop-down menu.",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          82,
+          100
+        ]
+      ]
+    },
+    {
+      "item": "After successful configuration of the peering, the peering status is updated to Active for both the control plane VPC and worker plane VPC.",
+      "depth": 0,
+      "strong": [
+        [
+          80,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "7. Configure Cloud NAT gateway resources.",
+      "depth": 0
+    },
+    {
+      "item": "A Cloud NAT resource is required to allow VMs in a VPC to connect to other VPC resources and outbound internet connections. The Cloud NAT Gateway is a region-specific and network-specific resource that must be created for each combination. For the primary region where data stores are to be scanned, two Cloud NAT gateways need to be created, one for the control plane VPC and one for the worker plane VPC.",
+      "depth": 0
+    },
+    {
+      "item": "To set up control plane and worker plane Cloud NAT resources in the orchestrator project:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Network Services in the Google Cloud console and select Cloud NAT.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          62,
+          71
+        ]
+      ]
+    },
+    {
+      "item": "Click CREATE CLOUD NAT GATEWAY.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          30
+        ]
+      ]
+    },
+    {
+      "item": "On the Create Cloud NAT gateway page:",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Gateway name: Enter a name for the Control Plane NAT Gateway.",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "NAT type: Set the NAT type to Public.",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          30,
+          36
+        ]
+      ]
+    },
+    {
+      "item": "In the Select Cloud Router options:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Network: Select the Control Plane VPC Network.",
+      "depth": 3,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Region: Select the region as the Control VPC network.",
+      "depth": 3,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "Cloud Router: Select CREATE NEW ROUTER.",
+      "depth": 3,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          12
+        ],
+        [
+          21,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "In the Create a router drawer, provide a name for the control plane router and retain the default configurations.",
+      "depth": 3,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click CREATE.",
+      "depth": 3,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 3
+    },
+    {
+      "item": "In the Cloud NAT mapping, for Source endpoint type, select the VM instance, GKE nodes, Serverless.",
+      "depth": 2,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          24
+        ],
+        [
+          30,
+          50
+        ],
+        [
+          63,
+          97
+        ]
+      ]
+    },
+    {
+      "item": "Retain the default configurations.",
+      "depth": 2
+    },
+    {
+      "item": "Click Create.",
+      "depth": 2,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          12
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 2
+    },
+    {
+      "item": "Repeat the steps for the Worker Plane Cloud NAT Gateway, for each region where data stores are present, selecting the Worker Plane VPC Network in Cloud Router options.",
+      "depth": 2,
+      "number": 6,
+      "strong": [
+        [
+          146,
+          158
+        ]
+      ]
+    }
+  ]
+}

@@ -1,0 +1,419 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Specific Criteria in the Access Control Policy Do Not Match",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/specific-criteria-access-control-policy-do-not-match",
+    "node": "1538973",
+    "revision": "3224149",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This help article defines how a URL might get blocked if the specific criteria in the access control policy do not match."
+    },
+    {
+      "heading": "Does the URL Category Value in the Web Logs Match the Expected Category for this URL?",
+      "level": 1
+    },
+    {
+      "text": "You don't need to create a custom category for every URL that must be allowed. For example, if you want to allow a URL that is logged as Professional Services but gets blocked with the reason Not allowed to browse this category, you need to first evaluate whether your business needs to block Professional Services for the given criteria. If your business requires blocking Professional Services for the concerned criteria, then you must create a Custom URL category so that only a set of one or more URLs can be allowed while still blocking the parent category.",
+      "strong": [
+        [
+          137,
+          158
+        ],
+        [
+          447,
+          457
+        ]
+      ]
+    },
+    {
+      "item": "No: To learn more, see How to Resolve User-Defined Category Conflicts.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "Yes: The rule ideally works as designed if the URL is correctly categorized. If you wish to choose a different action for this access using specific criteria, then create a rule above the applied rule with that action and more specific criteria.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "heading": "Does This Concern a Domain in the Miscellaneous URL Category?",
+      "level": 1
+    },
+    {
+      "text": "If the answer is Yes:"
+    },
+    {
+      "item": "Figure out whether the domain is added under a user-defined URL category.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "As soon as you add a URL to a user-defined URL category, it gets removed from the Miscellaneous category by design.",
+      "depth": 1,
+      "strong": [
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Note that the Miscellaneous category is a catch-all category for all the uncategorized URLs. In other words, for Miscellaneous or Unknown URLs, the behavior of the URLs retaining parent category and Keywords retaining parent category is the same as Custom URLs and Custom Keywords, respectively.",
+      "depth": 1,
+      "strong": [
+        [
+          14,
+          27
+        ],
+        [
+          113,
+          126
+        ],
+        [
+          130,
+          142
+        ],
+        [
+          164,
+          185
+        ],
+        [
+          199,
+          224
+        ],
+        [
+          249,
+          260
+        ],
+        [
+          265,
+          280
+        ]
+      ]
+    },
+    {
+      "item": "Solution: If you want a specific uncategorized domain to match the policy for the Miscellaneous category, you must remove it from any custom categories. Otherwise, you must define a similar policy rule for the user-defined category.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          82,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Check whether Suspicious New Domains Lookup is enabled under URL & Cloud App Control > Advanced Policy Settings. If enabled, then any Newly Registered or Observed Domain is also classified under the Miscellaneous category.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          61,
+          84
+        ],
+        [
+          87,
+          111
+        ],
+        [
+          134,
+          150
+        ],
+        [
+          154,
+          169
+        ],
+        [
+          199,
+          212
+        ]
+      ]
+    },
+    {
+      "item": "Review the URL's category in Site Review. If the Current Categories column shows the value Newly Registered and Observed Domains, it means the domain in question was either recently registered or observed; in both these cases, the Zscaler service considers a domain suspicious for 30 days after its detection.",
+      "depth": 1,
+      "strong": [
+        [
+          49,
+          67
+        ],
+        [
+          91,
+          128
+        ]
+      ]
+    },
+    {
+      "item": "Note that even if Miscellaneous doesn't show as the category, all these domains are also treated as Miscellaneous because they aren't classified under a specific predefined category.",
+      "depth": 1,
+      "strong": [
+        [
+          18,
+          31
+        ],
+        [
+          100,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "If you have different policy rules for the Miscellaneous and Newly Registered and Observed Domains categories, then the rule at the top is enforced.",
+      "depth": 1,
+      "strong": [
+        [
+          43,
+          56
+        ],
+        [
+          61,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "Solution: Either ensure that both the rules have the same action or move the rule to the desired action just above the other rule. For example, if you want to block the Newly Registered and Observed Domains category while allowing Miscellaneous, your block rule for the Newly Registered and Observed Domains category should be above the allow rule for the Miscellaneous category.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          169,
+          206
+        ],
+        [
+          231,
+          244
+        ],
+        [
+          270,
+          307
+        ],
+        [
+          356,
+          369
+        ]
+      ]
+    },
+    {
+      "item": "If AI/ML-based Content Categorization is enabled under URL & Cloud App Control > Advanced Policy Settings, then policy enforcement for SSL Inspected transactions to a URL in the Miscellaneous category is deferred until the Zscaler service receives the response from the server.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          55,
+          78
+        ],
+        [
+          81,
+          105
+        ],
+        [
+          178,
+          191
+        ]
+      ]
+    },
+    {
+      "item": "If the server does not respond or if the client terminates the connection due to a timeout while the server has yet to provide a complete response, the policy might not be applied. In this case, the received bytes column shows 0 in the web logs.",
+      "depth": 1
+    },
+    {
+      "item": "Solution: There's no real issue because the connection wasn't established between the client and the server because the client decided to terminate the connection. However, if a more consistent logging behavior is desired, you can disable AI/ML-based Content Categorization. This is a global change.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          239,
+          273
+        ]
+      ]
+    },
+    {
+      "item": "Is the impacted user selected in the expected rule, or are they a member of one of the selected groups?",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Review the user, group, and department values in the web logs. If the user field contains a special NoAuth user or the location name, it indicates an authentication failure or an authentication exemption. Note that rules with users, groups, or departments as criteria cannot be evaluated for such transactions.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Refer to the authentication runbook for next steps.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Note down the users, groups, and departments configured as criteria in the expected rule.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Go to the User Management page and validate that the user is a member of one of the selected groups or departments.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          10,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Does this concern only Connect requests or undecrypted SSL traffic from a known location? Yes: If Not Inspected SSL connections don't match the policy, or if only Connect requests don't match the policy, but the subsequent HTTP requests are blocked or allowed as expected, this is likely by design:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          98,
+          111
+        ],
+        [
+          163,
+          170
+        ]
+      ]
+    },
+    {
+      "item": "If the domain is not configured to be bypassed by SSL inspection, look at the SSL Policy Reason field's value in the web logs and refer to this SSL Policy Reason runbook.",
+      "depth": 1,
+      "strong": [
+        [
+          78,
+          95
+        ]
+      ]
+    },
+    {
+      "item": "Is the concerned traffic coming from a location configured in the Zscaler Admin Console? If yes, review the concerned location's settings.",
+      "depth": 1
+    },
+    {
+      "item": "Policy is only enforced on the host part of the URL if Enforce Authentication is not enabled for the location.",
+      "depth": 2,
+      "strong": [
+        [
+          55,
+          77
+        ]
+      ]
+    },
+    {
+      "item": "Otherwise, the Connect transactions always shows Allowed in the web logs. Zscaler Service Edge is designed to allow SSL handshake or Connect requests from all the locations where Enforce Authentication is enabled because it needs to obtain information of the authenticated user, which isn't visible in the Connect request or in the SSL handshake. This user information is critical for logging and enforcement of policies based on users and groups.",
+      "depth": 2,
+      "strong": [
+        [
+          49,
+          56
+        ],
+        [
+          179,
+          201
+        ]
+      ]
+    },
+    {
+      "item": "Solution: If SSL Inspection is not desired for the traffic to a given domain, ensure that the SSL Inspection rule is configured with the action Evaluate Other Policies.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          8
+        ],
+        [
+          144,
+          167
+        ]
+      ]
+    },
+    {
+      "item": "If the above isn't possible, then enable an IP surrogate on the location.",
+      "depth": 2
+    },
+    {
+      "item": "Alternatively, enable Policy for unauthenticated traffic from Administration > Advanced Settings.",
+      "depth": 2,
+      "strong": [
+        [
+          22,
+          28
+        ],
+        [
+          62,
+          76
+        ],
+        [
+          79,
+          96
+        ]
+      ]
+    },
+    {
+      "item": "For more details, submit a case to Zscaler Support.",
+      "depth": 2
+    },
+    {
+      "item": "Is the traffic configured to be isolated, but it doesn't get redirected to isolation?",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Yes: The Protocol column in web insights must show HTTP or HTTPS, because Zero Trust Browser is only supported for those two protocols.",
+      "depth": 1,
+      "strong": [
+        [
+          9,
+          17
+        ],
+        [
+          51,
+          55
+        ],
+        [
+          59,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "If a transaction shows up as protocol SSL, you must enable SSL Inspection for the domains in question.",
+      "depth": 1
+    },
+    {
+      "text": "If none of the above steps help, submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "A screenshot of the complete page at https://ip.zscaler.com.",
+      "depth": 0
+    },
+    {
+      "item": "If you enable Remote Assistance, the complete URL and the timestamp when a user tried accessing it via the Zscaler service. Otherwise, the Web Insights logs showing all the columns for the relevant transactions and a screenshot of the relevant rule(s) showing all the criteria.",
+      "depth": 0
+    }
+  ]
+}

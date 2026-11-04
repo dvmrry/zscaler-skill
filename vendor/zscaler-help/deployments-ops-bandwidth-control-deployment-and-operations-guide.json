@@ -1,0 +1,378 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Bandwidth Control Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/bandwidth-control-deployment-and-operations-guide",
+    "node": "1417461",
+    "revision": "3015386",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using Bandwidth Control and the steps necessary for configuring Zscaler Internet Access (ZIA) to add Bandwidth Control to your security posture."
+    },
+    {
+      "text": "Bandwidth Control allows you to preserve access to your business-critical applications regardless of your internet pipe consumption by adding more restrictive rules around activities such as social media and streaming media."
+    },
+    {
+      "text": "To learn more, see About Bandwidth Control."
+    },
+    {
+      "heading": "Value of Deploying Bandwidth Control",
+      "level": 1
+    },
+    {
+      "text": "Using Bandwidth Control provides the following benefits:"
+    },
+    {
+      "item": "Limits the impact of streaming media, file sharing, and social media on business apps.",
+      "depth": 0
+    },
+    {
+      "item": "Identifies bandwidth constraints before they impede the user experience.",
+      "depth": 0
+    },
+    {
+      "item": "Aligns policies for all users to business needs, with granular rules by application class, location, and time.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase includes initially setting up and integrating Zscaler solutions into an existing network infrastructure. During the deployment phase, configure ZIA Bandwidth Control to meet the needs of your infrastructure. The following sections discuss steps to deploy ZIA Bandwidth Control."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For Bandwidth Control deployment, verify and complete the following prerequisites:"
+    },
+    {
+      "item": "One of the following ZIA subscriptions is required:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "ZIA Business Edition and later",
+      "depth": 1
+    },
+    {
+      "item": "Bandwidth Control Add-On",
+      "depth": 1
+    },
+    {
+      "item": "Determine the available bandwidth for each location where you plan to add Bandwidth Control. For example, for an organization deploying Bandwidth Control at a head office and two branch offices:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Headquarters: 1 Gbps",
+      "depth": 1
+    },
+    {
+      "item": "Bangalore office: 250 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Mumbai office: 150 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Determine the maximum bandwidth requirement for any sub-locations at each location. Using the previous example:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "HR team (configured as a sub-location called HR in the ZIA Admin Portal) at the headquarters: 250 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Support team (configured as a sub-location called Support in the ZIA Admin Portal) at the headquarters: 500 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Guest Wi-Fi (configured as a sub-location called Guest Wifi in the ZIA Admin Portal) at the Bangalore office: 40 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Marketing team (configured as a sub-location called Marketing in the ZIA Admin Portal) at the Mumbai office: 150 Mbps",
+      "depth": 1
+    },
+    {
+      "item": "Determine a list of productivity apps or categories (e.g., Outlook, OneDrive, SuccessFactors, etc.) that need an allocated minimum guaranteed bandwidth.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Determine a list of non-productivity apps or categories (e.g., streaming, social networking, new sites, etc.) that have a defined bandwidth cap.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "(Optional) Consider whether you need to enforce bandwidth rules 24 hours per day, during peak working hours, or for some other specific period using Time Intervals.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "For an example, see Bandwidth Control Policy Example.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "About five to seven percent of TCP traffic is overhead (e.g., packet headers). The Zscaler service does not include overhead in its bandwidth calculations. It only includes the application traffic that is proxied to Zscaler. Therefore, the best practice for computing a location's bandwidth is as follows:",
+      "depth": 0
+    },
+    {
+      "item": "Actual bandwidth should be set at 10 to 15 percent less than the measured traffic to account for the protocol overhead when setting the upload and download bandwidth in the ZIA Admin Portal.",
+      "depth": 1
+    },
+    {
+      "item": "For example, if the actual bandwidth of a location is 100 Mbps, set the location bandwidth in ZIA Admin Portal to 85 Mbps (100 minus 15 percent).",
+      "depth": 1
+    },
+    {
+      "item": "Determine the times of day to apply the Bandwidth Control policies. Define the time settings using the Time Intervals option.",
+      "depth": 0
+    },
+    {
+      "item": "For example, you can apply a Bandwidth Control policy limitation for streaming media apps during business hours (9:00 AM to 5:00 PM) and leave the bandwidth for these apps unrestricted at all other times.",
+      "depth": 1
+    },
+    {
+      "item": "While creating bandwidth classes, consider using cloud applications (if available).",
+      "depth": 0
+    },
+    {
+      "item": "On a sub-location where Enforce Bandwidth Control is disabled, it uses the shared bandwidth at any given time.",
+      "depth": 0
+    },
+    {
+      "item": "On a sub-location with Enforce Bandwidth Control set to Override, the defined bandwidth is dedicated to that sub-location. It can't be used by any other sub-location, regardless if there is any traffic or not on the sub-location.",
+      "depth": 0
+    },
+    {
+      "text": "For example, given the following configuration:"
+    },
+    {
+      "table": [
+        [
+          "Location Name in ZIA",
+          "Bandwidth Control Configuration",
+          "Actual Throughput",
+          "Configured Throughput (Actual - 15%)"
+        ],
+        [
+          "HQ",
+          "Enabled",
+          "100 Mbps Up/Down",
+          "85 Mbps Up/Down"
+        ],
+        [
+          "Sub-location_1",
+          "Override",
+          "35 Mbps Up/Down",
+          "N/A"
+        ],
+        [
+          "Sub-location_2",
+          "Disabled",
+          "N/A",
+          "N/A"
+        ],
+        [
+          "Other",
+          "Use Location Bandwidth",
+          "N/A",
+          "N/A"
+        ]
+      ]
+    },
+    {
+      "item": "At any given time, HQ only uses up to the max shared bandwidth (i.e., 85 minus 35 equals 50 Mbps of total shared bandwidth).",
+      "depth": 0
+    },
+    {
+      "item": "Since the Bandwidth Control option on Other is set to Use Location Bandwidth, the behavior is the same (i.e., Other only uses up to the maximum shared bandwidth of 50 Mbps).",
+      "depth": 0
+    },
+    {
+      "item": "With Bandwidth Control set to Disabled, no Bandwidth Control policies and functionalities are applied. Bandwidth Control policies are applied if Bandwidth Control is set to Use Location Bandwidth.",
+      "depth": 0
+    },
+    {
+      "item": "Sub-location_1 has a dedicated 35 Mbps of bandwidth. That bandwidth can’t be used by any other sub-location regardless if the sub-location has traffic.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to deploy Bandwidth Control:"
+    },
+    {
+      "item": "Enable Bandwidth Control on the location and sub-location.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure bandwidth classes.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure Bandwidth Control policy.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Bandwidth Control Policy Example shows a Bandwidth Control configuration example.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes common practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune ZIA Bandwidth Control during the operations phase to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For Bandwidth Control operation, complete the following prerequisites:"
+    },
+    {
+      "item": "When your organization introduces a new productivity or business-related app, and a Bandwidth Control policy is necessary for this app:",
+      "depth": 0
+    },
+    {
+      "item": "Evaluate the criticality of this new application to your business.",
+      "depth": 1
+    },
+    {
+      "item": "Create bandwidth classes for this app and configure the minimum bandwidth policy. That way, during bandwidth contention, the app is guaranteed its needed bandwidth.",
+      "depth": 1
+    },
+    {
+      "item": "During a Zscaler Quarterly Operations Review (or internal audit), if a non-productivity app is overusing the office bandwidth:",
+      "depth": 0
+    },
+    {
+      "item": "Evaluate how much bandwidth this app uses.",
+      "depth": 1
+    },
+    {
+      "item": "Create a bandwidth class for the app and then configure a maximum bandwidth policy. This restricts the bandwidth available to the app.",
+      "depth": 1
+    },
+    {
+      "item": "Regularly review the Bandwidth Control dashboard. If the bandwidth usage of any app swings, adjust the Bandwidth Control policies accordingly.",
+      "depth": 1
+    },
+    {
+      "item": "(Optional) Create a custom dashboard for bandwidth usage as per your organization's requirements.",
+      "depth": 0
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "The following list describes common issues related to Bandwidth Control operation:"
+    },
+    {
+      "item": "Bandwidth Control is not applied per expectations:",
+      "depth": 0
+    },
+    {
+      "item": "Check where the user is (in the office or remote) as Bandwidth Control policies aren’t enforced for remote users.",
+      "depth": 1
+    },
+    {
+      "item": "Check if Enforce Bandwidth Control is enabled for that location or sub-location.",
+      "depth": 1
+    },
+    {
+      "item": "Check the Web Insight Logs for that transaction, and check if the correct Bandwidth Control policy is getting enforced:",
+      "depth": 1
+    },
+    {
+      "item": "If not, check the URL against that transaction, and revisit the matching Bandwidth Control rule.",
+      "depth": 2
+    },
+    {
+      "item": "Add the URL in the correct bandwidth class.",
+      "depth": 2
+    },
+    {
+      "item": "Open a ticket with Zscaler Support for further analysis.",
+      "depth": 2
+    },
+    {
+      "item": "A productivity app, already bandwidth-controlled, is having performance issues during peak production hours:",
+      "depth": 0
+    },
+    {
+      "item": "Visit the Bandwidth Control dashboard and check for the top bandwidth classes.",
+      "depth": 1
+    },
+    {
+      "item": "If the impacted bandwidth class is the top bandwidth user, and there is a performance issue, consider increasing the policy’s minimum bandwidth percentage.",
+      "depth": 1
+    },
+    {
+      "item": "Consider increasing the minimum bandwidth five percent and test for performance. If there is no change, increase minimum bandwidth another five percent and test again. Repeat this process until performance is acceptable.",
+      "depth": 1
+    },
+    {
+      "item": "If your impacted bandwidth class is not the top bandwidth user, then consider reducing the minimum bandwidth percentage of the top bandwidth user to balance it with the impacted Bandwidth Control policy.",
+      "depth": 1
+    },
+    {
+      "item": "Increasing or decreasing the values too much has implications on other apps used by your organization. Therefore, test thoroughly before changing the percentage.",
+      "depth": 1
+    },
+    {
+      "item": "A non-productivity app, already bandwidth-controlled, is still using the highest bandwidth.",
+      "depth": 0
+    },
+    {
+      "item": "Consider reducing the maximum bandwidth percentage for this Bandwidth Control policy.",
+      "depth": 1
+    },
+    {
+      "item": "Consider blocking this app during business hours by implementing Zscaler’s Cloud App Control or URL Filtering policies.",
+      "depth": 1
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the Bandwidth Control Deployment and Operations Checklist to help plan and implement ZIA Bandwidth Control: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more SaaS Security information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

@@ -1,0 +1,508 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Zscaler Client Connector Performance Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/zscaler-client-connector-performance-support-troubleshooting-runbook",
+    "node": "1532324",
+    "revision": "3226390",
+    "updated": "2026-07-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Zscaler Client Connector Performance Support Troubleshooting Runbook is a comprehensive guide designed to address and resolve reported slowness issues when using Zscaler Client Connector for traffic forwarding to the Zscaler cloud. As Zscaler Client Connector is a recommended forwarding method, maintaining its optimal performance is crucial for a seamless user experience. This runbook outlines essential steps for diagnosing performance bottlenecks, starting with client-side and intermediate network checks, before escalating to deeper Zscaler troubleshooting. Furthermore, it details various Zscaler Client Connector configuration modes and adjustments that you can leverage to significantly improve Internet & SaaS performance in Zscaler Client Connector deployments."
+    },
+    {
+      "heading": "Check UDP Throttling and MTU (Only Z-Tunnel 2.0)",
+      "level": 1
+    },
+    {
+      "text": "The following troubleshooting information addresses the major types of symptoms commonly reported by users facing performance issues using Zscaler Tunnel (Z-Tunnel) 2.0:"
+    },
+    {
+      "item": "Slowness due to internet service provider (ISP) throttling UDP packets.",
+      "depth": 0
+    },
+    {
+      "item": "Slowness due to maximum transmission unit (MTU) mismatch.",
+      "depth": 0
+    },
+    {
+      "text": "A My Traceroute (MTR) trace alone is not helpful in identifying these issues."
+    },
+    {
+      "text": "ISP Throttling UDP Packets"
+    },
+    {
+      "text": "Reports and data analysis reveal that certain ISPs deprioritize UDP-based traffic, meaning the ISPs deliberately apply policies to slow down UDP packets. DTLS is the primary transport protocol for Z-Tunnel 2.0, and DTLS uses UDP 443. Deprioritization can result in network traffic performance issues such as overall internet sluggishness."
+    },
+    {
+      "heading": "Option 1: Switching Users to Z-Tunnel 2.0 or TLS",
+      "level": 2
+    },
+    {
+      "text": "The following steps describe switching user to Z-Tunnel 2.0 / TLS:"
+    },
+    {
+      "item": "On Zscaler Admin Console, go to Infrastructure > Connectors > Client > User Privacy and enable the Allow end user to override Z-Tunnel 2.0 or ZPA protocol settings option.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          32,
+          46
+        ],
+        [
+          49,
+          59
+        ],
+        [
+          62,
+          68
+        ],
+        [
+          71,
+          83
+        ],
+        [
+          99,
+          163
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "With Zscaler Client Connector turned on, browse to http://127.0.0.1:9000/zconfig?q=@<CustomerDomain> (e.g., http://127.0.0.1:9000/zconfig?q=@zscaler.com) and select TLS as the Protocol in the drop-down menu:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          165,
+          168
+        ],
+        [
+          176,
+          184
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "To enable these changes, click Restart Service in the More window of Zscaler Client Connector.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          31,
+          46
+        ],
+        [
+          54,
+          58
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Option 2: Switching Users to Z-Tunnel 2.0 or TLS",
+      "level": 2
+    },
+    {
+      "text": "You must create a new app profile and a new forwarding profile."
+    },
+    {
+      "item": "In the new forwarding profile, select the Primary Transport Selection as TLS.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          42,
+          69
+        ],
+        [
+          73,
+          76
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Map this new forwarding profile to the newly created app profile.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Map the affected user to this new app profile.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Users must click Update Policy in Zscaler Client Connector to be assigned to the new profile.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          17,
+          30
+        ]
+      ]
+    },
+    {
+      "text": "If the performance improves, it indicates that the ISP is throttling UDP packets. Contact the ISP and work towards resolution."
+    },
+    {
+      "text": "Until the ISP resolves the issue, you have two other options to work around it:"
+    },
+    {
+      "item": "Continue using TLS: Move users to an app profile that is configured with an app profile having Z-Tunnel 2.0 (TLS).",
+      "depth": 0
+    },
+    {
+      "text": "Z-Tunnel 2.0 with TLS can still intercept all ports and protocols, just like Z-Tunnel 2.0 with DTLS."
+    },
+    {
+      "item": "Consider using a Zscaler Client Connector Hybrid configuration: Zscaler Client Connector version 3.8 introduced a feature that you can use to tailor a new app profile for specific users affected by slow performance issues. The feature turns on Redirect Web Traffic to Zscaler Client Connector Listening Proxy and turns off Use Z-Tunnel 2.0 for Proxied Web Traffic in the Advanced Z-Tunnel Configuration menu while configuring the forwarding profile.",
+      "depth": 0,
+      "strong": [
+        [
+          244,
+          308
+        ],
+        [
+          323,
+          363
+        ],
+        [
+          371,
+          402
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The results are as follows:"
+    },
+    {
+      "item": "Web traffic using Z-Tunnel 1.0.",
+      "depth": 0
+    },
+    {
+      "item": "Non-web traffic using Z-Tunnel 2.0.",
+      "depth": 0
+    },
+    {
+      "item": "Not using the forwarding profile Proxy Auto-Configuration (PAC) file.",
+      "depth": 0
+    },
+    {
+      "text": "Issues With Path MTU"
+    },
+    {
+      "text": "MTU Discovery is only applicable for DTLS mode. In the case of TLS mode, TCP negotiates the Maximum Segment Size (MSS) for the outer connection automatically."
+    },
+    {
+      "text": "Skip this section if you have enabled the Path MTU Discovery option for DTLS mode in the forwarding profile."
+    },
+    {
+      "text": "The MTU is used for identifying the maximum size of any data packet. The MSS is used for specifying the maximum size of packets that can be sent over a network. The MSS measures the non-header portion of a packet, which is called the payload."
+    },
+    {
+      "item": "DTLS: In the case of DTLS Tunnel 2.0 mode, the default MTU value is 1400. Consequently, the MSS value is MTU - 40 = 1360.",
+      "depth": 0
+    },
+    {
+      "item": "TLS: In the case of TLS, TCP negotiates the MSS for the outer connection automatically. Zscaler Client Connector is not involved in making it work.",
+      "depth": 0
+    },
+    {
+      "heading": "Option 1: How to Check and Modify MTU Size",
+      "level": 2
+    },
+    {
+      "text": "The following steps describe checking and modifying MTU size:"
+    },
+    {
+      "item": "On the Zscaler Admin Console, go to Infrastructure > Connectors > Client > User Privacy and enable Allow end user to override Z-Tunnel 2.0 or ZPA protocol settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          50
+        ],
+        [
+          53,
+          63
+        ],
+        [
+          66,
+          72
+        ],
+        [
+          75,
+          87
+        ],
+        [
+          99,
+          163
+        ]
+      ]
+    },
+    {
+      "item": "With the Zscaler Client Connector turned on, direct the user to browse to http://127.0.0.1:9000/zconfig?q=@<CustomerDomain> (e.g., http://127.0.0.1:9000/zconfig?q=@zscaler.com) and select one of the available values under MTU as shown in the following image:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          222,
+          225
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "To enable these changes, click Restart Service in the More window of Zscaler Client Connector.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          31,
+          46
+        ],
+        [
+          54,
+          58
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Option 2: How to Check and Modify MTU Size",
+      "level": 2
+    },
+    {
+      "text": "You must create a new app profile and a new forwarding profile."
+    },
+    {
+      "item": "In the new forwarding profile, under the MTU for Zscaler Adapter, configure an MTU size less than 1400 (preferably in increments of 50).",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          41,
+          64
+        ]
+      ]
+    },
+    {
+      "item": "Map this new forwarding profile with the newly created app profile.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Map the affected user to this new forwarding profile.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Users must then click Update Policy in Zscaler Client Connector to get assigned to the new profile.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          22,
+          35
+        ]
+      ]
+    },
+    {
+      "text": "If the performance improves, this means that one of the hops in the path has less MTU size, thereby fragmenting the packets originating from Zscaler Client Connector and leading to performance degradation. You can either report this problem to the ISP and get this issue rectified or continue using this value which is determined to be optimal."
+    },
+    {
+      "text": "Alternatively, you can enable the Path MTU Discovery option in the forwarding profile, which enables Zscaler Client Connector to automatically determine the path MTU."
+    },
+    {
+      "text": "If there is no improvement in performance, switch to Z-Tunnel 1.0 to perform some tests and data gathering."
+    },
+    {
+      "text": "The workaround is not recommended as a permanent solution. Modifying the MTU size is only for testing purposes. Switching to Z-Tunnel 1.0 means Zscaler Client Connector is incapable of intercepting non-web traffic."
+    },
+    {
+      "heading": "How to Switch to Z-Tunnel 1.0",
+      "level": 3
+    },
+    {
+      "text": "Complete the following steps to temporarily switch to Z-Tunnel 1.0:"
+    },
+    {
+      "item": "In the new forwarding profile, under Forwarding Profile Action for Internet & SaaS, select the Z-Tunnel 1.0 option.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          82
+        ],
+        [
+          95,
+          107
+        ]
+      ]
+    },
+    {
+      "item": "Map this new forwarding profile with the newly created app profile.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Map the affected user to this new forwarding profile.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Click Update Policy on Zscaler Client Connector to be assigned to the new profile.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          19
+        ]
+      ]
+    },
+    {
+      "heading": "Analyzing and Isolating the Pattern",
+      "level": 1
+    },
+    {
+      "text": "This section covers the most common patterns to help decide the next troubleshooting direction."
+    },
+    {
+      "text": "Slowness Observed With a Particular OS Type"
+    },
+    {
+      "text": "Slowness might be observed with a particular OS type, at office or at home, or when connected to any Zscaler data center."
+    },
+    {
+      "text": "Review the following events to understand the pattern. Understand when the issue started and try to note all the changes that happened during that time."
+    },
+    {
+      "table": [
+        [
+          "Events",
+          "Steps to Try"
+        ],
+        [
+          "Did an OS upgrade occur?",
+          "Check the behavior on a device with the previous OS or revert the OS on one of the impacted machines."
+        ],
+        [
+          "Did a third-party security or VPN app get newly installed or updated?",
+          "Disable the services of the app and monitor the performance."
+        ],
+        [
+          "Have the processes required for Zscaler Client Connector to function been allowlisted?",
+          "Revisit this allowlist to validate it."
+        ],
+        [
+          "High CPU utilization with Zscaler Client Connector enabled.",
+          "High CPU usage on the host machine could lead to performance issues."
+        ]
+      ]
+    },
+    {
+      "text": "Performance Issues Observed by All Users of an Organization"
+    },
+    {
+      "text": "There are instances wherein all users of an organization can face slowness, regardless of where they are working from. A few reasons for such behavior could be:"
+    },
+    {
+      "table": [
+        [
+          "Events",
+          "Next Steps"
+        ],
+        [
+          "Slow performance after a recent Zscaler Client Connector version upgrade.",
+          "Revert to the previously known working version on a few workstations and monitor performance. If performance improvement is seen on all the workstations where Zscaler Client Connector was reverted, the Zscaler Client Connector version could be the issue. Collect the Zscaler Client Connector logs from a few workstations with old and new versions and escalate to Zscaler Support."
+        ],
+        [
+          "Slowness performance after a recent security patch or new software push.",
+          "Revert the security patch or software push on a few workstations. If performance improvement is seen on all the workstations where the security patch or software push was reverted, and is most likely caused by the recent change. Collect the Zscaler Client Connector logs from a few workstations with old and new versions and escalate to Zscaler Support."
+        ]
+      ]
+    },
+    {
+      "text": "Performance Issues Observed During a Particular Time of the Day or Day of the Week"
+    },
+    {
+      "text": "Although rare, this issue might have been reported previously. An intermittent issue could be caused by the following events:"
+    },
+    {
+      "item": "Scheduled big data upload or download, which restricts the firewall or internet bandwidth.",
+      "depth": 0
+    },
+    {
+      "item": "Scheduled antivirus scans on the workstation, which restricts the CPU or memory utilization of the workstation.",
+      "depth": 0
+    },
+    {
+      "text": "Performance Issues Observed at a Particular Office Location"
+    },
+    {
+      "text": "There are instances where users at a particular office location are facing performance issues. When the users connect from a non-office location or connect to their mobile hotspot from the office, the performance is normal."
+    },
+    {
+      "text": "Here are some potential issues and next steps:"
+    },
+    {
+      "table": [
+        [
+          "Events",
+          "Next Steps"
+        ],
+        [
+          "Ongoing issue or maintenance at the Zscaler data center.",
+          "Collect the Zscaler Client Connector logs from the location and escalate to Zscaler Support."
+        ],
+        [
+          "Path congestion between office location and the Zscaler data center.",
+          "Collect the Zscaler Client Connector logs the location and escalate to Zscaler Support."
+        ],
+        [
+          "Issues with office networking components such as router, switch, or firewall.",
+          "Check the general health parameters (e.g., CPU, memory, throttling policies, etc.), and check any network monitoring tools."
+        ]
+      ]
+    },
+    {
+      "heading": "Further Steps",
+      "level": 2
+    },
+    {
+      "text": "Compile all the relevant collected data and open a support case with Zscaler Support."
+    }
+  ]
+}

@@ -1,0 +1,242 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Browser Access Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/browser-access-deployment-and-operations-guide",
+    "node": "1420976",
+    "revision": "3180795",
+    "updated": "2026-03-11",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using Browser Access and the steps necessary for configuring Zscaler Private Access (ZPA) to add Browser Access to your security posture. Browser Access leverages a web browser for user authentication and application access over ZPA without Zscaler Client Connector."
+    },
+    {
+      "text": "To learn more, see About Browser Access."
+    },
+    {
+      "heading": "Value of Deploying Browser Access",
+      "level": 1
+    },
+    {
+      "text": "Enabling Browser Access for ZPA provides the following benefits:"
+    },
+    {
+      "item": "Allows you to include devices without Zscaler Client Connector installed. For example, you might want to:",
+      "depth": 0
+    },
+    {
+      "item": "Control user access to applications on devices with operating systems currently unsupported by Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Provide third-party access to applications on devices that aren’t owned or managed by your company (e.g., a contractor or partner).",
+      "depth": 1
+    },
+    {
+      "item": "Makes applications accessible for users from any web browser without Zscaler Client Connector or browser plugins and configurations.",
+      "depth": 0
+    },
+    {
+      "item": "Uses your existing identity provider (IdP) to provide access to your current users, contractors, and other third-party users without managing an internet footprint.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase includes initially setting up and integrating Zscaler solutions into an existing network infrastructure. During the deployment phase, you configure Browser Control to meet the needs of your infrastructure. The following sections discuss steps to deploy Browser Control."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "For Browser Access deployment, observe the following prerequisites:"
+    },
+    {
+      "item": "Browser Access might require an additional license for your organization. Check with your Zscaler Account team to verify the necessary licensing requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure that application servers support Transport Layer Security (TLS) 1.2 encryption.",
+      "depth": 0
+    },
+    {
+      "item": "Any user, contractor, or third party using Browser Access must be provisioned in the ZPA IdP.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following steps explain how to deploy Browser Access:"
+    },
+    {
+      "item": "ZPA uses web server certificates to provide access to Browser Access. You get a certificate by:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Uploading an existing web server certificate.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Creating a certificate signing request (CSR) for a web server certificate and uploading the signed certificate.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Define a Browser Access application by creating an application segment or editing an existing application segment.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "(Optional) Define a Browser Access application with multiple ports on the same domain.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "(Optional) Define a Browser Access application with different external and internal domains.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "(Optional) Enable cross-origin resource sharing (CORS) requests.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "(Optional) Enable SameSite Cookie Attribution.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "If you intend to use a different external and internal hostname for an application that has browser access enabled within an application segment:",
+      "depth": 0
+    },
+    {
+      "item": "Internal hostnames are not exposed, so there is no record of internal hostnames on the public DNS.",
+      "depth": 1
+    },
+    {
+      "item": "Backend Secure Sockets Layer (SSL) cannot be verified, so a web server certificate error is displayed to your end users because the hostname of the application doesn't match the certificate's hostname.",
+      "depth": 1
+    },
+    {
+      "item": "If you intend to use the same external and internal hostname for an application that has browser access enabled within an application segment:",
+      "depth": 0
+    },
+    {
+      "item": "Internal hostnames are exposed on the public DNS.",
+      "depth": 1
+    },
+    {
+      "item": "Backend SSL can be verified, so end users don’t receive a web server certificate error.",
+      "depth": 1
+    },
+    {
+      "item": "Browser Access cookies are session-based and are cleared when a web browser's session terminates. Users must authenticate before accessing applications via Browser Access. In addition, users are asked to reauthenticate periodically based on the Authentication Timeout setting of the ZPA timeout policy rule. To learn more, see Configuring Timeout Policies.",
+      "depth": 0
+    },
+    {
+      "item": "To learn if specific browsers support CORS requests, see About Browser Access.",
+      "depth": 0
+    },
+    {
+      "item": "Browser Access only accesses web-based applications. You can leverage Privileged Remote Access to reach applications on protocols other than HTTP/HTTPS.",
+      "depth": 0
+    },
+    {
+      "item": "For all Browser Access applications with CORS, access is always allowed if the following conditions exist:",
+      "depth": 0
+    },
+    {
+      "item": "Browser setting that allows third-party cookies is On.",
+      "depth": 1,
+      "strong": [
+        [
+          51,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "The JavaScript from the server has:",
+      "depth": 1
+    },
+    {
+      "item": "xhr.withCredentials=true;",
+      "depth": 2
+    },
+    {
+      "item": "CORS for the GET request are sent first, since Exporter doesn't support CORS for POST.",
+      "depth": 2
+    },
+    {
+      "item": "Cookies are sent in response to CORS GET.",
+      "depth": 2
+    },
+    {
+      "item": "Requests to CORS POST occur with cookies and access Allowed.",
+      "depth": 2,
+      "strong": [
+        [
+          52,
+          59
+        ]
+      ]
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes standard practices used to operate Zscaler solutions when integrated with your environment. You can monitor and tune Browser Access during operations to meet your infrastructure needs."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "Document which applications correlate to which application segments for Browser Access operations."
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "text": "You might receive a 403 Forbidden error if the application fails to load a domain with CORS headers enabled. To support CORS and same-site requests from the applications configured for Browser Access, follow the instructions in Configuring Authentication Settings."
+    },
+    {
+      "text": "To learn more, see Understanding Browser Access Error Codes."
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the Browser Access Deployment and Operations Checklist to help plan and implement Browser Access on ZPA: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more information and troubleshooting instructions regarding Browser Access, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}

@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Blocked Due to Bad SSL Record",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/blocked-due-bad-ssl-record",
+    "node": "1538846",
+    "revision": "3224154",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "In the following case, the SSL connection is blocked due to the forwarding of non-SSL traffic to the ports configured for HTTPS Services. This typically means either non-HTTP traffic encrypted using SSL or non-SSL traffic was sent to port 443."
+    },
+    {
+      "text": "Zscaler marks the transaction protocol as Tunnel SSL when some non-HTTP data is sent after an SSL handshake. The Block Undecryptable Traffic in the SSL Inspection Policy is used to control the policy behavior for such transactions.",
+      "strong": [
+        [
+          113,
+          140
+        ]
+      ]
+    },
+    {
+      "text": "In some scenarios, it's possible that the SSL handshake is successful, but then the application sends some non-HTTP data."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "item": "You must collect packet captures on the client using Zscaler Client Connector, and then open the .pcap file using Wireshark.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "If you see Data or HTTP or any other sections instead of Transport Layer Security (TLS) after Transmission Control Protocol (TCP) in the bottom pane, then it validates that non-TLS data was sent over this connection.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "In the following image, you can see that the client initiates a connection on port 443 but then sends some other data instead of a Client Hello packet for TLS handshake.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In a working scenario, you would always see a TLS section in the bottom pane.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "The following are solution options:"
+    },
+    {
+      "item": "You can configure a specific SSL Inspection Policy rule for the domain with the option “Block Undecryptable Traffic” disabled.",
+      "depth": 0
+    },
+    {
+      "item": "If your business requires blocking all undecryptable traffic sent to HTTPS ports, you can configure an exemption for the affected domain using an SSL Inspection Policy rule with the action Do Not Inspect.",
+      "depth": 0,
+      "strong": [
+        [
+          189,
+          203
+        ]
+      ]
+    },
+    {
+      "item": "If none of the above steps help, please submit a case to Zscaler Support with the following information:",
+      "depth": 0
+    },
+    {
+      "item": "If you enabled Remote Assistance, the URL and the timestamp when a user tried accessing the web application via Zscaler. Otherwise, the Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 1
+    }
+  ]
+}

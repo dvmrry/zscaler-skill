@@ -1,0 +1,217 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Configuring CloudTrail S3 Buckets for AWS Organization",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/configuring-cloud-trail-s3-buckets-aws-organization",
+    "node": "1440866",
+    "revision": "2561786",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "ZPC needs to connect to your AWS CloudTrail S3 buckets to detect changes in your AWS infrastructure. ZPC detects the CloudTrail buckets configured for your onboarded AWS accounts. A single AWS account might have multiple CloudTrail buckets configured. ZPC displays all the CloudTrail buckets for each AWS account. ZPC provides an automation script to run on your AWS CloudShell. The script provides ZPC access to read your CloudTrail information. To configure CloudTrail S3 buckets for onboarded accounts:"
+    },
+    {
+      "item": "Go to Administration > Cloud Accounts.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Select the Actions icon, then click Add CloudTrail for the AWS account you want to connect.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          18
+        ],
+        [
+          36,
+          50
+        ]
+      ]
+    },
+    {
+      "item": "On the Select S3 Buckets page, you can:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          24
+        ]
+      ]
+    },
+    {
+      "item": "View S3 buckets and their details.",
+      "depth": 1
+    },
+    {
+      "item": "Search for S3 buckets.",
+      "depth": 1
+    },
+    {
+      "item": "Select single or multiple S3 buckets to connect their CloudTrail to ZPC.",
+      "depth": 1
+    },
+    {
+      "item": "Click Next.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the Deploy Template page, you can:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the deploy template bash script. The deploy template script connects all selected CloudTrail S3 buckets on to ZPC.",
+      "depth": 1
+    },
+    {
+      "item": "Copy the deploy template bash script.",
+      "depth": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "On the AWS Management Console, run the copied bash script on the AWS CloudShell.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "heading": "CloudTrail S3 Buckets Encrypted with KMS Key",
+      "level": 1
+    },
+    {
+      "text": "If the CloudTrail S3 buckets you have onboarded to ZPC are encryped with a KMS key, ZPC needs additional permission in the KMS key policy to access the buckets."
+    },
+    {
+      "text": "To grant ZPC access to encrypted CloudTrail S3 buckets:"
+    },
+    {
+      "item": "Assign the kms:Decrypt IAM role permission to the ZPCCustom role created when you onboarded the AWS cloud account. To learn more, see Onboarding an Amazon Web Services Account.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Modify the KMS key policy for the associated CloudTrail S3 bucket:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "On the AWS Management Console, select CloudTrail.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          38,
+          48
+        ]
+      ]
+    },
+    {
+      "item": "In the left-side navigation, click Trails, then select the associated cloud trail.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          35,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "Click the AWS KMS Key URL.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the Key Policy tab, click Edit.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          17
+        ],
+        [
+          29,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "In the kmsiampolicy section of the policy add the ZPCCustom role for the AWS cloud account. If you have onboarded an AWS organization, add the ZPCCustom role for each member cloud account.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "\"Sid\": \"kmsiampolicy\",",
+      "depth": 0
+    },
+    {
+      "item": "\"Effect\": \"Allow\", \"Principal\": { \"AWS\": [ \"arn:aws:iam::795208966777:root\", \"arn:aws:iam::795208977759:role/<Zscaler Created Role>\" ] }",
+      "depth": 0
+    },
+    {
+      "item": "In the kmspolicy section of the policy add the S3 service and the bucket region.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "\"Sid\": \"kmspolicy\", \"Effect\": \"Allow\", \"Principal\": { \"Service\": [ \"logs.us-east-2.amazonaws.com\", \"cloudtrail.amazonaws.com\", \"s3.<Bucket Region>.amazonaws.com\", \"dynamodb.amazonaws.com\" ] }",
+      "depth": 0
+    }
+  ]
+}

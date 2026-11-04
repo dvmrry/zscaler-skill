@@ -1,0 +1,1605 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Internet & SaaS Traffic Forwarding Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/internet-saas-traffic-forwarding-support-troubleshooting-runbook",
+    "node": "1532271",
+    "revision": "3249564",
+    "updated": "2026-10-08",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Internet & SaaS Traffic Forwarding Support Troubleshooting Runbook provides troubleshooting steps for improving Internet & SaaS's traffic forwarding performance."
+    },
+    {
+      "text": "This runbook serves as a comprehensive troubleshooting guide for resolving issues across a variety of traffic forwarding methods supported by Zscaler, ensuring uninterrupted connectivity and service. It provides step-by-step guidance for identifying, analyzing, and resolving common problems related to each traffic forwarding type and also emphasizes adherence to Zscaler best practices, such as configuring health monitoring, using supported parameters, and optimizing tunnel configurations. The guide is tailored for IT administrators and network engineers seeking to address issues effectively."
+    },
+    {
+      "text": "The runbook focuses on the following traffic forwarding methods:"
+    },
+    {
+      "item": "Proxy Auto Config (PAC) files and Zscaler Client Connector: This section focuses on diagnosing and troubleshooting issues specific to endpoint-based traffic forwarding mechanisms.",
+      "depth": 0
+    },
+    {
+      "item": "GRE tunnels: This section provides a deep dive into troubleshooting GRE tunnels, which are commonly used for forwarding large volumes of traffic to the Zscaler platform.",
+      "depth": 0
+    },
+    {
+      "item": "IPSec tunnels: This section addresses troubleshooting IPSec tunnels—a secure method for forwarding traffic to Zscaler.",
+      "depth": 0
+    },
+    {
+      "heading": "What Traffic Forwarding Type is Impacted",
+      "level": 1
+    },
+    {
+      "text": "First, you must gain an understanding of the impact on traffic types. Specifically, anyone interested in determining which specific traffic forwarding is affected (e.g., PAC, Zscaler Client Connector, GRE, IPSec, etc.)."
+    },
+    {
+      "heading": "Verify the Traffic Forwarding Method",
+      "level": 2
+    },
+    {
+      "text": "The following sections describe how to verify the forwarding method."
+    },
+    {
+      "text": "From Web Insights"
+    },
+    {
+      "item": "Note the public egress IP address of the GRE tunnel using ip.zscaler.com.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Find from the Web Insights logs any matching transaction from the affected location where:",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          14,
+          26
+        ]
+      ]
+    },
+    {
+      "item": "Traffic Forwarding is Zscaler Client Connector over GRE Tunnel or PAC File over GRE Tunnel.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ],
+        [
+          22,
+          62
+        ],
+        [
+          66,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "Client External IP is the public egress IP address of the GRE tunnel.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see Verifying a User's Traffic is Being Forwarded to the Zscaler Service."
+    },
+    {
+      "text": "From speedtest.zscaler.com"
+    },
+    {
+      "item": "From ip.zscaler.com, go to Connection Quality or http://speedtest.zscaler.com/.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          27,
+          45
+        ]
+      ]
+    },
+    {
+      "item": "Look for the Traffic Forwarding method below the World Map where it mentions Connected via <traffic forwarding method>, where <traffic forwarding method> is the Traffic Forwarding Method.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          13,
+          31
+        ],
+        [
+          49,
+          58
+        ],
+        [
+          161,
+          186
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Tunnel Down and Internet Down Scenarios",
+      "level": 2
+    },
+    {
+      "text": "If Zscaler Client Connector is showing a specific error message, see the Zscaler Client Connector Traffic Forwarding Support Troubleshooting Runbook for more information about errors."
+    },
+    {
+      "text": "When there is an incident with a complete internet outage (affecting all destinations), you must gather information to determine whether the issue likely originates from Zscaler's platform or your infrastructure."
+    },
+    {
+      "text": "After the scope of the affected traffic is understood for all destinations, you can troubleshoot the issue based on the Zscaler data center (DC) platform and the specific traffic forwarding method in use."
+    },
+    {
+      "text": "Check for Active Incidents on the Zscaler Trust Portal"
+    },
+    {
+      "text": "Check for any open cloud incidents for the affected domain or Zscaler DC on the Zscaler Trust Portal."
+    },
+    {
+      "text": "If an active incident trust post is found, the potential workaround is to fail over the traffic to another Zscaler DC (PAC Modification or Tunnel Failover)."
+    },
+    {
+      "text": "Zscaler Public Data Center"
+    },
+    {
+      "text": "The following sections describe how to troubleshoot Zscaler public DC issues."
+    },
+    {
+      "text": "PAC File, Explicit Proxy, and DPP"
+    },
+    {
+      "text": "The following sections describe how to troubleshoot PAC file, Explicit Proxy, and Dedicated Proxy Port (DPP) issues."
+    },
+    {
+      "heading": "Network Causes",
+      "level": 4
+    },
+    {
+      "text": "In an internet down situation, validate the reachability to the Zscaler infrastructure."
+    },
+    {
+      "text": "For PAC, validate the successful DNS resolution and connectivity for the following:"
+    },
+    {
+      "item": "pac.<cloudname>.net",
+      "depth": 0
+    },
+    {
+      "item": "login.<cloudname>.net",
+      "depth": 0
+    },
+    {
+      "item": "gateway.<cloudname>.net",
+      "depth": 0
+    },
+    {
+      "item": "Authentication server (IP FQDN)",
+      "depth": 0
+    },
+    {
+      "text": "Validate the connection on 80/443/DPP, using ping and Telnet tools to validate the connection."
+    },
+    {
+      "item": "Successful PING",
+      "depth": 0
+    },
+    {
+      "item": "Successful TELNET (port 80/443)",
+      "depth": 0
+    },
+    {
+      "item": "Failed TELNET (DPP 10938) - not provisioned",
+      "depth": 0
+    },
+    {
+      "text": "In addition, copy the PAC URL from the Zscaler Admin Console and confirm if the impacted user device can download the PAC file successfully."
+    },
+    {
+      "text": "If the user device can download the PAC file, open the downloaded PAC file to identify the primary and secondary DC. Run reachability tests (ping and Telnet) towards the primary and secondary DC."
+    },
+    {
+      "heading": "Successful PING",
+      "level": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Successful TELNET (port 80/443)",
+      "level": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Failed TELNET (DPP 10938): Not Provisioned",
+      "level": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "In case the Telnet client is not enabled, and the end device has restrictive permissions, you can use PowerShell to check the network reachability."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "In addition, you can copy the PAC URL used by the Zscaler Admin Console and confirm if the impacted user device can download the PAC file successfully."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If the user device can download the PAC file, open the downloaded PAC file to identify the primary and secondary DC. Run reachability tests (ping and Telnet) for the primary and secondary DC."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Successful PING",
+      "level": 4
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "If user device is unable to download the PAC file, although reachability to pac.<cloudname>.net is present, run the client's packet capture and validate that there is no IP fragmentation taking place."
+    },
+    {
+      "text": "The filter that indicates a fragmentation issue is:"
+    },
+    {
+      "text": "icmp.type==3 and icmp.code==4"
+    },
+    {
+      "text": "To look for all fragmented packets, use the Wireshark filter:"
+    },
+    {
+      "text": "ip.flags.mf == 1"
+    },
+    {
+      "text": "The following is a sample of a Wireshark PCAP showing PAC download failure due to IP fragmentation:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "In order to avoid IP fragmentation, determine the size of the IP packets that the network supports. There are two approaches that are generally used: Path MTU discovery and Setting Maximum Segment Size (MSS). To learn more, refer to the Cisco documentation."
+    },
+    {
+      "heading": "PAC File Causes",
+      "level": 3
+    },
+    {
+      "text": "Perform a test with a manual proxy to confirm if the issue is PAC-related. To perform a manual proxy text:"
+    },
+    {
+      "item": "Go to http://ip.zscaler.com to find the DC the customer is connected to.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Log out of Zscaler Client Connector, then go to https://config.zscaler.com to find the FQDN of PAC VIP for the DC.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In the browser's Internet Options, go to Connections > LAN Settings and set a manual proxy server to the FQDN of the DC, with port 80/443. Add the relevant IdP authentication domains in the proxy bypass.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          17,
+          33
+        ],
+        [
+          41,
+          52
+        ],
+        [
+          55,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Visit an HTTP website (e.g., http://isitfridayyet.net) to complete the Zscaler cookie authentication process. If the test page loads, focus your troubleshooting on the PAC file.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "PAC parsing issue could cause applications to send traffic direct which might drop at the customer firewall."
+    },
+    {
+      "text": "Identify the current PAC file used by the browser or Zscaler Client Connector and confirm there are no recent changes to the PAC file that coincide with the time when the customer started to face the issue."
+    },
+    {
+      "text": "To validate any recent changes to the PAC file:"
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console and go to Administration > Admin Management > Audit Logs and select the PAC File Sub-Category drop-down menu.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          46,
+          60
+        ],
+        [
+          63,
+          79
+        ],
+        [
+          82,
+          92
+        ],
+        [
+          108,
+          129
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "In case it is identified that a recent PAC change is related to the incident, go to Infrastructure > Internet & SaaS > Traffic Forwarding > Traffic Steering > Hosted PAC Files.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          84,
+          98
+        ],
+        [
+          101,
+          116
+        ],
+        [
+          119,
+          137
+        ],
+        [
+          140,
+          156
+        ],
+        [
+          159,
+          175
+        ]
+      ]
+    },
+    {
+      "item": "Find the relevant PAC file, and click Manage Versions.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          38,
+          53
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Click Actions and select Deploy to revert the changes to the previous PAC version.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          13
+        ],
+        [
+          25,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "For a PAC-only scenario, a browser cache must be cleared, and a browser restart might be required."
+    },
+    {
+      "heading": "Authentication Causes",
+      "level": 3
+    },
+    {
+      "text": "An authentication loop could happen if the request for IdP is configured to be forwarded via Internet & SaaS, and the request for IdP is also redirected for authentication, causing an endless loop."
+    },
+    {
+      "text": "In order to identify the loop, take a packet capture or browser trace and look for a 307 redirection for an IdP request."
+    },
+    {
+      "text": "The following is a sample PCAP showing redirection for IdP request."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Zscaler recommends bypassing IdP traffic from forwarding to Internet & SaaS, or at least ensuring that the IdP traffic is configured in Authentication Exemptions. To learn more, see Exempting URLs and Cloud Apps from Authentication."
+    },
+    {
+      "text": "Add a bypass for the authentication domain in the PAC file, or add the domains to the authentication bypass list, by going to Administration > Advance Settings > Authentication Exemptions.",
+      "strong": [
+        [
+          126,
+          140
+        ],
+        [
+          143,
+          159
+        ],
+        [
+          162,
+          187
+        ]
+      ]
+    },
+    {
+      "text": "To learn more, see SAML & SCIM Configuration Guide for Okta."
+    },
+    {
+      "text": "GRE Tunnel"
+    },
+    {
+      "text": "The following sections describe how to troubleshoot GRE tunnels."
+    },
+    {
+      "heading": "GRE Tunnel is Hard Down",
+      "level": 3
+    },
+    {
+      "text": "When the GRE tunnel is not coming up, take the following steps:"
+    },
+    {
+      "text": "Confirm network connectivity between the customer gateway and the Zscaler DC:"
+    },
+    {
+      "item": "From the customer gateway, ping the Zscaler DC GRE VIP:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "ping <Zscaler GRE VIP>",
+      "depth": 0
+    },
+    {
+      "item": "If the GRE VIP is not reachable, check the network infrastructure for potential firewalls, access control lists (ACLs), or any other rules restricting access:",
+      "depth": 0
+    },
+    {
+      "item": "Perform a packet capture on the edge device to verify that traffic is leaving the customer network.",
+      "depth": 1
+    },
+    {
+      "item": "Engage with the ISP to ensure there are no restrictions on GRE traffic.",
+      "depth": 1
+    },
+    {
+      "item": "If network reachability is confirmed, validate tunnel connectivity by testing the GRE tunnel. Ping the Zscaler GRE internal IP from the GRE gateway:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "ping <Zscaler GRE Internal IP> source <tunnel-interface>",
+      "depth": 0
+    },
+    {
+      "item": "Example: ping 172.21.37.162 source tun1",
+      "depth": 0
+    },
+    {
+      "text": "If the GRE internal IP is unreachable, ensure tunnel configuration, address assignments, and routing are correct by validating the GRE configuration."
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console and go to Infrastructure > Locations > Location Management > Locations.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          46,
+          60
+        ],
+        [
+          63,
+          72
+        ],
+        [
+          75,
+          94
+        ],
+        [
+          97,
+          106
+        ]
+      ]
+    },
+    {
+      "item": "Search for the location using the GRE source IP and view the location details under GRE Tunnel Information.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "GRE internal ranges are auto-assigned using a /30 (4 IPs, including network and broadcast). For example:"
+    },
+    {
+      "text": "Network address: 172.21.37.160 Customer GRE internal IP: 172.21.37.161 Zscaler GRE internal IP: 172.21.37.162 Broadcast address: 172.21.37.163"
+    },
+    {
+      "text": "In the 110.45.236.11 example earlier, the customer GRE tunnel configuration for primary looks similar to the following:"
+    },
+    {
+      "text": "interface Tunnel1 description \"Zscaler Primary Tunnel\" ip address 172.21.37.161 255.255.255.252 tunnel source 110.45.236.11 ----------> OPTIONAL. Defaults to outbound interface IP if not specified. tunnel destination 165.225.228.45"
+    },
+    {
+      "text": "Make sure the tunnel destination is pointing to correct GRE VIP as per the config page."
+    },
+    {
+      "heading": "Validate IP SLA and GRE KeepAlives Status",
+      "level": 3
+    },
+    {
+      "text": "In some cases, the GRE tunnel might remain down due to failed IP SLA probes or GRE keepalives."
+    },
+    {
+      "text": "GRE keepalives are not supported if the GRE tunnel traverses through NAT. In such scenarios, ensure that GRE keepalives are disabled."
+    },
+    {
+      "text": "To check Keepalive and IP SLA probe status:"
+    },
+    {
+      "item": "On a Cisco router, run the following commands:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "To debug GRE keepalives:",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "'debug tunnel keepalive' 'show interface tunnel <tunnel-number>' to display the current status of Keepalives(Up/Down)",
+      "depth": 1
+    },
+    {
+      "item": "To check IP SLA probe summaries:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "'show ip sla summary' to validate the IP SLA status and if there are any failures.",
+      "depth": 1
+    },
+    {
+      "item": "Validate NAT Settings (if applicable).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If the customer gateway uses NAT, ensure that GRE packets are correctly NAT'd to the IP defined as the GRE source.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Check NAT device logs to confirm proper NAT behavior.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Verify MTU/MSS settings. Ensure the tunnel MTU/MSS values are configured correctly:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "For a physical link MTU of 1500, configure GRE tunnel MSS as 1436.",
+      "depth": 1
+    },
+    {
+      "item": "For detailed configuration guidance, see Best Practices for Deploying GRE Tunnels.",
+      "depth": 1
+    },
+    {
+      "heading": "GRE Tunnel is Flapping",
+      "level": 3
+    },
+    {
+      "text": "Zscaler recommends that customers configure an Active/Standby pair of GRE tunnels with automatic failover based on application-layer health monitoring."
+    },
+    {
+      "text": "GRE tunnel flapping occurs when the tunnel frequently transitions between up and down states. Perform the following steps to resolve flapping issues:"
+    },
+    {
+      "text": "To validate the Tunnel Monitoring configuration, verify if proper health monitoring is in place. Zscaler recommends configuring HTTP probes for GRE tunnels to monitor health. You can use ICMP probes if HTTP probes are not supported by the gateway device."
+    },
+    {
+      "item": "Confirm that the health probes are targeting gateway.<cloudname>.net/vpntest.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Test automatic failover:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Ensure traffic shifts seamlessly to the secondary GRE tunnel if the primary fails. Enter the show ip sla summary command on a Cisco gateway confirms the status of IP SLA probes.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "IP SLAs Latest Operation Summary Codes: * active, ^ inactive, ~ pending ID Type Destination Stats Return Last (ms) Code Run ----------------------------------------------------------------------- *1 http 172.17.27.2 RTT=619 OK 3 seconds ago *2 http 172.17.27.6 RTT=1377 OK 3 seconds ago",
+      "depth": 1
+    },
+    {
+      "item": "Enter the show ip sla statistics command to see operation statistics information.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "IP SLAs Latest Operation Statistics IP SLA operation id: 1 Latest RTT: NoConnection/Busy/Timeout Latest operation start time: *02:29:07.511 UTC Sat May 19 2012 Latest operation return code: Timeout Number of successes: 0 Number of failures: 2 Operation time to live: Forever",
+      "depth": 1
+    },
+    {
+      "text": "To learn more, see Best Practices for Deploying GRE Tunnels."
+    },
+    {
+      "heading": "Check for Maintenance Activities on Zscaler Data Center",
+      "level": 3
+    },
+    {
+      "text": "Scheduled maintenance or events on the Zscaler DC might temporarily affect GRE tunnels. Verify whether there were any ongoing activities for the given time period."
+    },
+    {
+      "text": "Zscaler recommends configuring Failover tunnel and IP SLA monitoring to seamlessly switch the traffic to secondary DC in cases of any issue with the primary DC."
+    },
+    {
+      "heading": "Validate the Network Path",
+      "level": 3
+    },
+    {
+      "text": "An observable packet loss can cause Layer 7 health monitoring to fail, which would make the GRE tunnel flap."
+    },
+    {
+      "text": "Run a forward My Traceroute (MTR) from the GRE gateway to the Zscaler GRE VIP:"
+    },
+    {
+      "item": "Ensure MTR probes are sent outside the tunnel to capture all ISP-level hops.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Analyze the MTR results:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Check for high latency or consistent packet loss along the path.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Any signs of routing loops or abnormal paths might require involving the ISP.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "heading": "How to Collect MTR",
+      "level": 3
+    },
+    {
+      "text": "MTR tests network connectivity and routing between your device and the target host, revealing packet loss, latency, and routing problems."
+    },
+    {
+      "text": "MTR tests network connectivity and routing between your device and the target host, revealing packet loss, latency, and routing problems."
+    },
+    {
+      "heading": "Running MTR from a Linux OS",
+      "level": 4
+    },
+    {
+      "text": "Most Linux distributions either come with MTR pre-installed or make it available through their package manager."
+    },
+    {
+      "text": "To run an MTR command:"
+    },
+    {
+      "item": "Open a terminal and enter:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "mtr –nrc <packet-count> <GRE-VIP>",
+      "depth": 0
+    },
+    {
+      "item": "Run the MTR for at least 300 packets to spot any intermediate anomalies in the network path. The following is an explanation of the flags:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "-n do not resolve host names -r output using report mode -c count of packets",
+      "depth": 0
+    },
+    {
+      "text": "The following are other useful command options:"
+    },
+    {
+      "text": "-z display’s BGP AS number of each hop -T use TCP instead of ICMP -s packet size used for probing -h display all available options"
+    },
+    {
+      "text": "Sample MTR output showing path-related issues:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Running MTR from a Windows OS",
+      "level": 4
+    },
+    {
+      "text": "To gather MTR from a Windows OS, use the WinMTR tool. You can download the tool from sites such as sourceforge.net/ or winmtr.en.uptodown.com."
+    },
+    {
+      "text": "The following are steps to collect WinMTR output with Zscaler Client Connector (TUNNEL: Z-Tunnel 1.0 and Tunnel with Local Proxy) and PAC files:"
+    },
+    {
+      "item": "Download the tool from any of the mentioned sources.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "After it is downloaded, extract the folder, open it, and go to the tool as mentioned in the following snippet. The expected path of the downloaded folder is: C:\\Users\\<<USER_NAME>>\\Downloads\\WinMTR-v092 (1)\\WinMTR-v092\\WinMTR_x64].",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Open the tool from its location. It appears as the following:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Specify the Zscaler IP or URL for which you are collecting the trace. If it's a URL, directly enter the URL or its resolvable IP. If you must take the traces for performance issues with Zscaler, get the IP from the output of ip.zscaler.com.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          12,
+          22
+        ],
+        [
+          26,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Take notice of the proxy virtual IP from the output mentioned in the Host option in the WinMTR tool. Click Start.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          69,
+          73
+        ],
+        [
+          107,
+          112
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Deselect Resolve names before collecting this data so you can see the IP addresses of all the hops.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          9,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "After the MTR is started, keep it running for at least 300 packets. You can run it for more packets, but 300 is the least count needed. After you have the needed packets, stop it.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Save this output by clicking Export TEXT:",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          29,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Save the output in .txt format to your desired location. The sample output snippet looks like the following:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Validate Latency Between the GRE Gateway and Service Edge for Internet & SaaS",
+      "level": 3
+    },
+    {
+      "text": "To validate latency between the GRE gateway and the Service Edge for Internet & SaaS:"
+    },
+    {
+      "item": "Verify the round trip time (RTT) to the Zscaler GRE VIP. The recommended latency thresholds:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Developed regions: Approximately 60ms per 4000km.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Maximum: Up to 100ms per 4000km for less developed regions.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Check for signs of suboptimal routing (common issue):",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Use online tools to map hop IPs to their geographic location based on the MTR output.",
+      "depth": 1
+    },
+    {
+      "item": "Spot and flag irregular routing paths. You can copy the IP addresses of all the hops on the path from the MTR trace and paste them onto this page to get their geographic locations. This helps you plot the path on a map to spot any irregularities.",
+      "depth": 1
+    },
+    {
+      "item": "If suboptimal routing is confirmed:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Raise a ticket with your ISP.",
+      "depth": 1
+    },
+    {
+      "item": "Optimize IP SLA health-policy thresholds to tolerate excessive spikes in latency by increasing timeout intervals.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more about guidelines for Cisco, which can be adapted to other vendors, see GRE Configuration Guide for Cisco 881 ISR.",
+      "depth": 1
+    },
+    {
+      "heading": "GRE Tunnel is UP but Traffic Not Working",
+      "level": 4
+    },
+    {
+      "text": "The following steps discuss how to troubleshoot if the GRE tunnel is up but traffic is not working:"
+    },
+    {
+      "item": "Review the Tunnel Insight logs and validate if you are receiving any traffic over the configured GRE tunnel with filters like Tunnel Type and Tunnel Source IP.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          126,
+          137
+        ],
+        [
+          142,
+          158
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Validate policy-based routing configuration. Make sure you have proper routing configured using static routes or policy-based routing to route the traffic over the GRE tunnel. To learn more, see GRE Configuration Guide for Cisco 881 ISR.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Validate from the tunnel status on the GRE gateway that the Rx/Tx bytes are incrementing.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Tunnel2700 is up, line protocol is up Hardware is Tunnel Description: \"Zscaler Primary Tunnel\" Internet address is 172.18.58.121/30 MTU 17916 bytes, BW 100 Kbit/sec, DLY 50000 usec, .............. Tunnel linestate evaluation up Tunnel source 192.0.2.2, destination 216.66.5.49 Tunnel protocol/transport GRE/IP .............. 213293 packets input, 258967182 bytes, 0 no buffer Received 0 broadcasts (0 IP multicasts) 0 runts, 0 giants, 0 throttles 0 input errors, 0 CRC, 0 frame, 0 overrun, 0 ignored, 0 abort 250377 packets output, 17670798 bytes, 0 underruns 0 output errors, 0 collisions, 0 interface resets 0 unknown protocol drops 0 output buffer failures, 0 output buffers swapped out",
+      "depth": 0
+    },
+    {
+      "heading": "Collect PCAP on the Gateway Route",
+      "level": 4
+    },
+    {
+      "text": "Run PCAP on the gateway device to validate if the intended traffic is routed over the tunnel."
+    },
+    {
+      "text": "IPSec Tunnel"
+    },
+    {
+      "text": "The following sections describe how to troubleshoot if the IPSec tunnel."
+    },
+    {
+      "heading": "IPSec Tunnel is Hard Down",
+      "level": 3
+    },
+    {
+      "text": "When the IPSec tunnel is not coming up, take the following steps."
+    },
+    {
+      "text": "New tenants of an organization can no longer establish IKEv1 IPSec tunnels. If you are trying to set up an IPSec tunnel for the first time and your device only supports IKEv1, you must raise a support case with Zscaler to enable IKEv1 for your organization. Otherwise, configure the tunnel using IKEv2, which is recommended for all new deployments."
+    },
+    {
+      "item": "Validate the network reachability. Confirm network connectivity between the customer gateway and the Zscaler DC. Ping the Zscaler DC IPSec VIP from the customer gateway:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "ping <Zscaler IPSec VIP>",
+      "depth": 0
+    },
+    {
+      "item": "To learn more, see Locating the Hostnames and IP Addresses for Public Service Edges for Internet & SaaS.",
+      "depth": 0
+    },
+    {
+      "item": "If the IPSec VIP is not reachable:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Check the network infrastructure for potential firewalls, access control lists, or any other rules restricting access.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Perform a packet capture on the edge device to verify that traffic is leaving the customer network.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Engage with the ISP to ensure there are no restrictions on IPSec traffic.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Validate the IPSec configuration. For a successful tunnel, ensure VPN credentials are correctly configured in the Zscaler Admin Console and mapped to the appropriate location.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "In the case of static IP, create VPN credentials based on IP.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "In the case of dynamic IP, create VPN credentials based on FQDN.",
+      "depth": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "To learn more, see Configuring an IPSec VPN Tunnel. Validate that the gateway device is configured with parameters compatible with Zscaler's requirements. These include encryption algorithms, hash settings, phase settings, and NAT traversal (NAT-T) compatibility.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Review the Tunnel Insight Logs",
+      "level": 3
+    },
+    {
+      "text": "Use Tunnel Insights on the Zscaler Admin Console to understand the root cause of the tunnel-down issue."
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console by going to Analytics > Insights > Tunnel Insights.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          48,
+          57
+        ],
+        [
+          60,
+          68
+        ],
+        [
+          71,
+          86
+        ]
+      ]
+    },
+    {
+      "item": "Apply filters based on:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Metrics: Received Bytes",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel Source IP: <IPSec Source IP>",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "item": "Tunnel Type: IPSec",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Review the following columns in the logs:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Tunnel Status",
+      "depth": 0
+    },
+    {
+      "item": "Enum Name Localizedname(English) UP IPSec tunnel up DOWN IPSec tunnel down REKEY IPSec tunnel renogiated PHASE1_DOWN Phase1 is down PHASE2_DOWN Phase2 is down PHASE1_ERROR Error While Establishing Phase 1 PHASE2_ERROR Error While Establishing Phase 2",
+      "depth": 0
+    },
+    {
+      "item": "Event Reason",
+      "depth": 0
+    },
+    {
+      "item": "Enum Name Localizedname(English) EXPIRED LIfetime EXPIRED PSKEY_NOTFOUND Preshared Key NOTFOUND PSKEY_MISMATCH Preshared Key MISMATCH INVALID_PROPOSAL INVALID PROPOSAL DPD_TIMEOUT DPD TIMEOUT TIMEOUT TIMEOUT",
+      "depth": 0
+    },
+    {
+      "text": "Sample Tunnel Logs for IPSec failure."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "As the earlier Event Reason indicates that there is a proposal mismatch for Phase2. In this case, you must validate the IPSec parameters configured by the customer and validate it against Zscaler proposals."
+    },
+    {
+      "text": "Validate against the list of Zscaler-supported IPSec parameters for Phase1 and Phase2:"
+    },
+    {
+      "item": "IKEv1",
+      "depth": 0
+    },
+    {
+      "item": "IKEv2",
+      "depth": 0
+    },
+    {
+      "heading": "Additional Checks and Validation",
+      "level": 3
+    },
+    {
+      "text": "Perform the following checks to rule out issues caused by misconfiguration or unsupported setups."
+    },
+    {
+      "item": "Verify NAT-T: If the customer gateway is behind NAT, ensure NAT-T is being invoked. Check packet captures and logs to confirm UDP port 4500 is being used.",
+      "depth": 0
+    },
+    {
+      "item": "Verify VPN credentials type: For gateways behind NAT, ensure FQDN-based VPN credentials are used instead of IP-based credentials. The FQDN must be configured as the IKE ID.",
+      "depth": 0
+    },
+    {
+      "item": "Check SA limits: Zscaler supports a maximum of 8 child security associations (i.e., Security Protection Data entries) per direction. If this limit is exceeded, consolidate traffic subnets into fewer policies.",
+      "depth": 0
+    },
+    {
+      "item": "Check Phase-II configuration: Ensure NULL encryption is configured for Phase-II unless encrypted VPN traffic is required (additional subscription needed).",
+      "depth": 0
+    },
+    {
+      "item": "Check aggressive/main mode setup:",
+      "depth": 0
+    },
+    {
+      "item": "For aggressive mode, use PSK (Pre-shared Key) + FQDN.",
+      "depth": 1
+    },
+    {
+      "item": "For main mode, use PSK + IP.",
+      "depth": 1
+    },
+    {
+      "heading": "IPSec Tunnel Flapping",
+      "level": 3
+    },
+    {
+      "text": "Zscaler recommends customers configure an Active/Standby pair of IPSec tunnels with automatic failover based on application-layer health monitoring. When the IPSec tunnel alternates between up and down states frequently, take the following steps:"
+    },
+    {
+      "item": "Validate Tunnel Monitoring Configuration. Verify if proper health monitoring is in place. Zscaler recommends configuring HTTP probes for IPSec tunnels to monitor health.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "You can use ICMP probes if HTTP probes are not supported by the gateway device.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Confirm that the health probes are targeting gateway.<cloudname>.net/vpntest.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Test automatic failover by ensuring traffic shifts seamlessly to the secondary IPSec tunnel if the primary fails.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Enter show ip sla summary on a Cisco gateway to confirm the status of IP SLA probes.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "IP SLAs Latest Operation Summary Codes: * active, ^ inactive, ~ pending ID Type Destination Stats Return Last (ms) Code Run ----------------------------------------------------------------------- *1 http 172.17.27.2 RTT=619 OK 3 seconds ago *2 http 172.17.27.6 RTT=1377 OK 3 seconds ago",
+      "depth": 0
+    },
+    {
+      "item": "Enter show ip sla statistics command to see operation statistics information.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "IP SLAs Latest Operation Statistics IP SLA operation id: 1 Latest RTT: NoConnection/Busy/Timeout Latest operation start time: *02:29:07.511 UTC Sat May 19 2012 Latest operation return code: Timeout Number of successes: 0 Number of failures: 2 Operation time to live: Forever",
+      "depth": 0
+    },
+    {
+      "text": "To learn more, see Configuring an IPSec VPN Tunnel."
+    },
+    {
+      "heading": "Check for Maintenance Activities on Zscaler DC.",
+      "level": 3
+    },
+    {
+      "text": "Scheduled maintenance or events on the Zscaler DC might temporarily affect IPSec tunnels. Verify whether there were any ongoing activities for the given time period."
+    },
+    {
+      "text": "Zscaler recommends configuring Failover tunnel and IP SLA monitoring to seamlessly switch the traffic to secondary DC in cases of any issue with the primary DC."
+    },
+    {
+      "heading": "Validate the Network Path",
+      "level": 4
+    },
+    {
+      "text": "An observable packet loss can cause Layer 7 health monitoring to fail, which would make the IPSec tunnel flap."
+    },
+    {
+      "item": "Run a forward MTR from the IPSec gateway to the Zscaler IPSec VIP.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Ensure MTR probes are sent outside the tunnel to capture all ISP-level hops.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Analyze the MTR results:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Check for high latency or consistent packet loss along the path.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Any signs of routing loops or abnormal paths might require involving the ISP.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "heading": "How to Collect MTR",
+      "level": 3
+    },
+    {
+      "text": "MTR tests network connectivity and routing between your device and the target host, revealing packet loss, latency, and routing problems."
+    },
+    {
+      "heading": "Running MTR from a Linux OS",
+      "level": 4
+    },
+    {
+      "item": "Most Linux distributions either come with MTR pre-installed or make it available through their package manager. To run an MTR command, open a terminal and enter:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "mtr –nrc <packet-count> <GRE-VIP>",
+      "depth": 0
+    },
+    {
+      "item": "Run the MTR for atleast 300 packets to spot any intermediate anomalies in the network path. The following explains the flags:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "-n: Do not resolve host names.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "-r: Output using report mode.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "-c: Count of packets.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "Review other useful options:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "-z: Display’s BGP AS number of each hop.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "-T: Use TCP instead of ICMP.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "-s: Packet size used for probing.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "item": "-h: Display all available options.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          2
+        ]
+      ]
+    },
+    {
+      "text": "Sample MTR output showing path related issues:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Running MTR from a Windows OS",
+      "level": 4
+    },
+    {
+      "text": "In order to gather MTR statistics, use the WinMTR tool. You can download the tool from sites such as sourceforge.net/ or winmtr.en.uptodown.com."
+    },
+    {
+      "text": "The following are steps to collect WinMTR output with Zscaler Client Connector (TUNNEL: Z-Tunnel 1.0 and Tunnel with Local Proxy) or PAC file:"
+    },
+    {
+      "item": "Download the tool from any of the mentioned sources.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "After it is downloaded, you mustextract the folder. Go to the tool in the expected path of the downloaded folder: C:\\Users\\<<USER_NAME>>\\Downloads\\WinMTR-v092 (1)\\WinMTR-v092\\WinMTR_x64.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Open the tool from the location. It appears as follows:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "You must specify the Zscaler IP or URL for which you want to collect the trace. If a URL, directly enter the URL or its resolvable IP. For traces for performance issues with Zscaler, you must get the IP from the output of ip.zscaler.com.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Save the Proxy Virtual IP from the output and mention this in the Host option in the WinMTR tool. Click Start:",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          66,
+          70
+        ],
+        [
+          104,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Remember to uncheck the Resolve names option before collecting this data so that you can see the IP addresses of all the Hops.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          24,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "After starting MTR, keep it running for at least 300 packets. You can run it for longer, but 300 is the least count needed. After it is completed, stop it:",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Save this output in the a .txt format and in your desired location by clicking Export Text:",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          79,
+          90
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Review the following sample output snippet:",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Validate Latency Between the IPSec Gateway and Service Edge for Internet & SaaS",
+      "level": 3
+    },
+    {
+      "item": "Verify the RTT to the Zscaler IPSec VIP. Recommended latency thresholds:",
+      "depth": 0
+    },
+    {
+      "item": "Developed regions: Approx. 60ms per 4000km.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Maximum: Up to 100ms per 4000km for less-developed regions.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Check for signs of suboptimal routing (common issue):",
+      "depth": 0
+    },
+    {
+      "item": "Use online tools to map hop IPs to their geographic location based on the MTR output.",
+      "depth": 1
+    },
+    {
+      "item": "Spot and flag irregular routing paths. You can copy the IP addresses of all the hops on the path from the MTR trace and paste them onto this page to get their geographic locations. This helps you plot the path on a map and spot any irregularities.",
+      "depth": 1
+    },
+    {
+      "item": "If suboptimal routing is confirmed:",
+      "depth": 0
+    },
+    {
+      "item": "Raise a ticket with their ISP.",
+      "depth": 1
+    },
+    {
+      "item": "Optimize IP SLA health-policy thresholds to tolerate excessive spikes in latency by increasing timeout interval.",
+      "depth": 1
+    },
+    {
+      "heading": "IPSec Tunnel is UP, but Traffic is Not Working",
+      "level": 4
+    },
+    {
+      "text": "Verify that the IPSec gateway is correctly configured with static routes or Policy-Based Routing (PBR) to send traffic over the IPSec tunnel. To learn more about how to validate that the customer has the correct routing or PBR configuration to route the traffic over an IPSec tunnel, see Configuring an IPSec VPN Tunnel."
+    },
+    {
+      "text": "Run a packet capture or similar utilities based on the Gateway device to validate that the traffic is indeed routing over the IPSec tunnel and make necessary changes as needed."
+    },
+    {
+      "text": "Check the tunnel status and ensure encapsulated/decapsulated packets are incrementing"
+    },
+    {
+      "text": "Switch#show crypto isakmp sa IPv4 Crypto ISAKMP SA dst src state conn-id status <dest-ip> <src-ip> QM_IDLE 1012 ACTIVE IPv6 Crypto ISAKMP SA Switch# Switch#show crypto ipsec sa interface: GigabitEthernet1/0/1 Crypto map tag: MYMAP, local addr 172.16.21.1 protected vrf: (none) local ident (addr/mask/prot/port): (0.0.0.0/0.0.0.0/0/0) remote ident (addr/mask/prot/port): (0.0.0.0/0.0.0.0/0/0) PERMIT, flags={origin_is_acl,} #pkts encaps: 5, #pkts encrypt: 5, #pkts digest: 5 #pkts decaps: 0, #pkts decrypt: 0, #pkts verify: 0 #pkts compressed: 0, #pkts decompressed: 0 #pkts not compressed: 0, #pkts compr. failed: 0 #pkts not decompressed: 0, #pkts decompress failed: 0 #send errors 0, #recv errors 0"
+    },
+    {
+      "text": "Note that Zscaler supports up to 8 Security Protection Data per direction, and any additional Security Protection Data is not added. This can lead to the traffic not being routed over the IPSec tunnel. If the IPSec Security Protection Data exceeds the limit, Zscaler recommends consolidating the interesting traffic subnets."
+    }
+  ]
+}

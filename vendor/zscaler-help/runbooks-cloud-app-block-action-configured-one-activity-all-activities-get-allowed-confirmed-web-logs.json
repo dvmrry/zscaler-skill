@@ -1,0 +1,114 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Cloud App: Block Action Is Configured for One Activity but All Activities Get Allowed as Confirmed by the Web Logs",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/cloud-app-block-action-configured-one-activity-all-activities-get-allowed-confirmed-web-logs",
+    "node": "1538970",
+    "revision": "3224148",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This help article describes how to determine whether a Block action is configured for one activity, but all activities get allowed as Confirmed by the Web logs."
+    },
+    {
+      "text": "The first thing to do is find out which URLs are used when the user accesses the cloud app. Capture HTTP header traces while accessing the application. Note down the exact timestamps for specific activities such as upload, download, post, comment, like, etc."
+    },
+    {
+      "text": "The method to capture HTTP headers depends on how an end user accesses the website or the web application."
+    },
+    {
+      "heading": "The Website or Web Application Is Accessed from an Internet Browser",
+      "level": 1
+    },
+    {
+      "text": "To learn more, see How to Capture HTTP Headers (HAR file) on the Client System."
+    },
+    {
+      "heading": "Make Sure No Transaction Uses QUIC",
+      "level": 1
+    },
+    {
+      "text": "To learn more, see How to Determine Whether a Website is Using QUIC."
+    },
+    {
+      "text": "Look up the cloud app for a given URL either directly from the Zscaler Admin Console or from the Site Review Portal."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "The following is a list of troubleshooting options:"
+    },
+    {
+      "item": "Review the HTTP header trace to figure out the key domains used at the timestamp corresponding to the activity of interest. For the remaining steps, consider the example of blocking upload, comment, or post activities, so you should look at all the POST requests to these domains.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure this traffic is SSL inspected. The SSL Inspected column in the web logs must show yes for the URL of interest. If the action in the relevant SSL Inspection rule for a cloud app is Do Not Inspect & Evaluate Other Policies, then only the domain part of the URL is available for policy enforcement, and the Zscaler service doesn't have access to sufficient data in order to differentiate between various activities such as upload or download.",
+      "depth": 0,
+      "strong": [
+        [
+          45,
+          58
+        ],
+        [
+          190,
+          230
+        ]
+      ]
+    },
+    {
+      "item": "Have you ensured that the cloud app class and its name in the web logs match those defined in the policy and that the request method is POST?",
+      "depth": 0
+    },
+    {
+      "item": "Yes.",
+      "depth": 1
+    },
+    {
+      "item": "It's possible that the cloud application in question was very recently updated by its developers, which resulted in the signature becoming outdated for a specific activity within a specific cloud app.",
+      "depth": 2
+    },
+    {
+      "item": "Sometimes you can see that the Policy Action is Blocked and Allowed for the same request method, e.g. POST in this case, with the same cloud application; this happens when the app only changes its mechanisms for a set of activities such as liking or commenting.",
+      "depth": 2
+    },
+    {
+      "item": "Zscaler takes care of maintaining the most updated signatures of all cloud apps, which get released to the production clouds, following the service update schedule published on the Trust Portal. If there are any major changes in cloud app signatures, Zscaler also publishes a Trust notification with the appropriate information.",
+      "depth": 2
+    },
+    {
+      "item": "No",
+      "depth": 1
+    },
+    {
+      "item": "If the request method is not POST, then the Service Edge typically doesn't detect this activity as POST. Choose another activity applicable to this cloud app.",
+      "depth": 2
+    },
+    {
+      "item": "If the web logs show a different cloud app name, use that as criteria in the Cloud App rule.",
+      "depth": 2
+    },
+    {
+      "item": "If none of the above steps help, submit a case to Zscaler Support with the following information:",
+      "depth": 0
+    },
+    {
+      "item": "If you have enabled Remote Assistance, the cloud app name or the URLs and the timestamp when a user tried accessing the application via the Zscaler service. Otherwise, Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 1
+    },
+    {
+      "item": "HTTP header trace from the end user's system while accessing the concerned cloud app.",
+      "depth": 1
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 1
+    }
+  ]
+}

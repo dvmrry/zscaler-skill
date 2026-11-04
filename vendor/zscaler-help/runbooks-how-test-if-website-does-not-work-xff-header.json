@@ -1,0 +1,258 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "How to Test Whether a Website Works with the XFF Header",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/how-test-if-website-does-not-work-xff-header",
+    "node": "1539103",
+    "revision": "3224139",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "If the website is accessible only when SSL inspection is disabled, verify whether the website works well with the XFF header."
+    },
+    {
+      "heading": "What Is XFF?",
+      "level": 1
+    },
+    {
+      "text": "X-Forwarded-For is an HTTP header. This header indicates to the destination web server that the web request is forwarded by a proxy on behalf of another IP. For example, if a web server receives traffic from the source IP 165.225.21.234 and this HTTP request contains the header X-Forwarded-For 88.127.24.87, the web server knows that 165.225.21.234 is likely a proxy and one of the hosts behind 88.127.24.87 generated the HTTP request."
+    },
+    {
+      "text": "Many websites extensively use this header. The most common example at Zscaler is https://ip.zscaler.com, which shows both the proxy and the XFF IP."
+    },
+    {
+      "text": "Occasionally there might be some scenarios where Public Service Edge for Internet & SaaS (ZIA) receives web traffic from a downstream proxy. In such cases, the web request comes to the Zscaler service with the client's private IP in the XFF header. If you enable Use XFF from Client Request for such a location by logging in to Internet & SaaS and going to Infrastructure > Locations > Location Management, the Zscaler service used this private IP for detecting sublocations and logs it in the Client IP column in the web logs. The Service Edge removes any such XFF headers and replaces them with the XFF header containing the client's external IP before forwarding the request to destination server.",
+      "strong": [
+        [
+          263,
+          290
+        ],
+        [
+          357,
+          371
+        ],
+        [
+          374,
+          383
+        ],
+        [
+          386,
+          405
+        ]
+      ]
+    },
+    {
+      "text": "If you see Not Inspected ... in the SSL Policy Reason column, then the Zscaler cloud could not have inserted the XFF header in such transactions.",
+      "strong": [
+        [
+          11,
+          28
+        ],
+        [
+          36,
+          53
+        ]
+      ]
+    },
+    {
+      "text": "If SSL Inspection is enabled for a domain, the Zscaler service almost always inserts this XFF header in the web requests. Here are some exceptions:"
+    },
+    {
+      "text": "If the domain falls under the Miscellaneous or Legal Liability categories, the Zscaler service does not insert XFF to prevent your egress IPs from getting denylisted. Here's a short explanation:"
+    },
+    {
+      "item": "If a domain is uncategorized (Miscellaneous), the Zscaler service's AI/ML-Based Content Classification Engine can dynamically determine its category based on the website's response content.",
+      "depth": 0,
+      "strong": [
+        [
+          30,
+          43
+        ]
+      ]
+    },
+    {
+      "item": "If such a website is serving suspicious content, then the Zscaler service blocks the response.",
+      "depth": 0
+    },
+    {
+      "item": "There are certain IP reputation vendors that monitor the XFF IP in the request to such domains. Now, even though the suspicious domain wasn't really accessed, your egress IP gets a bad reputation because we exposed it in the XFF header.",
+      "depth": 0
+    },
+    {
+      "item": "If the transaction does not go through a Public Service Edge and the XFF insertion is disabled on the Virtual Service Edge. In this case, the /sc/sme/conf/sc.conf file contains the following line:",
+      "depth": 0
+    },
+    {
+      "text": "xff_enable=0"
+    },
+    {
+      "text": "If the transaction is related to Source IP Anchoring and the option Insert XFF Header for ZPA Traffic under Policies > Common Configuration > Advanced > Advanced Settings is disabled, see Configuring Advanced Settings.",
+      "strong": [
+        [
+          68,
+          101
+        ],
+        [
+          108,
+          116
+        ],
+        [
+          119,
+          139
+        ],
+        [
+          142,
+          150
+        ],
+        [
+          153,
+          170
+        ]
+      ]
+    },
+    {
+      "text": "There are some websites that do not return a valid response if they receive a web request containing the XFF header (e.g., agriculture.canada.ca, talabat.com)."
+    },
+    {
+      "item": "Here are some typical reasons: explicitly block all traffic coming from a proxy, absence of code in the web server to process this header, improper implementation of redirects or response codes.",
+      "depth": 0
+    },
+    {
+      "item": "Some of these websites return an error code, and some others might time out, but they almost never explicitly state in the error code that the request was not successful because it contained an XFF header.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "Here's how you can test the compatibility with the XFF header for any website on a test laptop that has direct internet access:"
+    },
+    {
+      "item": "On Google Chrome:",
+      "depth": 0
+    },
+    {
+      "item": "If it isn't already installed, install the free ModHeader extension from Google Chrome Web Store.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Select the extension from the top right.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Then enter in the name of the XFF header and enter a valid IP value. (Here an invalid value 2000.2000.2000.2000 is shown just to emphasize that this IP is not used for routing.)",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Make sure that the top bar shows the pause button, which implies that this extension is already inserting this header in all the outgoing web requests from all the tabs of this browser.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Now you can first test that the header insertion is successful by going to https://ip.zscaler.com and ensure that the traffic is not going through the Zscaler service.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "You can now try to access the website with and without the XFF header on this system.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "On Mozilla Firefox:",
+      "depth": 0
+    },
+    {
+      "item": "If it isn't already installed, install the free Modify Header Value extension from the Firefox extensions store.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Turn off Internet & SaaS in your Zscaler Client Connector.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Open the extension from the top right.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Specify the URL, XFF, and the IP value as shown below. Then click on Add. An ACTIVE rule appears at the bottom.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          69,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "You can use this toggle in the option to enable or disable the insertion of XFF header.",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "See image.",
+      "depth": 1
+    },
+    {
+      "item": "Test that the header insertion is successful by going to https://ip.zscaler.com and ensure that the traffic is not going through the Zscaler service.",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "Try to access the website with and without the XFF header on this system.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "heading": "Solution",
+      "level": 1
+    },
+    {
+      "text": "Because XFF is a standard header, most web applications should fix their logic to support it in the HTTP requests. To fix HTTP requests to be XFF compliant, reach out to the web development team managing the website."
+    },
+    {
+      "item": "If the website is trusted and your business policy allows disabling SSL inspection for this domain, then turning off SSL Inspection automatically disables insertion of XFF.",
+      "depth": 0
+    },
+    {
+      "item": "If none of the above solutions work, submit a case to Zscaler Support.",
+      "depth": 0
+    }
+  ]
+}

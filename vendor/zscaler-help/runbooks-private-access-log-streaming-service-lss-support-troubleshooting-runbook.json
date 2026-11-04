@@ -1,0 +1,620 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Access Log Streaming Service (LSS) Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/private-access-log-streaming-service-lss-support-troubleshooting-runbook",
+    "node": "1534147",
+    "revision": "3226366",
+    "updated": "2026-07-31",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Private Access Log Streaming Service (LSS) Support Troubleshooting Runbook provides troubleshooting steps for improving LSS performance. It provides systematic troubleshooting steps to identify, validate, and resolve common Private Access LSS issues. Customers can reference the relevant section based on their specific problem to streamline resolution efforts."
+    },
+    {
+      "heading": "Introduction to LSS",
+      "level": 1
+    },
+    {
+      "text": "The LSS provides real-time and historical visibility into the operation of Private Access by analyzing events reported primarily by the Public Service Edges for Private Access or Private Service Edges. Zscaler retains user activity, user status, and App Connector log information for rolling periods of at least 14 days during the subscription term. Zscaler retains audit log information for 6-month periods during the subscription term. Access to logs beyond the 14 days are available in the Zscaler Admin Console, and setting up the LSS is necessary."
+    },
+    {
+      "text": "The LSS provides the following benefits and enables you to:"
+    },
+    {
+      "item": "Forward your diagnostics and status logs to a security information and event management (SIEM).",
+      "depth": 0
+    },
+    {
+      "item": "Store logs for longer than the cloud retention period.",
+      "depth": 0
+    },
+    {
+      "item": "Create analytical charts and graphs using your own in-house SIEM.",
+      "depth": 0
+    },
+    {
+      "item": "Create events and alerts using third-party log correlation.",
+      "depth": 0
+    },
+    {
+      "text": "The LSS has two components: a Log Receiver (SIEM) and an App Connector. It can stream logs from your Private Access tenant to an SIEM or log receiver you manage."
+    },
+    {
+      "text": "To learn more, see About the Log Streaming Service."
+    },
+    {
+      "text": "LSS Connection Flow"
+    },
+    {
+      "text": "All user requests are handled by the creation of a microtunnel towards a Public Service Edge or a Private Service Edge. When this occurs, the Service Edge generates a log. This log is then sent to Zscaler's backend logging servers, which allows the logs to be available on the Zscaler Admin Console. If SIEM integration is enabled for the log type, the Service Edge also forwards a copy of the log to a specialized Private Access component called the LSS Client, which facilitates the transfer of logs to the user's SIEM systems."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "The LSS client logging activity is also logged in Private Access Diagnostics and Users dashboard."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Depending on the amount of logs generated, the user Private Access LSS Client can appear as one of the Top Users by Bandwidth. To learn more, see About the Users Dashboard."
+    },
+    {
+      "text": "To learn more about Private Access cloud architecture, see Understanding Private Access Cloud Architecture."
+    },
+    {
+      "heading": "Troubleshooting Common Private Access LSS Issues",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe common troubleshooting Private Access LSS issues."
+    },
+    {
+      "text": "No Logs Received on SIEM Server"
+    },
+    {
+      "text": "Issues might arise where the SIEM server does not receive any logs from the Private Access LSS. It typically means there could be a breakdown in communication between Private Access and the SIEM server, an invalid log streaming configuration, or network-related barriers hindering data transmission."
+    },
+    {
+      "heading": "Symptoms of the Issue",
+      "level": 3
+    },
+    {
+      "item": "SIEM dashboards or ingestion services show no incoming data from Private Access.",
+      "depth": 0
+    },
+    {
+      "item": "Monitoring tools on the SIEM server indicate zero log activity.",
+      "depth": 0
+    },
+    {
+      "item": "The Private Access Diagnostics page shows Active log streaming but no logs are recorded.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggestion for Resolution",
+      "level": 3
+    },
+    {
+      "text": "Validate the configuration in the Zscaler Admin Console."
+    },
+    {
+      "item": "Log in to the Zscaler Admin Console.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Go to Configuration & Control > Private Infrastructure > Log Streaming Service > Log Receivers.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          29
+        ],
+        [
+          32,
+          54
+        ],
+        [
+          57,
+          78
+        ],
+        [
+          81,
+          94
+        ]
+      ]
+    },
+    {
+      "item": "Ensure the correct SIEM configuration is present. Verify:",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Server Address: Ensure the destination SIEM server IP/hostname is entered correctly.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "Port Number: Confirm the communication port matches the SIEM server's listening port.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Stream Format: Check that the configured format (e.g., JSON, CEF, CSV) matches the format supported by the SIEM.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "Application Connector Mapping: Verify the correct App Connectors are selected for log streaming.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          0,
+          29
+        ]
+      ]
+    },
+    {
+      "item": "TLS Encryption: Make sure TLS Encryption is enabled/disabled depending on the support of the SIEM server.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "See if the Log Stream Content is a custom log template. To rule out any syntax issue, test with a predefined log template like CSV, TSV, or JSON.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "When using a Custom Log Template, make sure the syntax aligns with the Log Stream Content format.",
+      "depth": 0,
+      "strong": [
+        [
+          13,
+          19
+        ],
+        [
+          71,
+          89
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Check Connectivity Between the App Connector and SIEM",
+      "level": 4
+    },
+    {
+      "text": "The following sections describe how to check the connectivity between the App Connector and SIEM."
+    },
+    {
+      "heading": "Validate the Connector Status",
+      "level": 5
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Configuration & Control > Private Infrastructure > App Connector Management > App Connector.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          59
+        ],
+        [
+          62,
+          84
+        ],
+        [
+          87,
+          111
+        ],
+        [
+          114,
+          127
+        ]
+      ]
+    },
+    {
+      "item": "Identify the App Connector associated with the log streaming configuration:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Ensure the App Connector Status is Enabled.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          31
+        ],
+        [
+          35,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Ensure App Connector Connection Status is Connected.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          38
+        ],
+        [
+          42,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "If the App Connector is in a disconnected state, see the Private Access App Connector Support Troubleshooting Runbook for troubleshooting steps."
+    },
+    {
+      "heading": "Validate Connectivity between the App Connector and SIEM",
+      "level": 5
+    },
+    {
+      "text": "After you validate that the Connector is up and healthy, validate the network connectivity between the App Connector and SIEM server."
+    },
+    {
+      "item": "Run a ping test (ping <SIEM Server IP>) to confirm basic connectivity.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use Telnet or equivalent (telnet <SIEM Server IP> <port>) to validate port connectivity for log streaming.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Review firewall settings to confirm the relevant ports are open between the App Connector and SIEM server.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Collect a packet capture on the App Connector via the following command:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "sudo tcpdump -i eth0 -nvvs0 -w /var/tmp/siem.pcap host x.x.x.x Replace x.x.x.x is the SIEM server IP.",
+      "depth": 0
+    },
+    {
+      "item": "Validate there is communication flow between the App Connector and the SIEM server.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Check the TLS handshake flow and verify the server is responding with Server Hello. In the following image, you can see TLS handshake failure due to an Unknown CA certificate.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          70,
+          82
+        ],
+        [
+          152,
+          162
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "This could be because of the TLS Encryption setting (Log Receiver), which is enabled to use TLS encryption between the App Connector and SIEM. While the connection is initiated with TLS, you might not have the SIEM configured for TLS encryption or the SIEM might be missing a certificate trusted by the App Connector leading to the connection failure.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          29,
+          43
+        ],
+        [
+          53,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "To validate this, disable TLS Encryption in the Zscaler Admin Console and test whether you are receiving logs in SIEM.",
+      "depth": 0,
+      "number": 8
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "To use TLS Encryption, make sure the prerequisites are met. The SIEM server should have a certificate signed by a Public Root CA or a custom CA that the App Connector can trust. To learn more about the prerequisites for using TLS with LSS, see About the Log Streaming Service."
+    },
+    {
+      "text": "Partial Log Received on SIEM Server"
+    },
+    {
+      "text": "If the SIEM server is not receiving all the logs, the SIEM server receives logs from Private Access intermittently or partially, instead of a full stream of expected data. Typically, the problem lies in constrained log filters or SIEM limitations in processing high log of volumes."
+    },
+    {
+      "heading": "Symptoms of the Issue",
+      "level": 3
+    },
+    {
+      "item": "Missing events or gaps in the logged data displayed on SIEM dashboards.",
+      "depth": 0
+    },
+    {
+      "item": "Discrepancies between Private Access Diagnostics logs and the data reflected in SIEM.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggestions for Resolution",
+      "level": 3
+    },
+    {
+      "text": "The following sections describe resolutions."
+    },
+    {
+      "heading": "Check Log Volume Configuration",
+      "level": 4
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Configuration & Control > Private Infrastructure > Log Streaming Service > Log Receivers.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          59
+        ],
+        [
+          62,
+          84
+        ],
+        [
+          87,
+          108
+        ],
+        [
+          111,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "Review any filters applied on the logs. For example:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "LogType (e.g., User Activity).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "Policy (e.g., Client Types: Web Browser).",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          6
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Modify filters to expand the scope, if necessary.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Analyze Network Performance",
+      "level": 4
+    },
+    {
+      "item": "Monitor traffic between the App Connector and SIEM server to avoid packet drops caused by high network latency or overload.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use tools like TCPdump or equivalent to capture and review network packets. You can enable TCPdump using Support Information from the Zscaler Admin Console or directly from the App Connector SSH session.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          105,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "sudo tcpdump -i eth0 -nvvs0 -w /var/tmp/siem.pcap host x.x.x.x",
+      "depth": 0
+    },
+    {
+      "item": "Replace x.x.x.x with the SIEM server IP.",
+      "depth": 0
+    },
+    {
+      "item": "Validate there are no connection resets coming from the SIEM server.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "If connection resets do occur, investigate the SIEM configuration for any issues like concurrent connection or buffer limitations and adjust settings as necessary. Additionally, consider the possibility of intermediary network devices, such as firewalls or load balancers, causing connection issues. If feasible, bypass such devices to isolate the root cause.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "text": "Log Syntax or Parsing Issues on SIEM"
+    },
+    {
+      "text": "Log syntax and parsing issues occur when the stream of logs sent by the Private Access LSS is incorrectly interpreted or processed by the SIEM system. This misalignment typically stems from discrepancies between the structure and formatting of logs sent by Private Access and the expected format or schema defined in the SIEM for ingesting and parsing logs."
+    },
+    {
+      "heading": "Symptoms of the Issue",
+      "level": 3
+    },
+    {
+      "item": "Logs being dropped or ignored by the SIEM.",
+      "depth": 0
+    },
+    {
+      "item": "Errors in the SIEM indicating failed ingestion or syntax incompatibility.",
+      "depth": 0
+    },
+    {
+      "item": "Alerts or dashboards in the SIEM failing to populate with expected data.",
+      "depth": 0
+    },
+    {
+      "heading": "Suggestion for Resolution",
+      "level": 3
+    },
+    {
+      "text": "The following section describes resolutions."
+    },
+    {
+      "heading": "Validate Format Configuration",
+      "level": 4
+    },
+    {
+      "item": "In the Zscaler Admin Console, go to Configuration & Control > Private Infrastructure > Log Streaming Service > Log Receivers.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          36,
+          59
+        ],
+        [
+          62,
+          84
+        ],
+        [
+          87,
+          108
+        ],
+        [
+          111,
+          124
+        ]
+      ]
+    },
+    {
+      "item": "Verify the configured format matches the SIEM's expected parsing format.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "If CEF is selected, make sure the SIEM is configured to consume logs in CEF format.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "See if the Log Stream Content is a Custom log template. To rule out any syntax issue with the Custom log template, test with a predefined log template like CSV, TSV, or JSON.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          35,
+          41
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "When using Custom log templates, make sure the syntax aligns with the Log Stream Content format and guidelines.",
+      "depth": 0
+    },
+    {
+      "item": "In the SIEM, adjust or recreate parsing rules/templates as necessary to accommodate the format of the Private Access-provided logs. Use the SIEM documentation to troubleshoot any field mismatches or ignored logs.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "heading": "Additional References",
+      "level": 1
+    },
+    {
+      "item": "Understanding Private Access Cloud Architecture",
+      "depth": 0
+    },
+    {
+      "item": "About the Log Streaming Service",
+      "depth": 0
+    },
+    {
+      "item": "Configuring a Log Receiver",
+      "depth": 0
+    },
+    {
+      "item": "Understanding the LSS Content Format",
+      "depth": 0
+    },
+    {
+      "item": "Private Access and Splunk Deployment Guide",
+      "depth": 0
+    }
+  ]
+}

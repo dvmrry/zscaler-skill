@@ -1,0 +1,180 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Access Denied Due to Domain Fronting",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/access-denied-due-domain-fronting",
+    "node": "1538961",
+    "revision": "3224147",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "In a domain fronting attack, the domain used in Server Name Indication (SNI) extension or in the Connect request is different from the one supplied later in the Host header. In other words, an attacker hides an HTTP request to a bad website inside a TLS connection to a good website."
+    },
+    {
+      "text": "Whenever a URL is accessed by a browser or an application, that browser or application must initiate a TLS negotiation, known as a handshake, with the FQDN extracted from the URL. For example, if you enter https://www.google.com/search?q=test in a browser, the browser initiates a TLS handshake with the FQDN www.google.com."
+    },
+    {
+      "text": "After the TLS handshake is successful, the browser then specifies the actual HTTP server using the Host header in the HTTP request. Ideally, this Host value and the SNI FQDN are on the same parent domain, if not an exact match. In some cases, the FQDN specified in the Connect request might also be different from the Host header in the HTTP request."
+    },
+    {
+      "heading": "Troubleshooting",
+      "level": 1
+    },
+    {
+      "text": "To troubleshoot the issue:"
+    },
+    {
+      "item": "Validate that the Block Domain Fronting option under Administration > Advanced Settings is enabled and review the exemptions in that section. To learn more, see Configuring Advanced Settings.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          18,
+          39
+        ],
+        [
+          53,
+          67
+        ],
+        [
+          70,
+          87
+        ]
+      ]
+    },
+    {
+      "item": "Review the values in the following Web Insights logs columns: URL, Domain Fronted Host Header, and Domain Fronted SNI.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          62,
+          65
+        ],
+        [
+          67,
+          93
+        ],
+        [
+          99,
+          117
+        ]
+      ]
+    },
+    {
+      "item": "If the URL value is different from either the Domain Fronted SNI or the Domain Fronted Host Header values, then the access is getting denied as configured.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          46,
+          64
+        ],
+        [
+          72,
+          98
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "To cross-validate, take the following steps:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "If the Domain Fronted SNI shows an FQDN, take a packet capture using Zscaler Client Connector or Wireshark (if Zscaler Client Connector is not installed). You can then open the packet capture using Wireshark and type tls.handshake.type==1 in the Display filter to view all the TLS handshakes containing the SNI extension.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          35,
+          39
+        ],
+        [
+          246,
+          253
+        ]
+      ]
+    },
+    {
+      "item": "Capture HTTP headers and compare the Host value in the SNI or the domain in the Connect request with the Host header in the subsequent HTTP request.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          37,
+          41
+        ]
+      ]
+    },
+    {
+      "heading": "Solution",
+      "level": 2
+    },
+    {
+      "text": "The following section describes the solution:"
+    },
+    {
+      "text": "Zscaler doesn't recommend disabling the option Block Domain Fronting under Administration > Advanced Settings because it is a global setting applicable to the entire organization.",
+      "strong": [
+        [
+          47,
+          68
+        ],
+        [
+          75,
+          89
+        ],
+        [
+          92,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "If your business trusts a specific URL or Cloud App, you can choose to add it to the exemptions.",
+      "depth": 0
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Alternatively, if your business trusts a specific application, you can choose to configure an SSL Inspection rule with the action Do Not Inspect for the concerned domain.",
+      "depth": 0,
+      "strong": [
+        [
+          130,
+          144
+        ]
+      ]
+    },
+    {
+      "text": "If none of the above steps help, submit a case to Zscaler Support with the following information:"
+    },
+    {
+      "item": "If you have enabled Remote Assistance, complete URL and the timestamp when a user tried accessing it via Zscaler. Otherwise, Web Insights logs showing all the columns for the relevant transactions.",
+      "depth": 0
+    },
+    {
+      "item": "HTTP header trace from the end user's system while accessing the concerned URL.",
+      "depth": 0
+    },
+    {
+      "item": "Client packet capture (if Zscaler Client Connector is installed).",
+      "depth": 0
+    }
+  ]
+}

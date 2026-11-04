@@ -1,0 +1,1445 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "ZIA Policy Leading Practices Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/zia-policy-leading-practices-guide",
+    "node": "1456801",
+    "revision": "3044881",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Internet Access (ZIA) is a security and traffic forwarding service running inline to your organization’s traffic. ZIA controls your traffic using simple-to-configure granular policies."
+    },
+    {
+      "text": "This document explores the policy configuration areas available to administrators. Understanding how to configure ZIA policies is crucial to securing your environment, maintaining user experience, and supporting productivity."
+    },
+    {
+      "text": "URL Filtering and Cloud App Control limit exposure to certain types of web content by allowing or restricting user access. A well-configured policy restricts or permits web content access without disrupting the end users or their experience."
+    },
+    {
+      "text": "To learn more, see Understanding Policy Enforcement."
+    },
+    {
+      "heading": "Overview",
+      "level": 1
+    },
+    {
+      "text": "The following sections provide an overview of the important concepts in configuring Zscaler security policies."
+    },
+    {
+      "heading": "Zscaler Service Modules",
+      "level": 2
+    },
+    {
+      "text": "ZIA uses full-featured inline proxies called ZIA Public Service Edges to inspect and enforce policies on traffic entering or leaving your organization. ZIA Public Service Edges feature Single-Scan Multi-Action (SSMA) technology that handles the traffic inspection and policy execution in the ZIA Public Service Edge's web and firewall modules."
+    },
+    {
+      "text": "SSMA allows inspection engines to scan all content in a single pass. Packets are placed in shared memory in highly optimized custom servers. All CPUs on a ZIA Public Service Edge access those packets at the same time. With dedicated CPUs for each function, all engines can inspect the packets simultaneously instead of using a chained model of physical or virtual appliances (where each security service processes packets in turn, adding incremental latency). SSMA technology applies the Zscaler service policies based on a variety of security engines with minimal latency."
+    },
+    {
+      "text": "After the SSMA inspection process is complete, the ZIA Public Service Edge executes policies using a specific precedence order. Each ZIA Public Service Edge has two main modules for applying policies: a web module and a firewall module."
+    },
+    {
+      "text": "At a high level, this is how traffic flows through the modules:"
+    },
+    {
+      "item": "Outbound web traffic. The ZIA Public Service Edge sends outbound internet web traffic from your organization to the firewall module for policy evaluation. If the traffic violates a firewall policy, it blocks the transaction. If the traffic does not violate any firewall policies, it sends the traffic to the web module for policy evaluation. In the web module, if the traffic violates a web policy, it blocks the transaction. If the traffic does not violate any web policies, the transaction is allowed to the internet.",
+      "depth": 0
+    },
+    {
+      "item": "Outbound non-web traffic. The ZIA Public Service Edge sends outbound non-web traffic bound for ports other than 80/443 (or other HTTP/HTTPS ports) directly to the firewall module for policy evaluation. If the traffic violates a firewall policy, it blocks the transaction. If the traffic does not violate any firewall policies, it allows the traffic to the internet.",
+      "depth": 0
+    },
+    {
+      "item": "Inbound web traffic. The ZIA Public Service Edge sends inbound web traffic (HTTP/HTTPS traffic for ports 80/443) from the internet in response to HTTP GET/POST requests to its web module for policy evaluation. If the traffic violates a web policy, it blocks the transaction. If the traffic does not violate any web policies, it allows the traffic into your organization.",
+      "depth": 0
+    },
+    {
+      "text": "When the web traffic violates a firewall policy, both the Firewall Insights logs and the Web Insights logs indicate that the traffic is blocked. However, if the traffic passes through the firewall policy but is blocked due to a web policy violation later, the Firewall Insights logs still indicate that the traffic is allowed, whereas the Web Insights logs indicate it as blocked."
+    },
+    {
+      "heading": "Order of Operations",
+      "level": 2
+    },
+    {
+      "text": "Web traffic is first evaluated in the firewall module and, if not blocked, is sent to the web module. If your organization's web policy allows a transaction but a firewall policy blocks it, the Zscaler service applies the firewall policy (i.e., the traffic is blocked). For example, if a web Cloud App Control policy allows the application Box.net, but the firewall policy blocks it, the Zscaler service blocks the transaction."
+    },
+    {
+      "text": "If the firewall module does not block the user's HTTP or HTTPS transaction, the ZIA Public Service Edge sends the traffic to the web module for policy enforcement."
+    },
+    {
+      "text": "When the ZIA Public Service Edge receives web traffic, the web module inspects the traffic and applies your organization's web policies. The web module applies policies in a specific order based on the web traffic types, whether the traffic is encrypted or not, and whether SSL inspection is enabled or disabled. If the service finds a policy violation, it immediately blocks the transaction and does not apply other web policies."
+    },
+    {
+      "text": "Web module policies are enforced in the following order of operations:"
+    },
+    {
+      "item": "Firewall",
+      "depth": 0
+    },
+    {
+      "item": "SSL Inspection",
+      "depth": 0
+    },
+    {
+      "item": "Advanced Threat Protection (ATP)",
+      "depth": 0
+    },
+    {
+      "item": "Malware/Antivirus (AV)",
+      "depth": 0
+    },
+    {
+      "item": "Cloud App Control",
+      "depth": 0
+    },
+    {
+      "item": "URL Control",
+      "depth": 0
+    },
+    {
+      "item": "File Type Control",
+      "depth": 0
+    },
+    {
+      "item": "Data Loss Prevention (DLP)",
+      "depth": 0
+    },
+    {
+      "item": "Cloud Sandbox",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Policy Enforcement Examples",
+      "level": 2
+    },
+    {
+      "text": "Understanding how the Zscaler service applies policies in different scenarios helps you determine why certain policies are or are not triggered on users' traffic. It also ensures that your organization's traffic is secured as expected."
+    },
+    {
+      "text": "The following examples illustrate how policies are applied to traffic."
+    },
+    {
+      "heading": "Example 1",
+      "level": 3
+    },
+    {
+      "text": "Organization X has the following policies:"
+    },
+    {
+      "item": "The firewall policy allows the cloud application Box.net.",
+      "depth": 0
+    },
+    {
+      "item": "The web policy blocks the same application.",
+      "depth": 0
+    },
+    {
+      "text": "When a user from the organization opens a browser and requests the application Box.net, the user is blocked. Even though the firewall module allows the traffic, the web module inspects and enforces the web policy (to block Box.net)."
+    },
+    {
+      "heading": "Example 2",
+      "level": 3
+    },
+    {
+      "text": "Organization Y has the following policies:"
+    },
+    {
+      "item": "The File Type Control policy blocks users from sending PDFs from the corporate network.",
+      "depth": 0
+    },
+    {
+      "item": "The DLP policy blocks documents containing US Social Security numbers (SSNs), and specifies that the Zscaler service sends notifications to auditors when it detects any attempt to send SSNs.",
+      "depth": 0
+    },
+    {
+      "text": "When a user from the organization attempts to send a PDF that contains SSNs, the service blocks the transaction because of the File Type Control policy preventing PDFs. The DLP policy is not triggered, and the service doesn’t notify the auditor that a user has attempted to send SSNs from the organization."
+    },
+    {
+      "heading": "Deployment Guide",
+      "level": 1
+    },
+    {
+      "text": "Build a policy strategy that meets your needs as easily as possible. Most organizations use URL Filtering and Cloud App Control features simultaneously."
+    },
+    {
+      "heading": "Gather a List of the Known Knowns",
+      "level": 2
+    },
+    {
+      "text": "Before building a policy:"
+    },
+    {
+      "item": "Review any existing filter policies on legacy systems.",
+      "depth": 0
+    },
+    {
+      "item": "Take stock of what is known about the environment.",
+      "depth": 0
+    },
+    {
+      "item": "Look at the available predefined URL Categories and Cloud App Categories.",
+      "depth": 0
+    },
+    {
+      "text": "Use this review to create a list of destinations (or types of destinations) that absolutely must be allowed, blocked, or restricted."
+    },
+    {
+      "text": "Commonly blocked destination types include:"
+    },
+    {
+      "item": "Legal Liability (adult material, gambling, illegal or questionable content, etc.).",
+      "depth": 0
+    },
+    {
+      "item": "Privacy Risk (security, other encrypted content, spyware/adware).",
+      "depth": 0
+    },
+    {
+      "item": "Potential Data Loss destinations (file host, webmail, peer-to-peer, etc.), except those specifically approved by the organization.",
+      "depth": 0
+    },
+    {
+      "item": "Social Media or Streaming Media services.",
+      "depth": 0
+    },
+    {
+      "text": "Commonly allowed destinations include:"
+    },
+    {
+      "item": "Applications approved and used by the organization.",
+      "depth": 0
+    },
+    {
+      "item": "Software and operating system update services.",
+      "depth": 0
+    },
+    {
+      "item": "Vendors and partners specific to the organization.",
+      "depth": 0
+    },
+    {
+      "heading": "Determine the Best Tool to Use",
+      "level": 2
+    },
+    {
+      "text": "Understanding what traffic should be controlled greatly assists in selecting what policy type to use. Work through the list of known knowns and classify the proper policy type to meet your needs most effectively. Finding the best tool for the task makes policy building and management significantly easier."
+    },
+    {
+      "text": "Zscaler recommends employing policies as follows:"
+    },
+    {
+      "item": "Cloud App Control. Use Cloud App Control when you must explicitly allow, block, or restrict user access to a known list of applications or control aspects of user access (e.g., permitting view access but not upload access, receiving mail but not sending mail, etc.)",
+      "depth": 0
+    },
+    {
+      "item": "URL Filtering. URL Filter is the default access control space. Use URL Filtering to create policies that prevent users from reaching URL categories, or allow access to certain destinations (prebuilt or custom-defined categories). URL Filtering allows the use of granular criteria to fine-tune access details.",
+      "depth": 0
+    },
+    {
+      "item": "File Type Control. File Type Control is best for creating policies that limit user file type access on permitted destinations and web browsing. File Type Control restricts what files can be shared in one direction or another. File Type Control lets users enjoy web content while maintaining organizational security controls.",
+      "depth": 0
+    },
+    {
+      "item": "Firewall. A firewall policy is best for controlling outbound connectivity for all non-web traffic; e.g., DNS, SSH, RDP, various United Communications as a Service (UCaaS) services, etc. With the Advanced Firewall subscription, you can use Firewall to control traffic by specific network service (port plus protocol) or by DPI application identification (network application). The Advanced Firewall subscription can also identify traffic that initially begins as web but is some other traffic type and apply the relevant firewall rules.",
+      "depth": 0
+    },
+    {
+      "text": "Furthermore, you can define rules about traffic on web destinations (such as blocking an IP address or allowing traffic to an FQDN or wildcard FQDN destination)."
+    },
+    {
+      "heading": "Examples",
+      "level": 3
+    },
+    {
+      "text": "To block users from reaching adult content, use a URL Filtering policy to block the necessary URL categories."
+    },
+    {
+      "text": "To allow view access to GitHub while blocking uploads, use a Cloud App policy under the System Development category."
+    },
+    {
+      "text": "To permit users to browse entertainment sites while blocking the upload or download of PDFs and Microsoft documents, use a File Type Control policy for the Entertainment URL Category and select the file types to restrict."
+    },
+    {
+      "heading": "Determine the Granularity",
+      "level": 2
+    },
+    {
+      "text": "After identifying which policy type to use, decide if you need special criteria to narrow the traffic matching the rule. If the rule does not apply to all users connecting from anywhere, how should the policy properly identify the traffic? Each of the policy types has unique criteria."
+    },
+    {
+      "text": "Zscaler recommends the following guidance on selecting criteria:"
+    },
+    {
+      "item": "Specific Destinations (app or category). Use the appropriate policy type to narrow your selected destinations.",
+      "depth": 0
+    },
+    {
+      "item": "Specific Users. Use Groups or Department for criteria, as this places control within the user directory space. Avoid using specific users unless testing or access is limited to a small (less than 4) set of users.",
+      "depth": 0
+    },
+    {
+      "item": "Source Locations. While building policies for individual locations is acceptable, it is easier to manage Location Groups. You can add new locations to a Location Group and the locations are instantly included in all applicable policies.",
+      "depth": 0
+    },
+    {
+      "item": "Time. Set access based on the data center’s time. For example, use the time to permit specific files during lunch or ensure certain functions are unavailable after hours or on weekends.",
+      "depth": 0
+    },
+    {
+      "item": "Specific Device Groups. Using Zscaler Client Connector on user devices, you can configure policies to target device operating systems specifically. Alternatively, you can set a policy to filter traffic sourced by means other than Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "Device Trust Levels. Zscaler Client Connector continuously evaluates the posture of a device and returns the status of the device. Device Trust levels in ZIA are High, Medium, and Low and are associated with specific device posture profiles that you can configure.",
+      "depth": 0
+    },
+    {
+      "item": "Mobile Admin. You can create explicit rules to allow and block based on these trust levels.",
+      "depth": 0
+    },
+    {
+      "heading": "Configure Advanced Policy Settings",
+      "level": 2
+    },
+    {
+      "text": "There are several Advanced Policy Settings in the ZIA Admin Portal. Go to Policy > URL & Cloud App Control > Advanced Policy Settings. The settings affect all traffic."
+    },
+    {
+      "text": "The following explains the settings:"
+    },
+    {
+      "item": "Children's Internet Protection Act (CIPA) Compliance. Set to Disable (unless in K-12 education). This feature allows K-12 education-based customers to configure a CIPA-compliant environment.",
+      "depth": 0
+    },
+    {
+      "item": "Suspicious New Domains Lookup. Set to Enable. This feature provides advanced protection to users against newly registered and observed domains identified within hours of going live, along with newly revived domains that are inactive. New or idle domains are often considered unsafe and potentially malicious. Blocking them (within the URL policy) improves the overall security posture.",
+      "depth": 0
+    },
+    {
+      "item": "AI/ML-based Content Categorization. Set to Enable. This feature enables AI/ML for the service to categorize traffic of uncategorized websites based on the content. This helps to identify whether the traffic fits within commonly blocked URL super categories and applies the appropriate policy.",
+      "depth": 0
+    },
+    {
+      "item": "Embedded Sites Categorization. Set to Enable. This feature applies a URL filtering policy for sites embedded within others. It is commonly employed to stop users who attempt to bypass filtering by using translation services.",
+      "depth": 0
+    },
+    {
+      "item": "SafeSearch. Set to Enable. This feature applies safe search enforcement on many top search sites. This feature requires you to enable SSL inspection of the traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Identity-based Block Override. Set to Optional. This feature prompts users to authenticate to access otherwise blocked destinations (as configured in a URL policy). It is not commonly enabled.",
+      "depth": 0
+    },
+    {
+      "item": "Microsoft-Recommended Click-to-Run Microsoft 365 Configuration. Set to Enable. This feature automatically enables an SSL Inspection exemption and a Cloud App and Firewall policy for Microsoft 365 traffic. To customize the policy exemption, review SSL inspection, Cloud App Control, and Firewall policies to build a higher-order policy, or leave this option disabled and manage Microsoft 365 traffic differently. To learn more, see About Microsoft One-Click Options.",
+      "depth": 0
+    },
+    {
+      "item": "UCaaS services. Enable per service if used in the environment. This feature manages SSL inspection and access control policy for the respective service to operate.",
+      "depth": 0
+    },
+    {
+      "heading": "Configure Advanced Settings",
+      "level": 2
+    },
+    {
+      "text": "Go to Administration > Advanced Settings to reveal additional global configuration options. The following section reviews a selection of options:"
+    },
+    {
+      "item": "Cascading to URL Filtering. Set to Disable. This feature lets traffic allowed by Cloud App Control to flow to URL Filtering for policy evaluation before any action is taken. This setting isn’t commonly used and often causes more issues than it resolves. This is a global option, so consider your policy structure before enabling the feature. If the feature is necessary, use Firewall Control to meet your needs first.",
+      "depth": 0
+    },
+    {
+      "item": "Policy for Unauthenticated Traffic. Set to Enable. For policies that specify users and departments in the criteria, you can specify which rules the service applies to unauthenticated traffic. Enabling this feature logs a specific username based on why the traffic was not authenticated when the location enforced authentication. To learn more, see Configuring Policies for Unauthenticated Traffic.",
+      "depth": 0
+    },
+    {
+      "item": "Block Domain Fronting. Set to Enable. Domain fronting allows a client to conceal the true intended destination of an HTTPS request from censors and network security filters by fronting the request with a TLS connection to a different domain than the one set in the request’s host header, if both are hosted on the same Content Delivery Network (CDN) service. Using domain fronting, an attacker hides an HTTPS request to a bad site inside a TLS connection to a good site. Using this feature and performing SSL inspection allows Zscaler to evaluate traffic for domain fronting and block any detections. To learn more, see Analysis of Domain Fronting Technique: Abuse and Hiding via CDNs.",
+      "depth": 0
+    },
+    {
+      "item": "Auto Proxy Forwarding for Non-Defined Ports. Set to Enable All. Advanced Firewall’s Deep Packet Inspection (DPI) capability identifies traffic (including web and other traffic) that bypasses the Secure Web Gateway (SWG) proxy and other specialized engines. With the Auto Proxy Forwarding for Non-Defined Ports toggles enabled, any non-standard traffic (by destination port) not currently redirected to the SWG or other specialized engines is subsequently redirected on the next session that targets that IP, port, and protocol destination. For example, if HTTPS is discovered on destination IP:2.2.2.2 and port:32556, subsequent sessions are directed to the SWG proxy for full policy inspection. You must create a Cloud Firewall rule that permits the traffic initially and an Allow rule with HTTPS defined as the network application to discover non-standard HTTPS.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Build a Policy",
+      "level": 2
+    },
+    {
+      "text": "To stage policy, begin with security concerns and have future expansion and management in mind. The following sections review the baseline recommendations for URL Filtering, Cloud App Control, File Type Control, Firewall, and DNS Control."
+    },
+    {
+      "heading": "URL Filtering Policy Baseline",
+      "level": 3
+    },
+    {
+      "text": "URL Filtering policies are usually the most straightforward of any policies configured. The categories regarding whether to allow or block are generally obvious, and the policy logic makes sense. The best approach for URL Filtering is to set a policy for Global > Specific > Global. In other words:"
+    },
+    {
+      "item": "Start with global rules. Create a rule that allows normally blocked destinations and blocks normally allowed destinations.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure rules (allow or block) specific to source users, groups, locations, and destinations that apply to specific users and user groups.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Create rules that apply to everyone and block unwanted traffic before the default (unwritten) allow-all rule.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "The following table lays out a good starting policy strategy checklist."
+    },
+    {
+      "table": [
+        [
+          "Rule #",
+          "Purpose",
+          "Criteria (minimum listed)",
+          "Action"
+        ],
+        [
+          "1",
+          "Global Specific Permit. Do not migrate your existing Allow list in full. Test Zscaler’s engines before determining what to migrate.",
+          "Category: Custom Exceptions (maintained to allow specific FQDN destinations, otherwise blocked by policy).",
+          "Allow"
+        ],
+        [
+          "2",
+          "Global Specific Block. Do not migrate your existing Block list in full. Test Zscaler’s engines before determining what to migrate.",
+          "Category: Custom Blocks (maintained for destinations that would otherwise be allowed by policy).",
+          "Block"
+        ],
+        [
+          "3",
+          "Global Security-based Block.",
+          "Category: Newly Registered and Observed Domains, Peer-to-Peer Site, Anonymizer, Computer Hacking, Copyright Infringement, Custom Encrypted Content, Newly Revived Domains, Other Security, Spyware/Adware.",
+          "Block"
+        ],
+        [
+          "4+",
+          "Policies specific to User Groups. While not necessarily security related, it is good to stage policies in a disabled state to build a starting structure.",
+          "Category: Optional. User Group: As necessary.",
+          "Allow or Block"
+        ],
+        [
+          "5+",
+          "Policy specific to Location Groups. Building a policy using user attributes is preferred. Policy follows the user anywhere. Policy by location could be necessary and should have a structure.",
+          "Category: Optional. Location: As necessary. Location Groups: As necessary.",
+          "Allow or Block"
+        ],
+        [
+          "6",
+          "Global Category Blocks. Select the specific URL Categories that should not be accessible to any groups not permitted earlier.",
+          "Category: As desired.",
+          "Block"
+        ],
+        [
+          "Default",
+          "Default Allow-all. This rule is unwritten and is the default action for URL Filtering Policy. Anything not matching a prior policy is allowed and is evaluated by the next policy module.",
+          "Unwritten. No criteria. Not configurable.",
+          "Allow"
+        ]
+      ]
+    },
+    {
+      "text": "The following is an example of a policy rule set."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Every customer requires a set of policies that make sense for their specific environment and security concerns. The policy design example here creates the following conditions:"
+    },
+    {
+      "item": "Specific allows (overrides): Create rules that override Zscaler's blocked categories.",
+      "depth": 0
+    },
+    {
+      "item": "Specific blocks: Create categories that MUST NOT be allowed under any circumstance.",
+      "depth": 0
+    },
+    {
+      "item": "Specific security blocks: Create block rules that prevent user access due to security team requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Granular control: Create allow and block rules for granular company-specific access control requirements.",
+      "depth": 0
+    },
+    {
+      "item": "Global blocks: Create block rules for categories not covered prior (or all categories if customer wishes to overwrite the implicit allow).",
+      "depth": 0
+    },
+    {
+      "text": "For help creating a set of policies that address your needs, contact your Zscaler Account team."
+    },
+    {
+      "heading": "Cloud App Control Policy Baseline",
+      "level": 3
+    },
+    {
+      "text": "The recommended approach for Cloud App Control is to be strategic and selective wherever possible. Configure rules matching the applications and criteria for explicitly known needs and leave the unknown to URL Filtering policies. If it must be allowed, blocked, isolated, or controlled in some form, build a Cloud App Control rule. Otherwise, control access elsewhere."
+    },
+    {
+      "text": "Rules are applied top-down, so entries move from granular to less specific. If one team needs access to a specific tool and other teams should be blocked, build an access rule specific to the approved use group and another rule to block other groups."
+    },
+    {
+      "text": "If uncertain, rely on the URL Filtering policy."
+    },
+    {
+      "heading": "General Guidance",
+      "level": 4
+    },
+    {
+      "text": "Use the Risk Profile feature to control access to applications without needing to research and specify them individually. Creating a risk profile for applications with a Risk Index of 4 or 5 in an Unsanctioned status allows you to apply the profile to various Cloud Application categories and block or restrict access to risky applications."
+    },
+    {
+      "text": "To learn more, see SaaS Security Insights."
+    },
+    {
+      "text": "The following is an example Risk Profile:"
+    },
+    {
+      "item": "Select Any for Cloud Applications.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          7,
+          10
+        ],
+        [
+          15,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Select a setting for Cloud Application Risk Profile.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          21,
+          51
+        ]
+      ]
+    },
+    {
+      "item": "Select Users or Locations criteria.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          16,
+          25
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select Block or Isolate for Action.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          7,
+          12
+        ],
+        [
+          16,
+          23
+        ],
+        [
+          28,
+          34
+        ]
+      ]
+    },
+    {
+      "text": "Example Policy:"
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Recommendations by Cloud App Category",
+      "level": 4
+    },
+    {
+      "text": "The following are recommendations for the different Cloud App categories."
+    },
+    {
+      "item": "Collaboration and Online Meetings: Common inclusions are Microsoft, Google, Zoom, and Webex services.",
+      "depth": 0
+    },
+    {
+      "item": "DNS Over HTTPS Services: Common DNS over HTTPS, whether used by default in certain browsers or configured by end users. If you use Zscaler’s DNS Control features within the environment, Zscaler recommends blocking these services (either here or with more security granularity within DNS Control) to ensure DNS requests are captured and processed correctly.",
+      "depth": 0
+    },
+    {
+      "item": "File Sharing: Contains many common and obscure file-sharing cloud applications. A common recommendation is to allow access to the organization’s selected/approved file-sharing service within Cloud App Control and then block the other services through a URL Filtering policy with the File Host category.",
+      "depth": 1
+    },
+    {
+      "item": "Rules created within File Sharing give additional control to allow or block uploading traffic if viewing is allowed. This assists in permitting users access to view (download) files from third-party sites while preventing the upload of files to the same. SSL inspection is necessary for the additional feature to work.",
+      "depth": 1
+    },
+    {
+      "item": "IT Services: Common space for development, design, SaaS hosts, identity providers (IdPs), security information and event management systems (SIEMs), OS updates, and other services, along with login services for Google, Microsoft, and Webex. You can configure this category to use Tenant Profiles for related services.",
+      "depth": 0
+    },
+    {
+      "item": "Productivity and CRM Tools: Contains the productivity tools used within the organization. Common examples are Microsoft, Google, Salesforce, and ServiceNow. You can configure this category to use Tenant Profiles for related services.",
+      "depth": 0
+    },
+    {
+      "item": "Social Networking: Contains popular social networking and media applications (Facebook, Discord, Reddit, TikTok, etc.). This category can granularly control access to the services and the user's ability to post to the service. SSL inspection is necessary to control posting.",
+      "depth": 0
+    },
+    {
+      "item": "Streaming Media: Contains the common streaming platforms. Controlling access to these applications reduces bandwidth consumption and productivity loss. A common policy permits YouTube (+ option for Tenant Profiles) and other approved media services for training purposes before further restricting the Music & Audio Streaming and Video Streaming categories by URL Filtering policy.",
+      "depth": 0
+    },
+    {
+      "item": "System Development: Contains common development repositories, tools, and training sites related to development. You can configure rules to control the upload permissions to restrict users further if they can browse the content versus share and store content. You can find services not listed here under the IT Services category.",
+      "depth": 0
+    },
+    {
+      "item": "Webmail: Zscaler’s recommendation is to explicitly allow webmail services selected by the organization and fully restrict sending mail or sending mail with attachments to any non-approved webmail services for users and devices within the corporate environment. SSL inspection is highly recommended for any permitted webmail services and is necessary to restrict sending.",
+      "depth": 1
+    },
+    {
+      "heading": "File Type Control Policy Baseline",
+      "level": 3
+    },
+    {
+      "text": "It is necessary to properly implement File Type Control to maintain organizational security by preventing uploading and downloading unwanted files while still allowing users access to internet services."
+    },
+    {
+      "text": "Zscaler recommends setting policies that control sending and receiving files to URL categories that don’t contain the expected file types."
+    },
+    {
+      "heading": "Examples",
+      "level": 4
+    },
+    {
+      "item": "Prohibit Microsoft 365 documents from uploading or downloading to and from Entertainment, Gambling, and Productivity Loss sites.",
+      "depth": 0
+    },
+    {
+      "item": "Permit executable downloads (i.e., .exe, .cab, etc.) from trusted vendors whose applications automatically update end user machines.",
+      "depth": 0
+    },
+    {
+      "item": "Caution or Block downloads of executable files from all sites except those approved.",
+      "depth": 0
+    },
+    {
+      "item": "Block the upload of files (i.e., .zip, .cad, .dwg, .stl, undetectable, etc.) from design teams to unsanctioned destinations.",
+      "depth": 0
+    },
+    {
+      "text": "Do not block files commonly used for websites unless you want to restrict access tightly and don’t mind severely impacting the user experience."
+    },
+    {
+      "text": "The following table outlines an example of a set of File Type Control policies."
+    },
+    {
+      "table": [
+        [
+          "Rule #",
+          "Purpose",
+          "User/Groups/Departments",
+          "File Type",
+          "URL Category",
+          "Upload/ Download",
+          "Action"
+        ],
+        [
+          "1+",
+          "Business exceptions",
+          "Specific Groups",
+          "Only file types required by the exception (e.g., PDF, archives, or Microsoft 365 documents from business partners). Applications that auto-update (OS, browsers, etc.).",
+          "Custom category for specific trusted sites.",
+          "Download and/or Upload",
+          "Allow"
+        ],
+        [
+          "2+",
+          "Permit EXE download for IT Admins",
+          "IT Admins and Helpdesk",
+          "Archives (.zip, .7z, .bzip, .cab, .gzip, .rar, .tgz, etc.). Executables (.sh, .msi, .exe, .dll, .ps1, etc.). Other documents (.crt, .pcap, etc.).",
+          "Specifically accepted categories (business, education, info tech).",
+          "Download",
+          "Allow"
+        ],
+        [
+          "3+",
+          "Permit uploads for developers",
+          "Developers",
+          "Source code, web content, video, other documents, executables, etc.",
+          "Custom category for specific trusted development sites.",
+          "Upload/ Download",
+          "Allow"
+        ],
+        [
+          "4+",
+          "Permit download of Microsoft 365 docs for business",
+          "Everyone",
+          "Microsoft 365, select archives, specific other documents (.cad, .csv, .txt), etc., as necessary.",
+          "Specific business-appropriate categories.",
+          "Download",
+          "Allow"
+        ],
+        [
+          "5+",
+          "Block upload and download of unnecessary files",
+          "Everyone",
+          "Everything except .gzip, audio, image, select video and web content.",
+          "All categories.",
+          "Upload/ Download",
+          "Block or Caution"
+        ]
+      ]
+    },
+    {
+      "heading": "Cloud Firewall Control Policy Baseline",
+      "level": 3
+    },
+    {
+      "text": "Zscaler’s Firewall service consists of three main capabilities: the core Firewall, DNS Control, and Cloud IPS Control."
+    },
+    {
+      "text": "The core Firewall is available as a Standard Firewall and Advanced Firewall. The Standard Firewall is available in all tiers of service that includes the SWG proxy and provides Layer 3, Layer 4, and FQDN rules. For example, you can define a rule to block a source or destination IP address plus FQDN (using an AND condition) plus network service (port and protocol, also using an AND in this case). Zscaler’s Standard Firewall provides aggregate logging for all flows and detailed logging where a block action is selected."
+    },
+    {
+      "text": "Zscaler’s Advanced Firewall adds per-user conditions (per-user, group, department, etc.), application identification through Deep Packet Inspection (DPI), an ability to detect and redirect non-standard web traffic to the SWG and other modules, DNS controls, and IPS controls for non-web traffic. The Advanced Firewall also adds detailed logging for each session and flow, regardless of whether they are allowed by policy or blocked."
+    },
+    {
+      "text": "The following Zscaler recommendations often assume that Advanced Firewall is used, and many suggestions blend one or more of these functions."
+    },
+    {
+      "heading": "Enable Cloud Firewall (and IPS) per Location",
+      "level": 4
+    },
+    {
+      "text": "Firewall rules apply only to locations where Firewall is enabled. It always applies to remote users. Ensure that Cloud Firewall and IPS are enabled at each location where Firewall, DNS, and IPS controls are needed (Admin > Location Management)."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Determining the Firewall Strategy: Default Firewall Filtering Rule",
+      "level": 4
+    },
+    {
+      "text": "The first Firewall rule to consider is the last. The setting here determines the strategic approach for defining all firewall rules."
+    },
+    {
+      "text": "Today, all Zscaler tenants ship with the default Firewall Filtering Rule set for the Block. This means all traffic by default is blocked unless it is allowed in a higher-ranked rule. This strategy is called default block (i.e., the traffic is placed on the allowlist) and requires explicitly defining any traffic and applications that can access the internet in one or more rules. You must tactfully add new applications or newly discovered applications."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "This default block is very secure and adopts Zero Trust tenants using a least-privilege approach. This approach, however, can mean disruption to business functions as applications unknown to network ops, security ops, or purchased or implemented outside the normal purview of these teams become non-functional."
+    },
+    {
+      "text": "A staged rollout is a common way to mitigate disruption, where traffic is initially examined, and all flows are attributed to an application that meets the business goals. This way, you can identify applications in advance and incrementally add Allow rules until few or no sessions are unattributable to the desired set of applications."
+    },
+    {
+      "text": "Historically, ZIA Firewall shipped with a default Allow rule setting, and many customers have maintained this setting."
+    },
+    {
+      "text": "The default Allow strategy is that all undesirable or malicious applications using the network must be explicitly defined in firewall rules. This is called a block list strategy and requires NetOps/SecOps validation to get a secure footing. The default Allow rule is often regarded as a low disruption approach—at least until a business suffers a breach due to the overly permissive policy."
+    },
+    {
+      "heading": "Essential Firewall Best Practices",
+      "level": 4
+    },
+    {
+      "text": "The following best practices assume a default block strategy is in place:"
+    },
+    {
+      "item": "Highest priority to main system-defined rules: Ensure top rules are the rules set to allow. This includes allowing Zscaler proxy traffic, Microsoft 365, and any other Click-to-Run rules to permit UCaaS communication. Putting any other rule higher than the Zscaler proxy traffic rule causes the proxy not to function. Any rule above the Click-to-Run rule is possible but not advised.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "High priority to Recommended Firewall rule: The Recommended Firewall rule is also a system-defined rule that allows certain known traffic to pass the Layer 3 and Layer 4 firewall and be examined by higher-level proxy functions. These higher-level proxy functions include SWG for web (and other) traffic and DNS Control for standard DNS. This rule uses network services (port plus protocol) and specifically targets standard web (TCP:80 as HTTP and TCP:443 as HTTPS) and DNS (TCP:53 or UDP:53).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "Because there is a deeper inspection of the web and DNS, enabling this rule doesn’t mean that this traffic passes uninspected and insecurely, but that you must specify policy for this traffic in those higher-level proxy engines. Zscaler doesn’t recommend putting any other traffic-type conditions in this rule. Reserve this rule for just the specialized ZIA functions. You don’t need to specify DNS over HTTPS (DoH) because it falls under the Web, but the DNS Control engine inspects it after it is determined to be a DoH flow."
+    },
+    {
+      "item": "Blocking QUIC as a network service: QUIC is an alternative method to transmit web content that doesn't use TCP and forms the transport basis of the HTTP/3 protocol (which is not yet managed by SWG). Zscaler recommends blocking QUIC and forcing communications into HTTP/2 or HTTPS, which SWG fully manages. Most QUIC is UDP:443, also the current definition of the network service QUIC. Since QUIC appears on UDP:80, you might consider modifying the default definition of the network service QUIC (Admin > Network Services). The selection of the ICMP block drops the UDP packet and sends the client a Type 3 error message (Destination Unreachable) and Code 13 (Communication Administratively Prohibited) via ICMP. This allows the client a potentially faster switchover to another web transport method, resulting in a better user experience with little lag as the client learns quickly that QUIC is not working. This results in a better user experience regardless if you use a default block rule strategy.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Considered use of Network Applications in rules: Since DPI was incorporated into firewalls in the mid-2000s with next-generation firewalls, independent identification of applications is done regardless of the port used by the application. The strength of DPI is the certainty of the detection. If DPI identifies the traffic as application x, then it is certainly application x. The challenge with any DPI firewall is that application detection does not usually happen on the first packet. This means that several packets might be allowed before the application identification concludes and, therefore, an action (Allow, Block). This leakage means using network applications as the best practice should be applied to as few flows as possible. This limits the number of rule conditions that must stay open since DPI identifies the flow. The best way to do this is to blend network applications with at least one other condition in a rule, such as source or destination IP address, user, or network service. Alternatively, you can lower the priority of a rule (place it further down the rule list) with network applications so first-packet rules using conditions like network services, IP addresses, and FQDNs can trigger on their relevant flows immediately before DPI inspects the remainder flows. If you don’t follow this practice, you could get a lot of flow log entries for flows that were only short bursts and ended independent of firewall policy (before the network application was identified) as Allowed due to insufficient app data.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "heading": "Deploying Without Disruption (Standard Firewall):",
+      "level": 4
+    },
+    {
+      "item": "Ensure your default action is set to Allow for all traffic if not blocked in a prior rule.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review your existing legacy firewall for any explicit Block policies.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Configure Allow and Block policies in ZIA to match as necessary:",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          15
+        ],
+        [
+          20,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Only build Network Services policy.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Enable Firewall at the sublocation level.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Forward non-web traffic from test locations and users to Zscaler:",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Convert select tunnels from 80/443 to all ports and protocols.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Implement Z-Tunnel 2.0 for targeting remote users with Zscaler Client Connector.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Improve your policy:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Use Firewall NSS feed to your SIEM to identify blocked traffic during troubleshooting.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Continue building Allow policies to match needs, allowing traffic from specific sublocations to the necessary destinations or services.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          18,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Block what you know or, as necessary, to work with your policy.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          0,
+          5
+        ]
+      ]
+    },
+    {
+      "item": "Set Default policy to Block.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          22,
+          27
+        ]
+      ]
+    },
+    {
+      "heading": "Deploying Without Disruption (Advanced Firewall):",
+      "level": 4
+    },
+    {
+      "item": "Ensure your default action is set to Allow or all traffic if not blocked by a prior rule.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          37,
+          42
+        ]
+      ]
+    },
+    {
+      "item": "Review your existing legacy firewall for any explicit Block policies.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          54,
+          59
+        ]
+      ]
+    },
+    {
+      "item": "Configure known-necessary Block policies in ZIA.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          26,
+          31
+        ]
+      ]
+    },
+    {
+      "item": "Enable Firewall at the sublocation level for all locations.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Forward your additional non-web traffic to Zscaler:",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Convert tunnels and policy-based routing (PBR) from 80/443 to all ports and protocols.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Implement Z-Tunnel 2.0 for remote users with Zscaler Client Connector.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Review logs regularly to:",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Determine which traffic is triggering the Default policy.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Identify if this traffic should be allowed or blocked.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Build policy to match, ensuring it is higher in the list than the default policy.",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "Repeat until Default policy matches are minimal enough to set the action to Block safely.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "heading": "Policy Configuration Examples",
+      "level": 4
+    },
+    {
+      "text": "The following sections provide configuration examples."
+    },
+    {
+      "heading": "Restricting SSH to Trusted Destinations",
+      "level": 5
+    },
+    {
+      "text": "In this use case, outbound connections via SSH are only available to specific trusted destinations and blocked otherwise. The purpose of the rule is that permitting SSH to any destination exposes a potential data exfiltration pathway."
+    },
+    {
+      "text": "Building the rules:"
+    },
+    {
+      "item": "Configure a Trusted SSH. To learn more, see IP or FQDN Destination Groups.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Build a rule to permit select services: SSH.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          40,
+          43
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Select Destination Groups: Trusted SSH.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          7,
+          25
+        ],
+        [
+          27,
+          39
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Set Action: Allow.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          12,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Build a rule to Block.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          16,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Select Services: SSH.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          17,
+          21
+        ]
+      ]
+    },
+    {
+      "item": "Set Action: Block/Reset.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          12,
+          23
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 9,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Restricting RDP to Specific Users",
+      "level": 4
+    },
+    {
+      "text": "In this use case, outbound connections via RDP is only permitted by specific users and blocked for all others."
+    },
+    {
+      "text": "The purpose of this rule is that users initiating RDP to external machines can bypass filtering and data exfiltration."
+    },
+    {
+      "text": "Building the Rules:"
+    },
+    {
+      "item": "Build Custom Network Service.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "TCP Destination Port: 3389.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          0,
+          20
+        ],
+        [
+          22,
+          26
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Build a rule to Permit.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          16,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Select the desired user groups.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Select the Custom Service.",
+      "depth": 0,
+      "number": 5,
+      "strong": [
+        [
+          11,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Select the Application: Remote Desktop.",
+      "depth": 0,
+      "number": 6,
+      "strong": [
+        [
+          11,
+          22
+        ],
+        [
+          24,
+          38
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Set Action: Allow.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          12,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "Build a rule to Block.",
+      "depth": 0,
+      "number": 9
+    },
+    {
+      "item": "Select Network Applications: RDP.",
+      "depth": 0,
+      "number": 10,
+      "strong": [
+        [
+          7,
+          27
+        ],
+        [
+          29,
+          32
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Set Action: Block/Reset.",
+      "depth": 0,
+      "number": 7,
+      "strong": [
+        [
+          4,
+          10
+        ],
+        [
+          12,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "Click Save.",
+      "depth": 0,
+      "number": 8,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "Selecting Applications requires an Advanced Firewall subscription. Standard licensed users can select Network Services."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "DNS Control Policy Baseline",
+      "level": 3
+    },
+    {
+      "text": "DNS Control examines DNS requests and responses and secures these against undesirable, risky, or malicious domains and IP address categories. DNS Control offers many other rule conditions that can be combined with or used independently from categorizations like DNS protocol type, DNS record type, resolved country IP, etc."
+    },
+    {
+      "text": "Additionally, DNS Control is critical to preventing undesirable communications from leaving your environment. Visibility into the request, and control of the response, means you can steer users and machines away from many of the dangerous services before issuing the connection request."
+    },
+    {
+      "heading": "Forwarding DNS Traffic to Zscaler",
+      "level": 4
+    },
+    {
+      "text": "You must direct DNS traffic to ZIA for DNS Control to work. You can direct traffic to ZIA in different ways, but the main options are:"
+    },
+    {
+      "item": "Including DNS into the existing GRE or IPSec forwarding tunnels. This is usually done for HQ and branch locations.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Enabling Z-Tunnel 2.0 on deployed Zscaler Client Connector clients and including DNS traffic (excluding any domains or IPs that should not be sent to Zscaler, particularly private solutions).",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Forwarding recursive DNS requests directly from a DNS server. This requires creating a location with the IP address of the DNS server sending traffic to ZIA. This method loses all end user context but is often done as an initial step for DNS security.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "heading": "Recommendations",
+      "level": 4
+    },
+    {
+      "item": "Protect users from reaching malicious domains by blocking destination IP categories for the riskiest destinations as the first line of defense. Examples: Anonymizer, Botnet Callback, Malicious Content, Phishing.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Block or Redirect DNS Over HTTPS requests by Protocol, sending to a trusted public server to gain visibility into requests. This requires SSL Inspection to perform.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Block DNS Tunneling traffic to unwanted (Commonly Blocked DNS Tunnels) applications. Additionally, review the Unknown DNS Tunnels section for additional pieces to block.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          19
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Permit DNS requests to trusted servers (defined within an IP Destination Group). Then block or redirect any other DNS requests as the final policy.",
+      "depth": 0,
+      "strong": [
+        [
+          0,
+          10
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "item": "Create policy rules as their properties are shown in the rule order list.",
+      "depth": 0
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Deployment Checklist",
+      "level": 2
+    },
+    {
+      "text": "The following checklists provide a guide to setting ZIA policies."
+    },
+    {
+      "heading": "URL Filtering Recommendations by URL Super Category",
+      "level": 3
+    },
+    {
+      "text": "Zscaler recommends downloading the ZIA Filtering Recommendations by URL Super Categories Leading Practices Checklist to help plan and implement ZIA policies: Download PDF."
+    },
+    {
+      "text": "To learn more, see About URL Categories."
+    },
+    {
+      "heading": "URL Filtering Advanced Policy Settings",
+      "level": 3
+    },
+    {
+      "text": "Zscaler recommends downloading the ZIA URL Filtering Advanced Policy Settings Leading Practices Checklist to help plan and implement ZIA policies: Download PDF."
+    },
+    {
+      "text": "To learn more, see Configuring Advanced URL Policy Settings."
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "The following considerations are important when creating ZIA policies."
+    },
+    {
+      "heading": "Policy for Non-Web Traffic Without Firewall Enabled",
+      "level": 3
+    },
+    {
+      "text": "If the ZIA Public Service Edge receives outbound, non-web traffic going to ports other than 80/443, and the organization has a firewall policy enabled on the user's location. The ZIA Public Service Edge inspects the traffic and applies the policy using only the firewall module if the organization has not enabled firewall policy for the location. The ZIA Public Service Edge neither scans nor applies any policy to the traffic."
+    },
+    {
+      "heading": "Policy for Unauthenticated Traffic",
+      "level": 3
+    },
+    {
+      "text": "Properly configured ZIA policies should authenticate traffic associated with a user, but it might not be possible in every environment. Deploying and using Zscaler Client Connector even while on Trusted Networks greatly increases the authentication rate and user attribution to traffic."
+    },
+    {
+      "text": "Alternatively, Zscaler encourages you to enable the policy for Unauthenticated Traffic feature by going to Administration > Advanced Settings. This feature provides additional departments specific to various unauthenticated traffic reasons for selection when building policy. By enabling the feature, policies are enforced for traffic that isn’t authenticated even though authentication is enabled for the location. To learn more, see Configuring Policies for Unauthenticated Traffic."
+    }
+  ]
+}

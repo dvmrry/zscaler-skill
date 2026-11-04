@@ -1,0 +1,410 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "How to Validate the SSL Configuration of a Web Server",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/how-validate-ssl-configuration-web-server",
+    "node": "1539104",
+    "revision": "3224141",
+    "updated": "2026-07-29",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "When the Internet & SaaS (ZIA) Public Service Edge either cannot complete the handshake with a web server or detects the certificate as untrusted or bad, it's best to cross-validate certain attributes of the public website's SSL configuration."
+    },
+    {
+      "item": "Which attributes should I validate?",
+      "depth": 0
+    },
+    {
+      "item": "Does the server offer strong cipher suites?",
+      "depth": 1
+    },
+    {
+      "item": "Does the requested SNI match the Common Name (CN) or Subject Alternative Names (SAN) values in the certificate?",
+      "depth": 1
+    },
+    {
+      "item": "Is the server certificate expired or revoked?",
+      "depth": 1
+    },
+    {
+      "item": "Does the server offer the complete, unbroken certificate chain all the way up to a root CA?",
+      "depth": 1
+    },
+    {
+      "item": "Is the issuer root certificate trusted by most modern browsers?",
+      "depth": 1
+    },
+    {
+      "item": "Does the server support strong key exchange algorithms?",
+      "depth": 1
+    },
+    {
+      "item": "https://www.ssllabs.com/ssltest/",
+      "depth": 0
+    },
+    {
+      "item": "This free website performs a deep analysis of the configuration of any SSL web server on the public Internet. This includes all of the above certificate information in more detail along with SSL configuration on the web server, including the supported protocols and cipher suites. It also has standard automated tests for different platforms to show whether a website is compatible with various client or browser versions.",
+      "depth": 1
+    },
+    {
+      "item": "Enter the website's FQDN.",
+      "depth": 1
+    },
+    {
+      "item": "Look at the summary indicators for Certificate, Protocol Support, Key Exchange and Cipher Strength. If any of these is not green, it helps explain why this certificate was considered bad or untrusted.",
+      "depth": 1
+    },
+    {
+      "item": "The last three indicators are calculated based on the server’s SSL configuration and are independent of the server’s certificate.",
+      "depth": 1
+    },
+    {
+      "item": "https://aboutssl.org/ssl-tools/ssl-checker.php",
+      "depth": 0
+    },
+    {
+      "item": "This free website performs a basic analysis of the certificate of any SSL web server on the public Internet.",
+      "depth": 1
+    },
+    {
+      "item": "Do most modern browsers trust this certificate?",
+      "depth": 1
+    },
+    {
+      "item": "When does the certificate expire?",
+      "depth": 1
+    },
+    {
+      "item": "Is the server hostname listed in the certificate?",
+      "depth": 1
+    },
+    {
+      "item": "The website shows the complete certificate chain with main attributes of each certification, including Common Name (CN), SAN, validity, Serial Number, Issuer, and signature algorithm.",
+      "depth": 1
+    },
+    {
+      "item": "https://badssl.com/",
+      "depth": 0
+    },
+    {
+      "item": "This website provides a variety of deliberately broken SSL configurations to help test the client applications, browsers, and tools against different types of SSL/TLS issues.",
+      "depth": 1
+    },
+    {
+      "item": "On this website, users can see how their software handles various SSL/TLS problems, such as expired certificates, weak ciphers, and incorrect hostname configurations. This testing helps ensure that applications properly handle SSL/TLS errors and maintain robust security practices.",
+      "depth": 1
+    },
+    {
+      "item": "https://decoder.link/ocsp",
+      "depth": 0
+    },
+    {
+      "item": "Submit Base64-encoded CSR or certificate to query the corresponding OCSP response and view the revocation status.",
+      "depth": 1
+    },
+    {
+      "item": "Command-line openssl utility",
+      "depth": 0
+    },
+    {
+      "item": "All these commands are shown with the domain example.com, which you must replace with the server that you wish to test.",
+      "depth": 0
+    },
+    {
+      "item": "Verify the Protocol Version Support. Run the following commands in a shell:",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          35
+        ]
+      ]
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -tls1_3 2>&1 | grep \"Protocol\"",
+      "depth": 1
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -tls1_2 2>&1 | grep \"Protocol\"",
+      "depth": 1
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -tls1 2>&1",
+      "depth": 1
+    },
+    {
+      "item": "If you see Protocol: TLSv1.2 or Protocol: TLSv1.2 in the output, it indicates that the server supports those protocols. And for tls1 or ssl3, you should ideally see an error message indicating handshake failure or connection timeout.",
+      "depth": 1,
+      "strong": [
+        [
+          11,
+          28
+        ],
+        [
+          32,
+          49
+        ]
+      ]
+    },
+    {
+      "item": "Verify Cipher Strength:",
+      "depth": 1
+    },
+    {
+      "item": "Print the preferred default cipher suite used by a given domain:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 2>&1 | grep \"Cipher is\"",
+      "depth": 2
+    },
+    {
+      "item": "The output must be similar to: Cipher is ECDHE-RSA-AES256-GCM-SHA384",
+      "depth": 2,
+      "strong": [
+        [
+          31,
+          68
+        ]
+      ]
+    },
+    {
+      "item": "Strong ciphers typically include ECDHE/DHE for perfect forward secrecy, AES-256/AES-128 for encryption algorithm, GCM/CBC for encryption mode and SHA256/SHA384 for hashing.",
+      "depth": 2
+    },
+    {
+      "item": "Conversely, you can check for weak cipher support using the following commands:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -cipher 'RC4' 2>&1",
+      "depth": 2
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -cipher '3DES' 2>&1",
+      "depth": 2
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -cipher 'MD5' 2>&1",
+      "depth": 2
+    },
+    {
+      "item": "The output should show handshake failure or no cipher match if the server properly rejects weak ciphers. If you see the Cipher is RC4-SHA or similar, the server accepts weak ciphers.",
+      "depth": 2
+    },
+    {
+      "item": "Validate that the FQDN in the URL matches the CN or SAN in the certificate:",
+      "depth": 1
+    },
+    {
+      "item": "Initiate an SSL handshake for a specific FQDN using the servername option:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "openssl s_client -connect example.com:443 -servername www.example.com 2>&1",
+      "depth": 2
+    },
+    {
+      "item": "Print the CN in the server certificate, which must match the requested FQDN:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -servername www.example.com 2>&1 | openssl x509 -noout -subject",
+      "depth": 2
+    },
+    {
+      "item": "If the CN doesn't match, print SAN, one of which must match the FQDN:",
+      "depth": 2,
+      "number": 3
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -servername www.example.com 2>&1 | openssl x509 -noout -text | grep -A1 \"Subject Alternative Name\"",
+      "depth": 2
+    },
+    {
+      "item": "Validate that the certificate is not expired or self-signed:",
+      "depth": 1
+    },
+    {
+      "item": "Print the notBefore and notAfter dates of the server certificate:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          10,
+          19
+        ],
+        [
+          24,
+          32
+        ]
+      ]
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 2>&1 | openssl x509 -noout -dates",
+      "depth": 2
+    },
+    {
+      "item": "Ensure that the current time is between the notBefore and notAfter values.",
+      "depth": 2,
+      "strong": [
+        [
+          44,
+          53
+        ],
+        [
+          58,
+          66
+        ]
+      ]
+    },
+    {
+      "item": "Print the Issuer and Subject values from the certificate:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          10,
+          16
+        ],
+        [
+          21,
+          28
+        ]
+      ]
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 2>&1 | openssl x509 -noout -subject -issuer",
+      "depth": 2
+    },
+    {
+      "item": "If the Issuer and Subject values are identical, then the certificate is self-signed. This must never be seen for a public website in production.",
+      "depth": 2,
+      "strong": [
+        [
+          7,
+          13
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "Validate that the certificate chain is complete to the root certificate:",
+      "depth": 1
+    },
+    {
+      "item": "Show the count of number of certificates returned by a server:",
+      "depth": 2,
+      "number": 1
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -showcerts 2>&1 | grep -c \"BEGIN CERTIFICATE\"",
+      "depth": 2
+    },
+    {
+      "item": "If the output is 1, then there is really no chain and the Issuer in the only certificate must be present in the Trusted CA store used by the application.",
+      "depth": 2,
+      "strong": [
+        [
+          17,
+          18
+        ]
+      ]
+    },
+    {
+      "item": "If there are two or more certificates in the chain, print the Subject Key Identifier and Authority Key Identifier of each certificate in the chain:",
+      "depth": 2,
+      "number": 2,
+      "strong": [
+        [
+          62,
+          84
+        ],
+        [
+          89,
+          113
+        ]
+      ]
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -showcerts 2>&1 | awk -F'\\n' 'BEGIN { showcert = \"openssl x509 -noout -ext subjectKeyIdentifier,authorityKeyIdentifier\" } /-----BEGIN CERTIFICATE-----/ {printf \"\\nCertificate %d: \\n\", i} {printf $0\"\\n\" | showcert} /-----END CERTIFICATE-----/ {close(showcert) i++}' 2>/dev/null",
+      "depth": 2
+    },
+    {
+      "item": "If the certificate chain is complete, then AKI of Certificate 0 must match SKI of Certificate 1, AKI of Certificate 1 must match SKI of Certificate 2, and so on.",
+      "depth": 2
+    },
+    {
+      "item": "Validate that the certificate is not revoked:",
+      "depth": 1
+    },
+    {
+      "item": "Extract the OCSP URL from the certificate:",
+      "depth": 2,
+      "number": 1,
+      "strong": [
+        [
+          12,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -servername www.example.com 2>&1 | openssl x509 -noout -ocsp_uri",
+      "depth": 2
+    },
+    {
+      "item": "The output must show the OCSP URL if that extension is attached by the server (e.g., http://ocsp.digicert.com).",
+      "depth": 2,
+      "strong": [
+        [
+          25,
+          33
+        ]
+      ]
+    },
+    {
+      "item": "Download the leaf certificate and the remaining certificate chain to separate files:",
+      "depth": 2,
+      "number": 2
+    },
+    {
+      "item": "openssl s_client -connect example.com:443 2>&1 < /dev/null | sed -n '/-----BEGIN/,/-----END/p' > leaf.pem",
+      "depth": 2
+    },
+    {
+      "item": "echo | openssl s_client -connect example.com:443 -showcerts 2>/dev/null | sed -e '1,/-----END CERTIFICATE-----/d' > chain.pem",
+      "depth": 2
+    },
+    {
+      "item": "Fetch the OCSP result from the OCSP URL for the given certificate:",
+      "depth": 2,
+      "number": 3,
+      "strong": [
+        [
+          10,
+          14
+        ],
+        [
+          31,
+          39
+        ]
+      ]
+    },
+    {
+      "item": "openssl ocsp -issuer root.pem -cert example.pem -resp_text -noverify -url http://ocsp.digicert.com | grep -A2 \"Cert Status\"",
+      "depth": 2
+    }
+  ]
+}

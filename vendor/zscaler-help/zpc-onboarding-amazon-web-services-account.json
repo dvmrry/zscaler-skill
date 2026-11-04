@@ -1,0 +1,1335 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Onboarding an Amazon Web Services Account",
+  "source": {
+    "url": "https://help.zscaler.com/zpc/onboarding-amazon-web-services-account",
+    "node": "1394156",
+    "revision": "2561946",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "Zscaler Posture Control (ZPC) supports onboarding an AWS organization or a single AWS cloud account. When onboarded, ZPC provides insight into your account's security posture. ZPC provides two automation bash scripts, initial script and onboarding script, that you can run on your AWS Cloud Shell to onboard your AWS cloud accounts."
+    },
+    {
+      "item": "Initial Script",
+      "depth": 0
+    },
+    {
+      "item": "The initial script:",
+      "depth": 0
+    },
+    {
+      "item": "Creates a Role with name ZPC-ORG-${TENANT_HASH}.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Grants the created role arn:aws:iam::aws:policy/AWSOrganizationsReadOnlyAccess policy via sts:AssumeRole depending on a sts:ExternalId.",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "Onboarding Script",
+      "depth": 0
+    },
+    {
+      "item": "The onboarding script:",
+      "depth": 0
+    },
+    {
+      "item": "Verifies if the script was run by the root user of the AWS management account or not.",
+      "depth": 1,
+      "number": 1
+    },
+    {
+      "item": "Assigns the following policies to the helper user:",
+      "depth": 1,
+      "number": 2
+    },
+    {
+      "item": "arn:aws:iam::aws:policy/AdministratorAccess",
+      "depth": 2
+    },
+    {
+      "item": "arn:aws:iam::aws:policy/AWSOrganizationsFullAccess",
+      "depth": 2
+    },
+    {
+      "item": "Creates the following:",
+      "depth": 1,
+      "number": 3
+    },
+    {
+      "item": "A CloudFormation Stack with name ZPC-ORG-${TENANT_HASH}.",
+      "depth": 2
+    },
+    {
+      "item": "A CloudFormation StackSet with name ZPC-ORG-${TENANT_HASH}.",
+      "depth": 2
+    },
+    {
+      "item": "A Helper user with the name zpc-onboarding-helper-${TENANT_HASH}.",
+      "depth": 2
+    },
+    {
+      "item": "ZPC creates the CloudFormation Stack and StackSet to create the ZPCCustom role on all selected AWS accounts. The script creates only the ZPCCustom role if you are onboarding a single AWS account.",
+      "depth": 0
+    },
+    {
+      "item": "Assigns the SecurityAudit managed policy to the role.",
+      "depth": 1,
+      "number": 4
+    },
+    {
+      "item": "Assigns the following custom policies to the role:",
+      "depth": 1,
+      "number": 5
+    },
+    {
+      "item": "Custom Policies",
+      "depth": 2
+    },
+    {
+      "item": "lambda:GetFunctionUrlConfig",
+      "depth": 3
+    },
+    {
+      "item": "lambda:GetLayerVersion",
+      "depth": 3
+    },
+    {
+      "item": "lambda:GetFunctionConcurrency",
+      "depth": 3
+    },
+    {
+      "item": "apigateway:GET",
+      "depth": 3
+    },
+    {
+      "item": "cloudformation:ListResources",
+      "depth": 3
+    },
+    {
+      "item": "cloudformation:GetResource",
+      "depth": 3
+    },
+    {
+      "item": "dynamodb:ListBackups",
+      "depth": 3
+    },
+    {
+      "item": "dynamodb:DescribeBackup",
+      "depth": 3
+    },
+    {
+      "item": "redshift-serverless:ListNamespaces",
+      "depth": 3
+    },
+    {
+      "item": "redshift-serverless:ListWorkgroups",
+      "depth": 3
+    },
+    {
+      "item": "redshift-serverless:GetNamespace",
+      "depth": 3
+    },
+    {
+      "item": "redshift-serverless:GetWorkgroup",
+      "depth": 3
+    },
+    {
+      "item": "states:ListActivities",
+      "depth": 3
+    },
+    {
+      "item": "simspaceweaver:ListSimulations",
+      "depth": 3
+    },
+    {
+      "item": "athena:GetNamedQuery",
+      "depth": 3
+    },
+    {
+      "item": "athena:GetWorkGroup",
+      "depth": 3
+    },
+    {
+      "item": "athena:ListWorkGroup",
+      "depth": 3
+    },
+    {
+      "item": "states:DescribeActivity",
+      "depth": 3
+    },
+    {
+      "item": "states:DescribeStateMachine",
+      "depth": 3
+    },
+    {
+      "item": "batch:DescribeJobQueues",
+      "depth": 3
+    },
+    {
+      "item": "simspaceweaver:DescribeSimulation",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetRelationalDatabases",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetContainerServices",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetRelationalDatabase",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetDisks",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetInstance",
+      "depth": 3
+    },
+    {
+      "item": "lightsail:GetDisk",
+      "depth": 3
+    },
+    {
+      "item": "appsync:GetGraphqlApi",
+      "depth": 3
+    },
+    {
+      "item": "appsync:GetDomainName",
+      "depth": 3
+    },
+    {
+      "item": "appsync:GetFunction",
+      "depth": 3
+    },
+    {
+      "item": "appsync:GetResolver",
+      "depth": 3
+    },
+    {
+      "item": "storagegateway:DescribeSMBFileShares",
+      "depth": 3
+    },
+    {
+      "item": "apprunner:ListServices",
+      "depth": 3
+    },
+    {
+      "item": "apprunner:DescribeService",
+      "depth": 3
+    },
+    {
+      "item": "apprunner:ListVpcConnectors",
+      "depth": 3
+    },
+    {
+      "item": "apprunner:DescribeVpcConnector",
+      "depth": 3
+    },
+    {
+      "item": "workmail:ListOrganizations",
+      "depth": 3
+    },
+    {
+      "item": "workmail:DescribeOrganization",
+      "depth": 3
+    },
+    {
+      "item": "memorydb:DescribeAcls",
+      "depth": 3
+    },
+    {
+      "item": "memorydb:DescribeClusters",
+      "depth": 3
+    },
+    {
+      "item": "memorydb:DescribeUsers",
+      "depth": 3
+    },
+    {
+      "item": "trustadvisor:Describe*",
+      "depth": 3
+    },
+    {
+      "item": "trustadvisor:List*",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetObject",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetObjectAcl",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetObjectVersion",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetObjectVersionAcl",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetBucketLocation",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetBucketPolicy",
+      "depth": 3
+    },
+    {
+      "item": "s3:ListBucket",
+      "depth": 3
+    },
+    {
+      "item": "appstream:DescribeStacks",
+      "depth": 3
+    },
+    {
+      "item": "appstream:DescribeUsers",
+      "depth": 3
+    },
+    {
+      "item": "appstream:DescribeFleets",
+      "depth": 3
+    },
+    {
+      "item": "appstream:DescribeApplications",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:GetSignalingChannelEndPoint",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:ListTagsForResource",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:ListTagsForStream",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:ListStreams",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:ListSignalingChannels",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:DescribeStream",
+      "depth": 3
+    },
+    {
+      "item": "kinesisvideo:DescribeSignalingChannel",
+      "depth": 3
+    },
+    {
+      "item": "elastictranscoder:ReadPipeline",
+      "depth": 3
+    },
+    {
+      "item": "elastictranscoder:ListJobsByPipeline",
+      "depth": 3
+    },
+    {
+      "item": "elastictranscoder:ListPipelines",
+      "depth": 3
+    },
+    {
+      "item": "elastictranscoder:ReadJob",
+      "depth": 3
+    },
+    {
+      "item": "grafana:ListWorkspaces",
+      "depth": 3
+    },
+    {
+      "item": "grafana:DescribeWorkspace",
+      "depth": 3
+    },
+    {
+      "item": "aps:DescribeWorkspace",
+      "depth": 3
+    },
+    {
+      "item": "aps:ListWorkspaces",
+      "depth": 3
+    },
+    {
+      "item": "aps:ListRuleGroupsNamespaces",
+      "depth": 3
+    },
+    {
+      "item": "aps:DescribeRuleGroupsNamespace",
+      "depth": 3
+    },
+    {
+      "item": "kafka:DescribeConfiguration",
+      "depth": 3
+    },
+    {
+      "item": "kafka:DescribeClusterV2",
+      "depth": 3
+    },
+    {
+      "item": "kafka:ListClustersV2",
+      "depth": 3
+    },
+    {
+      "item": "kafka:ListConfigurations",
+      "depth": 3
+    },
+    {
+      "item": "airflow:GetEnvironment",
+      "depth": 3
+    },
+    {
+      "item": "airflow:ListEnvironments",
+      "depth": 3
+    },
+    {
+      "item": "lex:DescribeBotVersion",
+      "depth": 3
+    },
+    {
+      "item": "lex:DescribeBot",
+      "depth": 3
+    },
+    {
+      "item": "lex:ListBots",
+      "depth": 3
+    },
+    {
+      "item": "lex:DescribeResourcePolicy",
+      "depth": 3
+    },
+    {
+      "item": "lex:ListBotAliases",
+      "depth": 3
+    },
+    {
+      "item": "lex:DescribeBotAlias",
+      "depth": 3
+    },
+    {
+      "item": "lex:ListBotVersions",
+      "depth": 3
+    },
+    {
+      "item": "lex:ListTagsForResource",
+      "depth": 3
+    },
+    {
+      "item": "wafv2:GetLoggingConfiguration",
+      "depth": 3
+    },
+    {
+      "item": "wafv2:GetRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "wafv2:GetIPSet",
+      "depth": 3
+    },
+    {
+      "item": "cloudfront:ListDistributionsByWebACLId",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:ListFirewalls",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:DescribeFirewall",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:ListFirewallPolicies",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:DescribeFirewallPolicy",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:DescribeLoggingConfiguration",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:ListRuleGroups",
+      "depth": 3
+    },
+    {
+      "item": "networkfirewall:DescribeRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "fms:GetPolicy",
+      "depth": 3
+    },
+    {
+      "item": "fms:ListResourceSets",
+      "depth": 3
+    },
+    {
+      "item": "fms:GetResourceSet",
+      "depth": 3
+    },
+    {
+      "item": "waf:ListRules",
+      "depth": 3
+    },
+    {
+      "item": "waf:GetRule",
+      "depth": 3
+    },
+    {
+      "item": "waf:ListIPSets",
+      "depth": 3
+    },
+    {
+      "item": "waf:GetIPSets",
+      "depth": 3
+    },
+    {
+      "item": "waf:ListRuleGroups",
+      "depth": 3
+    },
+    {
+      "item": "waf:GetRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "waf:ListActivatedRulesInRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "appflow:ListFlows",
+      "depth": 3
+    },
+    {
+      "item": "appflow:DescribeFlow",
+      "depth": 3
+    },
+    {
+      "item": "appflow:DescribeConnectorProfiles",
+      "depth": 3
+    },
+    {
+      "item": "appflow:DescribeConnectors",
+      "depth": 3
+    },
+    {
+      "item": "appflow:DescribeConnector",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:ListAssetModels",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:ListAssets",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:DescribeAsset",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:ListPortals",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:ListProjects",
+      "depth": 3
+    },
+    {
+      "item": "iotsitewise:DescribeProject",
+      "depth": 3
+    },
+    {
+      "item": "iotdeviceadvisor:ListSuiteDefinitions",
+      "depth": 3
+    },
+    {
+      "item": "iotdeviceadvisor:GetSuiteDefinition",
+      "depth": 3
+    },
+    {
+      "item": "iotevents:ListInputs",
+      "depth": 3
+    },
+    {
+      "item": "iotevents:DescribeInput",
+      "depth": 3
+    },
+    {
+      "item": "iotanalytics:ListDatastores",
+      "depth": 3
+    },
+    {
+      "item": "iotanalytics:ListPipelines",
+      "depth": 3
+    },
+    {
+      "item": "iotanalytics:DescribeDatastore",
+      "depth": 3
+    },
+    {
+      "item": "iotanalytics:DescribePipeline",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListCopyJobs",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListBackupJobs",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListFrameworks",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListProtectedResources",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeCopyJob",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeBackupJob",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeRestoreJob",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeReportPlan",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeGlobalSettings",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListRestoreJobs",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeFramework",
+      "depth": 3
+    },
+    {
+      "item": "backup:GetBackupPlan",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeProtectedResource",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeReportJob",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeRecoveryPoint",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListBackupPlans",
+      "depth": 3
+    },
+    {
+      "item": "backup:DescribeBackupVault",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListReportPlans",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListReportJobs",
+      "depth": 3
+    },
+    {
+      "item": "backup:ListRecoveryPointsByBackupVault",
+      "depth": 3
+    },
+    {
+      "item": "connect:ListSecurityKeys",
+      "depth": 3
+    },
+    {
+      "item": "connect:DescribeInstance",
+      "depth": 3
+    },
+    {
+      "item": "connect:DescribeInstanceStorageConfig",
+      "depth": 3
+    },
+    {
+      "item": "connect:ListInstances",
+      "depth": 3
+    },
+    {
+      "item": "connect:ListInstanceStorageConfigs",
+      "depth": 3
+    },
+    {
+      "item": "connect:ListApprovedOrigins",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-reviewer:ListRepositoryAssociations",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-reviewer:ListCodeReviews",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-reviewer:DescribeRepositoryAssociation",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-reviewer:DescribeCodeReview",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-profiler:ListProfilingGroups",
+      "depth": 3
+    },
+    {
+      "item": "codeguru-profiler:DescribeProfilingGroup",
+      "depth": 3
+    },
+    {
+      "item": "apprunner:ListAssociatedServicesForWebAcl",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:ListRules",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:GetRule",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:ListIPSets",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:GetIPSets",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:ListRuleGroups",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:GetRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "waf-regional:ListActivatedRulesInRuleGroup",
+      "depth": 3
+    },
+    {
+      "item": "cognito-idp:ListResourcesForWebACL",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:ListUserProfiles",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:DescribeUserProfile",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:ListNoteBookInstances",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:DescribeNoteBookInstance",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:ListLabelingJobs",
+      "depth": 3
+    },
+    {
+      "item": "sagemaker:DescribeLabelingJob",
+      "depth": 3
+    },
+    {
+      "item": "logs:ListLogDeliveries",
+      "depth": 3
+    },
+    {
+      "item": "finspace:GetEnvironment",
+      "depth": 3
+    },
+    {
+      "item": "finspace:ListEnvironments",
+      "depth": 3
+    },
+    {
+      "item": "forecast:DescribeDataset",
+      "depth": 3
+    },
+    {
+      "item": "forecast:DescribeDatasetGroup",
+      "depth": 3
+    },
+    {
+      "item": "forecast:ListDatasetGroups",
+      "depth": 3
+    },
+    {
+      "item": "frauddetector:GetDetectors",
+      "depth": 3
+    },
+    {
+      "item": "frauddetector:GetOutcomes",
+      "depth": 3
+    },
+    {
+      "item": "frauddetector:DescribeDetector",
+      "depth": 3
+    },
+    {
+      "item": "codeartifact:ListDomains",
+      "depth": 3
+    },
+    {
+      "item": "codeartifact:DescribeDomain",
+      "depth": 3
+    },
+    {
+      "item": "codeartifact:ListRepositories",
+      "depth": 3
+    },
+    {
+      "item": "codeartifact:DescribeRepository",
+      "depth": 3
+    },
+    {
+      "item": "personalize:ListDatasetGroups",
+      "depth": 3
+    },
+    {
+      "item": "personalize:DescribeDatasetGroup",
+      "depth": 3
+    },
+    {
+      "item": "panorama:DescribeApplicationInstance",
+      "depth": 3
+    },
+    {
+      "item": "panorama:DescribePackage",
+      "depth": 3
+    },
+    {
+      "item": "panorama:ListPackages",
+      "depth": 3
+    },
+    {
+      "item": "panorama:ListApplicationInstances",
+      "depth": 3
+    },
+    {
+      "item": "glue:GetSecurityConfiguration",
+      "depth": 3
+    },
+    {
+      "item": "glue:GetSecurityConfigurations",
+      "depth": 3
+    },
+    {
+      "item": "serverlessrepo:GetApplication",
+      "depth": 3
+    },
+    {
+      "item": "kendra:ListFaqs",
+      "depth": 3
+    },
+    {
+      "item": "kendra:DescribeFaq",
+      "depth": 3
+    },
+    {
+      "item": "kendra:LIstDataSources",
+      "depth": 3
+    },
+    {
+      "item": "kendra:DescribeDataSource",
+      "depth": 3
+    },
+    {
+      "item": "Assigns the following policies to the role, if you enabled CloudTrail:",
+      "depth": 1,
+      "number": 6
+    },
+    {
+      "item": "ZPCCloudTrailS3Access",
+      "depth": 2
+    },
+    {
+      "item": "s3:GetObjectAcl",
+      "depth": 3
+    },
+    {
+      "item": "s3:GetObject",
+      "depth": 3
+    },
+    {
+      "item": "ZPCCloudTrailS3AccessList",
+      "depth": 2
+    },
+    {
+      "item": "s3:ListBucket",
+      "depth": 3
+    },
+    {
+      "item": "Assigns the following policies to the role, if you enabled vulnerability scanning:",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "Workloads",
+      "depth": 2
+    },
+    {
+      "item": "ec2:CreateSnapshot*",
+      "depth": 3
+    },
+    {
+      "item": "ec2:CreateTags",
+      "depth": 3
+    },
+    {
+      "item": "ec2:CopySnapshot",
+      "depth": 3
+    },
+    {
+      "item": "ec2:ModifySnapshotAttribute",
+      "depth": 3
+    },
+    {
+      "item": "kms:Decrypt",
+      "depth": 3
+    },
+    {
+      "item": "kms:Encrypt",
+      "depth": 3
+    },
+    {
+      "item": "kms:ReEncrypt*",
+      "depth": 3
+    },
+    {
+      "item": "kms:CreateGrant",
+      "depth": 3
+    },
+    {
+      "item": "kms:GenerateDataKeyWithoutPlaintext",
+      "depth": 3
+    },
+    {
+      "item": "kms:PutKeyPolicy",
+      "depth": 3
+    },
+    {
+      "item": "ec2:DeleteSnapshot",
+      "depth": 3
+    },
+    {
+      "item": "Containers",
+      "depth": 2
+    },
+    {
+      "item": "ecr:GetAuthorizationToken",
+      "depth": 3
+    },
+    {
+      "item": "ecr:ListImages",
+      "depth": 3
+    },
+    {
+      "item": "ecr:BatchGetImage",
+      "depth": 3
+    },
+    {
+      "item": "ecr:DescribeImages",
+      "depth": 3
+    },
+    {
+      "item": "ecr:DescribeRepositories",
+      "depth": 3
+    },
+    {
+      "item": "ecr:GetRepositoryPolicy",
+      "depth": 3
+    },
+    {
+      "item": "ecr:BatchCheckLayerAvailability",
+      "depth": 3
+    },
+    {
+      "item": "ecr:GetDownloadUrlForLayer",
+      "depth": 3
+    },
+    {
+      "item": "ec2:DescribeRegions",
+      "depth": 3
+    },
+    {
+      "text": "To onboard an AWS account to ZPC:"
+    },
+    {
+      "item": "1. Ensure all prerequisites are met.",
+      "depth": 0
+    },
+    {
+      "item": "To onboard an AWS cloud account or an AWS organization to ZPC:",
+      "depth": 0
+    },
+    {
+      "item": "You need to have access to the administrative AWS management account.",
+      "depth": 1
+    },
+    {
+      "item": "You need to be a ZPC administrator. To learn more, see About Administrators.",
+      "depth": 1
+    },
+    {
+      "item": "2. Onboard an AWS organization.",
+      "depth": 0
+    },
+    {
+      "item": "To onboard an AWS organization to ZPC:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Cloud Accounts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Under Select Cloud Type, click the AWS tile.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          35,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Under Select Onboarding Type, click the Organization tile.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          40,
+          52
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration page, you can:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the configuration script. The configuration bash script lists all the AWS member accounts.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the configuration bash script.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the AWS Management Console, run the copied bash script on the AWS CloudShell.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Next.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          61,
+          65
+        ]
+      ]
+    },
+    {
+      "item": "Select the AWS accounts you want to onboard to ZPC.",
+      "depth": 1,
+      "number": 9
+    },
+    {
+      "item": "Select your business unit from the drop-down menu.",
+      "depth": 1,
+      "number": 10
+    },
+    {
+      "item": "On the Deploy Template page, you can:",
+      "depth": 1,
+      "number": 11,
+      "strong": [
+        [
+          7,
+          22
+        ]
+      ]
+    },
+    {
+      "item": "View the prerequisites for running the deploy template bash script. The deploy template script onboard all selected AWS accounts to ZPC.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the deploy template bash script.",
+      "depth": 2
+    },
+    {
+      "item": "On the AWS Management Console, run the copied bash script on the AWS CloudShell.",
+      "depth": 1,
+      "number": 12
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 1,
+      "number": 13,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "text": "OR"
+    },
+    {
+      "item": "2. Onboard a single AWS account.",
+      "depth": 0
+    },
+    {
+      "item": "To onboard an AWS account on to ZPC:",
+      "depth": 0
+    },
+    {
+      "item": "Go to Administration > Cloud Accounts.",
+      "depth": 1,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          20
+        ],
+        [
+          23,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Click Add Account.",
+      "depth": 1,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ]
+      ]
+    },
+    {
+      "item": "Under Select Cloud Type, click the AWS tile.",
+      "depth": 1,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          23
+        ],
+        [
+          35,
+          38
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "Under Select Onboarding Type, click the Account tile.",
+      "depth": 1,
+      "number": 4,
+      "strong": [
+        [
+          6,
+          28
+        ],
+        [
+          40,
+          47
+        ]
+      ]
+    },
+    {
+      "item": "Click Next.",
+      "depth": 1,
+      "number": 5,
+      "strong": [
+        [
+          6,
+          10
+        ]
+      ]
+    },
+    {
+      "item": "On the Configuration page, you can:",
+      "depth": 1,
+      "number": 6,
+      "strong": [
+        [
+          7,
+          20
+        ]
+      ]
+    },
+    {
+      "item": "Select your business unit from the drop-down menu.",
+      "depth": 2
+    },
+    {
+      "item": "View the prerequisites for running the configuration script. The configuration bash script lists all the AWS member accounts.",
+      "depth": 2
+    },
+    {
+      "item": "Copy the configuration bash script.",
+      "depth": 2
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "item": "On the AWS Management Console, run the copied bash script on the AWS CloudShell.",
+      "depth": 1,
+      "number": 7
+    },
+    {
+      "item": "After the script is deployed, in the ZPC Admin Portal, click Finish.",
+      "depth": 1,
+      "number": 8,
+      "strong": [
+        [
+          61,
+          67
+        ]
+      ]
+    },
+    {
+      "item": "3. Configure the AWS CloudTrail.",
+      "depth": 0
+    },
+    {
+      "item": "Another mandatory step after onboarding your AWS cloud accounts is to configure ZPC to collect additional configuration metadata:",
+      "depth": 0
+    },
+    {
+      "item": "Connect your AWS CloudTrail S3 buckets with ZPC to detect changes in your AWS infrastructure. To learn more, see Configuring Cloud Trail S3 Buckets for AWS Organization.",
+      "depth": 1
+    },
+    {
+      "text": "If you've subscribed for vulnerability management, then set up vulnerability scanning for your AWS cloud workloads and cloud container registries. To learn more, see Configuring Vulnerability Scanning for Cloud Accounts."
+    },
+    {
+      "text": "Additionally, connect your Amazon Elastic Kubernetes Service (EKS) clusters with ZPC to gain visibility into your cluster security posture. To learn more, see Onboarding an Amazon Elastic Kubernetes Service Cluster."
+    },
+    {
+      "text": "After you onboard a cloud account, you can verify whether the cloud account is onboarded successfully and configuration metadata is being collected. To learn more, see About Cloud Accounts."
+    }
+  ]
+}

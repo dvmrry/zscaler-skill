@@ -1,0 +1,1601 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Private Access App Connector Support Troubleshooting Runbook",
+  "source": {
+    "url": "https://help.zscaler.com/troubleshooting-runbooks/private-access-app-connector-support-troubleshooting-runbook",
+    "node": "1532447",
+    "revision": "3226386",
+    "updated": "2026-07-22",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "The Private Access App Connector Support Troubleshooting Runbook is designed to assist in identifying issues with a Private Access App Connector to maintain seamless connectivity and service. It offers clear, actionable steps for diagnosing and resolving problems while highlighting the importance of following Zscaler best practices."
+    },
+    {
+      "text": "Key topics covered include:"
+    },
+    {
+      "item": "Resolving App Connector enrollment failures.",
+      "depth": 0
+    },
+    {
+      "item": "Addressing App Connector upgrade challenges.",
+      "depth": 0
+    },
+    {
+      "item": "Troubleshooting Public Service Edge connectivity issues.",
+      "depth": 0
+    },
+    {
+      "item": "Managing high CPU, memory, and disk utilization concerns.",
+      "depth": 0
+    },
+    {
+      "heading": "Troubleshooting Enrollment Failure",
+      "level": 1
+    },
+    {
+      "text": "The following sections describe troubleshooting enrollment failure."
+    },
+    {
+      "text": "Confirm that the App Connector is Deployed as Per Specifications"
+    },
+    {
+      "text": "Make sure that the App Connector deployed follows the correct sizing requirements. To learn more, see App Connector Deployment Prerequisites."
+    },
+    {
+      "text": "Use the lscpu command to check the App Connector build info. The following is an example of the output of lscpu command:"
+    },
+    {
+      "text": "[root@angel-app-connector ~]# lscpu Architecture: x86_64 CPU op-mode(s): 32-bit, 64-bit Byte Order: Little Endian CPU(s): 1 On-line CPU(s) list: 0 Thread(s) per core: 1 Core(s) per socket: 1 Socket(s): 1 NUMA node(s): 1 Vendor ID: GenuineIntel CPU family: 6 Model: 186 Model name: 13th Gen Intel(R) Core(TM) i7-1355U Stepping: 3 CPU MHz: 2611.211 BogoMIPS: 5222.42 Hypervisor vendor: VMware Virtualization type: full L1d cache: 48K L1i cache: 32K L2 cache: 1280K L3 cache: 12288K NUMA node0 CPU(s): 0 Flags: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon rep_good nopl xtopology tsc_reliable nonstop_tsc eagerfpu pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd rsb_ctxsw ibrs ibpb stibp fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 arat umip gfni vaes vpclmulqdq movdiri movdir64b md_clear spec_ctrl intel_stibp flush_l1d arch_capabilities [root@angel-app-connector ~]#"
+    },
+    {
+      "item": "Validate if the App Connector is in accordance with the recommended sizing.",
+      "depth": 0
+    },
+    {
+      "item": "If the sizing requirements do not match Zscaler's recommended settings, then you must address this by making the necessary changes to meet the required settings. To learn more, see App Connector Deployment Prerequisites.",
+      "depth": 0
+    },
+    {
+      "text": "Confirm that the DNS is Working Correctly"
+    },
+    {
+      "item": "Since there is no connectivity to the Control Broker, you cannot use the Support Information page to run DNS and other commands.",
+      "depth": 0
+    },
+    {
+      "item": "Make sure the DNS is able to resolve co2br.<cloudname>.net.",
+      "depth": 0
+    },
+    {
+      "item": "The App Connector uses the DNS servers present in the /etc/resolv.conf page.",
+      "depth": 0
+    },
+    {
+      "text": "DNS Command on App Connector",
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "text": "[auser@rhel9-ac ~]$ dig co2br.prod.zpath.net ; <<>> DiG 9.16.23-RH <<>> co2br.prod.zpath.net ;; global options: +cmd ;; Got answer: ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3536 ;; flags: qr rd ra; QUERY: 1, ANSWER: 10, AUTHORITY: 0, ADDITIONAL: 0 ;; QUESTION SECTION: ;co2br.prod.zpath.net. IN A ;; ANSWER SECTION: co2br.prod.zpath.net. 5 IN CNAME co2br.gslb.prod.zpath.net. co2br.gslb.prod.zpath.net. 5 IN CNAME bom5.co2br.gslb.prod.zpath.net. bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.26.17 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.123.138 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.115.172 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.212.107 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.116.178 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.51.4 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.148.174 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.99.160 ;; Query time: 257 msec ;; SERVER: 192.168.80.2#53(192.168.80.2) ;; WHEN: Tue Jan 21 13:56:29 IST 2025 ;; MSG SIZE rcvd: 210 [auser@rhel9-ac ~]$"
+    },
+    {
+      "text": "You can validate the DNS resolution from the App Connector logs."
+    },
+    {
+      "heading": "How to Access App Connector Logs",
+      "level": 3
+    },
+    {
+      "text": "Run the following command to access App Connector logs:"
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo journalctl -u zpa-connector"
+    },
+    {
+      "text": "To create a text file containing the current App Connector log information, use the following command:"
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo journalctl > dump-of-journalctl.txt"
+    },
+    {
+      "text": "DNS Resolution in App Connector Logs",
+      "strong": [
+        [
+          0,
+          36
+        ]
+      ]
+    },
+    {
+      "text": "Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Waiting for connector to retrieve configuration Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 52.66.116.178 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 13.127.26.17 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 13.127.99.160 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 52.66.51.4 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 13.127.148.174 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 52.66.115.172 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 13.127.212.107 Jan 21 14:39:21 angel-app-connector zpa-connector-child[3276]: Adding name resolution for co2br.prod.zpath.net of 52.66.123.138"
+    },
+    {
+      "item": "If the DNS resolution is unsuccessful, then you must rectify the DNS issue first.",
+      "depth": 0
+    },
+    {
+      "item": "Validate the network connectivity to DNS servers and update the DNS server configuration if needed.",
+      "depth": 0
+    },
+    {
+      "text": "Check the Reachability to the Broker"
+    },
+    {
+      "text": "The following sections describe how to confirm the broker is reachable."
+    },
+    {
+      "heading": "ICMP Reachability",
+      "level": 3
+    },
+    {
+      "text": "Run pings to check the ICMP Reachability and the path that the App Connector takes to reach the Broker."
+    },
+    {
+      "text": "ping co2br.prod.zpath.net"
+    },
+    {
+      "heading": "TCP Reachability",
+      "level": 3
+    },
+    {
+      "text": "Test if the App Connector can make a TLS connection to a Public Service Edge for Private Access using the openssl command. If this connection fails, you can investigate for any blocks in the network or firewall."
+    },
+    {
+      "text": "openssl command:",
+      "strong": [
+        [
+          0,
+          7
+        ],
+        [
+          8,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "[admin@localhost ~]$ openssl s_client -servername mockcompany.com.server1.net -connect 13.60.119.37:443 2>&1 | grep subject o subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1a.sjc8.prod.zpath.net [admin@localhost ~]$"
+    },
+    {
+      "text": "If these do not help in getting a correct output, run a packet capture on the App Connector."
+    },
+    {
+      "text": "PCAP Command",
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "sudo tcpdump -i any -w output.pcap"
+    },
+    {
+      "text": "If there are any TCP Resets (RSTs) or Blocks, the packet capture shows such."
+    },
+    {
+      "text": "If there are any blocks identified on the network firewall, make sure all the IP address ranges are allowed on the firewall as per config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud)."
+    },
+    {
+      "text": "To learn more, see Understanding Zscaler Cloud Names."
+    },
+    {
+      "text": "Check for Certificate Issues"
+    },
+    {
+      "text": "If any intermediate device is performing SSL Interception, it can cause the SSL connection between App Connector and the Private Access cloud to fail. In the case of SSL Interception, App Connector prints the following logs in Journalctl logs."
+    },
+    {
+      "text": "Journalcrl Logs for SSL Interception Jul 10 13:58:18 zpa-connector zpa-connector-child[992]: Received event from [uninitialized]:0;co2br.prod.zpath.net:[52.28.10.14]:443: BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com"
+    },
+    {
+      "heading": "How to Access App Connector Logs",
+      "level": 3
+    },
+    {
+      "text": "Run the following command to access App Connector logs:"
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo journalctl -u zpa-connector"
+    },
+    {
+      "text": "To create a text file containing the current App Connector log information, use the following command:"
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo journalctl > dump-of-journalctl.txt"
+    },
+    {
+      "text": "To make sure traffic is not SSL intercepted, you must allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names."
+    },
+    {
+      "text": "Another reason for certificate rejection is when the App Connector time is not in sync. If the App Connector’s timestamp does not match the timestamp on the Private Access back-end servers, there can be a delay before the certificate becomes valid and enrolls the App Connector. The following logs are printed by App Connector in such scenarios."
+    },
+    {
+      "text": "Journalcrl Logs for Invalid Certificate Jul 10 13:58:18 zpa-connector zpa-connector-child[992]: Received event from [uninitialized]:0;co2br.prod.zpath.net:[52.28.10.14]:443: BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com"
+    },
+    {
+      "text": "Verify that the time on the App Connector is properly set and maintained. To learn more, see Configure Network Time Protocol (NTP) Servers for an App Connector."
+    },
+    {
+      "text": "Provision Key Check"
+    },
+    {
+      "text": "There can be enrollment issues due to issues with the provisioning key having not been copied correctly. In such cases, the App Connector logs print the following log lines."
+    },
+    {
+      "text": "Wrongly copied provision_key error:"
+    },
+    {
+      "text": "notice:Checking Enrollment notice:No valid certificate. Attempting to enroll notice:Enroll: Connecting to api-release.prod.zpath.net via co2br.prod.zpath.net. error:Login request failed - http status(401) nonce(<3|api-release.prod.zpath.net|0/Z6lDT...>) fingerprint(<oXaN4RRiMc...>) notice:Certificate enrollment failed."
+    },
+    {
+      "text": "In such cases, Zscaler recommends you configure the provisioning key again and re-enroll. To learn more, see About App Connector Provisioning Keys."
+    },
+    {
+      "heading": "Cannot Enroll After Moving from One VM to Another",
+      "level": 3
+    },
+    {
+      "text": "If the App Connector is moved to a new hardware using tools like VM cloning, Hyper-v Live Migration, and any migration tool that changes the hardware ID, including MAC address, the App Connector enrollment fails and the following App Connector logs are printed."
+    },
+    {
+      "text": "Error Logs Feb 2 05:08:21 vrph-moscow1 zpa-connector-child[15083]: memory_arena_count=14 Feb 2 05:08:21 vrph-moscow1 zpa-connector-child[15083]: Checking Enrollment Feb 2 05:08:21 vrph-moscow1 zpa-connector-child[15083]: Cannot decrypt data from instance_id.crypt Feb 2 05:08:21 vrph-moscow1 zpa-connector-child[15083]: Cannot get instance id Feb 2 05:08:21 vrph-moscow1 zpa-connector: 139944367298368:error:06065064:digital envelope routines:EVP_DecryptFinal_ex:bad decrypt:evp_enc.c:590: Feb 2 05:08:21 vrph-moscow1 zpa-connector[1054]: zscaler-update: zpa-connector-child exited too fast, was running for 1 seconds Feb 2 05:08:21 vrph-moscow1 zpa-connector[1054]: zscaler-update: zpa-connector-child Started from /opt/zscaler/var/image.bin"
+    },
+    {
+      "text": "In such cases, Zscaler recommends re-provisioning the App Connector. To learn more, see Managing Deployed App Connectors."
+    },
+    {
+      "heading": "App Connector Upgrade Issues",
+      "level": 1
+    },
+    {
+      "text": "Private Access App Connectors are designed to upgrade automatically without requiring customer involvement. Here’s how the process works:"
+    },
+    {
+      "item": "The customer sets up their App Connector Provisioning Key and specifies a preferred time and day for upgrades during setup.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "The Private Access team initiates the process by indicating that a new version of the App Connector software is ready.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Private Access Upgrade Manager identifies individual App Connectors and their groups.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "The Upgrade Manager selects an App Connector and instructs it to download the latest software.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "The App Connector downloads the update, restarts, and reconnects to the Private Access cloud.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "After the App Connector confirms the upgrade, the Upgrade Manager moves on to the next App Connector in the group.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "If an upgrade fails for any App Connector, the Upgrade Manager pauses the process for the group to avoid potential issues with network traffic.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "This method ensures upgrades are efficient and minimize disruption to connectivity."
+    },
+    {
+      "text": "To learn more, see Understanding App Connector Software Updates and Understanding Manager Software."
+    },
+    {
+      "text": "Identifying an Upgrade Failure"
+    },
+    {
+      "text": "Failures are visible as failure notices in the Zscaler Admin Console under Infrastructure > Private Access > Component > App Connectors. To learn more, see About App Connector Software Updates.",
+      "strong": [
+        [
+          75,
+          118
+        ],
+        [
+          121,
+          135
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Recognizing a Healthy App Connector"
+    },
+    {
+      "text": "To check the system logs, you can query journalctl for logs from the zpa-connector systemd unit:"
+    },
+    {
+      "text": "journalctl for the `zpa-connector` systemd unit, in follow mode `-f` sudo journalctl -u zpa-connector -f"
+    },
+    {
+      "text": "The system logs look like the following status message. This block repeats once per minute."
+    },
+    {
+      "text": "Healthy Connector Nov 08 02:29:53 zpa-connector-child[6123]: -------- Connector Status:ID=72060411536474191:Name=z-sjc6-corp-1:Ver=18.87.1 -------- Nov 08 02:29:53 zpa-connector-child[6123]: Certificate will expire in 227 days, 21 hours, 26 minutes, 13 seconds Nov 08 02:29:53 zpa-connector-child[6123]: Control connection state: fohh_connection_connected, [10.32.112.100]:42098;broker1b.sjc8.prod.zpath.net:[40.86.176.165]:443 Nov 08 02:29:53 zpa-connector-child[6123]: RPC Messages: BrkRq = 2447339, BrkRqAck = 954, BindReq = 2446446, BindReqAck = 2446346, AppRtDisc = 248816, AppRtReq = 15477198, DsnAstChk = 119426 Nov 08 02:29:53 zpa-connector-child[6123]: Broker data connection count = 55, backed_off connections = 0 Nov 08 02:29:53 zpa-connector-child[6123]: Data Transfer: Total ToBroker = 92785793639 bytes, Total FromBroker = 42238684512 bytes Nov 08 02:29:53 zpa-connector-child[6123]: Mtunnels: Total Created = 2447339, Total Freed = 2447203, Current Active = 136, Alloc = 887, Free_q_cnt = 751 Nov 08 02:29:53 zpa-connector-child[6123]: Registered apps count = 33, alive app = 33, passive_health = 33, service_count = 85, target_count = 104, alive_target = 74, aged_target = 0 Nov 08 02:29:53 zpa-connector-child[6123]: Time skew: - 0.012783s"
+    },
+    {
+      "text": "This lets you know a few things."
+    },
+    {
+      "item": "The first line shows that the version is 18.87.1.",
+      "depth": 0
+    },
+    {
+      "item": "The Control connection state: fohh_connection_connected shows that the App Connector has its control connection to the Private Access cloud, and can receive further instructions.",
+      "depth": 0
+    },
+    {
+      "text": "In the Zscaler Admin Console, under Infrastructure > Private Access > Component > App Connectors, the App Connector entry is Authenticated. This indicates that the App Connector's control connection is established.",
+      "strong": [
+        [
+          36,
+          50
+        ],
+        [
+          53,
+          67
+        ],
+        [
+          70,
+          79
+        ],
+        [
+          82,
+          96
+        ],
+        [
+          125,
+          138
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "Service Restart"
+    },
+    {
+      "text": "The first step is to cleanly restart the service. To learn more, see Configuring User Access to the Restart and Repair Options for Zscaler Client Connector."
+    },
+    {
+      "text": "sudo systemctl stop zpa-connector"
+    },
+    {
+      "text": "Verify that no processes are running under the Zscaler user account, which is installed as part of the zpa-connector RPM. If they do exist, end them by process ID."
+    },
+    {
+      "text": "[admin@localhost ~]$ sudo ps wU zscaler PID TTY STAT TIME COMMAND [admin@localhost ~]$"
+    },
+    {
+      "text": "After your clean stop is verified, start the service again. To learn more, see Configuring User Access to the Restart and Repair Options for Zscaler Client Connector."
+    },
+    {
+      "text": "sudo systemctl start zpa-connector"
+    },
+    {
+      "text": "Check Logs and Network Connectivity"
+    },
+    {
+      "text": "The following sections describe checking the logs and network connectivity."
+    },
+    {
+      "heading": "Check Logs and Network Connectivity",
+      "level": 3
+    },
+    {
+      "text": "First, check the connectivity with the Control Broker."
+    },
+    {
+      "item": "Verify the App Connector has a stable connection to Public Service Edge for Private Access.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Test connectivity to the upstream Public Service Edge for Private Access by querying the DNS address co2br.prod.zpath.net from the server that is running the App Connector software.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "[admin@localhost ~]$ dig +short co2br.prod.zpath.net 13.60.119.37 42.68.244.163 [admin@localhost ~]$"
+    },
+    {
+      "item": "Check if the App Connector can start a TLS connection using the openssl command.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "[admin@localhost ~]$ openssl s_client -servername mockcompany.com.server1.net -connect 13.60.119.37:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1a.sjc8.prod.zpath.net [admin@localhost ~]$"
+    },
+    {
+      "text": "If there are connection issues with the communication with Private Access cloud, you must review the network configuration to see if there are any routing or firewall restrictions. Review the Private Access firewall policies and make any adjustments as needed: config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names."
+    },
+    {
+      "heading": "Issues with App Connector Software Version Update",
+      "level": 3
+    },
+    {
+      "text": "Next, check TCP and TLS connectivity with dist.private.zscaler.com and yum.private.zscaler.com:"
+    },
+    {
+      "item": "Run pings to check the ICMP Reachability and the path that the App Connector takes to reach the Broker.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "ping dist.private.zscaler.com ping yum.private.zscaler.com"
+    },
+    {
+      "item": "Run Telnet to Telnet TCP connection with the server.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "telnet ping dist.private.zscaler.com telnet yum.private.zscaler.com"
+    },
+    {
+      "text": "Reverting to the Default Version"
+    },
+    {
+      "text": "If an App Connector is unable to communicate with the Private Access cloud, it won't receive upgrade instructions from the Upgrade Manager. This makes the App Connector non-operational and prevents it from being updated in the future. The zpa-connector package includes a basic setup process responsible for managing upgrades. It downloads and installs the App Connector’s main software file, image.bin. If something goes wrong during installation, the system can revert to a stable default version and retry the upgrade later."
+    },
+    {
+      "text": "To manually bypass this automatic recovery process, you can delete specific files located in /opt/zscaler/var/. When the system is restarted, it downloads and installs a clean and stable version of the App Connector software."
+    },
+    {
+      "item": "To trigger the fallback mechanism, first stop the App Connector service.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector"
+    },
+    {
+      "item": "Remove the App Connector binary image, the version identifier file, and the image metadata file.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/image.bin [admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/version [admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/metadata"
+    },
+    {
+      "item": "Bring the App Connector service back online.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector"
+    },
+    {
+      "text": "The system recognizes that there is no local App Connector binary image, and the App Connector reaches out to the CDN and re-downloads a default App Connector software version."
+    },
+    {
+      "text": "Rebuild the App Connector"
+    },
+    {
+      "text": "If the previous steps didn't help resolve the issue, there is always the option to purge the App Connector configuration and rebuild it."
+    },
+    {
+      "text": "Each App Connector belongs to an App Connector Group. The App Connector Group is the bedrock of Private Access access via any App Connector. When rebuilding an App Connector, be certain that the App Connector is redeployed into the same group that it was in before. If the group is different, some of the internal applications might not be reachable (depending on the policies configured)."
+    },
+    {
+      "text": "To rebuild an App Connector, you'll need the following information."
+    },
+    {
+      "item": "Each App Connector belongs to an App Connector Group. Determine the App Connector Group that your App Connector belongs to.",
+      "depth": 0
+    },
+    {
+      "item": "When an App Connector initializes, it is assigned to an App Connector Group based on its Provisioning Key. You'll need a provisioning key that corresponds to the correct App Connector Group.",
+      "depth": 0
+    },
+    {
+      "text": "First, identify the App Connector Group that the App Connector belongs to. Then, locate a provisioning key that enrolls the App Connector into the appropriate group. Finally, make sure that the provisiong key allows a new App Connector enrollment before you proceed with the rebuild."
+    },
+    {
+      "heading": "Identify the App Connector Group",
+      "level": 3
+    },
+    {
+      "item": "In the Zscaler Admin Console, locate the App Connector's entry under Infrastructure > Private Access > Component> App Connectors.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          69,
+          83
+        ],
+        [
+          86,
+          100
+        ],
+        [
+          103,
+          112
+        ],
+        [
+          114,
+          128
+        ]
+      ]
+    },
+    {
+      "text": "The App Connector Name is repeated once per minute as part of the status block under sudo journalctl -u zpa-connector. If you still aren't sure about the App Connector's name, it is helpful to locate the App Connector by its private IP address, which is visible under the expanded view under Infrastructure > Private Access > Component > App Connectors.",
+      "strong": [
+        [
+          292,
+          306
+        ],
+        [
+          309,
+          323
+        ],
+        [
+          326,
+          335
+        ],
+        [
+          338,
+          352
+        ]
+      ]
+    },
+    {
+      "item": "Under the App Connector's entry, locate its App Connector Group.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          44,
+          63
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Locate a Provisioning Key",
+      "level": 3
+    },
+    {
+      "text": "When an App Connector is initialized, the Private Access administrator must provide a provisioning key. That provisioning key is linked to a specific App Connector Group. To rebuild the App Connector:"
+    },
+    {
+      "item": "Locate a provisioning key that places it in the same App Connector Group as it was in before.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          53,
+          72
+        ]
+      ]
+    },
+    {
+      "item": "Look for a Provisioning Key that corresponds with the App Connector Group that you need.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          11,
+          27
+        ],
+        [
+          54,
+          73
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "heading": "Make Room",
+      "level": 3
+    },
+    {
+      "text": "Each Provisioning Key is assigned a number of enrollments. This field appears under Maximum # of App Connectors.",
+      "strong": [
+        [
+          84,
+          111
+        ]
+      ]
+    },
+    {
+      "text": "The corresponding counter is Provisioning Key Utilization Count. The counter increments each time an App Connector initializes itself and enrolls itself with the Private Access service using this key. To learn more, see About Machine Provisioning Keys.",
+      "strong": [
+        [
+          29,
+          63
+        ]
+      ]
+    },
+    {
+      "text": "When you rebuild the App Connector, it must enroll using this provisioning key. This increments the counter. The last step is to make sure Maximum # of App Connectors is at least 1 greater than the number of enrolled App Connectors.",
+      "strong": [
+        [
+          139,
+          166
+        ]
+      ]
+    },
+    {
+      "text": "The screenshot shows a problem."
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "text": "16 App Connectors have enrolled out of 16 allocated uses of the provisioning key. If you try to rebuild one of these App Connectors, Private Access rejects the enrollment."
+    },
+    {
+      "text": "Administrators can raise or lower the maximum enrollment count. To do so, the administrator clicks Edit next to the provisioning key entry. Then the administrator can modify the maximum reuse value.",
+      "strong": [
+        [
+          99,
+          103
+        ]
+      ]
+    },
+    {
+      "text": "See image."
+    },
+    {
+      "heading": "Wipe and Rebuild",
+      "level": 3
+    },
+    {
+      "text": "You're ready to stop the App Connector, clear its configuration, and rebuild it."
+    },
+    {
+      "item": "First, stop the App Connector service:",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo systemctl stop zpa-connector"
+    },
+    {
+      "item": "Wipe the config directory:",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo rm /opt/zscaler/var/*"
+    },
+    {
+      "text": "The resident App Connector configuration is cleared. The next phase is the equivalent of re-provisioning."
+    },
+    {
+      "item": "Create a provisioning key file with 644 permissions. This ensures that the zpa-connector service can modify the file when provisioning is complete.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo touch /opt/zscaler/var/provision_key [admin@zpa-connector ~]$ sudo chmod 644 /opt/zscaler/var/provision_key"
+    },
+    {
+      "item": "Copy the provisioning key from the Zscaler Admin Console. Use an editor to paste it into the file, and then click Save.",
+      "depth": 0,
+      "number": 4,
+      "strong": [
+        [
+          114,
+          118
+        ]
+      ]
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo vi /opt/zscaler/var/provision_key"
+    },
+    {
+      "item": "Bring the service back online.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo systemctl start zpa-connector"
+    },
+    {
+      "text": "With its config directory wiped, and a new provisioning key available, the App Connector service picks up the provisioning key and re-enrolls itself under the appropriate App Connector group (because you've used a provisioning key associated with that group)."
+    },
+    {
+      "heading": "Troubleshooting Public Service Edge Connectivity Issues",
+      "level": 1
+    },
+    {
+      "text": "The following sections address troubleshooting Public Service Edge connectivity issues."
+    },
+    {
+      "text": "Check Zscaler Admin Console Diagnostics"
+    },
+    {
+      "text": "Broker Control Connection"
+    },
+    {
+      "item": "Go to Logs > Insights > Private Applications > Diagnostics, and select App Connector Status from the Log Type drop-down menu. The App Connector Status logs around the problem time frame to confirm if there is an issue with the App Connector.",
+      "depth": 0,
+      "number": 1,
+      "strong": [
+        [
+          6,
+          59
+        ],
+        [
+          71,
+          91
+        ],
+        [
+          101,
+          109
+        ]
+      ]
+    },
+    {
+      "item": "Go to Add Filters and select App Connector: Connection Type from the drop-down menu, then select Equals and Control Connection.",
+      "depth": 0,
+      "number": 2,
+      "strong": [
+        [
+          6,
+          17
+        ],
+        [
+          29,
+          59
+        ],
+        [
+          97,
+          103
+        ],
+        [
+          108,
+          126
+        ]
+      ]
+    },
+    {
+      "item": "Click Apply.",
+      "depth": 0,
+      "number": 3,
+      "strong": [
+        [
+          6,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "See image.",
+      "depth": 0
+    },
+    {
+      "text": "Check the DNS Resolution on the App Connector"
+    },
+    {
+      "item": "Make sure the DNS is able to resolve co2br.<cloudname>.net.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Use the Dig command on the App Connector to check DNS Resolution. If the DNS resolution is unsuccessful, then rectify the DNS issue first.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "text": "[auser@rhel9-ac ~]$ dig co2br.prod.zpath.net ; <<>> DiG 9.16.23-RH <<>> co2br.prod.zpath.net ;; global options: +cmd ;; Got answer: ;; ->>HEADER<<- opcode: QUERY, status: NOERROR, id: 3536 ;; flags: qr rd ra; QUERY: 1, ANSWER: 10, AUTHORITY: 0, ADDITIONAL: 0 ;; QUESTION SECTION: ;co2br.prod.zpath.net. IN A ;; ANSWER SECTION: co2br.prod.zpath.net. 5 IN CNAME co2br.gslb.prod.zpath.net. co2br.gslb.prod.zpath.net. 5 IN CNAME bom5.co2br.gslb.prod.zpath.net. bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.26.17 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.123.138 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.115.172 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.212.107 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.116.178 bom5.co2br.gslb.prod.zpath.net. 5 IN A 52.66.51.4 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.148.174 bom5.co2br.gslb.prod.zpath.net. 5 IN A 13.127.99.160 ;; Query time: 257 msec ;; SERVER: 192.168.80.2#53(192.168.80.2) ;; WHEN: Tue Jan 21 13:56:29 IST 2025 ;; MSG SIZE rcvd: 210 [auser@rhel9-ac ~]$"
+    },
+    {
+      "text": "Validate the network connectivity to DNS servers and update the DNS server configuration if needed."
+    },
+    {
+      "text": "Check Connectivity with the Broker"
+    },
+    {
+      "text": "If DNS is successful, then you must check and confirm if there are no network issues. You can check for network connectivity between App Connector and broker via various methods."
+    },
+    {
+      "heading": "Connectivity Check via ICMP Protocol",
+      "level": 3
+    },
+    {
+      "text": "One of the easiest ways to check connectivity between the two end points is via ping command."
+    },
+    {
+      "text": "Example for Ping",
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "[admin@ip-172-32-10-171 ~]$ ping co2br.prod.zpath.net PING sin4.co2br.gslb.prod.zpath.net (165.225.112.252) 56(84) bytes of data. 64 bytes from 165.225.112.252 (165.225.112.252): icmp_seq=1 ttl=54 time=1.24 ms 64 bytes from 165.225.112.252 (165.225.112.252): icmp_seq=2 ttl=54 time=1.22 ms 64 bytes from 165.225.112.252 (165.225.112.252): icmp_seq=3 ttl=54 time=1.22 ms 64 bytes from 165.225.112.252 (165.225.112.252): icmp_seq=4 ttl=54 time=1.22 ms 64 bytes from 165.225.112.252 (165.225.112.252): icmp_seq=5 ttl=54 time=1.21 ms ^C --- sin4.co2br.gslb.prod.zpath.net ping statistics --- 5 packets transmitted, 5 received, 0% packet loss, time 4006ms rtt min/avg/max/mdev = 1.212/1.221/1.244/0.011 ms [admin@ip-172-32-10-171 ~]$"
+    },
+    {
+      "text": "There might be network issues along the network path between the App Connector and the Broker that you can identify by running an MTR."
+    },
+    {
+      "text": "Example for MTR",
+      "strong": [
+        [
+          0,
+          15
+        ]
+      ]
+    },
+    {
+      "text": "[admin@ip-172-32-10-171 ~]$ mtr -rzwbec100 165.225.112.252 Start: 2025-03-06T05:51:18+0000 HOST: ip-172-32-10-171.ap-southeast-1.compute.internal Loss% Snt Last Avg Best Wrst StDev 1. AS16509 52.93.8.63 0.0% 1 1.8 1.8 1.8 1.8 0.0 2. AS??? 240.1.168.15 0.0% 1 1490. 1490. 1490. 1490. 0.0 3. AS??? 242.4.76.133 0.0% 1 1.3 1.3 1.3 1.3 0.0 4. AS16509 52.93.10.179 0.0% 1 1.2 1.2 1.2 1.2 0.0 5. AS??? ??? 100.0 1 0.0 0.0 0.0 0.0 0.0 6. AS53813 165.225.112.252 0.0% 1 1.2 1.2 1.2 1.2 0.0 [admin@ip-172-32-10-171 ~]$"
+    },
+    {
+      "heading": "Analyzing MTR",
+      "level": 4
+    },
+    {
+      "text": "MTR provides valuable statistics regarding the durability of that connection in the 7 columns that follow."
+    },
+    {
+      "item": "The Loss% column shows the percentage of packet loss at each hop.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "item": "The Snt column counts the number of packets sent.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          7
+        ]
+      ]
+    },
+    {
+      "item": "The Last, Avg, Best, and Wrst columns are all measurements of latency in milliseconds.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          8
+        ],
+        [
+          10,
+          13
+        ],
+        [
+          15,
+          19
+        ],
+        [
+          25,
+          37
+        ]
+      ]
+    },
+    {
+      "item": "Last is the latency of the last packet sent.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ]
+      ]
+    },
+    {
+      "item": "Avg is the average latency of all packets.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          3
+        ]
+      ]
+    },
+    {
+      "item": "Best and Wrst display the best (shortest) and worst (longest) round trip time for a packet to this host.",
+      "depth": 1,
+      "strong": [
+        [
+          0,
+          4
+        ],
+        [
+          9,
+          13
+        ]
+      ]
+    },
+    {
+      "item": "The StDev column provides the standard deviation of the latencies for each host. The higher the standard deviation, the greater the difference is between measurements of latency. Standard deviation allows you to assess if the mean (average) provided represents the true center of the dataset, or has been skewed by some sort of phenomena or measurement error.",
+      "depth": 0,
+      "strong": [
+        [
+          4,
+          9
+        ]
+      ]
+    },
+    {
+      "text": "Regarding the hops in MTR output, the first 2 or 3 hops often represent the source host’s ISP, while the last 2 or 3 hops represent the destination host’s ISP. The hops in between are the routers or ISPs the packet traverses to reach its destination."
+    },
+    {
+      "text": "Look for Loss and Latency when analyzing the MTR output.",
+      "strong": [
+        [
+          9,
+          13
+        ],
+        [
+          18,
+          25
+        ]
+      ]
+    },
+    {
+      "text": "If you see a percentage of loss at any particular hop, that could be an indication that there is a problem with that particular router. However, it is common practice among some service providers to rate limit the ICMP traffic that MTR uses. This can give the illusion of packet loss when there is, in fact, no loss. To determine if the loss you’re seeing is real or due to rate limiting, take a look at the subsequent hops. If that hop shows a loss of 0.0%, then you are likely seeing ICMP rate limiting and not actual loss."
+    },
+    {
+      "heading": "TCP and TLS Connectivity Check with the Broker",
+      "level": 3
+    },
+    {
+      "text": "To check basic connectivity between App Connector and the Broker on port 443, you can use the telnet command."
+    },
+    {
+      "text": "Example for Telnet",
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "[admin@ip-172-32-10-171 ~]$ telnet 165.225.112.252 443"
+    },
+    {
+      "text": "You can also use MTR with TCP protocol to check TCP connecitivity between App Connector and the Broker."
+    },
+    {
+      "text": "Example of TCP MTR",
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "[admin@ip-172-32-10-171 ~]$ mtr -rzwbec100 --tcp -P443 165.225.112.252 Start: 2025-03-06T06:16:14+0000 HOST: ip-172-32-10-171.ap-southeast-1.compute.internal Loss% Snt Last Avg Best Wrst StDev 1. AS16509 52.93.8.175 0.0% 1 1.6 1.6 1.6 1.6 0.0 2. AS??? 240.1.168.13 0.0% 1 1405. 1405. 1405. 1405. 0.0 3. AS??? 242.4.76.131 0.0% 1 1.3 1.3 1.3 1.3 0.0 4. AS16509 52.93.11.121 0.0% 1 2.6 2.6 2.6 2.6 0.0 5. AS??? 53813.sgw.equinix.com (27.111.228.245) 0.0% 1 3399. 3399. 3399. 3399. 0.0 6. AS53813 165.225.112.252 0.0% 1 1.3 1.3 1.3 1.3 0.0 [admin@ip-172-32-10-171 ~]$"
+    },
+    {
+      "text": "Check if the App Connector can start a TLS connection using the openssl command."
+    },
+    {
+      "text": "Example Output",
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "[admin@localhost ~]$ openssl s_client -servername <companyname>.com.server1.net -connect 13.60.119.37:443 2>&1 | grep subject subject=/C=US/ST=California/L=San Jose/O=Zscaler/OU=Emerging Technologies/CN=broker1a.sjc8.prod.zpath.net [admin@localhost ~]$"
+    },
+    {
+      "text": "If the earlier command does not present a certificate, it indicates that the TLS connection is interrupted or a device in the path is doing SSL inspection for this traffic."
+    },
+    {
+      "heading": "Collect Packet Capture on the App Connector",
+      "level": 3
+    },
+    {
+      "text": "If TLS communication between the App Connector and the Public Service Edge is failing, and you are unable to isolate the issue, then you can collect a packet capture on the App Connector."
+    },
+    {
+      "text": "Start Tcpdump",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "\"sudo tcpdump -i any -w output.pcap\""
+    },
+    {
+      "item": "Check if the TCP handshake is completed. If not, then something is allowing ICMP, but specifically blocking TCP connection to the Broker. Check the firewall. Firewall can mean external device or onboard. Usually, iptables is used onboard the App Connector by customers (run sudo iptables -nvL to check).",
+      "depth": 0
+    },
+    {
+      "item": "If TCP SYN is sent from the App Connector and it receives a TCP RST from the Broker, check the IP TTL value of that TCP RST. Compare the value of (64 - TTL or 128 - TTL) against the hop count seen in the MTR in previous steps.",
+      "depth": 0
+    },
+    {
+      "text": "Example",
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "If TTL seen in pcap is 62 or 126, then it's indicating the source of the response is 64-62=2 or 128-126=2 hops away. If they don't match the mtr hop count, then some device in between is blocking the TCP connection and sending a TCP RST."
+    },
+    {
+      "item": "If any intermediate device is performing SSL Interception, it can cause SSL connection between the App Connector and the Private Access cloud to fail. In the case of SSL Interception, the App Connector prints the following logs in Journalctl logs.",
+      "depth": 0
+    },
+    {
+      "text": "SSL Interception Error",
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "text": "Jul 10 13:58:18 zpa-connector zpa-connector-child[992]: Received event from [uninitialized]:0;co2br.prod.zpath.net:[52.28.10.14]:443: BEV_EVENT_READING BEV_EVENT_ERROR, sock=54 self signed certificate in certificate chain /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com /C=US/ST=California/L=San Jose/O=Safemarch/OU=Certificate Authority/CN=Safemarch Inc CA/emailAddress=support@safemarch.com"
+    },
+    {
+      "item": "To make sure traffic is not SSL intercepted, you must allowlist all the Private Access domains or IP addresses in the SSL interception device that are listed on config.zscaler.com/private.zscaler.com/zpa (for the private.zscaler.com cloud) or config.zscaler.com/zpatwo.net/zpa (for the zpatwo.net cloud). To learn more, see Understanding Zscaler Cloud Names.",
+      "depth": 0
+    },
+    {
+      "text": "Export and Check App Connector Journalctl Logs"
+    },
+    {
+      "text": "The following sections describe exporting and checking App Connector Journalctl logs."
+    },
+    {
+      "heading": "How to Export Journalctl Logs",
+      "level": 3
+    },
+    {
+      "text": "To create a text file containing the current App Connector log information, use the following commands."
+    },
+    {
+      "heading": "Log Collection",
+      "level": 4
+    },
+    {
+      "text": "[admin@zpa-connector ~]$ sudo journalctl > dump-of-journalctl.txt"
+    },
+    {
+      "text": "Older App Connector logs are automatically stored in the /var/log/messages file."
+    },
+    {
+      "heading": "Broker Connection",
+      "level": 4
+    },
+    {
+      "text": "You can identify Broker control connections from the journalctl logs using the keywords Broker control connection."
+    },
+    {
+      "text": "Example For Working Scenario",
+      "strong": [
+        [
+          0,
+          28
+        ]
+      ]
+    },
+    {
+      "text": "Jan 21 12:15:22 abgcitymumzpa01 zpa-connector-child[40550]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:44422;broker5a.bom5.prod.zpath.net:[35.154.244.217]:443;4 uptime 2D:5H:27M:26S, RTT (tcp|app): 18401|4318 us, disconnect_duration_s 0 Jan 21 12:15:22 abgcitymumzpa01 zpa-connector-child[40550]: RPC Messages, RX: BrkRq[Dsp 4575536 UBrk 11590736 PBrk 0], BindAck 16151315, AppRtDisc 717553, DnsChk[Dsp 12537 Pbrk 0], MtunnelEnd 27403145 TagPause 1014102 TagResume 1011736 WinUpdate 222755247 Control Redirect 17 Config Redirect 17 Stats Redirect 12 Log redirect 0 Override redirect 13 TX|TX_DROP: BrkRqAck[Dsp 11027|0, UBrk 581|0, Pbrk 0|0], BindReq 16154641|0, AppRtReq 71507828|3407, HealthRp 3790522|148 DnsChk[Dsp 12537|0 PBrk 0|0 NoR 0], ComprehensiveStats 10580|0 Jan 21 12:16:22 abgcitymumzpa01 zpa-connector-child[40550]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:44422;broker5a.bom5.prod.zpath.net:[35.154.244.217]:443;4 uptime 2D:5H:28M:26S, RTT (tcp|app): 19153|10130 us, disconnect_duration_s 0 Jan 21 12:16:22 abgcitymumzpa01 zpa-connector-child[40550]: RPC Messages, RX: BrkRq[Dsp 4575683 UBrk 11591122 PBrk 0], BindAck 16151845, AppRtDisc 717600, DnsChk[Dsp 12539 Pbrk 0], MtunnelEnd 27403901 TagPause 1014143 TagResume 1011778 WinUpdate 222764829 Control Redirect 17 Config Redirect 17 Stats Redirect 12 Log redirect 0 Override redirect 13 TX|TX_DROP: BrkRqAck[Dsp 11027|0, UBrk 581|0, Pbrk 0|0], BindReq 16155173|0, AppRtReq 71509161|3407, HealthRp 3790654|148 DnsChk[Dsp 12539|0 PBrk 0|0 NoR 0], ComprehensiveStats 10580|0 Jan 21 12:17:22 abgcitymumzpa01 zpa-connector-child[40550]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:44422;broker5a.bom5.prod.zpath.net:[35.154.244.217]:443;4 uptime 2D:5H:29M:26S, RTT (tcp|app): 20122|12577 us, disconnect_duration_s 0"
+    },
+    {
+      "text": "Example For Non-Working Scenario",
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "text": "Jan 26 22:40:21 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection to Zscaler Cloud closed: [10.1.81.40]:51140;broker14-1.bom6.prod.zpath.net:[136.226.255.228]:443;4 FOHH_CLOSE_REASON_SOCKET_ERR"
+    },
+    {
+      "heading": "Monitor Rx/Tx Counters",
+      "level": 4
+    },
+    {
+      "text": "The following is an example of monitoring Rx and Tx counters logs."
+    },
+    {
+      "text": "Example Log Output",
+      "strong": [
+        [
+          0,
+          18
+        ]
+      ]
+    },
+    {
+      "text": "* FC f_conn [10.204.5.5]:41236;broker1b.was2.prod.zpath.net:[52.4.154.137]:443:fohh_connection_connected, rx = 195538, peer_tx = 195538, tx = 855420, tx_drop = 0, tx_limit = 34409852, tx_limit_update = 1559057907248724, r_rx = 855420, r_tx_limit = 33749970, tx_wnd_update = 1559057907248724, rx_wnd_update = 1559057881252092, tx_blocked = 0, enq = 855420, deq = 855420 * FC f_conn [10.204.5.5]:41236;broker1b.was2.prod.zpath.net:[52.4.154.137]:443:fohh_connection_backoff, rx = 0, peer_tx = 0, tx = 0, tx_drop = 0, tx_limit = 33554432, tx_limit_update = 1559057922248143, r_rx = 0, r_tx_limit = 33554432, tx_wnd_update = 0, rx_wnd_update = 0, tx_blocked = 0, enq = 0, deq = 0"
+    },
+    {
+      "heading": "Monitor Uptime of the Connection",
+      "level": 4
+    },
+    {
+      "text": "If there is a change in uptime of the connection channel or if there are frequent changes in the uptime, this indicates that the App Connector control channel was down."
+    },
+    {
+      "text": "Example Log for Change In Uptime",
+      "strong": [
+        [
+          0,
+          32
+        ]
+      ]
+    },
+    {
+      "text": "Jan 27 05:25:37 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:45316;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 uptime 33M:8S, RTT (tcp|app): 66661|48162 us, disconnect_duration_s 0 Jan 27 05:25:37 abgcitymumzpa01 zpa-connector-child[103412]: RPC Messages, RX: BrkRq[Dsp 31812 UBrk 66864 PBrk 0], BindAck 98630, AppRtDisc 6811, DnsChk[Dsp 97 Pbrk 0], MtunnelEnd 162500 TagPause 5186 TagResume 5164 WinUpdate 1018398 Control Redirect 4 Config Redirect 3 Stats Redirect 1 Log redirect 0 Override redirect 4 TX|TX_DROP: BrkRqAck[Dsp 34|0, UBrk 6|0, Pbrk 0|0], BindReq 98642|0, AppRtReq 883802|0, HealthRp 40659|21 DnsChk[Dsp 97|0 PBrk 0|0 NoR 0], ComprehensiveStats 130|0 Jan 27 05:26:37 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:45316;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 uptime 34M:8S, RTT (tcp|app): 65183|12862 us, disconnect_duration_s 0 Jan 27 05:26:37 abgcitymumzpa01 zpa-connector-child[103412]: RPC Messages, RX: BrkRq[Dsp 31989 UBrk 67568 PBrk 0], BindAck 99511, AppRtDisc 6830, DnsChk[Dsp 97 Pbrk 0], MtunnelEnd 163991 TagPause 5210 TagResume 5187 WinUpdate 1028873 Control Redirect 4 Config Redirect 3 Stats Redirect 1 Log redirect 0 Override redirect 4 TX|TX_DROP: BrkRqAck[Dsp 34|0, UBrk 6|0, Pbrk 0|0], BindReq 99523|0, AppRtReq 885168|0, HealthRp 40761|21 DnsChk[Dsp 97|0 PBrk 0|0 NoR 0], ComprehensiveStats 130|0 Jan 27 05:27:37 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:45316;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 uptime 35M:8S, RTT (tcp|app): 69961|19934 us, disconnect_duration_s 0 Jan 27 05:27:37 abgcitymumzpa01 zpa-connector-child[103412]: RPC Messages, RX: BrkRq[Dsp 32172 UBrk 68323 PBrk 0], BindAck 100448, AppRtDisc 6856, DnsChk[Dsp 97 Pbrk 0], MtunnelEnd 165657 TagPause 5272 TagResume 5250 WinUpdate 1039448 Control Redirect 4 Config Redirect 3 Stats Redirect 1 Log redirect 0 Override redirect 4 TX|TX_DROP: BrkRqAck[Dsp 34|0, UBrk 6|0, Pbrk 0|0], BindReq 100460|0, AppRtReq 886534|0, HealthRp 40870|21 DnsChk[Dsp 97|0 PBrk 0|0 NoR 0], ComprehensiveStats 130|0 Jan 27 05:28:22 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection to Zscaler Cloud closed: [10.1.81.40]:45316;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 FOHH_CLOSE_REASON_SOCKET_ERR Jan 27 05:28:22 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection successfully connected to Zscaler Cloud: [10.1.81.40]:34572;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 Jan 27 05:28:23 abgcitymumzpa01 zpa-connector-child[103412]: Received broker_redirect for control connection: [10.1.81.40]:34572;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 Jan 27 05:28:23 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection to Zscaler Cloud closed: [10.1.81.40]:34572;broker6-1.bom6.prod.zpath.net:[165.225.121.224]:443;4 FOHH_CLOSE_REASON_REDIRECT Jan 27 05:28:24 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection successfully connected to Zscaler Cloud: [10.1.81.40]:53952;broker4a.bom5.prod.zpath.net:[13.127.26.17]:443;4 Jan 27 05:28:37 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:53952;broker4a.bom5.prod.zpath.net:[13.127.26.17]:443;4 uptime 13S, RTT (tcp|app): 23018|15005 us, disconnect_duration_s 0 Jan 27 05:28:37 abgcitymumzpa01 zpa-connector-child[103412]: RPC Messages, RX: BrkRq[Dsp 32545 UBrk 68886 PBrk 0], BindAck 101381, AppRtDisc 7213, DnsChk[Dsp 98 Pbrk 0], MtunnelEnd 167008 TagPause 5326 TagResume 5303 WinUpdate 1048853 Control Redirect 5 Config Redirect 3 Stats Redirect 1 Log redirect 0 Override redirect 5 TX|TX_DROP: BrkRqAck[Dsp 34|0, UBrk 6|0, Pbrk 0|0], BindReq 101397|0, AppRtReq 890632|0, HealthRp 41342|27 DnsChk[Dsp 98|0 PBrk 0|0 NoR 0], ComprehensiveStats 130|0 Jan 27 05:29:37 abgcitymumzpa01 zpa-connector-child[103412]: Broker control connection, state fohh_connection_connected, [10.1.81.40]:53952;broker4a.bom5.prod.zpath.net:[13.127.26.17]:443;4 uptime 1M:13S, RTT (tcp|app): 22396|41597 us, disconnect_duration_s 0"
+    },
+    {
+      "heading": "High CPU/Memory Disk Utilization Issues",
+      "level": 1
+    },
+    {
+      "text": "The purpose of this section is to provide a consistent, methodical, approach to troubleshooting High CPU/Memory/Disk Utilization problems on the App Connector."
+    },
+    {
+      "text": "Pre-Check"
+    },
+    {
+      "text": "Make sure that the App Connector deployed follows the correct sizing requirements."
+    },
+    {
+      "heading": "App Connector Deployment Prerequisites | Zscaler",
+      "level": 3
+    },
+    {
+      "text": "Use the lscpu command to check the App Connector build info."
+    },
+    {
+      "text": "Output of lscpu command",
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# lscpu Architecture: x86_64 CPU op-mode(s): 32-bit, 64-bit Byte Order: Little Endian CPU(s): 1 On-line CPU(s) list: 0 Thread(s) per core: 1 Core(s) per socket: 1 Socket(s): 1 NUMA node(s): 1 Vendor ID: GenuineIntel CPU family: 6 Model: 186 Model name: 13th Gen Intel(R) Core(TM) i7-1355U Stepping: 3 CPU MHz: 2611.211 BogoMIPS: 5222.42 Hypervisor vendor: VMware Virtualization type: full L1d cache: 48K L1i cache: 32K L2 cache: 1280K L3 cache: 12288K NUMA node0 CPU(s): 0 Flags: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon rep_good nopl xtopology tsc_reliable nonstop_tsc eagerfpu pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd rsb_ctxsw ibrs ibpb stibp fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 arat umip gfni vaes vpclmulqdq movdiri movdir64b md_clear spec_ctrl intel_stibp flush_l1d arch_capabilities [root@angel-app-connector ~]#"
+    },
+    {
+      "item": "Validate if the App Connector is in accordance with the recommended sizing.",
+      "depth": 0
+    },
+    {
+      "item": "If the sizing requirements don't match the recommended settings, then you must make changes to meet the required settings. To learn more, see App Connector Deployment Prerequisites.",
+      "depth": 0
+    },
+    {
+      "text": "High CPU Reported on the App Connector"
+    },
+    {
+      "text": "The following sections describe actions if the App Connector reports high CPU use."
+    },
+    {
+      "heading": "Check if the Connector-Child is Running High",
+      "level": 3
+    },
+    {
+      "text": "It is important to confirm whether the App Connector process (zpa-connector-child) is truly the cause or whether system-level factors or other applications are contributing."
+    },
+    {
+      "text": "CPU Command",
+      "strong": [
+        [
+          0,
+          11
+        ]
+      ]
+    },
+    {
+      "text": "ps aux --sort=-pcpu | head -5"
+    },
+    {
+      "text": "Example Output",
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# ps aux --sort=-pcpu | head -5 USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND zscaler 14216 4.3 2.6 1688728 12876 ? Sl 08:50 2:00 zpa-connector-child root 14265 1.9 0.0 0 0 ? ZN 08:51 0:54 [yumBackend.py] <defunct> root 12810 1.7 24.7 3042476 118764 ? Sl 07:39 2:00 /usr/bin/gnome-shell root 14206 0.5 0.7 451484 3432 ? Ssl 08:50 0:15 /opt/zscaler/bin/zpa-connector [root@angel-app-connector ~]#"
+    },
+    {
+      "item": "Validate if zpa-connector-child is at the top.",
+      "depth": 0
+    },
+    {
+      "item": "If another process is consuming CPU, the problem might not be related to the Zscaler service.",
+      "depth": 0
+    },
+    {
+      "heading": "Check Number of Cores and CPU of Cores",
+      "level": 3
+    },
+    {
+      "text": "The top command can show general CPU utilization of all CPU cores. Or, if the CPU utilization is more than 100%, it might be due to multiple CPU cores on the App Connector host. For example, if there are 4 cores, and the top output is showing CPU utilization as 200%, it means CPU utilization is at 50%."
+    },
+    {
+      "text": "Output of Top command",
+      "strong": [
+        [
+          0,
+          21
+        ]
+      ]
+    },
+    {
+      "text": "top - 09:43:59 up 15:23, 2 users, load average: 0.01, 0.07, 0.13 Tasks: 199 total, 2 running, 195 sleeping, 0 stopped, 2 zombie %Cpu(s): 3.4 us, 3.7 sy, 0.0 ni, 90.5 id, 1.0 wa, 0.0 hi, 1.4 si, 0.0 st KiB Mem : 479384 total, 7220 free, 372796 used, 99368 buff/cache KiB Swap: 1049596 total, 594100 free, 455496 used. 74280 avail Mem PID USER PR NI VIRT RES SHR S %CPU %MEM TIME+ COMMAND 12810 root 20 0 3042476 122848 28328 S 3.3 25.6 2:03.24 gnome-shell 14216 zscaler 20 0 1688728 13420 0 S 2.0 2.8 2:11.69 image.bin 12331 root 20 0 358428 38752 17924 S 1.0 8.1 0:11.03 X 13280 root 20 0 747084 11576 5096 S 1.0 2.4 0:09.21 gnome-terminal-"
+    },
+    {
+      "text": "Use the lscpu command to check the number of cores that the App Connector is running on."
+    },
+    {
+      "text": "Output of lscpu command",
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# lscpu Architecture: x86_64 CPU op-mode(s): 32-bit, 64-bit Byte Order: Little Endian CPU(s): 1 On-line CPU(s) list: 0 Thread(s) per core: 1 Core(s) per socket: 1 Socket(s): 1 NUMA node(s): 1 Vendor ID: GenuineIntel CPU family: 6 Model: 186 Model name: 13th Gen Intel(R) Core(TM) i7-1355U Stepping: 3 CPU MHz: 2611.211 BogoMIPS: 5222.42 Hypervisor vendor: VMware Virtualization type: full L1d cache: 48K L1i cache: 32K L2 cache: 1280K L3 cache: 12288K NUMA node0 CPU(s): 0 Flags: fpu vme de pse tsc msr pae mce cx8 apic sep mtrr pge mca cmov pat pse36 clflush mmx fxsr sse sse2 ss syscall nx pdpe1gb rdtscp lm constant_tsc arch_perfmon rep_good nopl xtopology tsc_reliable nonstop_tsc eagerfpu pni pclmulqdq ssse3 fma cx16 pcid sse4_1 sse4_2 x2apic movbe popcnt aes xsave avx f16c rdrand hypervisor lahf_lm abm 3dnowprefetch invpcid_single ssbd rsb_ctxsw ibrs ibpb stibp fsgsbase tsc_adjust bmi1 avx2 smep bmi2 erms invpcid rdseed adx smap clflushopt clwb sha_ni xsaveopt xsavec xgetbv1 arat umip gfni vaes vpclmulqdq movdiri movdir64b md_clear spec_ctrl intel_stibp flush_l1d arch_capabilities [root@angel-app-connector ~]#"
+    },
+    {
+      "heading": "Collecting Logs from the App Connector",
+      "level": 3
+    },
+    {
+      "text": "In cases where the CPU Utilization is consistently high (i.e., consumes >80% normalized CPU) over a sustained period and is affecting the performance for users, collect the following data and raise a Zscaler Support case."
+    },
+    {
+      "item": "vmstat",
+      "depth": 0
+    },
+    {
+      "item": "more details on vmstat here",
+      "depth": 0
+    },
+    {
+      "text": "vmstat Output",
+      "strong": [
+        [
+          0,
+          13
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# vmstat procs -----------memory---------- ---swap-- -----io---- -system-- ------cpu----- r b swpd free buff cache si so bi bo in cs us sy id wa st 2 0 470856 7724 0 109024 126 142 2144 194 367 532 2 2 95 0 0 [root@angel-app-connector ~]#"
+    },
+    {
+      "text": "Memory info on the App Connector for the App Connector processes:"
+    },
+    {
+      "text": "Command",
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "curl -s 127.0.0.1:9000/memory/status"
+    },
+    {
+      "text": "Output of status command",
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# curl -s 127.0.0.1:9000/memory/status libevent: Alloc: 306089 6884713941, Free: 305683 6884633982, Drain: 0 0, Out: 406 79959 0.076mb Overhead: 0.012mb (32) openssl: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) argo: Alloc: 258011 33172171, Free: 218075 27922487, Drain: 0 0, Out: 39936 5249684 5.006mb Overhead: 1.219mb (32) avl: Alloc: 2566 142304, Free: 787 44072, Drain: 0 0, Out: 1779 98232 0.094mb Overhead: 0.054mb (32) diamond: Alloc: 2665 208139, Free: 1 2048, Drain: 0 0, Out: 2664 206091 0.197mb Overhead: 0.081mb (32) pattern_match: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) fohh: Alloc: 106113 10592532, Free: 103662 4137665, Drain: 0 0, Out: 2451 6454867 6.156mb Overhead: 0.075mb (32) phash: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) wally: Alloc: 10038 1009788, Free: 1382 60757, Drain: 0 0, Out: 8656 949031 0.905mb Overhead: 0.264mb (32) zpath_lib: Alloc: 117551 1995636, Free: 113125 1810840, Drain: 0 0, Out: 4426 184796 0.176mb Overhead: 0.135mb (32) zthread: Alloc: 142 795664, Free: 92 753664, Drain: 0 0, Out: 50 42000 0.040mb Overhead: 0.002mb (32) zevent: Alloc: 44292 3541560, Free: 44289 3541344, Drain: 0 0, Out: 3 216 0.000mb Overhead: 0.000mb (32) zhash_table: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) zhash_table_locked: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) cshash: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) zudp: Alloc: 31 4836, Free: 27 4468, Drain: 0 0, Out: 4 368 0.000mb Overhead: 0.000mb (32) zcrypt: Alloc: 13 10321, Free: 12 10313, Drain: 0 0, Out: 1 8 0.000mb Overhead: 0.000mb (32) zpn: Alloc: 11087 4416872440, Free: 11042 4416800000, Drain: 0 0, Out: 45 72440 0.069mb Overhead: 0.001mb (32) zdtls: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) zrdt: Alloc: 2 600, Free: 0 0, Drain: 0 0, Out: 2 600 0.001mb Overhead: 0.000mb (32) zbuffer: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) assistant: Alloc: 22133 149336, Free: 22086 144114, Drain: 0 0, Out: 47 5222 0.005mb Overhead: 0.001mb (32) inspection: Alloc: 4 368, Free: 0 0, Drain: 0 0, Out: 4 368 0.000mb Overhead: 0.000mb (32) waf: Alloc: 4769 1071650, Free: 1182 147335, Drain: 0 0, Out: 3587 924315 0.881mb Overhead: 0.109mb (32) zpn_pdp: Alloc: 818 30708, Free: 0 0, Drain: 0 0, Out: 818 30708 0.029mb Overhead: 0.025mb (32) zpn_pcap: Alloc: 2 184, Free: 0 0, Drain: 0 0, Out: 2 184 0.000mb Overhead: 0.000mb (32) zhealth: Alloc: 19 1792, Free: 0 0, Drain: 0 0, Out: 19 1792 0.002mb Overhead: 0.001mb (32) dns: Alloc: 263 7768170, Free: 7 714, Drain: 0 0, Out: 256 7767456 7.408mb Overhead: 0.000mb (0) zdx_lib: Alloc: 14 2316, Free: 1 451, Drain: 0 0, Out: 13 1865 0.002mb Overhead: 0.000mb (32) zdx_probe: Alloc: 1 712, Free: 0 0, Drain: 0 0, Out: 1 712 0.001mb Overhead: 0.000mb (32) zdx_cache: Alloc: 32 3376, Free: 0 0, Drain: 0 0, Out: 32 3376 0.003mb Overhead: 0.001mb (32) zdx_combiner: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) zdx_webprobe_cache: Alloc: 3 47840, Free: 0 0, Drain: 0 0, Out: 3 47840 0.046mb Overhead: 0.000mb (32) admin_probe: Alloc: 4 4280, Free: 0 0, Drain: 0 0, Out: 4 4280 0.004mb Overhead: 0.000mb (32) np_connector: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) npwg_lib: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) np: Alloc: 0 0, Free: 0 0, Drain: 0 0, Out: 0 0 0.000mb Overhead: 0.000mb (32) Total: Alloc: 886663 11362141688, Free: 821453 11340014254, Drain: 0 0, Out: 65210 22127434 21.102mb Overhead: 1.982mb [root@angel-app-connector ~]#"
+    },
+    {
+      "text": "Argo Command",
+      "strong": [
+        [
+          0,
+          12
+        ]
+      ]
+    },
+    {
+      "text": "curl -s 127.0.0.1:9000/memory/argo"
+    },
+    {
+      "text": "Output of argo command",
+      "strong": [
+        [
+          0,
+          22
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# curl -s 127.0.0.1:9000/memory/argo zthread_rusage: Alloc: 8501 1156136, Free: 8500 1156000, Out: 1 136 0.000mb zpath_inittime: Alloc: 1 160, Free: 1 160, Out: 0 0 0.000mb argo_log: Alloc: 18873 5702188, Free: 18872 5701889, Out: 1 299 0.000mb argo_log_text: Alloc: 3698 1191254, Free: 3698 1191254, Out: 0 0 0.000mb argo_log_text_from_file: Alloc: 1 63785, Free: 1 63785, Out: 0 0 0.000mb argo_reader_stats: Alloc: 598 84327, Free: 598 84327, Out: 0 0 0.000mb fohh_http_request: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb generic_row: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_db_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_db_table_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_connection_stats: Alloc: 200 16000, Free: 200 16000, Out: 0 0 0.000mb wally_registrant_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_sync_pause_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_postgres_table_bootup_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_postgres_table_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_table_stats: Alloc: 2877 552384, Free: 2877 552384, Out: 0 0 0.000mb wp_db_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wp_db_table_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb fohh_status_request: Alloc: 49474 3166336, Free: 49474 3166336, Out: 0 0 0.000mb fohh_status_response: Alloc: 49513 3564936, Free: 49513 3564936, Out: 0 0 0.000mb fohh_connection_stats: Alloc: 893 398206, Free: 893 398206, Out: 0 0 0.000mb fohh_private_tcp_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb fohh_connection_state_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb fohh_connection_cipher_stats: Alloc: 24 3456, Free: 24 3456, Out: 0 0 0.000mb fohh_connection_error_stats: Alloc: 515 49440, Free: 515 49440, Out: 0 0 0.000mb fohh_info: Alloc: 63 7459, Free: 63 7459, Out: 0 0 0.000mb fohh_connection_alloc_stats: Alloc: 515 32960, Free: 515 32960, Out: 0 0 0.000mb fohh_connection_aggregated_stats_sum: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb fohh_log_element: Alloc: 3947 323654, Free: 3947 323654, Out: 0 0 0.000mb fohh_log_element_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb fohh_log_type: Alloc: 36 2282, Free: 36 2282, Out: 0 0 0.000mb zpath_debug_memory_allocator_stats: Alloc: 113 10914, Free: 113 10914, Out: 0 0 0.000mb zpath_debug_mallinfo: Alloc: 6 672, Free: 6 672, Out: 0 0 0.000mb zpath_system_sysinfo: Alloc: 1 144, Free: 1 144, Out: 0 0 0.000mb assistant_features_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_features: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_worker_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_worker_client_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_worker_assistant_stats: Alloc: 6 1728, Free: 6 1728, Out: 0 0 0.000mb zpn_fohh_worker_pbroker_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_worker_sitec_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_worker_sla_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_state: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_state: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_system_disk_stats: Alloc: 3 192, Free: 3 192, Out: 0 0 0.000mb zpn_system_cpu_stats: Alloc: 3 216, Free: 3 216, Out: 0 0 0.000mb zpn_system_memory_stats: Alloc: 3 312, Free: 3 312, Out: 0 0 0.000mb zpn_system_network_stats: Alloc: 3 456, Free: 3 456, Out: 0 0 0.000mb zpn_system_fd_stats: Alloc: 3 216, Free: 3 216, Out: 0 0 0.000mb zpn_system_sock_stats: Alloc: 3 240, Free: 3 240, Out: 0 0 0.000mb zpn_version: Alloc: 7 623, Free: 7 623, Out: 0 0 0.000mb zpn_version_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_machine_tunnel_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_machine_tunnel_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_trusted_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_trusted_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_exporter_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_exporter_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_bi_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_bi_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_client_switch_to_cloud: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ec_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_vdi_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ec_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_vdi_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ia_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ia_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_connection_upgrade: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_connection_upgrade_response: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zins_client_authenticate: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zins_client_authenticate_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_identity: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_redirect: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_instance_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_app: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_app_complete: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_search_domain: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_search_domain_complete: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_search_domain_all: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_config_updated: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_aggregated_domains: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_posture_profile_start: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_posture_profile: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_posture_profile_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_server_validated_cert_posture_check_request: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_server_validated_cert_posture_check_response_payload: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_server_validated_cert_posture_check_response: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_server_validated_cert_posture_check_done: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_svcp_pb_posture_profile: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_trusted_networks: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_trusted_networks_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_request: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_request_int: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_request_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_bind: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_bind_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_end: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_tag_pause: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_tag_resume: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_request: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_request_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_route_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_health_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_route_registration: Alloc: 194 28324, Free: 194 28324, Out: 0 0 0.000mb zpn_app_route_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_route_discovery: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_trans_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_health_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_auth_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_audit_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ast_auth_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sys_auth_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_auth_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ast_auth_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_tcp_info_report: Alloc: 7 1456, Free: 7 1456, Out: 0 0 0.000mb zpn_zrdt_info_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_asst_environment_report: Alloc: 38 2432, Free: 38 2432, Out: 0 0 0.000mb zpn_pbroker_environment_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_asst_active_control_connection: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_dns_client_check: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_client_check: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_dns_dispatch_check: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_dispatcher_c2c_app_check: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_dns_assistant_check: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_log_control: Alloc: 7 392, Free: 7 392, Out: 0 0 0.000mb zpn_assistant_stats_control: Alloc: 7 336, Free: 7 336, Out: 0 0 0.000mb zpn_assistant_restart: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_status_report: Alloc: 101 97465, Free: 101 97465, Out: 0 0 0.000mb zpn_assistant_pvt_key_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_gen_cert_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_app_cert_key_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_asst_state: Alloc: 102 9792, Free: 102 9792, Out: 0 0 0.000mb zpn_asst_restart_reason: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_status_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_fohh_tlv_window_update: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_dispatcher_status: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_http_trans_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_clientless_app_query: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_clientless_app_query_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_stats_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_log_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_trans_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_private_broker_system_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_system_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_system_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_data_stats: Alloc: 3 696, Free: 3 696, Out: 0 0 0.000mb zpn_assistant_rpc_stats: Alloc: 3 984, Free: 3 984, Out: 0 0 0.000mb zpn_assistant_scache_stats: Alloc: 3 216, Free: 3 216, Out: 0 0 0.000mb zpn_assistant_app_stats: Alloc: 3 264, Free: 3 264, Out: 0 0 0.000mb zpn_assistant_data_mtunnel_global_stats: Alloc: 3 504, Free: 3 504, Out: 0 0 0.000mb zpn_assistant_data_mtunnel_stats: Alloc: 3 2976, Free: 3 2976, Out: 0 0 0.000mb zpn_assistant_dns_stats: Alloc: 3 768, Free: 3 768, Out: 0 0 0.000mb zpn_broker_client_path_cache_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_client_neg_path_cache_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_client_latency_probe_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_vdi_authentication_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_svcp_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_stepup_auth_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_broker_app_registration: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_private_broker_app_registration: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_app_registration_notification: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_dispatcher_app_registration: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_transit_req: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_comprehensive_stats: Alloc: 24 18816, Free: 24 18816, Out: 0 0 0.000mb zpn_pbroker_comprehensive_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_comprehensive_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_file_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_dns_dispatcher_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pse_resiliency_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_system_inventory_stats: Alloc: 1 56, Free: 1 56, Out: 0 0 0.000mb zpn_assistant_ncache_stats: Alloc: 3 120, Free: 3 120, Out: 0 0 0.000mb zpn_auth_state_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_file_fetch_key: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_decrypt_key_request: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_decrypt_key_response: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_monitor_stats: Alloc: 24 4224, Free: 24 4224, Out: 0 0 0.000mb zpn_assistant_fproxy_stats: Alloc: 3 240, Free: 3 240, Out: 0 0 0.000mb zpn_exporter_log_data: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_exporter_data_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_exporter_log_data_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_a2pb_authentication: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_a2pb_authentication_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_private_broker_dr_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant_dr_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbroker_mtunnel_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_private_broker_fproxy_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_pbclient_debug_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_exporter_pra_guac_proxy_data: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_client_state: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb client_state: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_stats_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_log_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_status_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_environment_report: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_siem_log_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_sitec_siem_log_stats_per_conn: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mtunnel_data_mconn_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_instance_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_instance_info_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_location_update: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_location_update_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_health: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_instance_data: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zia_instance_data_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_broker_dispatcher_zia_location_registration: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_managed_chrome_payload: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_add_proxy: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_add_proxy_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_delete_proxy: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zdx_webprobe_cache_stats: Alloc: 3 1512, Free: 3 1512, Out: 0 0 0.000mb zpn_zdx_webprobe_cache_error_stats: Alloc: 3 432, Free: 3 432, Out: 0 0 0.000mb zpn_zdx_webprobe_cache_https_ptls_stats: Alloc: 99 49896, Free: 99 49896, Out: 0 0 0.000mb zpn_zdx_webprobe_cache_https_ptls_err_stats: Alloc: 99 15048, Free: 99 15048, Out: 0 0 0.000mb zpn_private_broker_load: Alloc: 2 392, Free: 0 0, Out: 2 392 0.000mb zpn_pipeline_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_transform_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_waf_http_exchanges_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_waf_http_exchanges_api_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_adp_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_inspection_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ptag_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_krb_inspection_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ldap_inspection_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_smb_inspection_log: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_register_row_request_string: Alloc: 129 15901, Free: 129 15901, Out: 0 0 0.000mb wally_fohh_deregister_row_request_string: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_register_row_request_integer: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_deregister_row_request_integer: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_request_result: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb wally_fohh_version: Alloc: 13 845, Free: 13 845, Out: 0 0 0.000mb wally_fohh_version_ack: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb argo_description: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_cfg_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistant: Alloc: 1 288, Free: 0 0, Out: 1 288 0.000mb zpn_assistant_version: Alloc: 5 2760, Free: 4 2208, Out: 1 552 0.001mb zpn_sub_module_upgrade: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_cfg_ovd_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_inspection_config_data: Alloc: 120 235992, Free: 0 0, Out: 120 235992 0.225mb zpn_inspection_zsdefined_control: Alloc: 576 671640, Free: 236 274272, Out: 340 397368 0.379mb zpath_config_override_stats: Alloc: 3 1008, Free: 3 1008, Out: 0 0 0.000mb zpath_config_override: Alloc: 129 27424, Free: 26 4856, Out: 103 22568 0.022mb assistant_log_tx_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_application: Alloc: 2 1776, Free: 0 0, Out: 2 1776 0.002mb zpn_application_search_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_application_group: Alloc: 1 216, Free: 0 0, Out: 1 216 0.000mb zpn_private_broker: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_private_broker_group: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_private_broker_to_group: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_ddil_config: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_site: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_control_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_broker_control_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_broker_control_fohh_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_pbroker_control_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_broker_control_tx_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_broker_control_tx_fohh_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_pbroker_control_tx_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_pbroker_control_tx_fohh_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_control_tx_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_control_tx_fohh_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_stats_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_sticky_cache_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_app_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_service_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_dns_per_thread_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_inspection_application: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_assistantgroup_assistant_relation: Alloc: 1 104, Free: 0 0, Out: 1 104 0.000mb zpn_assistant_group: Alloc: 1 432, Free: 0 0, Out: 1 432 0.000mb zpn_server_group_assistant_group: Alloc: 1 104, Free: 0 0, Out: 1 104 0.000mb zpn_server_group: Alloc: 1 232, Free: 0 0, Out: 1 232 0.000mb zpn_app_group_relation: Alloc: 2 368, Free: 0 0, Out: 2 368 0.000mb zpn_application_group_application_mapping: Alloc: 2 208, Free: 0 0, Out: 2 208 0.000mb zpn_servergroup_server_relation: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_app_server: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_public_cert: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_inspection_profile_to_control: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_inspection_prof_to_zsdefined_ctrl: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_inspection_profile: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpath_customer: Alloc: 1 688, Free: 0 0, Out: 1 688 0.001mb assistant_data_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_data_mtunnel_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mconn_fohh_tlv_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_init_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mconn_icmp_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_mconn_icmpv6_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zhealth_probe_lib_raw_sock_stats: Alloc: 3 936, Free: 3 936, Out: 0 0 0.000mb zpn_zdx_probe_legs_info: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zhealth_probe_lib_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_zdx_probe_leg_meta_data: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zhealth_probe_lib_udp_raw_sock_stats: Alloc: 3 312, Free: 3 312, Out: 0 0 0.000mb zpn_zdx_mtr_stats: Alloc: 99 33264, Free: 99 33264, Out: 0 0 0.000mb zpn_zdx_probe_telemetry_stats: Alloc: 99 15840, Free: 99 15840, Out: 0 0 0.000mb zpn_zdx_probe_http_response_error_stats: Alloc: 99 19008, Free: 99 19008, Out: 0 0 0.000mb zpn_zdx_probe_error_stats: Alloc: 99 7920, Free: 99 7920, Out: 0 0 0.000mb zpn_zdx_probe_stats: Alloc: 99 41184, Free: 99 41184, Out: 0 0 0.000mb zpn_zdx_cache_stats: Alloc: 99 15048, Free: 99 15048, Out: 0 0 0.000mb zpn_command_probe: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_tcpdump_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_uploader_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_command_probe_status: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_stats: Alloc: 3 576, Free: 3 576, Out: 0 0 0.000mb npwg_provider_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb npwg_config_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_icmp_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_tcp_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_common_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_task_module_dns_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb admin_probe_rpc_send_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb assistant_stats_tx_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zrdt_stream_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zrdt_conn_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_test_data: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_system_control_connection_disconnect: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_stats: Alloc: 24 1344, Free: 24 1344, Out: 0 0 0.000mb zpn_event_broker_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_assistant_stats: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_cpu_starvation: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb zpn_event_system_socket_bind_failure: Alloc: 0 0, Free: 0 0, Out: 0 0 0.000mb ad_proto_bits: Alloc: 5663 226520, Free: 5663 226520, Out: 0 0 0.000mb [root@angel-app-connector ~]#"
+    },
+    {
+      "text": "High Memory and Memory Leak issues"
+    },
+    {
+      "text": "The following sections decribe high memory leak and memory leak issues."
+    },
+    {
+      "heading": "Check Pager Info",
+      "level": 3
+    },
+    {
+      "text": "If the memory usage is reported high on the Private Access Health dashboard, or if an alert is generated for high memory utilization, run the /proc/meminfo command to capture more granular memory statistics."
+    },
+    {
+      "text": "meminfo",
+      "strong": [
+        [
+          0,
+          7
+        ]
+      ]
+    },
+    {
+      "text": "cat /proc/meminfo"
+    },
+    {
+      "text": "Command output of Meminfo",
+      "strong": [
+        [
+          0,
+          25
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# cat /proc/meminfo MemTotal: 479384 kB MemFree: 6632 kB MemAvailable: 70348 kB Buffers: 0 kB Cached: 70956 kB SwapCached: 39248 kB Active: 124048 kB Inactive: 132648 kB Active(anon): 103008 kB Inactive(anon): 105584 kB Active(file): 21040 kB Inactive(file): 27064 kB Unevictable: 0 kB Mlocked: 0 kB SwapTotal: 1049596 kB SwapFree: 606316 kB Dirty: 0 kB Writeback: 0 kB AnonPages: 178940 kB Mapped: 32972 kB Shmem: 22860 kB Slab: 87308 kB SReclaimable: 28420 kB SUnreclaim: 58888 kB KernelStack: 10064 kB PageTables: 34964 kB NFS_Unstable: 0 kB Bounce: 0 kB WritebackTmp: 0 kB CommitLimit: 1289288 kB Committed_AS: 4576888 kB VmallocTotal: 34359738367 kB VmallocUsed: 212692 kB VmallocChunk: 34359277564 kB Percpu: 55296 kB HardwareCorrupted: 0 kB AnonHugePages: 0 kB CmaTotal: 0 kB CmaFree: 0 kB HugePages_Total: 0 HugePages_Free: 0 HugePages_Rsvd: 0 HugePages_Surp: 0 Hugepagesize: 2048 kB DirectMap4k: 106368 kB DirectMap2M: 417792 kB DirectMap1G: 0 kB [root@angel-app-connector ~]#"
+    },
+    {
+      "text": "Key Metrics to Investigate"
+    },
+    {
+      "item": "MemTotal: Total physical memory in the system.",
+      "depth": 0
+    },
+    {
+      "item": "MemFree: Memory that is currently unused and immediately available.",
+      "depth": 0
+    },
+    {
+      "text": "A larger gap between MemTotal and MemAvailable (relative to total RAM) might indicate memory pressure.",
+      "strong": [
+        [
+          21,
+          29
+        ],
+        [
+          34,
+          46
+        ]
+      ]
+    },
+    {
+      "heading": "Check if the App Connector Process is Running High",
+      "level": 3
+    },
+    {
+      "text": "After it is identified, and the memory utilization is on the higher end, check which process is utilizing the memory and validate if there is any third-party processes consuming the system memory."
+    },
+    {
+      "text": "Command to check Meminfo",
+      "strong": [
+        [
+          0,
+          24
+        ]
+      ]
+    },
+    {
+      "text": "ps aux --sort=-pmem | head -5"
+    },
+    {
+      "text": "Command Output",
+      "strong": [
+        [
+          0,
+          14
+        ]
+      ]
+    },
+    {
+      "text": "USER PID %CPU %MEM VSZ RSS TTY STAT START TIME COMMAND root 11880 0.1 84.7 15407036 13783844 ? Sl 2024 142:16 /opt/omi/bin/omiagent zscaler 29894 63.2 6.7 2612760 1105444 ? Sl Feb15 15054:18 zpa-connector-child omsagent 1298 0.1 0.4 456520 69608 ? Sl 2023 1180:34 /opt/microsoft/omsagent/bin/omsagent ..."
+    },
+    {
+      "text": "In this example, omiagent is consuming 84.7% of memory, making it the leading potential contributor to high memory utilization."
+    },
+    {
+      "text": "To reduce memory utilization on individual App Connector hosts, consider the following:"
+    },
+    {
+      "item": "Increase the amount of available memory on the App Connector host.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy additional App Connectors into the App Connector Group to distribute users across additional App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy dedicated App Connector Groups for specific application segments to reduce the number of applications that are requested through each App Connector Group.",
+      "depth": 0
+    },
+    {
+      "text": "If none of the earlier steps doesn't help resolve the issue, collect the memory utilization output and raise a case with Zscaler Support."
+    },
+    {
+      "heading": "Collect App Connector Logs",
+      "level": 3
+    },
+    {
+      "text": "lscpu ps aux --sort=-pmem curl -s 127.0.0.1:9000/memory/status curl -s 127.0.0.1:9000/memory/arg sudo journalctl > dump-of-journalctl.txt"
+    },
+    {
+      "text": "Disk Utilization"
+    },
+    {
+      "text": "Disk utilization issues can cause Private Access App Connectors to throw errors, fail upgrades, or encounter logging failures. The following steps detail how to identify, investigate, and resolve such problems."
+    },
+    {
+      "heading": "How to Identify the Problem",
+      "level": 3
+    },
+    {
+      "text": "The df -h command provides an overview of disk usage on the system. The following command helps to give you a definite answer about the disk free space."
+    },
+    {
+      "text": "Check Disk Space",
+      "strong": [
+        [
+          0,
+          16
+        ]
+      ]
+    },
+    {
+      "text": "\"sudo df -h\" =========================================================================================================== Filesystem Size Used Avail Use% Mounted on devtmpfs 190M 0 190M 0% /dev tmpfs 235M 4.0K 235M 1% /dev/shm tmpfs 235M 31M 204M 13% /run /dev/sda3 14G 7.9G 5.9G 58% / /dev/sda1 297M 163M 135M 55% /boot ============================================================================================================"
+    },
+    {
+      "item": "Review the Avail and Use% columns:",
+      "depth": 0,
+      "strong": [
+        [
+          11,
+          16
+        ],
+        [
+          21,
+          25
+        ]
+      ]
+    },
+    {
+      "item": "If the Use% is close to 100% for critical filesystems (e.g., / or /var), there is a risk of disk exhaustion.",
+      "depth": 1,
+      "strong": [
+        [
+          7,
+          11
+        ]
+      ]
+    },
+    {
+      "item": "Ensure at least 100 MB of free disk space is available; otherwise, the App Connector might automatically restart.",
+      "depth": 1
+    },
+    {
+      "item": "Use the du command to find the largest directories consuming disk space.",
+      "depth": 0
+    },
+    {
+      "text": "Top Disk Space Consumer",
+      "strong": [
+        [
+          0,
+          23
+        ]
+      ]
+    },
+    {
+      "text": "[root@angel-app-connector ~]# sudo du -a /| sort -n -r | head -n 20 8293268 / 4301604 /usr 3719708 /var 3354600 /var/cache 3351856 /var/cache/yum/x86_64/7 3351856 /var/cache/yum/x86_64 3351856 /var/cache/yum 3139872 /var/cache/yum/x86_64/7/updates 2785392 /var/cache/yum/x86_64/7/updates/packages 1457772 /usr/share 1243964 /usr/lib64 1202164 /usr/lib 524392 /usr/lib/firmware 455396 /usr/share/locale 311964 /var/cache/yum/x86_64/7/updates/gen 299132 /var/lib 293692 /usr/lib64/firefox 271700 /var/lib/rpm 260376 /usr/lib/jvm 254804 /var/lib/rpm/Packages [root@angel-app-connector ~]#"
+    },
+    {
+      "item": "Identify directories consuming large amounts of space, such as /var (often contains logs).",
+      "depth": 0
+    },
+    {
+      "item": "Log files, particularly in /var/log, are a frequent cause of high disk utilization.",
+      "depth": 0
+    },
+    {
+      "heading": "How to Clean Up the Disk",
+      "level": 4
+    },
+    {
+      "item": "sudo journalctl --vacuum-size=1G clear sspace in /var/log/journal.",
+      "depth": 0
+    },
+    {
+      "item": "rm deletes any files that you think are not necessary (include some archived /var/log/messages file).",
+      "depth": 0
+    },
+    {
+      "item": "Prevent Zscaler processes from using syslogd. journald already stores the logs from Zscaler processes using the following configuration.",
+      "depth": 0
+    },
+    {
+      "text": "echo ‘:programname, isequal, “zpa-connector-child” stop’ >> /etc/rsyslog.d/zpa-connector.conf echo ‘:programname, isequal, “zpa-connector” stop’ >> /etc/rsyslog.d/zpa-connector.conf systemctl restart rsyslogd"
+    },
+    {
+      "item": "Even if you prevent Zscaler from using syslog, there can be other processes in the Linux box doing the logging and utilizing the disk space. To make sure the logs are purged, do these configurations.",
+      "depth": 0
+    },
+    {
+      "item": "Here is an example configuration to rotate logs daily.",
+      "depth": 1
+    },
+    {
+      "text": "Script to logrotate This configuration needs to be in /etc/logrotate.conf ======================================================================= # rotate log files daily daily # keep 7 daily worth of backlogs rotate 7 # create new (empty) log files after rotating old ones create # use date as a suffix of the rotated file dateext # uncomment this if you want your log files compressed compress ======================================================================="
+    },
+    {
+      "text": "To learn more, see Monitoring App Connector Performance."
+    }
+  ]
+}

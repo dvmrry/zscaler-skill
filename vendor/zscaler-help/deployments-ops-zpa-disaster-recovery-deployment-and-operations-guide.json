@@ -1,0 +1,332 @@
+{
+  "schema_version": 1,
+  "kind": "help-article",
+  "title": "Disaster Recovery Deployment and Operations Guide",
+  "source": {
+    "url": "https://help.zscaler.com/zscaler-deployments-operations/zpa-disaster-recovery-deployment-and-operations-guide",
+    "node": "1451411",
+    "revision": "3036621",
+    "updated": "2026-01-06",
+    "updated_basis": "pdf-last-modified"
+  },
+  "captured_at": "2026-11-04",
+  "blocks": [
+    {
+      "text": "This guide describes the benefits of using disaster recovery and the steps necessary for configuring Zscaler Private Access (ZPA) to add disaster recovery to your security posture."
+    },
+    {
+      "text": "ZPA disaster recovery ensures business continuity if an event impacts the global Zscaler cloud infrastructure. Disaster recovery provides an organization's users access to critical applications by ensuring access even if the Zscaler cloud isn’t accessible."
+    },
+    {
+      "text": "To learn more, see Understanding Disaster Recovery or Zscaler Resilience."
+    },
+    {
+      "heading": "Value of Deploying ZPA Disaster Recovery",
+      "level": 1
+    },
+    {
+      "text": "ZPA disaster recovery provides the following benefits when Zscaler cloud infrastructure is completely unavailable:"
+    },
+    {
+      "item": "Business continuity with uninterrupted access to critical business applications in case of a global ZPA cloud infrastructure outage.",
+      "depth": 0
+    },
+    {
+      "item": "Avoid costly business interruptions or loss of productivity due to a lack of access to critical business applications.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Phase",
+      "level": 1
+    },
+    {
+      "text": "The deployment phase includes initially setting up and integrating Zscaler solutions into an existing network infrastructure. During the deployment phase, you configure disaster recovery to meet the needs of your infrastructure."
+    },
+    {
+      "text": "The following sections discuss steps to deploy disaster recovery in ZPA."
+    },
+    {
+      "heading": "Prerequisites",
+      "level": 2
+    },
+    {
+      "text": "ZPA disaster recovery might require additional licenses. Check with your Zscaler Account team to see if you have the necessary licensing requirements."
+    },
+    {
+      "text": "For ZPA disaster recovery deployment, verify and complete the following prerequisites:"
+    },
+    {
+      "item": "Enable the disaster recovery feature. Check with your Zscaler Account team to enable it.",
+      "depth": 0
+    },
+    {
+      "item": "Identify which critical application segments, App Connector Groups, and ZPA Private Service Edge Groups to designate for disaster recovery use.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy or identify which App Connector disaster recovery uses.",
+      "depth": 0
+    },
+    {
+      "item": "Deploy or identify which ZPA Private Service Edges disaster recovery uses. Check with your Zscaler Account team if you are eligible to use ZPA Private Service Edges.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the end user’s machines run Zscaler Client Connector version 4.0 or later for Windows.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure the end user’s machines run Zscaler Client Connector version 3.7.1.38 or later for macOS.",
+      "depth": 0
+    },
+    {
+      "item": "Create a public DNS record that is customer-owned and modifiable to enable and disable disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "Download the Zscaler DNS Record Generator (Windows only).",
+      "depth": 0
+    },
+    {
+      "item": "Create a separate domain name in your DNS for disaster recovery. Then enter the public IP addresses of the ZPA Private Service Edge designated for disaster recovery into the DNS A record.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment Steps",
+      "level": 2
+    },
+    {
+      "text": "The following sections cover deployment instructions for ZPA disaster recovery:"
+    },
+    {
+      "item": "Ensure that you’ve met the prerequisites.",
+      "depth": 0,
+      "number": 1
+    },
+    {
+      "item": "Configure disaster recovery for an application segment.",
+      "depth": 0,
+      "number": 2
+    },
+    {
+      "item": "Configure disaster recovery for an App Connector group.",
+      "depth": 0,
+      "number": 3
+    },
+    {
+      "item": "Configure disaster recovery for a ZPA Private Service Edge group.",
+      "depth": 0,
+      "number": 4
+    },
+    {
+      "item": "Configure the disaster recovery settings.",
+      "depth": 0,
+      "number": 5
+    },
+    {
+      "item": "Capture all the public IP addresses of the ZPA Private Service Edges designated for disaster recovery and add them to the record for the disaster recovery domain name. You can find public IP of the ZPA Private Service Edge in About ZPA Private Service Edges.",
+      "depth": 0,
+      "number": 6
+    },
+    {
+      "item": "Configure the disaster recovery settings for an App Profile in Zscaler Client Connector. To learn more, see Configuring Zscaler Client Connector App Profiles.",
+      "depth": 0,
+      "number": 7
+    },
+    {
+      "text": "In Disaster Recovery Test Mode, App Connector in an App Connector group restart their zpa-connector services and Private Service Edges restart their zpa-service-edge service. When the services are restarted, user connections to the test App Connector and Private Service Edges are dropped. Unless part of the test group, new connections are not established with the Test Mode App Connectors and Private Service Edges. To learn more about how to enable disaster recovery test mode, see Configuring Disaster Recovery Test Mode."
+    },
+    {
+      "heading": "Considerations",
+      "level": 2
+    },
+    {
+      "text": "Review the following considerations:"
+    },
+    {
+      "item": "Activate disaster recovery via the DNS records with caution, as it disrupts existing Zscaler Client Connector connections. The services for both App Connector (zpa-connector) and ZPA Private Service Edges (zpa-service-edge) that are enabled for disaster recovery restart after disaster recovery is activated via DNS.",
+      "depth": 0
+    },
+    {
+      "item": "An application segment with disaster recovery enabled must be associated with a server group. The server group must be associated with at least one App Connector Group designated for disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "Ensure you choose the lowest possible TTL (Zscaler recommends 30 seconds) for swift DNS update propagation.",
+      "depth": 0
+    },
+    {
+      "item": "When disaster recovery is triggered, App Connectors and Private Service Edges designated for disaster recovery usage cut connections to the Zscaler cloud and only provide access to the applications that have been designated for disaster recovery usage.",
+      "depth": 0
+    },
+    {
+      "item": "Clients that have disaster recovery triggered only access applications designated for disaster recovery usage as long as disaster recovery is enabled. Even after ZPA services are restored, the client machines do not automatically reconnect to the Zscaler cloud unless disaster recovery is disabled.",
+      "depth": 0
+    },
+    {
+      "item": "Disaster recovery supports the following functions and features:",
+      "depth": 0
+    },
+    {
+      "item": "Access is allowed only through the Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "Application segments designated for disaster recovery are accessible when Disaster Recovery Mode is activated.",
+      "depth": 1
+    },
+    {
+      "item": "Existing and disaster-recovery-generated App Connectors, ZPA Private Service Edges, and Zscaler Client Connectors with valid and unexpired certificates.",
+      "depth": 1
+    },
+    {
+      "item": "Users enrolled in the ZPA Cloud prior to enabling disaster recovery.",
+      "depth": 1
+    },
+    {
+      "item": "Disaster recovery doesn’t support the following functions and features:",
+      "depth": 0
+    },
+    {
+      "item": "Authentication and reauthentication. (Reauthentication behavior is modified during disaster recovery. By default, the Security Assertion Markup Language (SAML) assertion validity is extended by 14 days from the date the SAML assertion was issued. The SAML assertion is issued when a user reauthenticates. You can customize the value.)",
+      "depth": 1
+    },
+    {
+      "item": "Browser Access.",
+      "depth": 1
+    },
+    {
+      "item": "Client-Based Remote Assistance.",
+      "depth": 1
+    },
+    {
+      "item": "Cloud Connectors.",
+      "depth": 1
+    },
+    {
+      "item": "Dashboards and Diagnostics.",
+      "depth": 1
+    },
+    {
+      "item": "Enrollment of new App Connectors, ZPA Private Service Edges, or Zscaler Client Connector.",
+      "depth": 1
+    },
+    {
+      "item": "AppProtection for Private Application Traffic.",
+      "depth": 1
+    },
+    {
+      "item": "Log Streaming Service.",
+      "depth": 1
+    },
+    {
+      "item": "Machine Tunnels.",
+      "depth": 1
+    },
+    {
+      "item": "Policies or configuration updates.",
+      "depth": 1
+    },
+    {
+      "item": "Source IP Anchoring.",
+      "depth": 1
+    },
+    {
+      "item": "SCIM Configuration.",
+      "depth": 1
+    },
+    {
+      "item": "User enrollments.",
+      "depth": 1
+    },
+    {
+      "item": "Zscaler Deception.",
+      "depth": 1
+    },
+    {
+      "heading": "Operations Phase",
+      "level": 1
+    },
+    {
+      "text": "This section describes common practices used to operate Zscaler solutions when integrated with your environment. You can enable, monitor, and tune ZPA disaster recovery to meet your infrastructure needs."
+    },
+    {
+      "text": "After performing the deployment steps, customers must adjust the DNS TXT record according to the format guidelines described in About the DNS Record Generator to enable disaster recovery. At a minimum, ensure the following tags are set:"
+    },
+    {
+      "item": "v=1 to indicate the DNS record version.",
+      "depth": 0
+    },
+    {
+      "item": "b=on to enable disaster recovery.",
+      "depth": 0
+    },
+    {
+      "item": "k=zpa or k=all (for ZPA and ZIA).",
+      "depth": 0
+    },
+    {
+      "text": "Choose the lowest TTL for the DNS TXT record (Zscaler recommends 30 seconds) for swift DNS update propagation downstream."
+    },
+    {
+      "text": "For testing, make the following DNS TXT adjustments:"
+    },
+    {
+      "item": "v=1",
+      "depth": 0
+    },
+    {
+      "item": "b=test",
+      "depth": 0
+    },
+    {
+      "item": "k=zpa or k=all (for ZPA and ZIA)",
+      "depth": 0
+    },
+    {
+      "text": "In Disaster Recovery Test Mode, all App Connectors in an App Connector group that are designated for disaster recovery restart their zpa-connector services, and all ZPA Private Service Edges in a ZPA Private Service Edge group that are designated for disaster recovery restart their zpa-service-edge services. When the services restart, existing user connections to the test App Connectors and ZPA Private Service Edges that are designated for disaster recovery are dropped. New connections for regular users that are not part of the disaster recovery test group are routed through either ZPA Public Service Edges or regular ZPA Private Service Edges and App Connectors that are not designated for disaster recovery. Users participating in disaster recovery testing that are part of the disaster recovery test group also form new connections to the ZPA Private Service Edges and App Connectors that are part of the test mode. To learn more about how to enable disaster recovery test mode, see Configuring Disaster Recovery Test Mode."
+    },
+    {
+      "heading": "Common Troubleshooting Items",
+      "level": 2
+    },
+    {
+      "item": "During ZPA global outage, customers should assume that the ZPA Admin Portal is unavailable and configuration changes, client enrollments, or new user authentication are not possible.",
+      "depth": 0
+    },
+    {
+      "item": "Zscaler Client Connector checks the DNS TXT record every 200 seconds.",
+      "depth": 0
+    },
+    {
+      "item": "Consider DNS propagation times when updating the DNS TXT record and waiting for Safe Mode to trigger in the Zscaler Client Connector.",
+      "depth": 0
+    },
+    {
+      "item": "You can run the journaltctl -f command on the ZPA Public Service Edge. Look for the message to confirm that disaster recovery is successfully triggered: DR mode is activated!",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about App Connector troubleshooting information and guidelines, see Troubleshooting App Connectors.",
+      "depth": 0
+    },
+    {
+      "item": "To learn more about ZPA Private Service Edge troubleshooting information and guidelines, see Troubleshooting ZPA Private Service Edges.",
+      "depth": 0
+    },
+    {
+      "heading": "Deployment and Operations Checklist",
+      "level": 1
+    },
+    {
+      "text": "Zscaler recommends downloading the ZPA Disaster Recovery Deployment and Operations Checklist to help plan and implement ZPA disaster recovery: Download PDF"
+    },
+    {
+      "heading": "Additional Information",
+      "level": 1
+    },
+    {
+      "text": "For more disaster recovery information and troubleshooting instructions, see the Zscaler Support Portal and the Zscaler Zenith Community."
+    }
+  ]
+}
