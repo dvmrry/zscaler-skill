@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.entra-connection",
+  "title": "How an Entra ID tenant is connected to ITDR: deployment script, permissions, certificates and scan setup",
+  "aliases": [
+    "connect entra id tenant itdr",
+    "itdr deployment script azure"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.posture-scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.detection-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.safelists"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{defaults}} {{deployment-script-resources}} The audit log cadence against other pages' change detection timing is open {{gap:entra-log-cadence}}."
+    },
+    {
+      "heading": "Connecting a tenant"
+    },
+    {
+      "text": "{{prerequisites}} {{tenant-details-fields}}"
+    },
+    {
+      "label": "Getting the script.",
+      "text": "{{script-methods-and-rg-name}}"
+    },
+    {
+      "label": "Permissions.",
+      "text": "{{subscription-read-access}} {{remediation-permissions}} {{admin-consent-and-permission-updates}}"
+    },
+    {
+      "heading": "Managing a connected tenant"
+    },
+    {
+      "text": "{{tenant-list-fields}} Which defaults the pages leave out is open {{gap:entra-defaults-not-stated}}."
+    },
+    {
+      "label": "Certificates.",
+      "text": "{{certificate-validity}} {{certificate-refresh}}"
+    },
+    {
+      "label": "Editing, deleting and scanning.",
+      "text": "{{edit-connected-tenant}} {{delete-tenant-undeploy}} {{on-demand-scan}}"
+    },
+    {
+      "heading": "Related subjects"
+    },
+    {
+      "text": "[[identity-protection.overview]] [[identity-protection.entra-posture]] [[identity-protection.change-detection]] [[identity-protection.posture-scans]] [[identity-protection.detection-policies]] [[identity-protection.safelists]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Entra ID account used for the deployment holds the Global Administrator role, and that the Tenant ID, Subscription ID and Region were obtained.",
+      "uses": [
+        "prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the tenant's Tenant ID, Client ID and Storage Account are populated before deciding which fields can be edited.",
+      "uses": [
+        "edit-connected-tenant"
+      ]
+    }
+  ],
+  "claims": {
+    "defaults": {
+      "statement": "After an Entra ID tenant is connected, attribute collection is enabled by default and change detection is enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture-scan.json",
+          "quotes": [
+            "In addition to posture checks, change detection is enabled by default to monitor and detect active changes in the Entra ID tenant.",
+            "After you connect an Entra ID tenant with ITDR for scanning, the attribute collection is enabled by default."
+          ]
+        }
+      ]
+    },
+    "deployment-script-resources": {
+      "statement": "ITDR uses a deployment script to create resources such as a resource group, app, storage account and service principal in Entra ID and to enable diagnostic settings for log-based change detection; the audit logs are analyzed and updated in the ITDR Admin Portal every 15 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture-scan.json",
+          "quotes": [
+            "ITDR uses a deployment script to set up all necessary resources such as resource group, app, storage account, and service principal, etc. in Entra ID.",
+            "The diagnostic settings are also enabled by the deployment script to enable change detection using the logs.",
+            "The audit logs are analyzed and updated in the Zscaler ITDR Admin Portal every 15 minutes."
+          ]
+        }
+      ]
+    },
+    "tenant-list-fields": {
+      "statement": "The Entra ID page lists per tenant the Tenant ID, Client ID, Storage Account, Scan Frequency (Daily, Weekly, Monthly or Quarterly) and the Subscriptions with Read Access; its Current State values include Waiting (scan yet to start) and Error (scan stopped or not started due to an error).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture-scan.json",
+          "quotes": [
+            "On the Entra ID page (ITDR > Manage > Entra ID), you can do the following:",
+            "Tenant ID: The tenant ID of the connected Entra ID tenant.",
+            "Client ID: The client ID of the connected Entra ID tenant.",
+            "Storage Account: The storage account created by the deployment script in Entra ID.",
+            "Scan Frequency: The scan frequency (Daily, Weekly, Monthly, and Quarterly) configured for an Entra ID tenant while connecting it with the ITDR Admin Portal.",
+            "Subscriptions with Read Access: The list of subscriptions that have read access to the deployed resources.",
+            "Current State: The current scan status. The possible statuses are as follows:",
+            "Waiting: The scan is yet to start.",
+            "Error: The scan is stopped or not started due to an error."
+          ]
+        }
+      ]
+    },
+    "certificate-refresh": {
+      "statement": "The Refresh icon for renewing an Entra ID tenant's certificate appears 30 days before the certificate expires; after renewing, the deployment script must be run with the Sync Secret option to sync.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-posture-scan.json",
+          "quotes": [
+            "The Refresh icon appears 30 days before the certificate is about to expire.",
+            "After renewing the certificate, you must run the deployment script to sync.",
+            "Select Sync Secret option while running the script in the Cloud Shell window."
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Connecting an Entra ID tenant requires an Entra ID account with the Global Administrator role and the tenant's Tenant ID, Subscription ID and Region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "An Entra ID account with a Global Administrator role.",
+            "Obtained Entra ID's Tenant ID, Subscription ID, and Region."
+          ]
+        }
+      ]
+    },
+    "tenant-details-fields": {
+      "statement": "Adding a tenant in the ITDR Admin Portal takes Tenant ID, Subscription ID, Region, Scan Frequency, Scan Time and a Scan Timeout entered in minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "Tenant ID: Enter the tenant ID of the Entra ID tenant obtained from the Azure Portal.",
+            "Subscription ID: Enter the subscription ID of the Entra ID tenant obtained from the Azure Portal.",
+            "Scan Frequency: Select a preferred frequency at which the posture scans must run for the Entra ID tenant.",
+            "Scan Time: Select a time of the day when the posture scan must start.",
+            "Region: Select the region to which the Entra ID tenant belongs from the drop-down menu.",
+            "Scan Timeout: Enter a time value (in minutes) for the posture scan to time out."
+          ]
+        }
+      ]
+    },
+    "subscription-read-access": {
+      "statement": "After deploying resources, the script prompts to grant read access to subscriptions with three options (Yes to all, No to all, Confirm for each); if none is selected, No to all is selected by default and can be changed later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "Yes to all: Grants read access to every subscription.",
+            "No to all: Denies read access for all subscriptions.",
+            "Confirm for each: Grant or deny access to each subscription individually.",
+            "If no option is selected, No to all is selected by default and can be changed later."
+          ]
+        }
+      ]
+    },
+    "remediation-permissions": {
+      "statement": "Zscaler recommends adding remediation action permissions during the initial Entra ID deployment, and the step can be skipped if remediations will not be performed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "Zscaler recommends adding remediation action permissions during the initial deployment. Skip this step if you do not want to perform remediations."
+          ]
+        }
+      ]
+    },
+    "certificate-validity": {
+      "statement": "The certificates generated for the ITDR app registration are valid for one year; an expired certificate is renewed by entering 3 in the deployment script.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "The certificates generated for app registration are configured with one year validity for security reasons.",
+            "If the certificate is expired, enter 3 and press Enter to renew the certificate."
+          ]
+        }
+      ]
+    },
+    "admin-consent-and-permission-updates": {
+      "statement": "After deployment, the operator grants admin consent for the ITDR application (click Grant admin consent, then Yes in the confirmation window); because required permissions might change, the deployment script is run again with the Update-AppRegistrationPermissions option and the ITDR app ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-connecting-entra-id-tenant-zscaler-itdr-admin-portal.json",
+          "quotes": [
+            "Click Grant admin consent for <ITDR application name>.",
+            "In the Grant admin consent confirmation window, click Yes.",
+            "The required API permissions are granted for ITDR.",
+            "Due to enhancements and updates, the permissions required for connecting an Entra ID tenant might change.",
+            "Update-AppRegistrationPermissions -Id <ITDRAppID>"
+          ]
+        }
+      ]
+    },
+    "script-methods-and-rg-name": {
+      "statement": "The deployment script can be obtained by an automated method (a PowerShell command that downloads and runs it in Azure Cloud Shell) or a manual method (a downloaded PSM1 file uploaded to Cloud Shell); the automated command's resource group is named ZscalerITDR by default and the RGName attribute in the command customizes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-obtaining-deployment-script-azure.json",
+          "quotes": [
+            "Using this method, you can obtain a PowerShell command that automatically downloads and runs the deployment script when executed via Azure's Cloud Shell.",
+            "Using this method, you can download the deployment script as a PSM1 file, upload it to the Azure cloud, and run the script using a PowerShell command obtained from the Zscaler ITDR Admin Portal.",
+            "Choose the deployment script file (.psm1) that you downloaded to your system to upload it to Azure."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-obtaining-deployment-script-azure.json",
+          "quotes": [
+            "The default name of the resource group is ZscalerITDR.",
+            "However, you can customize this default name by replacing the value of the RGName attribute in the command."
+          ],
+          "after": "copy the command from the Automated: Run the following command in Azure Cloud Shell section and save it for later use."
+        }
+      ]
+    },
+    "edit-connected-tenant": {
+      "statement": "A tenant counts as connected when its Tenant ID, Client ID and Storage Account are populated; for a connected tenant only Scan Frequency, Scan Time and Scan Timeout can be edited, whereas an unconnected tenant allows all fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-entra-id-tenant-connection.json",
+          "quotes": [
+            "Confirm if the tenant is connected to the ITDR Admin Portal by checking if the Tenant ID, Client ID, and Storage Account values are populated for the tenant.",
+            "If the tenant is not connected with the ITDR Admin Portal, then you can edit all fields. However, if the tenant is connected with the portal, then you can only modify the Scan Frequency, Scan Time, and Scan Timeout fields."
+          ]
+        }
+      ]
+    },
+    "delete-tenant-undeploy": {
+      "statement": "Deleting an Entra ID tenant connection removes it from the ITDR Admin Portal; for a connected tenant, removing the deployed resources requires running the deployment script in Cloud Shell and choosing the undeploy option.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-entra-id-tenant-connection.json",
+          "quotes": [
+            "The Entra ID tenant is removed from the ITDR Admin Portal.",
+            "If the tenant is connected with the ITDR Admin Portal, complete the removal of resources deployed by Zscaler ITDR in Entra ID by following these steps:",
+            "Run the deployment script using the command obtained via the automated download method or manual download method.",
+            "Enter the option to undeploy resources and press Enter."
+          ]
+        }
+      ]
+    },
+    "on-demand-scan": {
+      "statement": "An Entra ID tenant's posture scan schedule is set when the tenant is added; an on-demand scan can be triggered with the tenant's Trigger Scan icon under Actions or directly from the Entra ID Posture dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-triggering-demand-scan-entra-id.json",
+          "quotes": [
+            "The posture scan schedule is configured at the time of adding an Entra ID tenant to the Zscaler ITDR Admin Portal.",
+            "Locate the Entra ID tenant that you want to scan, and click the Trigger Scan icon under the Actions column.",
+            "Alternatively, you can trigger an on-demand scan directly from the Entra ID Posture dashboard."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "entra-log-cadence": {
+      "kind": "semantic",
+      "title": "How the 15-minute Entra ID audit log analysis relates to the change detection cadence on other pages",
+      "status": "open",
+      "detail": "The Entra ID posture page says the audit logs are analyzed and updated in the ITDR Admin Portal every 15 minutes; these pages do not say how that reconciles with the change detection timing described elsewhere.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "entra-defaults-not-stated": {
+      "kind": "semantic",
+      "title": "Defaults the Entra ID connection articles do not state",
+      "status": "open",
+      "detail": "The connection articles do not give a default Scan Timeout, scan time or scan frequency for a new tenant, or how long scan reports are retained.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

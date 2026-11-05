@@ -1,0 +1,1017 @@
+{
+  "schema_version": 1,
+  "id": "deception.siem-integrations",
+  "title": "Deception and ITDR SIEM integrations: supported SIEMs, the integration list, filters, and the ArcSight, QRadar, Sentinel, DNIF, Splunk, Syslog and Sumo Logic guides",
+  "aliases": [
+    "ITDR SIEM integration",
+    "ITDR SIEM integrations",
+    "Deception SIEM integration",
+    "SIEM Integrations page",
+    "Include Safe Events"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    }
+  ],
+  "prose": [
+    {
+      "text": "The product hubs are [[deception.overview]] and [[identity-protection.overview]]. {{siem-supported-platforms}} {{siem-list-columns}}"
+    },
+    {
+      "label": "Options common to the guides.",
+      "text": "{{include-safe-events}} {{filter-blank-sends-all}} {{filter-event-logs-only}} {{transport-tcp-udp}} {{siem-port-connectivity}}"
+    },
+    {
+      "label": "Syslog.",
+      "text": "{{log-type-choices}} {{connector-in-portal-sends}} {{connector-on-decoy-connector-sends}} {{syslog-prefer-tcp}} {{syslog-labels}} {{syslog-tcpdump-test}}"
+    },
+    {
+      "label": "IBM QRadar.",
+      "text": "{{qradar-log-source}}"
+    },
+    {
+      "label": "Microsoft Sentinel.",
+      "text": "{{sentinel-dcr-deprecated-legacy}} {{sentinel-prereqs}} {{sentinel-azure-objects}} {{sentinel-rbac}} {{sentinel-portal-fields}} {{sentinel-latency}} {{itdr-sentinel-workspace-key}} Whether the ITDR key-based method is the legacy method is open {{gap:itdr-sentinel-legacy}}."
+    },
+    {
+      "label": "Splunk.",
+      "text": "{{splunk-hec-token}} {{splunk-port-protocol}} {{splunk-cloud-host-and-ssl}}"
+    },
+    {
+      "label": "Sumo Logic.",
+      "text": "{{sumo-http-source}}"
+    },
+    {
+      "label": "ITDR tests for ArcSight and Splunk.",
+      "text": "{{itdr-test-from-investigate}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Microsoft Sentinel integration in Deception was configured with the legacy log ingestion method Microsoft has deprecated.",
+      "uses": [
+        "sentinel-dcr-deprecated-legacy"
+      ]
+    },
+    {
+      "do": "Whether the Filter field applies to the log type chosen, since the guides say Filter is available only for event logs.",
+      "uses": [
+        "filter-event-logs-only"
+      ]
+    },
+    {
+      "do": "Which product the Sentinel answer is about, since the Deception guide selects Sentinel DCR and the ITDR guide uses a Workspace ID and Primary key.",
+      "uses": [
+        "sentinel-dcr-deprecated-legacy",
+        "itdr-sentinel-workspace-key"
+      ]
+    }
+  ],
+  "claims": {
+    "siem-supported-platforms": {
+      "statement": "SIEM integrations can be added for ArcSight, IBM QRadar, Microsoft Azure Sentinel, Netmonastery DNIF, Splunk, Syslog and Sumo Logic, to transmit logs in real time (the ITDR page says event logs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-siem-integrations.json",
+          "quotes": [
+            "- ArcSight",
+            "- IBM QRadar",
+            "- Microsoft Azure Sentinel",
+            "- Netmonastery DNIF",
+            "- Splunk",
+            "- Syslog",
+            "- Sumo Logic",
+            "You can integrate Zscaler Deception with supported SIEM solutions to transmit logs in real time."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-siem-integrations.json",
+          "quotes": [
+            "- ArcSight",
+            "- IBM QRadar",
+            "- Microsoft Azure Sentinel",
+            "- Netmonastery DNIF",
+            "- Splunk",
+            "- Syslog",
+            "- Sumo Logic",
+            "You can integrate ITDR with supported SIEM solutions to transmit event logs in real time."
+          ]
+        }
+      ]
+    },
+    "siem-list-columns": {
+      "statement": "The SIEM Integrations page lists Name, Type (the SIEM solution), Connector (the Service Connector forwarding logs), Source (type of log, such as Events or Audit Logs), Last Failure (the last error message, if any) and Enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-siem-integrations.json",
+          "quotes": [
+            "Name: The name of the SIEM integration.",
+            "Type: The name of the SIEM solution.",
+            "Connector: The Service Connector that is configured to forward logs to the SIEM.",
+            "Source: The type of log (e.g., Events or Audit Logs) that is forwarded to the SIEM.",
+            "Last Failure: The last error message, if any.",
+            "Enabled: The X icon indicates that the SIEM integration is disabled, and the check mark icon indicates that the SIEM integration is enabled."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-siem-integrations.json",
+          "quotes": [
+            "Name: The name of the SIEM integration.",
+            "Type: The name of the SIEM solution.",
+            "Connector: The Service Connector that is configured to forward logs to the SIEM.",
+            "Source: The type of log (e.g., Events or Audit Logs) that is forwarded to the SIEM.",
+            "Last Failure: The last error message, if any.",
+            "Enabled: The X icon indicates that the SIEM integration is disabled, and the check mark icon indicates that the SIEM integration is enabled."
+          ]
+        }
+      ]
+    },
+    "include-safe-events": {
+      "statement": "Every SIEM guide (ArcSight, IBM QRadar, Microsoft Sentinel, Netmonastery DNIF, Splunk, Syslog, Sumo Logic) has an Include Safe Events option that forwards events marked as safe to the SIEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-arcsight.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to ArcSight."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to ArcSight."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to QRadar."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to QRadar."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Sentinel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Sentinel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-netmonastery.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Netmonastery DNIF."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-netmonastery-dnif.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Netmonastery DNIF."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Splunk."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Splunk."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Sumo Logic."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "Include Safe Events: Enable to forward the events that are marked as safe to Sumo Logic."
+          ]
+        }
+      ]
+    },
+    "filter-blank-sends-all": {
+      "statement": "In every SIEM guide (ArcSight, IBM QRadar, Microsoft Sentinel, Netmonastery DNIF, Splunk, Syslog, Sumo Logic) a blank Filter field means all logs are sent to the SIEM (all event logs in the ArcSight, QRadar, Sentinel, DNIF and Syslog guides; all logs in the Splunk and Sumo Logic guides, which also say the Filter option is available only for event logs).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-arcsight.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to ArcSight. If this field is blank, all event logs are sent to ArcSight."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to ArcSight. If this field is blank, all event logs are sent to ArcSight."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to QRadar. If this field is blank, all event logs are sent to QRadar."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to QRadar. If this field is blank, all event logs are sent to QRadar."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Sentinel. If this field is blank, all event logs are sent to Sentinel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Sentinel. If this field is blank, all event logs are sent to Sentinel."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-netmonastery.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Netmonastery DNIF. If this field is blank, all event logs are sent to Netmonastery DNIF."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-netmonastery-dnif.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Netmonastery DNIF. If this field is blank, all event logs are sent to Netmonastery DNIF."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "Filter: Enter queries if you want to filter the logs before forwarding them to Splunk. If this field is blank, all logs are forwarded to Splunk.",
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "Filter: Enter queries if you want to filter the logs before forwarding them to Splunk. If this field is blank, all logs are forwarded to Splunk.",
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Syslog. If this field is blank, all event logs are sent to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Filter: Specify a query if you want to send filtered event logs to Syslog. If this field is blank, all event logs are sent to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "Filter: Enter queries if you want to filter the logs before forwarding them to Sumo Logic. If this field is blank, all logs are forwarded to Sumo Logic.",
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "Filter: Enter queries if you want to filter the logs before forwarding them to Sumo Logic. If this field is blank, all logs are forwarded to Sumo Logic.",
+            "The Filter option is available only for event logs."
+          ]
+        }
+      ]
+    },
+    "filter-event-logs-only": {
+      "statement": "The Filter option is available only for event logs, per the ArcSight, Microsoft Sentinel, Netmonastery DNIF, Splunk, Syslog and Sumo Logic guides (Deception and ITDR) and the ITDR IBM QRadar guide.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-arcsight.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-netmonastery.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-netmonastery-dnif.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "The Filter option is available only for event logs."
+          ]
+        }
+      ]
+    },
+    "log-type-choices": {
+      "statement": "The Syslog guide (Deception and ITDR) offers Events and Audit Logs as the log types to send.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Events: Send events to Syslog.",
+            "Audit Logs: Send audit logs to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Events: Send events to Syslog.",
+            "Audit Logs: Send audit logs to Syslog."
+          ]
+        }
+      ]
+    },
+    "connector-in-portal-sends": {
+      "statement": "In the Syslog guide, if the selected Service Connector is configured in the admin portal, the admin portal sends the logs to Syslog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "If you select a Service Connector that is configured in the Deception Admin Portal, the admin portal sends logs to Syslog."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "If you select a Service Connector that is configured in the ITDR Admin Portal, the portal sends logs to Syslog."
+          ]
+        }
+      ]
+    },
+    "connector-on-decoy-connector-sends": {
+      "statement": "In the Deception Syslog guide, if the selected Service Connector is configured on a Decoy Connector, the selected Decoy Connector sends the logs to Syslog.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "If you select a Service Connector that is configured on a Decoy Connector, the selected Decoy Connector sends logs to Syslog."
+          ]
+        }
+      ]
+    },
+    "transport-tcp-udp": {
+      "statement": "The ArcSight, IBM QRadar, Netmonastery DNIF and Syslog guides each say to use TCP or UDP according to the SIEM server's configuration, and the ArcSight and Syslog guides have a Transport field with TCP or UDP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-arcsight.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the ArcSight SIEM configuration.",
+            "Transport: Select TCP or UDP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the ArcSight SIEM configuration.",
+            "Transport: Select TCP or UDP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Use either the TCP or UDP protocol depending on the QRadar server's configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Use either the TCP or UDP protocol depending on the QRadar server's configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-netmonastery.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the Netmonastery DNIF SIEM configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-netmonastery-dnif.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the Netmonastery DNIF SIEM configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the Syslog server's configuration.",
+            "Transport: Select TCP or UDP."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Use TCP or UDP protocol depending on the Syslog server's configuration.",
+            "Transport: Select TCP or UDP."
+          ]
+        }
+      ]
+    },
+    "siem-port-connectivity": {
+      "statement": "The ArcSight, IBM QRadar, Netmonastery DNIF and Syslog guides require network connectivity between the Service Connector and the SIEM server on the port the SIEM is listening on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-arcsight.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the ArcSight server on the port ArcSight is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the ArcSight server on the port ArcSight is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the QRadar server on the port QRadar is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the QRadar server on the port QRadar is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-netmonastery.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Netmonastery DNIF server on the port Netmonastery DNIF is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-netmonastery-dnif.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Netmonastery DNIF server on the port Netmonastery DNIF is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Syslog server on the port Syslog is listening to."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Syslog server on the port Syslog is listening to."
+          ]
+        }
+      ]
+    },
+    "syslog-prefer-tcp": {
+      "statement": "For Syslog, Zscaler recommends TCP to avoid issues with the UDP protocol's unreliability, frame limits and fragmented packets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Zscaler recommends that you use the TCP protocol to avoid any issues with the UDP protocol's unreliability, frame limits, and fragmented packets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Zscaler recommends that you use the TCP protocol to avoid any issues with the UDP protocol's unreliability, frame limits, and fragmented packets."
+          ]
+        }
+      ]
+    },
+    "syslog-labels": {
+      "statement": "The Syslog guide has a Facility field (each event is labeled with a facility code indicating the type of software generating the event logs), a Severity field (each event is labeled with a severity) and an App Name log identifier; the IBM QRadar guide has the same three fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "Facility: Select a facility code (e.g., System) from the drop-down menu.",
+            "Severity: Select a severity level (e.g., Critical).",
+            "Each event is labeled with a facility code, indicating the type of software generating the event logs.",
+            "Each event is labeled with a severity, indicating the severity of the tool generating the event logs.",
+            "App Name: Enter a log identifier (e.g., Zscaler Deception)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "Facility: Select a facility code (e.g., System) from the drop-down menu.",
+            "Severity: Select a severity level (e.g., Critical).",
+            "Each event is labeled with a facility code, indicating the type of software generating the event logs.",
+            "Each event is labeled with a severity, indicating the severity of the tool generating the event logs.",
+            "App Name: Enter a log identifier (e.g., Zscaler ITDR)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Facility: Select a facility code (e.g., User) from the drop-down menu.",
+            "Severity: Select a severity level (e.g., Debug) from the drop-down menu.",
+            "Each event is labeled with a facility code, indicating the type of software generating the event logs.",
+            "Each event is labeled with a severity, indicating the severity of the tool generating the event logs.",
+            "App Name: Enter a log identifier (e.g., Zscaler Deception)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Facility: Select a facility code (e.g., User) from the drop-down menu.",
+            "Severity: Select a severity level (e.g., Debug) from the drop-down menu.",
+            "Each event is labeled with a facility code, indicating the type of software generating the event logs.",
+            "Each event is labeled with a severity, indicating the severity of the tool generating the event logs.",
+            "App Name: Enter a log identifier (e.g., Zscaler ITDR)."
+          ]
+        }
+      ]
+    },
+    "syslog-tcpdump-test": {
+      "statement": "The Syslog guide gives the command tcpdump -n host <IP address of the Service Connector> and states that the Syslog server receives the event logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-syslog-server.json",
+          "quotes": [
+            "tcpdump -n host <IP address of the Service Connector>",
+            "The Syslog server receives the event logs."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-syslog.json",
+          "quotes": [
+            "tcpdump -n host <IP address of the Service Connector>",
+            "The Syslog server receives the event logs."
+          ]
+        }
+      ]
+    },
+    "qradar-log-source": {
+      "statement": "The QRadar guide goes to Admin > DSM Editor; the log source's Protocol Configuration is Syslog and its Log Source Identifier is service-connector, and Deploy Changes activates the new log source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Go to Admin > DSM Editor.",
+            "Protocol Configuration: Select Syslog from the drop-down menu.",
+            "Log Source Identifier: Enter service-connector.",
+            "click Deploy Changes to activate the new log source."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-ibm-qradar.json",
+          "quotes": [
+            "Go to Admin > DSM Editor.",
+            "Protocol Configuration: Select Syslog from the drop-down menu.",
+            "Log Source Identifier: Enter service-connector.",
+            "click Deploy Changes to activate the new log source."
+          ]
+        }
+      ]
+    },
+    "sentinel-dcr-deprecated-legacy": {
+      "statement": "In the Deception guide, Microsoft has deprecated the legacy log ingestion method, so a Microsoft Sentinel integration configured with it must be reconfigured to use data collection rule-based log ingestion; the guide selects Sentinel DCR from the Add Integration drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Microsoft has deprecated the legacy log ingestion method. If you previously configured Microsoft Sentinel using this method, you must reconfigure the integration to use data collection rule-based log ingestion.",
+            "Click Add Integration, and select Sentinel DCR from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "sentinel-prereqs": {
+      "statement": "In the Deception Sentinel guide, the integration needs the TCP protocol, a log analytics workspace with Microsoft Sentinel enabled, connectivity between the Service Connector and the Sentinel API server on TCP port 443, an Azure contributor with access to the resource group, and a sample JSON log file for events or audit logs to define the schema; the integration is proxy aware if direct network connectivity is not available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Use the TCP protocol.",
+            "A log analytics workspace with Microsoft Sentinel is enabled.",
+            "You have network connectivity between the Service Connector and Sentinel API server on TCP port 443.",
+            "A Microsoft Azure contributor has access to the resource group.",
+            "You have a sample JSON log file for events or audit logs to define schema.",
+            "The Sentinel SIEM integration is proxy aware if direct network connectivity is not available."
+          ]
+        }
+      ]
+    },
+    "sentinel-azure-objects": {
+      "statement": "In the Deception Sentinel DCR setup, the Region selected must match the log analytics workspace, Azure automatically appends _CL to the end of the table name, the transformation is source | extend TimeGenerated = now(), and the immutableId value and streamDeclarations name are copied from the data collection rule's JSON View.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Region: Select a region, and ensure that it matches your log analytics workspace.",
+            "Azure automatically appends _CL to the end of the name.",
+            "source | extend TimeGenerated = now()",
+            "Select the data collection rule that you created.",
+            "Click JSON View.",
+            "Copy the immutableId value",
+            "Copy the streamDeclarations name"
+          ]
+        }
+      ]
+    },
+    "sentinel-rbac": {
+      "statement": "The Deception Sentinel DCR guide searches for and reviews the Monitoring Metrics Publisher role, selects the data collection rule created in the previous step, opens Access Control (IAM) and selects the application created in the previous step (for example Zscaler-Deception-Sentinel-App).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "search for and review Monitoring Metrics Publisher.",
+            "Select the data collection rule that you created in the previous step.",
+            "select Access Control (IAM).",
+            "search for the application name that you created in the previous step (e.g., Zscaler-Deception-Sentinel-App), and click Select."
+          ]
+        }
+      ]
+    },
+    "sentinel-portal-fields": {
+      "statement": "The Deception Sentinel DCR integration form takes Tenant ID, Client ID, Client Secret, DCR Immutable ID, DCE Endpoint (the log ingestion URI) and Stream Name, plus Use Proxy Settings if the Service Connector requires a proxy to connect to the Sentinel server.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Tenant ID: Enter the tenant ID.",
+            "Client ID: Enter the client ID you copied from the Azure portal.",
+            "Client Secret: Enter the client secret value you copied from the Azure portal.",
+            "DCR Immutable ID: Enter the immutable ID you copied from the data collection rule in the Azure portal.",
+            "DCE Endpoint: Enter the log ingestion URI you copied from the data collection endpoint in the Azure portal.",
+            "Stream Name: Enter the stream name you copied from the data collection rule in the Azure portal.",
+            "Use Proxy Settings: Enable if the Service Connector requires a proxy to connect to the Sentinel server."
+          ]
+        }
+      ]
+    },
+    "sentinel-latency": {
+      "statement": "The Sentinel guide (Deception and ITDR) says Sentinel starts receiving the logs in 10 to 15 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "The Sentinel starts receiving the logs in 10 to 15 minutes."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "The Sentinel starts receiving the logs in 10 to 15 minutes."
+          ]
+        }
+      ]
+    },
+    "itdr-sentinel-workspace-key": {
+      "statement": "The ITDR Microsoft Sentinel guide takes the Log Analytics Workspace ID and Primary key (copied from Settings > Agents management, Windows servers tab) and a Log Type identifier, and selects Sentinel from the Add Integration drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-microsoft-sentinel.json",
+          "quotes": [
+            "Go to Settings > Agents management.",
+            "Click the Windows servers tab.",
+            "Copy the Workspace ID and Primary key.",
+            "Click Add Integration, and select Sentinel from the drop-down menu.",
+            "Log Type: Enter an identifier for the log type."
+          ]
+        }
+      ]
+    },
+    "splunk-hec-token": {
+      "statement": "The Splunk guide sets up the HTTP Event Collector: All Tokens set to Enabled, Default Source Type _json, the Enable SSL checkbox selected, and a new token with source type _json whose token ID is copied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "Go to Settings > Data Inputs > HTTP Event Collector.",
+            "All Tokens: Select Enabled.",
+            "Default Source Type: Select _ json from the drop-down menu.",
+            "Select the Enable SSL checkbox.",
+            "Select _ json from the Select Source Type drop-down menu.",
+            "The API token ID is generated.",
+            "Copy the token ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "Go to Settings > Data Inputs > HTTP Event Collector.",
+            "All Tokens: Select Enabled.",
+            "Default Source Type: Select _ json from the drop-down menu.",
+            "Select the Enable SSL checkbox.",
+            "Select _ json from the Select Source Type drop-down menu.",
+            "The API token ID is generated.",
+            "Copy the token ID."
+          ]
+        }
+      ]
+    },
+    "splunk-port-protocol": {
+      "statement": "The Splunk guide needs network connectivity between the Service Connector and the Splunk server on a TCP port whose default is 8088, uses HTTP or HTTPS according to the Splunk configuration, and has the Port field set to 8088.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Splunk server on TCP port. The default port is 8088.",
+            "Use HTTP or HTTPS protocol depending on the Splunk SIEM configuration.",
+            "Port: Enter 8088."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "Have network connectivity between the Service Connector and the Splunk server on TCP port. The default port is 8088.",
+            "Use HTTP or HTTPS protocol depending on the Splunk SIEM configuration.",
+            "Port: Enter 8088."
+          ]
+        }
+      ]
+    },
+    "splunk-cloud-host-and-ssl": {
+      "statement": "For the Splunk cloud platform, http-input- is added to the beginning of the URL; Strict SSL, when enabled, validates the Splunk server's SSL certificate against a list of public certificate authorities, and when disabled turns certificate verification off; Key takes the token ID generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-splunk.json",
+          "quotes": [
+            "For the Splunk cloud platform, add http-input- to the beginning of the URL.",
+            "Strict SSL: If enabled, the SSL certificate on the Splunk server is validated by a list of public certificate authorities. If disabled, then the SSL certificate verification is disabled.",
+            "Key: Enter the token ID that you generated."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "For the Splunk cloud platform, add http-input- to the beginning of the URL.",
+            "Strict SSL: If enabled, the SSL certificate on the Splunk server is validated by a list of public certificate authorities. If disabled, then the SSL certificate verification is disabled.",
+            "Key: Enter the token ID that you generated."
+          ]
+        }
+      ]
+    },
+    "sumo-http-source": {
+      "statement": "The Sumo Logic guide selects Hosted Collector in the Select Collector Type window and selects the Multiline Processing checkbox; HTTP Collector Endpoint takes the HTTP Source Address URL that was copied, and Use Proxy Settings (if available) enables proxy settings on the Service Connector, if available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "In the Select Collector Type window, click Hosted Collector.",
+            "select the Multiline Processing checkbox.",
+            "HTTP Collector Endpoint: Enter the HTTP Source Address URL that you copied.",
+            "Use Proxy Settings (if available): Enable if you want to use proxy settings on the Service Connector, if available."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-sumo-logic.json",
+          "quotes": [
+            "In the Select Collector Type window, click Hosted Collector.",
+            "select the Multiline Processing checkbox.",
+            "HTTP Collector Endpoint: Enter the HTTP Source Address URL that you copied.",
+            "Use Proxy Settings (if available): Enable if you want to use proxy settings on the Service Connector, if available."
+          ]
+        }
+      ]
+    },
+    "itdr-test-from-investigate": {
+      "statement": "The ITDR ArcSight and Splunk guides test the integration by generating events on the Investigate page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-arcsight-enterprise-security-manager.json",
+          "quotes": [
+            "To test the ArcSight SIEM integration, generate events on the Investigate page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-siem-configuration-guide-splunk-enterprise-and-cloud-platform.json",
+          "quotes": [
+            "To test the Splunk SIEM integration, generate events on the Investigate page."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "itdr-sentinel-legacy": {
+      "kind": "semantic",
+      "title": "Whether the ITDR Sentinel Workspace ID and Primary key method is the legacy ingestion method Microsoft deprecated",
+      "status": "open",
+      "detail": "The Deception guide says Microsoft deprecated the legacy log ingestion method and selects Sentinel DCR. The ITDR guide takes a Workspace ID and Primary key and selects Sentinel, and carries no deprecation note. No captured page says whether the ITDR method is the deprecated one or still supported.",
+      "resolves_with": [
+        "support-ticket",
+        "lab-test"
+      ]
+    }
+  }
+}

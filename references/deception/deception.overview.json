@@ -32,8 +32,45 @@
     },
     {
       "rel": "see-also",
+      "to": "deception.orchestration-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.containment-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.service-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.api-tokens"
+    },
+    {
+      "rel": "see-also",
       "to": "zcc.passwords-and-otp.otp"
-    }
+    },
+    { "rel": "see-also", "to": "deception.investigate" },
+    { "rel": "see-also", "to": "deception.miragemaker" },
+    { "rel": "see-also", "to": "deception.datasets" },
+    { "rel": "see-also", "to": "deception.cloud-decoys" },
+    { "rel": "see-also", "to": "deception.sso" },
+    { "rel": "see-also", "to": "deception.siem-integrations" },
+    { "rel": "see-also", "to": "deception.enrichment-integrations" },
+    { "rel": "see-also", "to": "deception.decoy-deployment" },
+    { "rel": "see-also", "to": "deception.ti-decoys" },
+    { "rel": "see-also", "to": "deception.gen-ai-decoys" },
+    { "rel": "see-also", "to": "deception.network-decoys" },
+    { "rel": "see-also", "to": "deception.landmine-policies" },
+    { "rel": "see-also", "to": "deception.landmine-decoys" },
+    { "rel": "see-also", "to": "deception.ad-decoys" },
+    { "rel": "see-also", "to": "deception.admin-portal" },
+    { "rel": "see-also", "to": "deception.decoy-connectors" },
+    { "rel": "see-also", "to": "deception.query-language" },
+    { "rel": "see-also", "to": "deception.landmine-agents" },
+    { "rel": "see-also", "to": "deception.endpoint-settings" },
+    { "rel": "see-also", "to": "deception.topology" },
+    { "rel": "see-also", "to": "deception.best-practices" }
   ],
   "prose": [
     {
@@ -41,19 +78,23 @@
     },
     {
       "label": "Deployment.",
-      "text": "{{deployment}} {{decoy-connectors}}"
+      "text": "{{deployment}} {{decoy-connectors}} {{portal-and-connector-components}} {{landmine-component}} {{zpa-integrated-containment}} {{zpa-no-extra-connectors}} Decoy Connector platforms, sizing and connection are in [[deception.decoy-connectors]], subnets and interfaces in [[deception.topology]], and the Landmine agents in [[deception.landmine-agents]] with their settings in [[deception.endpoint-settings]]."
+    },
+    {
+      "label": "Setup.",
+      "text": "{{configuration-guide-steps}} {{configuration-guide-siem-platforms}} {{configuration-guide-notification-scope}} Sign-in, users and roles, account settings and allowed IPs are in [[deception.admin-portal]], single sign-on in [[deception.sso]], and recommended deployments in [[deception.best-practices]]."
     },
     {
       "label": "Decoys.",
-      "text": "{{decoy-types}} {{strategy}} The attacker-facing MCP server decoy is in [[deception.mcp-server-decoys]]; what each plan includes is in [[deception.plans]]."
+      "text": "{{decoy-types}} {{strategy}} The attacker-facing MCP server decoy is in [[deception.mcp-server-decoys]]; what each plan includes is in [[deception.plans]]. The decoy types are in [[deception.network-decoys]], [[deception.ti-decoys]], [[deception.ad-decoys]], [[deception.gen-ai-decoys]], [[deception.cloud-decoys]], [[deception.landmine-policies]] and [[deception.landmine-decoys]], and Miragemaker and its datasets in [[deception.miragemaker]] and [[deception.datasets]]. Decoy deployment is in [[deception.decoy-deployment]]."
     },
     {
       "label": "Detection and response.",
-      "text": "{{detect}} {{threatparse}} {{orchestrate-remediate}}"
+      "text": "{{detect}} {{threatparse}} {{orchestrate-remediate}} Rules, actions and event templates are in [[deception.orchestration-rules]], containment integrations in [[deception.containment-integrations]], and Service Connectors in [[deception.service-connectors]]. The dashboard is in [[deception.investigate]], SIEM integrations in [[deception.siem-integrations]], enrichment integrations in [[deception.enrichment-integrations]], and the query syntax used in filters and conditions in [[deception.query-language]]."
     },
     {
       "label": "Roles.",
-      "text": "{{roles}}"
+      "text": "{{roles}} Predefined roles, custom roles and users are in [[deception.admin-portal]]."
     },
     {
       "heading": "What it changes in Private Access"
@@ -71,7 +112,7 @@
       "heading": "Automation"
     },
     {
-      "text": "{{no-client-surface}} API access exists in the product (Super admin manages APIs, and only the Advanced plan includes it: [[deception.plans:enterprise]]), but its endpoints and the lifecycle of the Private Access objects Deception owns are open {{gap:admin-api}}."
+      "text": "{{no-client-surface}} Token fields and expiry are in [[deception.api-tokens]]. API access exists in the product (Super admin manages APIs, and only the Advanced plan includes it: [[deception.plans:enterprise]]), but its endpoints and the lifecycle of the Private Access objects Deception owns are open {{gap:admin-api}}."
     }
   ],
   "checks": [
@@ -275,6 +316,111 @@
           "path": "skills/zcc/generate-logout-otp/SKILL.md",
           "quotes": [
             "| `deception_settings_otp` | Modify Deception settings on the device |"
+          ]
+        }
+      ]
+    },
+    "portal-and-connector-components": {
+      "statement": "The Deception standalone architecture's Admin Portal is a Zscaler-hosted cloud UI and central point of management and analysis that Decoy Connectors and software agents connect to; Decoy Connectors are virtual appliances that create decoys within trunked VLANs and can relay integrations to applications such as AD, SIEM and firewalls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-zscaler-deception-architecture.json",
+          "quotes": [
+            "A cloud-hosted user interface (UI) hosted by Zscaler. It serves as the central point of management and analysis for the Deception service. Decoy Connector and software agents connect to it.",
+            "Lightweight virtual appliances that are hosted in your environment and can create decoy applications within multiple trunked virtual local area networks (VLANs) of your network.",
+            "Decoy Connectors can be used as a secure relay for integration between the Deception Admin Portal and applications, such as Active Directory (AD), security information and event management (SIEM), firewalls, etc. in your network."
+          ]
+        }
+      ]
+    },
+    "landmine-component": {
+      "statement": "In the standalone architecture, the Landmine component is a software agent installed on endpoints such as desktops or laptops that deploys decoy credentials, files, processes, and lures to other decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-zscaler-deception-architecture.json",
+          "quotes": [
+            "Landmine: Software agent installed on endpoints, such as desktops or laptops on your network. These agents deploy decoy credentials, files, processes, and lures to other decoys at your endpoints."
+          ]
+        }
+      ]
+    },
+    "zpa-integrated-containment": {
+      "statement": "In the ZPA-integrated architecture, when an adversary breaks into the network and interacts with a decoy, Deception uses Zero Trust access policies to block the adversary's traffic to legitimate applications and contain the adversary to one system, building the picture from ZPA user and device identity; ZPA-based decoys are described as giving better visibility, intelligence and containment than non-ZPA decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-zscaler-deception-architecture.json",
+          "quotes": [
+            "Decoys that make use of ZPA provide better visibility, intelligence, and containment capabilities than their non-ZPA counterparts.",
+            "When an adversary breaks into your network and interacts with a decoy, Deception leverages Zero Trust access policies to block traffic from the adversary to the legitimate applications and contains the adversary to one system.",
+            "Deception builds a complete picture of the adversary using the user and device identity information from the ZPA service."
+          ]
+        }
+      ]
+    },
+    "zpa-no-extra-connectors": {
+      "statement": "With the ZPA integration, no additional Decoy Connectors or network configuration changes are needed to add deception to the environment, and the Landmine agent's lures direct adversaries toward decoy applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-zscaler-deception-architecture.json",
+          "quotes": [
+            "You don't have to install any additional Decoy Connectors or make any changes to your network configurations to add deception to your environment.",
+            "The Landmine agent deploys decoy credentials, files, processes, and lures to other decoys at your endpoints. These lures direct adversaries away from your legitimate assets and towards decoy applications."
+          ]
+        }
+      ]
+    },
+    "configuration-guide-steps": {
+      "statement": "The step-by-step configuration guide lists six steps: log in to the Admin Portal, configure users and roles, optionally configure single sign-on, launch the deception campaign, configure SIEM integration, and configure alert notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-step-step-configuration-guide-zscaler-deception.json",
+          "quotes": [
+            "Step 1: Log In to the Zscaler Deception Admin Portal",
+            "Step 2: Configure Users & Roles",
+            "(Optional) Step 3: Configure Single-Sign-On Authentication",
+            "Step 4: Launch Your Deception Campaign",
+            "Step 5: Configure SIEM Integration",
+            "Step 6: Configure Alert Notifications"
+          ]
+        }
+      ]
+    },
+    "configuration-guide-siem-platforms": {
+      "statement": "The configuration guide lists ArcSight, IBM QRadar, Microsoft Azure Sentinel, Netmonastery DNIF, Splunk, Syslog and Sumo Logic as supported SIEM integration platforms, configured through a Service Connector that forwards logs in real time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-step-step-configuration-guide-zscaler-deception.json",
+          "quotes": [
+            "You can configure a Service Connector to forward logs in real time.",
+            "Configuring SIEM integration for the following supported platforms:",
+            "ArcSight - IBM QRadar - Microsoft Azure Sentinel - Netmonastery DNIF - Splunk - Syslog - Sumo Logic"
+          ]
+        }
+      ]
+    },
+    "configuration-guide-notification-scope": {
+      "statement": "Email alert notifications can be configured per user and are sent when there is an issue with the decoys, license, or system, not when something happens on the decoys; Orchestrate rules can be added to create alerts when something happens on the decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-step-step-configuration-guide-zscaler-deception.json",
+          "quotes": [
+            "Notifications are sent to the user when there is an issue with the decoys, license, or system. Notifications are not sent if something happens on the decoys.",
+            "You can add Orchestrate rules to create alerts when something happens on the decoys.",
+            "You can configure the email alert notifications per user."
           ]
         }
       ]

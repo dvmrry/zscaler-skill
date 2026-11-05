@@ -1,0 +1,338 @@
+{
+  "schema_version": 1,
+  "id": "deception.query-language",
+  "title": "Deception query language: operators, constants, precedence and flags used in filters, rule conditions and ThreatParse rules",
+  "aliases": [
+    "deception query",
+    "deception filter syntax",
+    "orchestration condition syntax",
+    "threatparse rule syntax"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.orchestration-rules" },
+    { "rel": "see-also", "to": "deception.siem-integrations" },
+    { "rel": "see-also", "to": "deception.miragemaker" },
+    { "rel": "see-also", "to": "deception.investigate" }
+  ],
+  "prose": [
+    {
+      "text": "{{where-used}} {{fields}} {{gap:module-field-lists}}"
+    },
+    {
+      "label": "Operators.",
+      "text": "{{comparison-operators}} {{bound-tests}} {{regex-operators}} {{regex-flags}} {{gap:regex-flag-note-scope}}{{membership}} {{logical-operators}} {{precedence}} {{gap:precedence-not-rank}}"
+    },
+    {
+      "label": "Constants.",
+      "text": "{{constant-types}} {{list-constants}} {{time-constants}} {{truthiness}}"
+    },
+    {
+      "label": "Where the page contradicts itself.",
+      "text": "{{divergence:hello-string-truthiness}} {{divergence:outside-range-equivalent}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which module the query runs in, since field availability varies between modules and heterogeneous lists are supported only in the Orchestrate module.",
+      "uses": ["fields", "list-constants"]
+    },
+    {
+      "do": "Which regex flag the page's \"not supported in the Filters in Dashboard\" sentence refers to, before telling anyone a flag does or does not work in the dashboard filter.",
+      "uses": ["regex-flag-note-scope"]
+    },
+    {
+      "do": "How a single string constant or an outside-range test is evaluated: the page's examples contradict its stated rules.",
+      "uses": ["hello-string-truthiness", "outside-range-equivalent"]
+    }
+  ],
+  "claims": {
+    "where-used": {
+      "statement": "The Deception query language builds filters and conditions in the dashboard filter, Orchestration rule conditions, SIEM integration event filters, and ThreatParse rules in Miragemaker, and is a Boolean expression syntax modeled on Python.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "Filter in Dashboard",
+            "Conditions in Orchestration Rules",
+            "Event Filters in SIEM Integrations",
+            "- ThreatParse rules in Miragemaker",
+            "The syntax is modeled based on Python Boolean expressions."
+          ]
+        }
+      ]
+    },
+    "fields": {
+      "statement": "A field is always placed on the left side of a simple Boolean expression, and which fields are available varies between modules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "A field is always placed on the left side of a simple Boolean expression.",
+            "The availability of fields varies between each module."
+          ]
+        }
+      ]
+    },
+    "comparison-operators": {
+      "statement": "Comparison operators include == (is), != (is not), < (less than or before), > (greater than or after), <= and >=, with the keyword alternatives shown in the operator table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "| Equality (comparison) | == | is |",
+            "| Non-equality (comparison) | != | is not |",
+            "| Lesser than or earlier (comparison) | < | less than or before |",
+            "| Greater than or after | > | greater than or after |",
+            "| Lesser than or equal to/before or equal to (comparison) | <= | Not applicable |",
+            "| Greater than or equal to/after or equal to (comparison) | >= | Not applicable |"
+          ]
+        }
+      ]
+    },
+    "bound-tests": {
+      "statement": "Bound tests use between...and and not between...and with integer, fractional or date constants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "bound_operator is either between or not between based on the bound test.",
+            "The constants can be integers, fractional numbers, or dates.",
+            "Example: decoy.port not between 50 and 100"
+          ]
+        }
+      ]
+    },
+    "regex-operators": {
+      "statement": "Regular expression tests use ~ or like against string-type fields only, with constants in JavaScript notation between forward slashes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "regex operator is ~ or like.",
+            "Regular expressions can only be compared to string-type fields.",
+            "The regular expression constant follows the JavaScript notation of forward slashes at the beginning and the end."
+          ]
+        }
+      ]
+    },
+    "regex-flags": {
+      "statement": "The expression accepts regex flags with the meaning of Python's re flags: I (case-insensitive matching), L (makes \\w, \\W, \\b, \\B, \\s and \\S dependent on the locale configured in the Admin Portal), M (^ and $ also match at the start and end of each line) and S (. matches a newline).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "The expression accepts flags that have the same meaning as Python's re flags.",
+            "I: Performs case-insensitive matching.",
+            "L: Makes \\w, \\W, \\b, \\B, \\s, and \\S dependent on the current locale configured in the Deception Admin Portal.",
+            "M: When specified, the pattern character ^ matches at the beginning of the string and at the beginning of each line (immediately following each newline), and the pattern character $ matches at the end of the string and at the end of each line (immediately preceding each newline).",
+            "S: Makes the '.' special character match any character at all, including a newline"
+          ]
+        }
+      ]
+    },
+    "membership": {
+      "statement": "Membership tests use in and not in against a string or list constant, and at least one operand must be a field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "membership_operator is either in or not in.",
+            "However, at least one of the operands must be a field (identifier)."
+          ]
+        }
+      ]
+    },
+    "logical-operators": {
+      "statement": "Boolean expressions combine with and, or and not, and parentheses group sub-expressions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "boolean_operator is used to combine multiple Boolean expressions and returns a Boolean value based on the combination. Boolean operators: and, or, and not.",
+            "In addition, you can use parentheses to group sub-expressions and establish the order of evaluation."
+          ]
+        }
+      ]
+    },
+    "precedence": {
+      "statement": "Operator precedence ranks between...and first, then the binary comparison, membership and regex operators, then and, then or.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "| 1 | between...and... |",
+            "| 3 | and | Logical AND |",
+            "| 4 | or | Logical OR |",
+            "from the highest-ranked operations and then proceeds to evaluate lower-ranked expressions.",
+            "| 2 | >, after, greater than, >=, <, before, less than, <=, ==, is, !=, is not, in, not in, ~, like | Binary comparisons, including membership tests and identity tests |"
+          ]
+        }
+      ]
+    },
+    "constant-types": {
+      "statement": "Constants are true/false, null, integers, decimals, double-quoted strings, single-quoted DateTime, Date and Time values, and square-bracket lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "String constants are enclosed in double quotation marks.",
+            "Date, Time, and DateTime constants are enclosed in single quotation marks.",
+            "List constants are enclosed in square brackets.",
+            "| True, true | Boolean True |",
+            "| null | Represents an undefined value |",
+            "| 1, 2,-3,... | Integer constant |",
+            "| 1, 0.1, -.2,... | Decimal constant |",
+            "| False, false | Boolean False |"
+          ]
+        }
+      ]
+    },
+    "list-constants": {
+      "statement": "Lists may be heterogeneous only in the Orchestrate module, cannot contain identifiers, and may contain null and nested lists.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "However, heterogeneous lists are supported only in the Orchestrate module.",
+            "Lists cannot contain identifiers. However, it allows all constants including null.",
+            "You can also have nested lists (lists within a list) and recursive lists (lists containing the same items)."
+          ]
+        }
+      ]
+    },
+    "time-constants": {
+      "statement": "Time constants treat 12 AM as midnight and 12 PM as noon, date values cannot be extracted from the Investigate timestamp identifier, and now supports relative values such as 'now - 7 days'.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "12 AM denotes midnight and 12 PM denotes noon.",
+            "Dates cannot be extracted from the timestamp identifier in the Investigate module.",
+            "The keyword now can be used with date and time constants to add or subtract values relative to the current date or time.",
+            "Example: timestamp after 'now - 7 days' and timestamp between 'now - 2 hours' and 'now + 2 hours'."
+          ]
+        }
+      ]
+    },
+    "truthiness": {
+      "statement": "A single-constant expression is evaluated by truthiness: null is false, non-zero integers and decimals are true, non-empty strings are true, dates and times are always true, and non-empty lists are true.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-and-building-queries.json",
+          "quotes": [
+            "null is always false.",
+            "Integers other than 0 evaluate to true.",
+            "Strings evaluate to true for non-empty strings.",
+            "Dates/times are always true.",
+            "Lists evaluate to true for non-empty lists.",
+            "Decimals other than 0 evaluate to true."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "regex-flag-note-scope": {
+      "kind": "semantic",
+      "title": "Which regex flag is not supported in the dashboard filter",
+      "status": "open",
+      "detail": "The page's text \"This flag is not supported in the Filters in Dashboard. However, you can use it in regular expression queries in conditions in Orchestration Rules, event filters in SIEM Integrations, and ThreatParse rules in Miragemaker.\" follows the sentence about adding the UNICODE flag, so it may refer to the UNICODE flag rather than I. The capture does not say which.",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "precedence-not-rank": {
+      "kind": "semantic",
+      "title": "Where not ranks in operator precedence",
+      "status": "open",
+      "detail": "The precedence table ranks between...and, the binary comparisons, and, and or; it has no row for not, although not is listed as a Boolean operator. The capture does not say where not is evaluated.",
+      "resolves_with": ["source-read", "lab-test"]
+    },
+    "module-field-lists": {
+      "kind": "semantic",
+      "title": "Which fields each module offers",
+      "status": "open",
+      "detail": "The page says field availability varies between modules but gives no per-module field list in this capture.",
+      "resolves_with": ["source-read"]
+    }
+  },
+  "divergences": {
+    "hello-string-truthiness": {
+      "summary": "The page's rule for single-constant truthiness says non-empty strings evaluate to true, while its example says the string \"Hello\" evaluates to false.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-understanding-and-building-queries.json",
+            "quotes": [
+              "Strings evaluate to true for non-empty strings."
+            ]
+          },
+          "says": "A non-empty string evaluates to true."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-understanding-and-building-queries.json",
+            "quotes": [
+              "\"Hello\" evaluates to false and returns all events."
+            ]
+          },
+          "says": "The example \"Hello\" evaluates to false and returns all events."
+        }
+      ],
+      "impact": "The rule and the example give opposite results for a non-empty string constant; the captures do not say which is right."
+    },
+    "outside-range-equivalent": {
+      "summary": "The operator table defines not between as checking that a value is outside the range, while the equivalence table gives an expression for not between that is true inside the range.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-understanding-and-building-queries.json",
+            "quotes": [
+              "Checks if the field value is outside the range of two constants."
+            ]
+          },
+          "says": "not between checks that the field value is outside the range of two constants."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-understanding-and-building-queries.json",
+            "quotes": [
+              "| Is outside range? | network.orig_bytes not between 2000 and 3000 | network.orig_bytes >= 2000 and network.orig_bytes <= 3000 |"
+            ]
+          },
+          "says": "The equivalence row gives network.orig_bytes >= 2000 and network.orig_bytes <= 3000 as the equivalent of network.orig_bytes not between 2000 and 3000."
+        }
+      ],
+      "impact": "The equivalent expression matches values inside the range 2000 to 3000, so the row contradicts the stated outside-range meaning; the captures do not say which is right."
+    }
+  }
+}

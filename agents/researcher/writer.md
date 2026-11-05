@@ -201,6 +201,11 @@ verifier and the claim audit found in writer output:
 - **An example is not a rule.** "For example, filtering on both a user and a
   location matches only records with both" backs that example; "filters on
   different fields must all match" needs a source that says so.
+- **Prose and checks add nothing.** A prose sentence is markers and `[[links]]`; it does not relate subjects or
+  claims in its own words ("rules produce incidents", "scores come from alerts"). A check names what its claims
+  say, not a procedure they imply ("Save alone does not").
+- **A fix keeps the label.** When a quote does not reach a label the statement names (the stream a filter belongs
+  to, a tab, a menu), quote the label, with an `after` anchor if it is short, rather than cutting it.
 - **A divergence is not settled in passing.** A `checks` entry, prose sentence
   or new claim that rests on a value two sources disagree on uses the
   divergence, not one side of it.

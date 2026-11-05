@@ -1,0 +1,304 @@
+{
+  "schema_version": 1,
+  "id": "deception.endpoint-settings",
+  "title": "Endpoint settings (installer, lure refresh, update groups, safe processes) and Admin Portal settings (audit, error and debug logs, license, event and evidence export and delete, retention)",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-agents"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.topology"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.best-practices"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{agent-configuration-purpose}} Agents are in [[deception.landmine-agents]] and the hub is [[deception.overview]]."
+    },
+    {
+      "label": "Installer properties.",
+      "text": "{{installer-name-defaults}} {{installer-customize-before}} {{installer-name-unique}}"
+    },
+    {
+      "label": "Lure refresh and clean-up.",
+      "text": "{{lure-refresh}} {{auto-cleanup}}"
+    },
+    {
+      "label": "Agent update groups.",
+      "text": "{{update-groups-default}} {{phased-updates-effect}} {{update-group-criteria}} {{update-group-reporting}}"
+    },
+    {
+      "label": "Safe processes.",
+      "text": "{{safe-process-purpose}} {{safe-process-fields}} {{safe-process-match}} {{safe-process-process-tree}} {{safe-process-detection-types}} {{safe-process-internal}}"
+    },
+    {
+      "label": "Logs.",
+      "text": "{{audit-log-content}} {{error-log-content}} {{error-log-actions}} {{debug-log-ranges}}"
+    },
+    {
+      "label": "License.",
+      "text": "{{license-tab}} What the Landmine Users limit is for a plan is open {{gap:landmine-user-limits}}."
+    },
+    {
+      "label": "Events, evidence and retention.",
+      "text": "{{event-export-delete}} {{evidence-download-limit}} {{retention-default}} What the default covers beyond event logs and audit logs is open {{gap:retention-coverage}}. {{retention-fixed}}"
+    },
+    {
+      "label": "Internal components.",
+      "text": "{{internal-components}}"
+    },
+    {
+      "label": "Related subjects.",
+      "text": "Policies are in [[deception.landmine-policies]] and decoys in [[deception.landmine-decoys]]. Subnets and aggregators are in [[deception.topology]], and recommended rollout is in [[deception.best-practices]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the installer name was customized before agents were installed, since changing it afterward needs the existing agents uninstalled and reinstalled for consistency.",
+      "uses": [
+        "installer-customize-before"
+      ]
+    },
+    {
+      "do": "Whether phased updates are enabled and an agent is in an update group, since enabling the feature stops automatic updates for agents not in any group.",
+      "uses": [
+        "phased-updates-effect",
+        "update-group-criteria"
+      ]
+    },
+    {
+      "do": "Whether hash and certificate fields on a safe process were set for a Windows endpoint, since the page states them as applicable only to Windows endpoints.",
+      "uses": [
+        "safe-process-fields",
+        "safe-process-match"
+      ]
+    },
+    {
+      "do": "Whether an evidence download or delete operation needs repeated runs, since each handles up to 10,000 files or 3 GB of uncompressed evidence at a time.",
+      "uses": [
+        "evidence-download-limit"
+      ]
+    }
+  ],
+  "claims": {
+    "agent-configuration-purpose": {
+      "statement": "The Agent Configuration page customizes the installer properties (name, display name, description) so agents are not fingerprinted, modifies the lure refresh interval, and cleans up duplicate agents automatically.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-settings.json", "quotes": ["Customize landmine agent properties such as name, display name, and description to prevent the agents from being fingerprinted.", "Modify the refresh interval to automatically update lure information.", "Clean up duplicate agents automatically."]}
+      ]
+    },
+    "installer-name-defaults": {
+      "statement": "The landmine service name defaults to Landmine and the display name to landmine; the display name and description apply only to Windows agents, Linux always uses the default name for its installation folder, and macOS installs under /Applications in a folder matching the name.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-customizing-landmine-installer.json", "quotes": ["it is installed with the service name Landmine, by default.", "The default display name is landmine.", "For Linux endpoints, the default name Landmine is always used for the installation folder name and changes to the Name property are not applied.", "For macOS endpoints, the landmine agent is installed under the /Applications directory with the installation directory matching the landmine service name entered in the Name field."]},
+        {"source": "zscaler-help", "path": "deception-customizing-landmine-installer.json", "quotes": ["Changes to this field apply only to Windows-based landmine agents."], "after": "Display name: Edit the landmine agent service display name."},
+        {"source": "zscaler-help", "path": "deception-customizing-landmine-installer.json", "quotes": ["Changes to this field apply only to Windows-based landmine agents."], "after": "Description: Enter a description of the landmine agent service."}
+      ]
+    },
+    "installer-customize-before": {
+      "statement": "Zscaler recommends modifying installer properties before installing any agents; to keep consistency across previous and future installations after agents are deployed, the existing agents must be uninstalled and reinstalled.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-customizing-landmine-installer.json", "quotes": ["Zscaler recommends modifying the properties before installing any agents.", "you need to uninstall the existing landmine agents in these endpoints and then reinstall them.", "If you want to change the landmine properties after landmine agents are deployed, and you prefer to have consistency across previous and future landmine installations"]}
+      ]
+    },
+    "installer-name-unique": {
+      "statement": "The landmine agent service name should be unique, and the names of services running on the target systems should be checked before configuring it to avoid conflicts.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-customizing-landmine-installer.json", "quotes": ["The landmine agent service name should be unique.", "To avoid conflicts with existing services, make sure to check the names of the services running in the systems where you want to install the landmine decoys before configuring the landmine agent service name."]}
+      ]
+    },
+    "lure-refresh": {
+      "statement": "The lure refresh interval is set in hours and policy changes apply as soon as the agent connects, without waiting for the lures to refresh.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-configuring-lure-refresh-interval.json", "quotes": ["The lure refresh interval is the frequency in which the decoys deployed on an endpoint are refreshed. You can configure the refresh interval (in hours) from the Agent Configuration page.", "If you make any changes to the landmine policies, the updates are applied as soon as the landmine agent connects to the Zscaler Deception Admin Portal.", "The updates do not wait for the lures to refresh."]}
+      ]
+    },
+    "auto-cleanup": {
+      "statement": "Auto clean-up deletes landmine agents with duplicate hostnames, keeping the most recently connected ones and those connected for less than 7 days; deleted agents are not uninstalled from the system.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-enabling-auto-clean-duplicate-landmine-agents.json", "quotes": ["The most recently connected hostnames and the ones that are connected for less than 7 days are retained.", "Landmine agents deleted via auto clean-up are not uninstalled from the system. You have to manually uninstall them.", "You can enable the auto clean-up feature to automatically delete landmine agents with duplicate hostnames from the Agent Configuration page."]}
+      ]
+    },
+    "update-groups-default": {
+      "statement": "After a landmine agent update is released all agents update as soon as they connect to the portal, but phased updates can be done with agent update groups that have criteria to selectively roll out the updates.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-agent-update-groups.json", "quotes": ["After a landmine agent update is released, all agents are updated as soon as they connect with the Zscaler Deception Admin Portal.", "However, you can also perform phased updates by creating agent update groups with criteria to selectively roll out the updates."]}
+      ]
+    },
+    "phased-updates-effect": {
+      "statement": "Enabling phased updates stops automatic updates for agents that are not in any agent update group.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-enabling-phased-updates-using-agent-update-groups.json", "quotes": ["Enabling this feature stops any automatic updates for agents that are not a part of the groups."]}
+      ]
+    },
+    "update-group-criteria": {
+      "statement": "An agent update group selects agents by Hostname List (exact match) or Hostname RegEx, and Zscaler recommends an \"All systems\" group with the catch-all expression .* enabled after testing so all endpoints are upgraded.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-adding-agent-update-group.json", "quotes": ["Hostname List: Applies updates to all the agents where the hostname of the system exactly matches the hostnames specified in the Hostname List text box.", "Hostname RegEx: Applies updates to all the agents where the hostname of the system matches the hostname pattern specified as a regular expression in the Hostname RegEx text box.", "Zscaler recommends that you add a group named \"All systems\" with a catch-all regular expression ( .* ), and enable this group after you complete the testing to make sure all endpoints are upgraded."]}
+      ]
+    },
+    "update-group-reporting": {
+      "statement": "Agent update group status is downloadable as a CSV and a group's hostnames export as a TXT file; the table shows selection criteria, update progress and update-enabled status.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-agent-update-groups.json", "quotes": ["A CSV file with the agent group update status is downloaded to your system.", "A TXT file containing the list of hostnames is downloaded to your system."]},
+        {"source": "zscaler-help", "path": "deception-about-agent-update-groups.json", "quotes": ["Update Progress: The total number of agents updated in the group.", "Update Enabled: The status of phased updates.", "Selection Criteria: The selection criteria specified for the agent update group."]}
+      ]
+    },
+    "safe-process-purpose": {
+      "statement": "Safe processes stop landmine defense-evasion false positives from legitimate security software (antivirus or EDR scans); events are generated only when an attacker interacts with the landmine processes, and Deception ships predesignated internal safe processes that can be enabled or disabled.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-safe-processes.json", "quotes": ["Landmine processes that detect defense evasion sometimes generate false positives when tripped by security processes, such as antivirus or Endpoint Detection and Response (EDR) scans.", "Alerts are generated only when an attacker interacts with these landmine processes.", "Zscaler Deception provides a set of predesignated safe processes called internal processes that can be enabled or disabled based on your requirements."]}
+      ]
+    },
+    "safe-process-fields": {
+      "statement": "Safe processes are listed with executable file path and regex, executable file hash, certificate issuer, serial and thumbprint; hash and certificate fields are stated as applicable only to Windows endpoints.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-safe-processes.json", "quotes": ["Executable File Hash: The executable file hash (e.g., md5, sha1, and sha256). This is applicable only to Windows endpoints.", "Certificate Issuer: A unique certificate issuer name that identifies the issuer of the digital certificate. This is applicable only to Windows endpoints.", "Certificate Serial: A unique certificate serial number issued by a certificate authority. This is applicable only to Windows endpoints.", "Certificate Thumbprint: A unique certificate thumbprint that is a hash of a certificate. This is applicable only to Windows endpoints.", "Executable File Path: The executable file path expressed in absolute values.", "Executable File Regex: The executable file path expressed in regular expressions."]}
+      ]
+    },
+    "safe-process-match": {
+      "statement": "A safe process is configured for Windows or macOS with at least one identifying field; for Windows, if more than one field is configured the process is classified as safe only if all the field values match.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-configuring-safe-process.json", "quotes": ["OS: Select the operating system (Windows or macOS) of the endpoints in which safe processes must be configured.", "Configure at least one of the following fields to identify a safe process depending on the OS:", "If more than one field is configured, a process is classified as a safe process only if all the field values match with their respective attributes of the process."]}
+      ]
+    },
+    "safe-process-process-tree": {
+      "statement": "Enabling Check process tree means decoy interactions involving process trees that include these safe processes do not generate events.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-configuring-safe-process.json", "quotes": ["Enable Check process tree to include the safe process as part of the process tree check when generating events. Decoy interactions that involve process trees with these safe processes do not generate events."]}
+      ]
+    },
+    "safe-process-detection-types": {
+      "statement": "In the Windows safe-process Detection Type and Subtype table the rows are File Decoy read, Process Decoy killed, Ransomware shadowcopy_delete backup_file_delete process_terminate encryption_detected, and PsExec psexec; in the macOS table they are File Decoy read rename delete copy and Process Decoy killed.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-configuring-safe-process.json", "quotes": ["| File Decoy | read |", "| Process Decoy | killed |", "| Ransomware | shadowcopy_delete backup_file_delete process_terminate encryption_detected |", "| PsExec | psexec |"], "after": "For Windows endpoints, the following types and subtypes are supported:"},
+        {"source": "zscaler-help", "path": "deception-configuring-safe-process.json", "quotes": ["| File Decoy | read rename delete copy |", "| Process Decoy | killed |"], "after": "For macOS endpoints, the following types and subtypes are supported:"}
+      ]
+    },
+    "safe-process-internal": {
+      "statement": "Internal safe processes can only be enabled or disabled, not edited otherwise, and cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-editing-or-deleting-safe-process.json", "quotes": ["For internal safe processes, only the option to enable or disable is supported.", "Internal safe processes cannot be deleted."]}
+      ]
+    },
+    "audit-log-content": {
+      "statement": "Audit logs are chronological records of Admin Portal user activities (such as login attempts, decoy creation, modification or deployment, profile updates), have Timestamp, Username, Module and Description fields, and export as CSV.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-audit-error-debug-logs.json", "quotes": ["Audit logs are chronological records of user activities that occur in the Deception Admin Portal. These logs record activities such as login attempts, decoy creation, modification or deployment, user profile updates, etc.", "Timestamp: The time when the user activity occurred.", "Username: The ID of the user who performed the activity.", "Module: The Deception module (Login, Retention Policy, etc.) on which the activity occurred.", "You can export audit logs as a CSV file.", "Description: The description of the activity."]}
+      ]
+    },
+    "error-log-content": {
+      "statement": "Error logs record failed events such as invalid user credentials, failed authentication and landmine agent version mismatch, with Timestamp, Category (component that caused the error), Module (entity affected), Message, Metadata, Error and Count fields.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-audit-error-debug-logs.json", "quotes": ["Error logs include error messages for failed events such as invalid user credentials, failed authentication, landmine agent version mismatch, etc.", "Category: The component (Containment, Enrichment, etc.) which caused the error.", "Module: The Deception entity (Private Access (ZPA), Email, etc.) on which the error occurred.", "Count: The number of times the error occurred.", "Timestamp: The time when the error occurred.", "Message: A brief explanation of the error.", "Metadata: The metadata that provides context about the error.", "Error: Hover over the information icon to view the error message."]}
+      ]
+    },
+    "error-log-actions": {
+      "statement": "Error messages can be deleted or marked as read one at a time, or all at once from the Actions menu.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-audit-error-debug-logs.json", "quotes": ["Actions: Click the Delete icon to delete the message, or click the checkmark to mark the message as read.", "Click the Actions menu and select Delete all to delete all the messages, or select Mark all as read to mark all the messages as read."]}
+      ]
+    },
+    "debug-log-ranges": {
+      "statement": "Admin Portal debug logs can be downloaded for the last 2 hours, 24 hours or 7 days, are prepared as an archive that takes a couple of minutes, and can be deleted from the portal afterward.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-audit-error-debug-logs.json", "quotes": ["You can download debug logs for the last 2 hours, 24 hours, or 7 days.", "When the debug logs are ready to download after a couple of minutes, click the here link.", "Click the Delete icon to delete the file containing the debug logs from the Deception Admin Portal.", "Click Request to create an archive file with the logs for the requested time range."]}
+      ]
+    },
+    "license-tab": {
+      "statement": "The License tab shows client, plan, expiration, retention policy (days after which events and evidence files are permanently deleted), decoys used out of the plan total, landmine users used out of the plan total, and Admin Portal version.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["Plan: The active Deception subscription plan your organization is licensed to.", "Retention Policy: The number of days after which all events and evidence files are permanently deleted.", "Decoys: The number of decoys configured out of the total decoys included in your subscription plan.", "Landmine Users: The number of users that have landmine configured out of the total landmine users included in your subscription plan.", "Admin Portal Version: The current version of Deception.", "Client: The customer name the license is issued to.", "Expiration: The expiration date of your current subscribed license."]}
+      ]
+    },
+    "event-export-delete": {
+      "statement": "Event logs can be exported for a From/To window as serializable JSON, and deleted for a window either entirely or only those marked as safe.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["under Export Events (Serializable JSON), select a date and time from the From and To drop-down menus.", "The event logs are downloaded to your system in the JSON format.", "All Events: All the events for the specified time frame are deleted.", "Marked as safe only: Only events that are marked as safe are deleted."]}
+      ]
+    },
+    "evidence-download-limit": {
+      "statement": "Evidence download and delete operations from a Decoy Connector handle up to 10,000 files or 3 GB of uncompressed evidence at a time, so large date ranges may need repeated runs.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["The download and delete evidence operations trigger a download of up to 10,000 files or 3 GB of uncompressed evidence at a time. You might have to run these operations multiple times to clear evidence for large date ranges."]}
+      ]
+    },
+    "retention-default": {
+      "statement": "On the Retention tab the retention period for event logs, audit logs, etc. is configured; the default is 365 days and can be reduced, data is permanently deleted after it expires, and the policy is defined in the license agreement.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["The retention policy is defined in the Deception license agreement. The default retention period is 365 days, and it can be reduced if required. Data is permanently deleted after the retention period expires.", "On the Retention tab, you can configure the retention period to store event logs, audit logs, etc."]}
+      ]
+    },
+    "retention-fixed": {
+      "statement": "Events marked as safe are retained for 7 days and Okta system logs for threat detection for 14 days, and these retention periods cannot be modified.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["The retention period of the following events or logs cannot be modified:", "Events that are marked as safe are retained for 7 days.", "Okta system logs for threat detection are retained for 14 days."]}
+      ]
+    },
+    "internal-components": {
+      "statement": "Show internal components reveals Private Access components, such as Private Access Decoy Connectors and interfaces, in the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-managing-advanced-settings.json", "quotes": ["You can show or hide Private Access components, such as Private Access Decoy Connectors and interfaces, in the Deception Admin Portal.", "On the Show/Hide Internal Components tab, enable Show internal components."]}
+      ]
+    }
+  },
+  "gaps": {
+    "landmine-user-limits": {
+      "kind": "semantic",
+      "title": "The Landmine Users limit of a plan",
+      "status": "open",
+      "detail": "The License tab shows Landmine Users used out of the plan total, but these captures give no landmine-user limit. Decoy Connector counts and limits are deferred to Ranges and Limitations (see deception.plans).",
+      "resolves_with": ["source-read", "tenant-data"]
+    },
+    "retention-coverage": {
+      "kind": "semantic",
+      "title": "Which data the 365-day retention default covers",
+      "status": "open",
+      "detail": "The Retention tab text names event logs and audit logs 'etc.'. The license-agreement value is not in the captures.",
+      "resolves_with": ["tenant-data", "support-ticket"]
+    }
+  }
+}

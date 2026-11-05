@@ -1,0 +1,570 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.detection-policies",
+  "title": "How ITDR threat detection policies, custom change detection policies and email notifications are configured",
+  "aliases": [
+    "threat detection policies",
+    "custom change detection policy",
+    "itdr notifications"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.credential-exposure"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.posture-scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-connection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.safelists"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{policy-model}} {{landmine-migration}}"
+    },
+    {
+      "heading": "Threat detection policies"
+    },
+    {
+      "label": "Selection.",
+      "text": "{{selection-default-and-fallback}} {{selection-criterion-types}} {{dynamic-rule-attributes}} How the Contains values of a dynamic rule are matched is open {{gap:dynamic-rule-matching}}."
+    },
+    {
+      "label": "Evaluating.",
+      "text": "{{evaluate-policies}}"
+    },
+    {
+      "label": "Active Directory module.",
+      "text": "{{ad-attack-types}} {{ad-module-options}} {{ad-module-prerequisite-and-delay}}"
+    },
+    {
+      "label": "Propagation.",
+      "text": "{{policy-propagation}}"
+    },
+    {
+      "heading": "Custom change detection policies"
+    },
+    {
+      "text": "{{custom-change-policy-scope}} {{ad-custom-policy-fields}} {{entra-custom-policy-change-types}} {{custom-policy-email-notify}} The full lists of properties and change types are open {{gap:custom-policy-lists}}."
+    },
+    {
+      "heading": "Notifications"
+    },
+    {
+      "text": "{{alert-types}} {{type-column-values}}"
+    },
+    {
+      "label": "Posture notifications.",
+      "text": "{{posture-notification-delivery}}"
+    },
+    {
+      "label": "Change detection notifications.",
+      "text": "{{change-notification-content}} {{email-rate-limit}} {{ad-change-notification-scope}} {{entra-change-notification-scope}} The full Scan Categories lists and what Enable All does with a category selection are open {{gap:scan-categories}}."
+    },
+    {
+      "label": "Credential scan notifications.",
+      "text": "{{credential-notification-schedule}}"
+    },
+    {
+      "heading": "Related subjects"
+    },
+    {
+      "text": "[[identity-protection.overview]] [[identity-protection.change-detection]] [[identity-protection.ad-posture]] [[identity-protection.entra-posture]] [[identity-protection.credential-exposure]] [[identity-protection.posture-scans]] [[identity-protection.entra-connection]] [[identity-protection.safelists]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which selection criterion the threat detection policy uses, and that the Fallback criterion is not applied when Catch All is specified.",
+      "uses": [
+        "selection-default-and-fallback"
+      ]
+    },
+    {
+      "do": "Whether an AD domain has been scanned with at least one scan report before configuring an AD threat detection module.",
+      "uses": [
+        "ad-module-prerequisite-and-delay"
+      ]
+    },
+    {
+      "do": "Which scan an interval belongs to: the AD change detection scan that runs every 15 minutes, or the AD domain scan frequency set when the scan is configured.",
+      "uses": [
+        "ad-change-notification-scope",
+        "identity-protection.posture-scans:ad-scan-setup-inputs"
+      ]
+    }
+  ],
+  "claims": {
+    "landmine-migration": {
+      "statement": "Landmine policies in Zscaler Deception that have ITDR Active Directory capabilities enabled are migrated to ITDR threat detection policies, with a unique ID appended to the policy name that can be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-threat-detection-policies.json",
+          "quotes": [
+            "Landmine policies in Zscaler Deception that have ITDR Active Directory capabilities enabled are migrated to threat detection policies in ITDR.",
+            "These policies have a unique ID appended to the policy name. You can edit the name as required."
+          ]
+        }
+      ]
+    },
+    "policy-model": {
+      "statement": "A threat detection policy is applied to an endpoint only if its selection criterion matches; the policy list shows Name, Selection Criterion and Policies (the number of ITDR attack detection modules configured), and the Enabled option deploys the policy to applicable endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-threat-detection-policy.json",
+          "quotes": [
+            "Each policy has a selection criterion, and the policy is applied to the endpoint only if the criterion matches.",
+            "Enabled: Select to actively deploy the policy to the applicable endpoints."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-threat-detection-policies.json",
+          "quotes": [
+            "Name: The name of the threat detection policy.",
+            "Selection Criterion: The selection criterion specified for the policy.",
+            "Policies: The number of ITDR attack detection modules configured for the policy."
+          ]
+        }
+      ]
+    },
+    "selection-default-and-fallback": {
+      "statement": "A new threat detection policy defaults to the Catch All selection criterion for all endpoint agents; the Fallback criterion applies to any system with no other policy criteria and is not applied if Catch All is specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-selection-criterion-threat-detection-policies.json",
+          "quotes": [
+            "By default, the Catch All criterion is selected for the newly created threat detection policy to apply the policy to all of the endpoint agents.",
+            "Fallback: Apply the threat detection policy to any system that has no other policy criteria specified. If you have specified the Catch All criterion, then the Fallback criterion is not applied."
+          ]
+        }
+      ]
+    },
+    "dynamic-rule-attributes": {
+      "statement": "A Dynamic Rule selection criterion matches on the attributes Process List, Browser History, Installed Programs, Interesting Files or Recent Commands, and a policy with several dynamic rules is applied if any one rule matches.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-selection-criterion-threat-detection-policies.json",
+          "quotes": [
+            "Process List: Apply the threat detection policy to the endpoints that contain the processes specified in the Contains field.",
+            "Browser History: Apply the threat detection policy to the endpoints whose browser history has the URL specified in the Contains field.",
+            "Installed Programs: Apply the threat detection policy to the endpoints that contain the installed programs specified in the Contains field.",
+            "Interesting Files: Apply the threat detection policy to the endpoints that contain the files specified in the Contains field.",
+            "Recent Commands: Apply the threat detection policy to the endpoints whose recent command list in the Run dialog box matches the commands specified in the Contains field.",
+            "Click Add to add multiple dynamic rules to a single policy. If any one of the rules matches, the policy is applied at the endpoint."
+          ]
+        }
+      ]
+    },
+    "selection-criterion-types": {
+      "statement": "Threat detection endpoint selection also offers User, Group, Hostname (Specific), Hostname (RegEx), DNS Hostname (Specific), DNS Hostname (RegEx), User OU (RegEx) and Computer OU (RegEx).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-specifying-selection-criterion-threat-detection-policies.json",
+          "quotes": [
+            "User: Apply the threat detection policy to all the endpoints where at least one of the users specified in the User field is logged in.",
+            "Group: Apply the threat detection policy to all the endpoints that are under the Active Directory (AD) groups specified in the Group field.",
+            "Hostname (Specific): Apply the threat detection policy to all the endpoints where the hostname of the system exactly matches one of the hostnames specified in the Hostname field.",
+            "Hostname (RegEx): Apply the threat detection policy to all the endpoint agents where the hostname of the system matches the hostname pattern specified as a regular expression in the RegEx field.",
+            "DNS Hostname (Specific): Apply the policy to all endpoints whose FQDN matches with one of the FQDN values specified in the Hostname field.",
+            "DNS Hostname (RegEx): Apply the policy to all endpoints where the FQDN of the system matches the FQDN pattern specified as a regular expression in the RegEx field.",
+            "User OU (RegEx): Apply the threat detection policy to all the users present in the organization unit (OU) that matches the OU regular expression pattern in the RegEx field.",
+            "Computer OU (RegEx): Apply the threat detection policy to all the systems present in the OU that match the OU regular expression pattern in the RegEx field."
+          ]
+        }
+      ]
+    },
+    "evaluate-policies": {
+      "statement": "Evaluate Policies generates a sample policy report from a User ID and Hostname (it also shows the OS) plus optional Group, Computer OU, User OU, Domain, Display Name and Dynamic Rules, and when a user or system matches two or more policies the report shows the attack detection modules of all matching policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-evaluating-threat-detection-policies.json",
+          "quotes": [
+            "User ID: Enter the user ID that must be used to generate the sample policy.",
+            "Hostname: Enter the hostname that must be used to generate the sample policy.",
+            "OS: View the operating system for which the sample policy is generated.",
+            "Group: (Optional) Enter the Active Directory (AD) group that must be used to generate the sample policy.",
+            "Computer OU: (Optional) Enter the organizational unit (OU) of the endpoints that must be used to generate the sample policy.",
+            "User OU: (Optional) Enter the organizational unit (OU) of the users that must be used to generate the sample policy.",
+            "Domain: (Optional) Enter the domain name of the endpoint that must be used to generate the sample policy.",
+            "Display Name: (Optional) Enter the display name of the user that must be used to generate the sample policy.",
+            "Dynamic Rules: (Optional) Click Add to configure a dynamic rule that must be used in the sample policy.",
+            "If a user or system matches the selection criterion of two or more policies, the report shows the ITDR attack detection modules specified by all of the matching policies."
+          ]
+        }
+      ]
+    },
+    "ad-attack-types": {
+      "statement": "The AD threat detection module detects DCSync, DCShadow, Zerologon (CVE-2020-1472), Session Enumeration, Kerberoast and LDAP Reconnaissance attacks via the endpoint agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-threat-detection-module.json",
+          "quotes": [
+            "detect the following types of attacks via the endpoint agent:",
+            "DCSync: An attack that allows an adversary to simulate the behavior of a domain controller and retrieve password hashes from another domain controller in the AD environment.",
+            "DCShadow: A kill chain attack in which an adversary registers a fake AD domain controller and uses that to inject malicious AD objects (e.g., credentials) into other domain controllers that are part of the same AD infrastructure.",
+            "Zerologon (CVE-2020-1472): A privilege escalation vulnerability that allows an attacker to exploit a vulnerable domain controller, change the computer account password, and perform further attacks.",
+            "Session Enumeration: A reconnaissance method that an adversary uses to gain domain dominance after compromising a system in an AD.",
+            "Kerberoast: A pervasive attack technique targeting AD service account credentials.",
+            "LDAP Reconnaissance: A reconnaissance technique that attackers use to discover users, groups, and computers in an AD."
+          ]
+        }
+      ]
+    },
+    "ad-module-options": {
+      "statement": "The AD module's per-policy options include Monitor Privileged Accounts, Monitor Decoy Accounts, Kerberoast Detection (Anomaly) for non-decoy service accounts, Kerberoast Detection (Decoy) for decoy service accounts, and Suspicious LDAP Activity for LDAP reconnaissance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-threat-detection-module.json",
+          "quotes": [
+            "Monitor Privileged Accounts: Enable to monitor privileged accounts.",
+            "Monitor Decoy Accounts: Enable to monitor AD decoy user accounts.",
+            "Kerberoast Detection (Anomaly): Enable to detect Kerberoast attacks on non-decoy service accounts.",
+            "Kerberoast Detection (Decoy): Enable to detect Kerberoast attacks on decoy service accounts.",
+            "Suspicious LDAP Activity: Enable to detect LDAP reconnaissance activities."
+          ]
+        }
+      ]
+    },
+    "ad-module-prerequisite-and-delay": {
+      "statement": "Before configuring an AD threat detection module, an AD domain must be scanned with at least one scan report; in some modules such as monitoring privileged accounts, a newly identified AD object takes about 60 minutes before endpoint agents monitor it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-threat-detection-module.json",
+          "quotes": [
+            "Before you configure an AD threat detection module, make sure that you scan an AD domain and have at least one scan report.",
+            "In some AD threat detection modules, such as monitoring privileged accounts, when a new AD object is identified in the scan, it takes about 60 minutes for the endpoint agents to monitor the accounts for any activities."
+          ]
+        }
+      ]
+    },
+    "policy-propagation": {
+      "statement": "Changes to a threat detection policy can take a few hours to reflect on the endpoints.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-threat-detection-policies.json",
+          "quotes": [
+            "Any changes made to a threat detection policy can take a few hours to reflect on the endpoints."
+          ]
+        }
+      ]
+    },
+    "custom-change-policy-scope": {
+      "statement": "AD custom change detection policies detect changes to users, groups and computers in a chosen domain, while Entra ID custom policies detect changes to users, service principals and roles in a chosen tenant; both can notify specific users by email, in addition to the default changes ITDR detects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection-policies.json",
+          "quotes": [
+            "In addition to the default changes detected by Zscaler ITDR in your Active Directory (AD) domain, you can configure custom policies to detect changes in the AD domain based on properties such as users, groups, and computers.",
+            "Domain: The AD domain for which the policy is configured.",
+            "You can also notify specific users via email when these changes are detected."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection-policies.json",
+          "quotes": [
+            "In addition to the default changes detected by Zscaler ITDR in your Entra ID tenant, you can configure custom policies to detect changes in the Entra ID tenant based on properties such as users, service principals, and roles.",
+            "Tenant: The Entra ID tenant for which the policy is configured.",
+            "You can also notify specific users via email when these changes are detected."
+          ]
+        }
+      ]
+    },
+    "ad-custom-policy-fields": {
+      "statement": "An AD custom change detection policy takes a domain, and for each user, group or computer a distinguished name plus properties to watch (for example ACLs, Password Changes and Group Memberships).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-active-directory-custom-change-detection-policy.json",
+          "quotes": [
+            "Domain: Select an AD domain from the drop-down menu to which the policy must be applied.",
+            "Distinguished Name: Enter the value that identifies the user entry in your AD domain.",
+            "Distinguished Name: Enter the value that identifies the group entry in your AD domain.",
+            "Distinguished Name: Enter the value that identifies the computer entry in your AD domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-active-directory-custom-change-detection-policy.json",
+          "quotes": [
+            "Properties: Select the properties based on which the changes must be detected (e.g., ACLs, Password Changes, and Group Memberships)."
+          ],
+          "after": "Click Add User."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-active-directory-custom-change-detection-policy.json",
+          "quotes": [
+            "Properties: Select the properties based on which the changes must be detected (e.g., ACLs, Password Changes, and Group Memberships)."
+          ],
+          "after": "Click Add Group."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-active-directory-custom-change-detection-policy.json",
+          "quotes": [
+            "Properties: Select the properties based on which the changes must be detected (e.g., ACLs, Password Changes, and Group Memberships)."
+          ],
+          "after": "Click Add Computer."
+        }
+      ]
+    },
+    "entra-custom-policy-change-types": {
+      "statement": "For an Entra ID custom change detection policy, examples of selectable change types are, for users, Role Assignments, Password Changes, Changes in MFA, Being marked 'Risky', Delegated consent grants to applications, Administrative Units and Group Memberships; for service principals, Changes to secret/cert, Added/revoked Admin Consent and Changed ownership; for roles, Additions and removals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-entra-id-custom-change-detection-policy.json",
+          "quotes": [
+            "Change Type: Select the changes that you want to detect for the selected identity (e.g., Role Assignments, Password Changes, Changes in MFA, Being marked 'Risky', Delegated consent grants to applications, Administrative Units, and Group Memberships).",
+            "Change Type: Select the changes that you want to detect for the selected identity (e.g., Changes to secret/cert, Added/revoked Admin Consent, and Changed ownership).",
+            "Change Type: Select the changes that you want to detect for the selected identity (e.g., Additions and removals)."
+          ]
+        }
+      ]
+    },
+    "custom-policy-email-notify": {
+      "statement": "Each AD and Entra ID custom change detection policy has a Notify section with an Enabled option and a user list for emailing the selected users when the policy's conditions detect changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-active-directory-custom-change-detection-policy.json",
+          "quotes": [
+            "To notify specific users via email when changes are detected by the policy conditions, select Notify and follow these steps:",
+            "Enabled: Select to enable email notifications.",
+            "Users: Select the users that you want to notify for changes to the AD domain matching the policy conditions from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-entra-id-custom-change-detection-policy.json",
+          "quotes": [
+            "Enabled: Select to enable email notifications.",
+            "Users: Select the users that you want to notify for changes to the Entra ID tenant matching the policy conditions from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "alert-types": {
+      "statement": "ITDR notifications cover five alert types: AD posture and Entra ID posture send executive summary reports after successful scans, AD and Entra ID change detection send bad change details, and endpoint credential scan sends the endpoint credential exposure executive report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-notifications.json",
+          "quotes": [
+            "AD posture: Generate emails with AD executive summary reports after the configured AD domains are successfully scanned.",
+            "AD change detection: Generate emails with bad change details after the configured AD domains are successfully scanned.",
+            "Endpoint credential scan: Generate emails with endpoint credential exposure executive reports after the endpoints are successfully scanned.",
+            "Entra ID posture: Generate emails with Entra ID executive summary reports after the configured Entra ID tenants are successfully scanned.",
+            "Entra ID change detection: Generate emails with bad change details after the configured Entra ID tenants are successfully scanned."
+          ]
+        }
+      ]
+    },
+    "type-column-values": {
+      "statement": "The Notifications page's Type column uses the values Active Directory Posture, Active Directory Change Detection, Credential Scanning, Entra Posture and Entra Change Detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-notifications.json",
+          "quotes": [
+            "On the Notifications page (ITDR > Notifications > Configure), you can do the following:",
+            "Type: The type of alert (Active Directory Posture, Active Directory Change Detection, Credential Scanning, Entra Posture, and Entra Change Detection)."
+          ]
+        }
+      ]
+    },
+    "email-rate-limit": {
+      "statement": "AD and Entra ID change detection notifications take a Number of emails in a 24-hr window of 20 or less; if the number of emails exceeds the limit, Zscaler pauses the notifications and sends an email recommending a review of the configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-change-detection-notification.json",
+          "quotes": [
+            "Number of emails in a 24-hr window: Enter a number less than or equal to 20.",
+            "If the number of emails exceeds this limit, Zscaler pauses the notifications and sends an email recommending you to review the configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-entra-id-change-detection-notification.json",
+          "quotes": [
+            "Number of emails in a 24-hr window: Enter a number less than or equal to 20.",
+            "If the number of emails exceeds this limit, Zscaler pauses the notifications and sends an email recommending you to review the configuration."
+          ]
+        }
+      ]
+    },
+    "ad-change-notification-scope": {
+      "statement": "An AD change detection notification can be restricted to chosen Scan Categories (for example Vulnerable to AS-REP roasting, Privileged Accounts, Kerberoastable Accounts) or use Enable All, and the vendor notes the AD change detection scan runs every 15 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-change-detection-notification.json",
+          "quotes": [
+            "The AD change detection scan runs every 15 minutes.",
+            "Select Enable All to enable notification for all the scan types that you select in the following step.",
+            "Under Scan Categories, enable one or more scan types (e.g., Vulnerable to AS-REP roasting, Privileged Accounts, Kerberoastable Accounts, etc.)."
+          ]
+        }
+      ]
+    },
+    "entra-change-notification-scope": {
+      "statement": "An Entra ID change detection notification can be restricted to chosen Scan Categories (for example Users without MFA, Excessive Global Admins, Privilege guest accounts) or use Enable All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-entra-id-change-detection-notification.json",
+          "quotes": [
+            "Under Scan Categories, enable one or more scan or issue types (e.g., Users without MFA, Excessive Global Admins, Privilege guest accounts, etc.).",
+            "Select Enable All to enable notification for all the scan types that you select in the following step."
+          ]
+        }
+      ]
+    },
+    "credential-notification-schedule": {
+      "statement": "An endpoint credential scan notification is sent on a frequency of Daily, Weekly, Monthly or Quarterly at a chosen trigger time and carries the executive summary report.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-endpoint-credential-scan-notification.json",
+          "quotes": [
+            "Send Notification Every: Select the notification frequency (Daily, Weekly, Monthly, or Quarterly).",
+            "Trigger Time: Select a time to trigger the notification.",
+            "After the endpoints are scanned, the users receive an email with the executive summary report."
+          ]
+        }
+      ]
+    },
+    "posture-notification-delivery": {
+      "statement": "AD posture and Entra ID posture notifications email the executive summary report to the selected recipients after the selected domains or tenants are successfully scanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-posture-notification.json",
+          "quotes": [
+            "After the configured AD domains are successfully scanned, users receive emails with the executive summary reports.",
+            "Users: Select one or more email recipients or users from the drop-down menu."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-entra-id-posture-notification.json",
+          "quotes": [
+            "After the configured Entra ID tenants are successfully scanned, users receive an email with the attached executive summary report.",
+            "Users: Select one or more email recipients or users from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "change-notification-content": {
+      "statement": "AD and Entra ID change detection notification emails carry bad change details including the affected identities, issue details and remediation details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-change-detection-notification.json",
+          "quotes": [
+            "After the configured AD domains are successfully scanned, users receive emails with bad change details.",
+            "The email provides details such as the affected AD domain and identities, issue details, remediation details, etc."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-entra-id-change-detection-notification.json",
+          "quotes": [
+            "After the configured Entra ID tenants are successfully scanned, users receive emails with bad change details.",
+            "The email provides details, such as the affected Entra ID identities, issue details remediation details, etc."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "dynamic-rule-matching": {
+      "kind": "semantic",
+      "title": "How a dynamic rule's Contains value is matched",
+      "status": "open",
+      "detail": "The selection criterion article says a dynamic rule applies to endpoints that contain the value in its Contains field but does not say whether matching is exact, substring or regular expression.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "custom-policy-lists": {
+      "kind": "semantic",
+      "title": "The full property and change type lists for custom change detection policies",
+      "status": "open",
+      "detail": "The AD policy article gives properties only as examples (ACLs, Password Changes, Group Memberships) and the Entra ID article gives change types only as examples; the full lists are not stated.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "scan-categories": {
+      "kind": "semantic",
+      "title": "The full Scan Categories lists and what Enable All does with a category selection",
+      "status": "open",
+      "detail": "The change detection notification articles give Scan Categories only as examples, and describe Enable All as enabling notification for all the scan types selected in the following step, without saying whether it overrides the category selection.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

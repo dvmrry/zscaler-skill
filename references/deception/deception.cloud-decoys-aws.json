@@ -1,0 +1,526 @@
+{
+  "schema_version": 1,
+  "id": "deception.cloud-decoys-aws",
+  "title": "AWS Cloud Deception: setup, tags, logging resources, decoy types and lures",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-azure"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.cloud-decoys-gcp"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{prerequisites}} {{terraform-package}} {{rds-suffix}} {{genai-prompt-logging}} {{genai-logging-bucket}} {{default-vpc}} The shared model is [[deception.cloud-decoys]]; the other providers are [[deception.cloud-decoys-azure]] and [[deception.cloud-decoys-gcp]]; plan decoy totals are in [[deception.plans]] and the product is introduced in [[deception.overview]]."
+    },
+    {
+      "label": "Logging and health.",
+      "text": "{{logging-resources}} {{log-polling-3min}} {{security-group-ports}} {{health-check-scope}} The health check is described two ways {{divergence:aws-health-check-meaning}}. {{decoy-workflows}} {{vm-image-instance}}"
+    },
+    {
+      "label": "Tags.",
+      "text": "{{tags-types}} {{tags-naming}} {{tags-not-retroactive}}"
+    },
+    {
+      "label": "Decoy types.",
+      "text": "{{iam-decoy}} {{s3-decoy}} {{rds-decoy}} {{rds-vpc-options}} {{ecr-decoy}} {{ecr-page-rds-step}} {{dynamodb-decoy}} {{vm-image-decoy}} {{vm-image-vpc-options}} {{gen-ai-decoy}}"
+    },
+    {
+      "label": "Lures.",
+      "text": "{{lure-methods}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether AWS tags were configured before the integration was set up, since they are added to resources only when the resources are created.",
+      "uses": [
+        "tags-types",
+        "tags-not-retroactive"
+      ]
+    },
+    {
+      "do": "Whether Block public access for AMIs is disabled in the deployment region before deploying a public VM image decoy.",
+      "uses": [
+        "vm-image-decoy"
+      ]
+    }
+  ],
+  "divergences": {
+    "aws-health-check-meaning": {
+      "summary": "The AWS integration page says the health check lambda function monitors and updates the health status of the deployed decoys; the deployment-script page says it checks if the deployed decoys are present in the AWS account.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-about-cloud-deception-with-aws.json",
+            "quotes": [
+              "A health check lambda function is also deployed that monitors and updates the health status of the deployed decoys to the Zscaler Deception Admin Portal every 15 minutes."
+            ]
+          },
+          "says": "The health check lambda function monitors and updates the health status of the deployed decoys every 15 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-understanding-functions-aws-deployment-script.json",
+            "quotes": [
+              "A lambda function that is triggered every 15 minutes from the Deception Admin Portal to check if the deployed decoys are present in the AWS account."
+            ]
+          },
+          "says": "The lambda function is triggered every 15 minutes to check if the deployed decoys are present in the AWS account."
+        }
+      ],
+      "impact": "Whether a healthy status in the Admin Portal reflects the health of the AWS resources, or only that they are present, is not settled by the pages."
+    }
+  },
+  "claims": {
+    "prerequisites": {
+      "statement": "AWS setup requires access to an AWS account with an Administrator role and the AWS region information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "Access to an AWS Account with an Administrator role.",
+            "AWS region information."
+          ]
+        }
+      ]
+    },
+    "terraform-package": {
+      "statement": "AWS Terraform-based deployment downloads a ZIP containing aws-decoys.tf.json and the admin adds back-end details to its backend block (an S3 bucket-based back end is the documented example).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "A ZIP file containing all necessary files is downloaded to your system.",
+            "open the aws-decoys.tf.json file in a text editor.",
+            "Locate the backend block in the aws-decoys.tf.json file. Add your back-end details and save the file.",
+            "The following example shows a backend block of an S3 bucket-based Terraform back end:"
+          ]
+        }
+      ]
+    },
+    "rds-suffix": {
+      "statement": "The DB Option and Parameter group suffix entered in the AWS account settings is used with the option group and parameter group for RDS decoys to prevent name conflicts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "DB Option and Parameter group suffix: Enter a value to use as a suffix with the option group and parameter group for Relational Database Service (RDS) decoys. This is required to prevent name conflicts."
+          ]
+        }
+      ]
+    },
+    "genai-prompt-logging": {
+      "statement": "Enable GenAI Prompt Logging (optional) records Gen AI decoy prompts and responses on the ThreatParse page as aws gen ai input and aws gen ai ouput under the AWS GenAI Model was Invoked rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "Enable GenAI Prompt Logging: (Optional) Enable if you want to log the prompts and responses from the generative AI (Gen AI) decoys. The prompts and responses are recorded in the aws gen ai input and aws gen ai ouput on the ThreatParse page with the AWS GenAI Model was Invoked rule."
+          ]
+        }
+      ]
+    },
+    "genai-logging-bucket": {
+      "statement": "With Gen AI prompt logging enabled, an S3 bucket stores prompts and responses of all Gen AI applications in the AWS account including legitimate ones, but only those for Deception's Gen AI decoys are sent to the Admin Portal; the page advises a separate AWS account without legitimate Gen AI applications to avoid storing legitimate applications' temporary prompts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "When logging is enabled, an S3 bucket is created to store prompts and responses from the Gen AI models.",
+            "This S3 bucket collects prompts and responses from all Gen AI applications in that AWS account, including the legitimate Gen AI applications.",
+            "However, only those prompts and responses pertaining to the Gen AI decoys created by Deception are sent to the Deception Admin Portal.",
+            "If you want to avoid storing (temporary) prompts and responses from the legitimate Gen AI applications in the S3 bucket",
+            "ensure that the Gen AI decoys are deployed in a different AWS account that does not contain any legitimate Gen AI applications."
+          ]
+        }
+      ]
+    },
+    "default-vpc": {
+      "statement": "If no default VPC is found in the selected region the AWS deployment script prompts to create a new VPC, which requires running the script again with the --cidr-block parameter given an IP range in CIDR notation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-setting-cloud-deception-aws.json",
+          "quotes": [
+            "if no default VPC is found in the selected region, the deployment script prompts you to create a new VPC.",
+            "you need to run the script again and append the --cidr-block parameter with the IP address range in CIDR notation."
+          ]
+        }
+      ]
+    },
+    "logging-resources": {
+      "statement": "AWS logging uses a Logging Bucket (S3) that collects logs for S3 and DynamoDB decoys via CloudTrail, CloudTrail also listening to logs for ECR and IAM decoys, a Log Access IAM User (a CLI user) with access keys to poll the bucket and CloudTrail, and DB Option and Parameter groups for raw RDS log files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "A Simple Storage Service (S3) bucket to collect logs for S3 and DynamoDB decoys enabled via CloudTrail.",
+            "Enables logging to Logging Bucket and listening logs for Elastic Container Registry (ECR) and Identity and Access Management (IAM) decoys.",
+            "A CLI user with access to poll logs from Logging Bucket and CloudTrial.",
+            "Access keys for the Log Access IAM User.",
+            "Enables log collection via raw DB log files for Relational Database Service (RDS) decoys."
+          ]
+        }
+      ]
+    },
+    "log-polling-3min": {
+      "statement": "The Admin Portal polls logs from CloudTrail and the Logging S3 bucket every 3 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "The Deception Admin Portal polls logs from CloudTrail and Logging S3 Bucket every 3 minutes."
+          ]
+        }
+      ]
+    },
+    "security-group-ports": {
+      "statement": "The AWS security group created for Cloud Deception opens inbound connections to ports 3306 (MySQL) and 5432 (PostgreSQL).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "Opens inbound connections to ports 3306 (MySQL) and 5432 (PostgreSQL)."
+          ]
+        }
+      ]
+    },
+    "health-check-scope": {
+      "statement": "The AWS Health Check Lambda Function is triggered every 15 minutes from the Admin Portal to check whether deployed decoys are present in the AWS account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "A lambda function that is triggered every 15 minutes from the Deception Admin Portal to check if the deployed decoys are present in the AWS account."
+          ]
+        }
+      ]
+    },
+    "decoy-workflows": {
+      "statement": "Per the AWS resources page, an IAM decoy creates an IAM decoy user with access keys and attaches the IAM Decoy User Access Policy, an S3 decoy creates an S3 bucket and enables CloudTrail logging, and a DynamoDB decoy creates a DynamoDB instance and enables CloudTrail logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "Creates an IAM decoy user with access keys and attaches the IAM Decoy User Access Policy.",
+            "Creates an S3 Bucket and enables logging in CloudTrail.",
+            "Creates a DynamoDB instance and enables logging in CloudTrail."
+          ]
+        }
+      ]
+    },
+    "vm-image-instance": {
+      "statement": "The AWS VM image decoy deploys an EC2 instance using the t3.small/t2.small series available in the deployment region; it persists for 5 minutes and is terminated after the snapshot is built.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-functions-aws-deployment-script.json",
+          "quotes": [
+            "The EC2 instance is created using the t3.small/t2.small series available in the region of deployment. It persists for a duration for 5 minutes and is terminated after the snapshot is built."
+          ]
+        }
+      ]
+    },
+    "tags-types": {
+      "statement": "Tags configured in the portal for AWS resources deployed by Deception are of two types: Decoy Tags (added to decoy resources and the IAM Decoy User Access Policy) and Management Tags (added to all other resources); Zscaler recommends configuring them before setting up the integration because they are added only when resources are created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-and-managing-tags-aws.json",
+          "quotes": [
+            "Decoy Tags: Decoy tags are added to decoy resources, such as IAM decoys, S3 decoys, RDS decoys, etc., and the IAM Decoy User Access Policy.",
+            "Management Tags: Management tags are added to all other resources.",
+            "Zscaler recommends configuring AWS tags in the Deception Admin Portal before setting up the integration with AWS as these tags are added to resources only when creating them in the AWS cloud."
+          ]
+        }
+      ]
+    },
+    "tags-naming": {
+      "statement": "Tag keys and values should not use words such as decoy, deception or active defense because they can hint to adversaries about the nature of decoy resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-and-managing-tags-aws.json",
+          "quotes": [
+            "Do not use words or phrases such as decoy, deception, and active defense, etc. for the key and value pairs, as they can provide a hint to adversaries about the nature of decoy resources."
+          ]
+        }
+      ]
+    },
+    "tags-not-retroactive": {
+      "statement": "New decoy tags are not applied to existing decoys, so applying them to all decoys requires deleting and redeploying them, although tags are added to the IAM Decoy User Access Policy on any later deployment-script operation; edited decoy tags apply only to decoy resources created after the edit; edited management tags are applied to existing management resources on later deployment-script operations; deleting a tag does not remove it from existing resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-and-managing-tags-aws.json",
+          "quotes": [
+            "The new tags are not applied to existing decoys. If you want to apply new tags to all decoys, then you must delete all decoys, and deploy them again. However, tags are added to the IAM Decoy User Access Policy when any subsequent operation is performed via deployment script.",
+            "The edited tags are applied only to the new decoy resources that are created after editing the tag. The existing decoy resources retain the old tags.",
+            "The modified management tags are applied to existing management resources created in AWS by Zscaler Deception during the integration when any operation is performed via deployment script subsequently.",
+            "Deleting tags prevents further usage of the tags. The existing resources are not affected as the tags are not removed from them."
+          ]
+        }
+      ]
+    },
+    "iam-decoy": {
+      "statement": "An AWS IAM decoy is a decoy IAM user used to detect sign-in attempts with its credentials and has access to all other AWS decoys; it has no region option because IAM users are common to all regions in an account, and an Access Key value is automatically generated and associated with it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-iam-decoy-aws.json",
+          "quotes": [
+            "You can create AWS decoy IAM users to detect any attempt to sign in using these decoy user credentials. These decoy users have access to all other AWS decoys.",
+            "In AWS, IAM users are common to all regions within an account, so IAM user decoys do not include an option to select a region.",
+            "In addition, the Access Key value is automatically generated and associated with the IAM user decoys."
+          ]
+        }
+      ]
+    },
+    "s3-decoy": {
+      "statement": "S3 decoys detect enumeration of public buckets by organization keywords and access to private buckets through compromised identities; the ACL is Public (accessible to anyone) or Private (accessible only to internal adversaries).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-s3-decoy-aws.json",
+          "quotes": [
+            "The S3 decoys can detect the following attack paths:",
+            "Public: Adversaries can enumerate public S3 storage accounts by using keywords related to an organization to find exposed storage buckets on the internet in an attempt to steal sensitive data.",
+            "Private: Adversaries with compromised identities of your organization can target storage buckets that are accessible via the compromised identities.",
+            "Select Public if you want the S3 decoy to be accessible to anyone.",
+            "Select Private if you want the S3 decoy to be accessible only to internal adversaries."
+          ]
+        }
+      ]
+    },
+    "rds-decoy": {
+      "statement": "RDS decoys are MySQL or PostgreSQL databases (public or private) on the db.t3.micro instance type; Publicly Accessible enabled makes the decoy accessible to anyone, otherwise only to internal adversaries, and the URI value is generated for public RDS decoys during the subsequent health check.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-rds-decoy-aws.json",
+          "quotes": [
+            "You can create RDS decoy databases (public or private) based on MySQL or PostgreSQL to lure adversaries that are looking for databases to disrupt services or steal data.",
+            "Zscaler Deception uses Amazon RDS's db.t3.micro instance type to create RDS decoys.",
+            "Publicly Accessible: Enable if you want the decoy to be accessible to anyone. Otherwise, if it is disabled, access to the decoy is limited to internal adversaries.",
+            "the URI value is automatically generated and associated with the public RDS decoys during the subsequent health check."
+          ]
+        }
+      ]
+    },
+    "rds-vpc-options": {
+      "statement": "For RDS decoys, Subnet Group deploys the decoy into a subnet group of an existing VPC; VPC CIDR (a new VPC is created if none is available) is available only if Subnet Group is disabled, and Subnet CIDRs is available only if VPC CIDR is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-rds-decoy-aws.json",
+          "quotes": [
+            "Subnet Group: Enable to deploy the decoy in a subnet group belonging to an existing VPC, then enter the subnet group name.",
+            "VPC CIDR: Enter the address in CIDR format for the VPC where you want to deploy the decoy. If a VPC is not available, a new VPC is created. This option is available only if Subnet Group is disabled.",
+            "Subnet CIDRs: Enter the subnet IP address range in CIDR format for the VPC. This option is available only if VPC CIDR is configured."
+          ]
+        }
+      ]
+    },
+    "ecr-decoy": {
+      "statement": "ECR decoys (public or private) detect image pulls to extract credentials or steal code and image pushes for supply chain persistence; Visibility Public makes the decoy accessible to anyone using the URI, Private limits it to internal adversaries, and a URI is generated for public ECR decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-ecr-decoy-aws.json",
+          "quotes": [
+            "Pull: Adversaries look for images in the container registry to access the files to extract credentials or steal application code.",
+            "Push: Adversaries can attempt supply chain attacks by pushing a vulnerable image to a container registry for persistence.",
+            "Visibility: Select Public from the drop-down menu if you want the ECR decoy to be accessible to anyone using the URI. Otherwise, select Private to limit access to the ECR decoy to internal adversaries.",
+            "the URI value is automatically generated and associated with the public ECR decoys."
+          ]
+        }
+      ]
+    },
+    "ecr-page-rds-step": {
+      "statement": "The ECR decoy page's first CloudShell deploy sequence says \"Enter the option to deploy RDS database decoys and press Enter.\" and that the script \"deploys the RDS decoys to the selected regions\", before a second sequence that says \"Enter the option to deploy ECR decoys and press Enter.\".",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-ecr-decoy-aws.json",
+          "quotes": [
+            "Enter the option to deploy RDS database decoys and press Enter.",
+            "The deployment script detects the Account ID and deploys the RDS decoys to the selected regions.",
+            "Enter the option to deploy ECR decoys and press Enter."
+          ]
+        }
+      ]
+    },
+    "dynamodb-decoy": {
+      "statement": "A DynamoDB decoy is configured with a partition key and its type and a sort key and its type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-dynamo-db-decoy-aws.json",
+          "quotes": [
+            "Partition Key: Enter the name of the partition key for the DynamoDB database decoy.",
+            "Partition Key Type: Select the data type of the partition key from the drop-down menu.",
+            "Sort Key: Enter the name of the sort key for the DynamoDB database decoy.",
+            "Sort Key Type: Select the data type of the sort key from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "vm-image-decoy": {
+      "statement": "An AWS VM image decoy (public or private) creates an EC2 instance temporarily, adds a callback script and creates a snapshot; setting Visibility to Public requires the Block public access for AMIs setting to be disabled in the deployment region, and the Snapshot ID and AMI ID are associated with the decoy after deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-vm-image-decoy-aws.json",
+          "quotes": [
+            "You can create a VM image decoy snapshot (public or private) that creates an EC2 instance temporarily in AWS, adds a callback script for detection, and creates a snapshot.",
+            "If you want to set the Visibility to Public, ensure that the Block public access for AMIs setting in AWS is disabled in your region of deployment before deploying the decoy.",
+            "the Snapshot ID and AMI ID values are automatically associated with the VM decoys."
+          ]
+        }
+      ]
+    },
+    "vm-image-vpc-options": {
+      "statement": "For AWS VM image decoys, Subnet ID deploys into a subnet of an existing VPC; VPC CIDR (a new VPC is created if none is available) is available only if Subnet ID is disabled, and Subnet CIDRs is available only if VPC CIDR is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-vm-image-decoy-aws.json",
+          "quotes": [
+            "Subnet ID: Enable to deploy the decoy in a specific subnet belonging to an existing VPC, then enter the subnet ID.",
+            "VPC CIDR: Enter the address in CIDR format for the VPC where you want to deploy the decoy. If a VPC is not available, a new VPC is created. This option is available only if Subnet ID is disabled.",
+            "Subnet CIDRs: Enter the subnet IP address range in CIDR format for the VPC. This option is available only if VPC CIDR is configured."
+          ]
+        }
+      ]
+    },
+    "gen-ai-decoy": {
+      "statement": "An AWS Gen AI decoy uses Amazon Bedrock-optimized foundation models, only models optimized for Amazon Bedrock are supported, the model must be available in the selected region, and default instructions must have their placeholder texts replaced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-gen-ai-decoy-aws.json",
+          "quotes": [
+            "You can create a Gen AI decoy using the Amazon Bedrock-optimized foundation models.",
+            "Only the foundation models optimized for Amazon Bedrock are supported.",
+            "Ensure that the foundation model you want to deploy is available in the AWS region.",
+            "If you use the default instructions, ensure that you replace the placeholder texts with appropriate values."
+          ]
+        }
+      ]
+    },
+    "lure-methods": {
+      "statement": "Per the AWS lures page, IAM decoys use Cloud Lures, Session Lures via Bash History and File Decoys via Credential Files; private S3 decoys, RDS decoys and ECR decoys use Browser Lures, Session Lures via Bash History and File Decoys via Credential Files; DynamoDB decoys use Session Lures via Bash History and File Decoys via Credential Files; VM image decoys use browser lures or session lures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "Cloud Lures",
+            "Session Lures via Bash History",
+            "File Decoys via Credential Files"
+          ],
+          "after": "You can place credentials of user decoys on endpoints by configuring lures using the following methods:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "Browser Lures",
+            "Session Lures via Bash History",
+            "File Decoys via Credential Files"
+          ],
+          "after": "If the S3 decoy is configured as private, then you need to set up lures using the following methods:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "Browser Lures",
+            "Session Lures via Bash History",
+            "File Decoys via Credential Files"
+          ],
+          "after": "You can configure lures for RDS decoys on endpoints using the following methods:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "Browser Lures",
+            "Session Lures via Bash History",
+            "File Decoys via Credential Files"
+          ],
+          "after": "You can configure lures for ECR decoys on endpoints using the following methods:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "Session Lures via Bash History",
+            "File Decoys via Credential Files"
+          ],
+          "after": "You can configure lures for DynamoDB decoys on endpoints using the following methods:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-lures-using-aws-decoys.json",
+          "quotes": [
+            "You can use browser lures or session lures to configure lures for VM image decoys."
+          ]
+        }
+      ]
+    }
+  }
+}

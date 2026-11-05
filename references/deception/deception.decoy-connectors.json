@@ -1,0 +1,610 @@
+{
+  "schema_version": 1,
+  "id": "deception.decoy-connectors",
+  "title": "Decoy Connectors: platforms, sizing, connectivity, connection and credentials",
+  "aliases": [
+    "decoy connector",
+    "appliance",
+    "deception appliance",
+    "recovery console",
+    "connection code"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.network-decoys" },
+    { "rel": "see-also", "to": "deception.topology" },
+    { "rel": "see-also", "to": "deception.admin-portal" }
+  ],
+  "prose": [
+    {
+      "text": "{{what-it-is}} {{page-image-platforms}} {{divergence:aws-image-delivery}} {{page-columns-and-icons}}"
+    },
+    {
+      "label": "Sizing and connectivity.",
+      "text": "{{vm-sizing}} {{outbound-443-hosts}} {{proxy-inspection}} {{proxy-menu}}"
+    },
+    {
+      "label": "Connecting.",
+      "text": "{{management-network}} {{recovery-credentials}} {{connection-code}} {{recovery-console-menu-3}} {{recovery-console-menu-4}} {{divergence:connect-menu-option}}"
+    },
+    {
+      "label": "VMware.",
+      "text": "{{vmware-network-security}} {{vmware-deploy-details}}"
+    },
+    {
+      "label": "Hyper-V.",
+      "text": "{{hyperv-details}}"
+    },
+    {
+      "label": "AWS.",
+      "text": "{{aws-prereqs}} {{aws-ami-sharing}} {{aws-interfaces}}"
+    },
+    {
+      "label": "Azure.",
+      "text": "{{azure-image}} {{azure-access}} {{azure-interfaces}}"
+    },
+    {
+      "label": "Nutanix AHV.",
+      "text": "{{nutanix-image-and-vm}} {{nutanix-vlan-trunking}}"
+    },
+    {
+      "label": "Managing.",
+      "text": "{{zpa-and-ti-connectors-managed}} App Connectors are in [[deception.topology]]. {{reboot-update-logs}} {{debug-logs}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which recovery console menu option connects a Decoy Connector to the Admin Portal: the proxy article and the connect article name different numbers.",
+      "uses": ["connect-menu-option"]
+    },
+    {
+      "do": "How the AWS image is obtained and which platforms a page lists: the Decoy Connectors page lists four image downloads, the Nutanix AHV guide is a separate article.",
+      "uses": ["aws-image-delivery", "page-image-platforms", "nutanix-image-and-vm"]
+    },
+    {
+      "do": "Whether the Decoy Connector can reach the four hosts on TCP 443 directly, since a proxy is required if it cannot.",
+      "uses": ["outbound-443-hosts", "proxy-inspection"]
+    }
+  ],
+  "claims": {
+    "what-it-is": {
+      "statement": "Decoy Connectors (formerly Appliances) are lightweight VMs that host network decoys and act as a network broker connecting the Deception service to on-premises systems and Active Directory decoys; a standard VM image is distributed for data centers and cloud environments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-decoy-connectors.json",
+          "quotes": [
+            "Decoy Connectors (formerly known as Appliances) are lightweight virtual machines (VMs) that host network decoys.",
+            "They also act as a network broker to connect the Zscaler Deception service to on-premises systems and Active Directory (AD) decoys in your environment.",
+            "Deception distributes a standard VM image for deploying Decoy Connectors in enterprise data centers and cloud environments for various supported platforms."
+          ]
+        }
+      ]
+    },
+    "page-image-platforms": {
+      "statement": "The Decoy Connectors page lists image downloads for VMware vSphere Hypervisor (ESXi), Microsoft Hyper-V, Microsoft Azure and Amazon Web Services (AWS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-decoy-connectors.json",
+          "quotes": [
+            "Download the virtual machine (VM) image file to deploy the Decoy Connectors on the following supported platforms:",
+            "VMware vSphere Hypervisor (ESXi) - Microsoft Hyper-V - Microsoft Azure - Amazon Web Services (AWS)"
+          ]
+        }
+      ]
+    },
+    "page-columns-and-icons": {
+      "statement": "The Decoy Connectors page shows each connector's name with a connection-status icon (connected, not connected, not connected to an aggregator, update in progress or failed), version, management IP and last connected time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-decoy-connectors.json",
+          "quotes": [
+            "Active or connected to the Deception Admin Portal.",
+            "Inactive or not connected to the Deception Admin Portal.",
+            "Not connected to an aggregator.",
+            "Update in progress or update failed.",
+            "Management IP: The management IP of the Decoy Connector.",
+            "Last Connected Time: The time when the Decoy Connector was last connected to the Deception Admin Portal.",
+            "Version: The version of the Decoy Connector."
+          ]
+        }
+      ]
+    },
+    "vm-sizing": {
+      "statement": "The VMware, Hyper-V and Nutanix AHV deployment guides each require a VM with 2 CPU cores, 4 GB RAM, 50 GB disk and two or more network interfaces, one of which can serve as a dedicated management interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-vmware.json",
+          "quotes": [
+            "2 CPU cores",
+            "4 GB RAM",
+            "50 GB disk storage. An SSD-backed storage is recommended.",
+            "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-hyper-v.json",
+          "quotes": [
+            "2 CPU cores",
+            "4 GB RAM",
+            "50 GB disk storage. An SSD-backed storage is recommended.",
+            "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "2 CPU cores",
+            "4 GB RAM",
+            "50 GB disk storage. SSD-based storage is strongly recommended.",
+            "Two or more network interfaces. You can use one interface as a dedicated management interface and the other interfaces to host decoys."
+          ]
+        }
+      ]
+    },
+    "outbound-443-hosts": {
+      "statement": "Each deployment guide (VMware, Hyper-V, AWS, Azure, Nutanix AHV) requires outbound TCP 443 from the Decoy Connector management IP address or interface to the following hosts: Deception Admin Portal, Aggregator, ib.smokescreen.io and rs.smokescreen.io.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-vmware.json",
+          "quotes": [
+            "outbound access to TCP port 443 from the Decoy Connector management IP address",
+            "Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-hyper-v.json",
+          "quotes": [
+            "outbound access to TCP port 443 from the Decoy Connector management IP address",
+            "Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-aws.json",
+          "quotes": [
+            "outbound access to TCP port 443 from the Decoy Connector's management IP address",
+            "Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "outbound access to TCP port 443 from the Decoy Connector management IP address",
+            "Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "outbound access to TCP port 443 from the Decoy Connector management interface",
+            "Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        }
+      ]
+    },
+    "proxy-inspection": {
+      "statement": "An HTTP proxy is required if the Decoy Connector cannot establish a direct connection via port 443 to the Zscaler Deception Admin Portal, Aggregator, ib.smokescreen.io and rs.smokescreen.io; on the Configuring Proxy Settings page, all inspection features for those hosts must be off and the proxy must give unfiltered TCP 443 access to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-proxy-settings-decoy-connector.json",
+          "quotes": [
+            "An HTTP proxy is required if the Decoy Connector cannot establish a direct connection with the following hosts via port 443:",
+            "You must turn off all inspection features for the hosts in the preceding list and also ensure that the proxy provides unfiltered access to TCP port 443 for these destinations.",
+            "Zscaler Deception Admin Portal - Aggregator - ib.smokescreen.io - rs.smokescreen.io"
+          ]
+        }
+      ]
+    },
+    "proxy-menu": {
+      "statement": "On the Configuring Proxy Settings page, the proxy is configured from the Recovery Console (via VM console or SSH), taking the proxy IP or FQDN, port, and optional username and password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-proxy-settings-decoy-connector.json",
+          "quotes": [
+            "Log in to the Zscaler Deception Recovery Console via the virtual machine (VM) console or SSH.",
+            "Enter the IP address or FQDN for the proxy server.",
+            "If the proxy server requires credentials, enter a Proxy Username and Proxy Password. Otherwise, leave these fields blank.",
+            "Enter the port number to be used to connect to the proxy server."
+          ]
+        }
+      ]
+    },
+    "recovery-console-menu-3": {
+      "statement": "The proxy article says to enter 3 on the recovery console main menu to connect the Decoy Connector to the Admin Portal and press Enter, and a later step says to enter Yes to enable proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-proxy-settings-decoy-connector.json",
+          "quotes": [
+            "On the recovery console main menu, enter 3 to connect the Decoy Connector to the Deception Admin Portal and then press Enter.",
+            "Enter Yes to enable proxy."
+          ]
+        }
+      ]
+    },
+    "recovery-console-menu-4": {
+      "statement": "The connect-a-Decoy-Connector article says to enter 4 on the recovery console main menu to connect the Decoy Connector to the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-connecting-decoy-connector-admin-portal.json",
+          "quotes": [
+            "On the recovery console main menu, enter 4 to connect the Decoy Connector to the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "management-network": {
+      "statement": "The management network is set from recovery console menu option 2 with IP address, subnet mask, default router, a single DNS server and a management interface (em0 on VMware).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-decoy-connector-management-network.json",
+          "quotes": [
+            "In the recovery console main menu, enter 2 to configure the management network for the Decoy Connector.",
+            "Only one DNS server is allowed.",
+            "Select a management interface from the list. For example, enter em0 for VMware platforms.",
+            "Enter the IP address.",
+            "Enter the subnet mask.",
+            "Enter the default router address."
+          ]
+        }
+      ]
+    },
+    "recovery-credentials": {
+      "statement": "The recovery console's default username and password are both recovery; once a Decoy Connector is connected to the Admin Portal its recovery and diagnostic passwords are randomized (the username stays recovery), the new credentials are obtained from the portal, and only users with the super admin role can view recovery credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-decoy-connector-management-network.json",
+          "quotes": [
+            "The default username and password is recovery.",
+            "After you connect a Decoy Connector to the Zscaler Deception Admin Portal, its recovery password is randomized.",
+            "The username is always recovery."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-decoy-connectors.json",
+          "quotes": [
+            "After you add and connect a Decoy Connector to the Zscaler Deception Admin Portal, its recovery and diagnostic passwords are randomized.",
+            "Only users with the super admin role can view recovery credentials.",
+            "You can obtain the new credentials from the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "connection-code": {
+      "statement": "Connecting a Decoy Connector uses an 8-digit connection code from Actions > Connection Code that is valid for up to 12 hours; the code is needed when connecting from the Recovery Console, where the Admin Portal hostname (FQDN/DNS name) and the code are entered; a newly added connector shows a red status until connected and a green status after.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-connecting-decoy-connector-admin-portal.json",
+          "quotes": [
+            "Copy the 8-digit connection code.",
+            "The connection code is valid for up to 12 hours.",
+            "Enter the Deception Admin Portal's hostname (FQDN/DNS name).",
+            "it appears with a red connection status icon () indicating that the Decoy Connector is not yet connected to the Deception Admin Portal.",
+            "If it is successful, the connection status icon turns green ().",
+            "click Actions > Connection Code.",
+            "Enter the 8-digit connection code that you copied in Step 2, and then press Enter.",
+            "You need this code when connecting the Decoy Connector to the Deception Admin Portal from the Zscaler Deception Recovery Console."
+          ]
+        }
+      ]
+    },
+    "zpa-and-ti-connectors-managed": {
+      "statement": "The connect-a-Decoy-Connector page says App Connectors and TI Decoy Connectors cannot be added or connected to the Admin Portal by the customer; the Managing Decoy Connectors page says Private Access or Threat Intelligence Decoy Connectors cannot be edited or deleted and Zscaler Support manages them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-connecting-decoy-connector-admin-portal.json",
+          "quotes": [
+            "You cannot add or connect the App Connectors or TI Decoy Connectors to the Deception Admin Portal yourself.",
+            "Zscaler Deception uses Private Access (ZPA) App Connectors and Threat Intelligence (TI) Decoy Connectors to deploy Zero Trust Network Decoys and TI Decoys respectively in a dedicated Deception cloud."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-decoy-connectors.json",
+          "quotes": [
+            "Deception uses Private Access (ZPA) or Threat Intelligence Decoy Connectors to deploy decoys in a dedicated Deception cloud. You cannot edit or delete them. Contact Zscaler Support to manage them."
+          ]
+        }
+      ]
+    },
+    "reboot-update-logs": {
+      "statement": "A Decoy Connector can be rebooted from Actions > Reboot, and its update logs viewed from Logs > View update logs to troubleshoot Decoy Connector update issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-decoy-connectors.json",
+          "quotes": [
+            "You can reboot a configured Decoy Connector in the Deception Admin Portal.",
+            "You can use the update logs to troubleshoot issues related to Decoy Connector updates.",
+            "Locate the required Decoy Connector, and then click Actions > Reboot.",
+            "Locate the required Decoy Connector, and then click Logs > View update logs."
+          ]
+        }
+      ]
+    },
+    "debug-logs": {
+      "statement": "Decoy Connector debug logs are stored on the connector and copied to the portal on request; recent debug logs are the last 1,000 lines of each log file, all debug logs are the complete files, the connector must be connected, and the download is a .tar.xz file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-managing-decoy-connectors.json",
+          "quotes": [
+            "Debug logs are system-generated logs that are stored on a Decoy Connector. Debug logs are copied to the Deception Admin Portal when you initiate a download request.",
+            "Make sure that the Decoy Connector is connected to the Deception Admin Portal before you download the debug logs.",
+            "Request recent debug logs: Download the last 1,000 lines from each log file.",
+            "Request all debug logs: Download the complete log files.",
+            "The debug logs are downloaded as a .tar.xz file."
+          ]
+        }
+      ]
+    },
+    "vmware-network-security": {
+      "statement": "The VMware guide requires promiscuous mode or MAC learning, forged transmits, MAC address changes and (only when decoys are on more than one VLAN) VLAN trunking on the port group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-vmware.json",
+          "quotes": [
+            "Promiscuous mode or MAC Learning",
+            "Forged transmits",
+            "MAC address changes",
+            "The VLAN Trunking setting is enabled only if you are deploying decoys on more than one VLAN."
+          ],
+          "after": "Ensure that you have enabled the following options in a port or port group for a distributed virtual switch or standard switch:"
+        }
+      ]
+    },
+    "vmware-deploy-details": {
+      "statement": "In the VMware guide the image is the .ova from Download Image > VMware, VLAN trunking on a standard port group uses VLAN ID 4095, and disk provisioning is Thick.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-vmware.json",
+          "quotes": [
+            "Click Download Image and select VMware to download the image (.ova) file.",
+            "Enter a VLAN ID. If VLAN trunking is required, then enter 4095.",
+            "In Disk provisioning, select Thick."
+          ]
+        }
+      ]
+    },
+    "hyperv-details": {
+      "statement": "In the Hyper-V deployment guide, the platform is Microsoft Hyper-V on Windows Server 2012 R2 or later, the image is the HyperV .vhd.zip file on a Generation 1 VM, the MAC address spoofing option is enabled on the network adapter, and Decoy Connectors do not support VLAN trunking on Hyper-V, so a virtual NIC per VLAN is configured for two or more VLANs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-hyper-v.json",
+          "quotes": [
+            "Microsoft Hyper-V (Windows Server 2012 R2 or later)",
+            "Click Download Image, and then select HyperV to download the image (.vhd.zip) file.",
+            "On the Specify Generation page, select Generation 1, and then click Next.",
+            "Enable the MAC address spoofing option on the network adapter.",
+            "The Decoy Connectors do not support VLAN trunking in the Hyper-V platform. If you need to configure two or more VLANs, a virtual NIC for each VLAN must be configured."
+          ]
+        }
+      ]
+    },
+    "aws-prereqs": {
+      "statement": "The AWS guide requires inbound TCP 22 to the management IP, an AWS account with admin privileges (view account ID, create EC2 instances, manage security groups, use T3.small or larger), and 50 GB disk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-aws.json",
+          "quotes": [
+            "Ensure that you have inbound access to TCP port 22 to the Decoy Connector's management IP address.",
+            "Access T3.small (or larger) instance type.",
+            "50 GB disk storage. An SSD-backed storage is recommended.",
+            "View the AWS Account ID.",
+            "Create Amazon EC2 instances.",
+            "Create and manage security groups."
+          ]
+        }
+      ]
+    },
+    "aws-ami-sharing": {
+      "statement": "For AWS, the customer shares the AWS account ID and region with the Zscaler Deception team, who share an AMI into the account to launch the EC2 instance from.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-aws.json",
+          "quotes": [
+            "Share your AWS account ID and the region in which you want to create decoys with the Zscaler Deception team. The Deception team then shares an Amazon Machine Image (AMI) on your AWS account.",
+            "Select the AMI that is shared by the Deception team, and then click Launch instance from AMI."
+          ]
+        }
+      ]
+    },
+    "aws-interfaces": {
+      "statement": "On AWS each additional interface can host only one network decoy, instance type limits the number of attachable interfaces (a T3 small allows three), Zscaler recommends an Allow All security group on decoy interfaces, and the instance must be stopped and started after attaching interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-aws.json",
+          "quotes": [
+            "each additional interface can host only one network decoy.",
+            "if you use a T3 small instance, you can attach only three network interfaces.",
+            "Zscaler recommends an Allow All security group so that Deception can send alerts on any traffic that is destined for a decoy.",
+            "After you attach the additional network interfaces, stop the EC2 instance and then start it again."
+          ]
+        }
+      ]
+    },
+    "azure-image": {
+      "statement": "The Azure guide uses the HyperV .vhd.zip image, uploaded as a blob and made into a Linux, Gen 1, Standard SSD image, with VM size Standard_B2s (2 vCPUs, 4 GiB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "Click Download Image and select HyperV to download the image (.vhd.zip) file.",
+            "For OS type, select Linux.",
+            "For VM generation, select Gen 1.",
+            "select Standard_B2s – 2vcpus, 4 GiB memory from the drop-down menu",
+            "For Account type, select Standard SSD from the drop-down menu",
+            "Upload an image to the Azure Blob storage.",
+            "Create an image from the Decoy Connector image (.vhd file) in the block storage."
+          ]
+        }
+      ]
+    },
+    "azure-access": {
+      "statement": "On Azure the Decoy Connector VM does not use the administrator credentials entered at VM creation, SSH (22) is selected for inbound ports, and Public inbound ports can be set to None after the connector is connected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "The Zscaler Deception Decoy Connector VM does not use the administrator's credentials configured at the time of the VM creation.",
+            "select SSH (22) for the Select inbound ports drop-down menu.",
+            "After connection of the Decoy Connector to the Deception Admin Portal is completed, the Public inbound ports option under the Networking tab can be set to None."
+          ]
+        }
+      ]
+    },
+    "azure-interfaces": {
+      "statement": "On Azure each Decoy Connector VM needs at least two network interfaces, interfaces may be in different subnets but the same virtual network, Standard_B2s allows three interfaces, and each interface can host one network decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-microsoft-azure.json",
+          "quotes": [
+            "To add decoys, each Decoy Connector VM needs to have at least two network interfaces.",
+            "each network interface can be in a different subnet. However, all of the network interfaces must be a part of the same virtual network.",
+            "The recommended image size is Standard_B2s, which allows you to add three network interfaces to a VM.",
+            "You can deploy only one network decoy on each interface."
+          ]
+        }
+      ]
+    },
+    "nutanix-image-and-vm": {
+      "statement": "The Nutanix AHV guide uses the Xen/KVM .tar.gz image containing a .qcow2 file, a VM with 2 CPUs and 4 GiB memory (memory overcommit not enabled), a SCSI disk cloned from the image, Legacy BIOS boot, UTC time zone, and not an Agent VM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "select Xen/KVM to download the compressed image file (.tar.gz).",
+            "extract the .qcow2 image file from the compressed file.",
+            "set CPU count to 2, and set Memory to 4 GiB.",
+            "Make sure that the Enable Memory Overcommit option is not selected.",
+            "set the Bus Type to SCSI.",
+            "Set the Boot Configuration to Legacy BIOS Mode",
+            "set Timezone to UTC, and make sure that the Use this VM as an Agent VM option is unselected.",
+            "In the Operation drop-down menu, select Clone from Image."
+          ]
+        }
+      ]
+    },
+    "nutanix-vlan-trunking": {
+      "statement": "The Nutanix AHV guide requires VLAN trunking on the decoy interface to use more than one VLAN on a single interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-decoy-connector-deployment-guide-nutanix-ahv.json",
+          "quotes": [
+            "Ensure that you have enabled VLAN trunking on the decoy interface if you want to use more than one VLAN on a single interface."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "aws-image-delivery": {
+      "summary": "The Decoy Connectors page lists AWS among the platforms with a VM image file to download, while the AWS deployment guide has the customer share an account ID and region and the Deception team share an AMI.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-about-decoy-connectors.json",
+            "quotes": [
+              "Download the virtual machine (VM) image file to deploy the Decoy Connectors on the following supported platforms:",
+              "VMware vSphere Hypervisor (ESXi) - Microsoft Hyper-V - Microsoft Azure - Amazon Web Services (AWS)"
+            ]
+          },
+          "says": "A VM image file is downloaded for AWS along with VMware, Hyper-V and Azure."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-decoy-connector-deployment-guide-aws.json",
+            "quotes": [
+              "Share your AWS account ID and the region in which you want to create decoys with the Zscaler Deception team. The Deception team then shares an Amazon Machine Image (AMI) on your AWS account."
+            ]
+          },
+          "says": "For AWS the Deception team shares an AMI on the customer's account after the account ID and region are shared."
+        }
+      ],
+      "impact": "The two pages give different delivery for the AWS image: a downloaded image file or a shared AMI; the captures do not say which applies."
+    },
+    "connect-menu-option": {
+      "summary": "The proxy article and the connect-a-Decoy-Connector article give different recovery console main menu options for connecting the Decoy Connector to the Admin Portal.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-configuring-proxy-settings-decoy-connector.json",
+            "quotes": [
+              "On the recovery console main menu, enter 3 to connect the Decoy Connector to the Deception Admin Portal and then press Enter."
+            ]
+          },
+          "says": "Enter 3 on the recovery console main menu to connect the Decoy Connector to the Deception Admin Portal."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-adding-connecting-decoy-connector-admin-portal.json",
+            "quotes": [
+              "On the recovery console main menu, enter 4 to connect the Decoy Connector to the Deception Admin Portal."
+            ]
+          },
+          "says": "Enter 4 on the recovery console main menu to connect the Decoy Connector to the Deception Admin Portal."
+        }
+      ],
+      "impact": "The two articles name a different menu number for the same action; the captures do not say which is current."
+    }
+  }
+}

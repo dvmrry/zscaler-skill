@@ -1,0 +1,509 @@
+{
+  "schema_version": 1,
+  "id": "deception.network-decoys",
+  "title": "Network decoys (Internal and Zero Trust Network): personalities, creation, AD join, MITM detection, RADIUS and management",
+  "aliases": [
+    "Internal decoy",
+    "Zero Trust Network decoy",
+    "ZTN decoy"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.decoy-deployment" },
+    { "rel": "see-also", "to": "deception.ti-decoys" },
+    { "rel": "see-also", "to": "deception.gen-ai-decoys" }
+  ],
+  "prose": [
+    {
+      "text": "{{internal-vs-ztn}} {{two-per-segment}}"
+    },
+    {
+      "label": "The page.",
+      "text": "{{status-icons}} {{page-columns}} {{personality-defaults}}"
+    },
+    {
+      "label": "Internal decoys.",
+      "text": "{{internal-connector-platforms}} {{internal-ips}} {{internal-mac}}"
+    },
+    {
+      "label": "Zero Trust Network decoys.",
+      "text": "{{ztn-where}} {{ztn-prereqs}} {{ztn-app-segment}} {{ztn-ai-min}} {{ztn-conflict-filter}}"
+    },
+    {
+      "label": "Active Directory.",
+      "text": "{{ad-join}} {{ad-join-ou}} {{ad-join-server-agent}}"
+    },
+    {
+      "label": "Managing.",
+      "text": "{{disable}} {{export-config}} {{test-other-services}}"
+    },
+    {
+      "label": "MITM detection.",
+      "text": "{{mitm-what}} {{mitm-ports}} {{mitm-os-recommendation}} {{mitm-hostnames}} {{mitm-unsupported-connectors}} {{mitm-interval}}"
+    },
+    {
+      "label": "RADIUS decoys.",
+      "text": "{{radius-why}} {{radius-internal-only}} {{radius-threatparse}} {{radius-ports}} {{radius-test-prereqs}} {{radius-test-responses}}"
+    },
+    {
+      "label": "Related.",
+      "text": "Starting and stopping decoys is in [[deception.decoy-deployment]]; Gen AI services on network decoys are in [[deception.gen-ai-decoys]]; internet-facing decoys are in [[deception.ti-decoys]]; the hub is [[deception.overview]]."
+    }
+  ],
+  "claims": {
+    "two-per-segment": {
+      "statement": "Zscaler recommends at least two network decoys in each business-critical network segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-network-decoys.json",
+          "quotes": [
+            "Zscaler recommends that you deploy at least two network decoys in each business-critical network segment."
+          ]
+        }
+      ]
+    },
+    "internal-vs-ztn": {
+      "statement": "An Internal decoy is configured with a hostname or FQDN and a MAC address matching a manufacturer or vendor; a Zero Trust Network decoy uses Private Access to create decoy applications and is configured with an FQDN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-network-decoys.json",
+          "quotes": [
+            "An Internal decoy allows you to create decoy applications within your organization's network. You can configure an Internal decoy with a hostname or FQDN that resembles systems on your network and a MAC address that matches a manufacturer or a vendor.",
+            "A Zero Trust Network decoy uses Private Access (ZPA) to create decoy applications that appear to exist within your organization's network. You can configure Zero Trust Network decoys with an FQDN to make them look like a part of your network."
+          ]
+        }
+      ]
+    },
+    "status-icons": {
+      "statement": "The Network Decoys page marks each decoy with one of five status icons: not deployed, successfully deployed, partially deployed, not connected to an aggregator, or disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-network-decoys.json",
+          "quotes": [
+            "– Decoy is not deployed.",
+            "– Decoy is successfully deployed.",
+            "– Decoy is partially deployed.",
+            "– Decoy is not connected to an aggregator.",
+            "– Decoy is disabled."
+          ]
+        }
+      ]
+    },
+    "page-columns": {
+      "statement": "The Network Decoys page lists FQDN and IP, Personality (the predefined template and its configured services), Network Decoy Groups and Network Name for each decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-network-decoys.json",
+          "quotes": [
+            "Personality: The predefined decoy template used to create a decoy, along with the services that the decoy is configured to run.",
+            "Network Decoy Groups: The network group in which the decoy is deployed.",
+            "Network Name: The name of the network in which the decoy is deployed."
+          ]
+        }
+      ]
+    },
+    "personality-defaults": {
+      "statement": "Selecting a personality auto-configures hostname or FQDN, MAC address and the default services tagged to it; services can be enabled, disabled or have their content changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-using-network-decoy-personalities-and-services.json",
+          "quotes": [
+            "When you select a personality while creating a network decoy, the configurations, such as hostname or FQDN and MAC address, are automatically configured along with the default services that are tagged to the personality.",
+            "You can enable or disable services or change the content they serve per your requirements."
+          ]
+        }
+      ]
+    },
+    "internal-connector-platforms": {
+      "statement": "An Internal decoy needs a Decoy Connector deployed on VMware vSphere Hypervisor (ESXi), Microsoft Hyper-V, Microsoft Azure or Amazon Web Services (AWS).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-internal-network-decoy.json",
+          "quotes": [
+            "Deploy a Decoy Connector on any of the supported platforms:",
+            "- VMware vSphere Hypervisor (ESXi)",
+            "- Microsoft Hyper-V",
+            "- Microsoft Azure",
+            "- Amazon Web Services (AWS)"
+          ]
+        }
+      ]
+    },
+    "internal-ips": {
+      "statement": "Zscaler recommends two free IP addresses per VLAN or subnet for Internal decoys; the IP field is left blank where the network has DHCP enabled, and IPv6 requires an IPv6 subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-internal-network-decoy.json",
+          "quotes": [
+            "Make sure that you have free IP addresses for trunked VLANs or subnets. Zscaler recommends two IP addresses per VLAN or subnet.",
+            "Keep this field blank if the selected network has Dynamic Host Configuration Protocol (DHCP) enabled.",
+            "You can only configure IPv6 if you select an IPv6 subnet in the Network Segment/Subnet field.",
+            "IP: Enter a free IP address."
+          ]
+        }
+      ]
+    },
+    "internal-mac": {
+      "statement": "For an Internal decoy's MAC, selecting or autogenerating a manufacturer makes Deception generate a MAC address belonging to that manufacturer; a MAC can also be entered manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-internal-network-decoy.json",
+          "quotes": [
+            "Zscaler Deception automatically generates a MAC address that belongs to the manufacturer. You can also manually enter a MAC address of your choice.",
+            "However, you can select a system manufacturer or click the Autogenerate icon"
+          ]
+        }
+      ]
+    },
+    "ztn-where": {
+      "statement": "Zero Trust Network decoys run on a dedicated cloud environment hosted by Zscaler and are made available to an adversary using Private Access via Zscaler Client Connector; they can be created on a production application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-zero-trust-network-decoy.json",
+          "quotes": [
+            "These decoys run on a dedicated cloud environment hosted by Zscaler and are made available to an adversary using Private Access (ZPA) via Zscaler Client Connector.",
+            "You can create Zero Trust Network decoys on the production application segment in Private Access."
+          ]
+        }
+      ]
+    },
+    "ztn-prereqs": {
+      "statement": "A Zero Trust Network decoy requires a provisioned Private Access tenant ID, Client Connector installed on endpoints, and free FQDNs not assigned to existing Private Access systems; for real applications the ports must be free on the production segment (the example: port 3306 free on a segment using 80 and 443); the page adds that this prerequisite is not applicable to new Private Access decoys for real applications in Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-zero-trust-network-decoy.json",
+          "quotes": [
+            "You have a provisioned Private Access tenant ID.",
+            "Zscaler Client Connector is installed on the endpoints.",
+            "There are free FQDNs that are not assigned to any of the existing systems in the Private Access service.",
+            "ports must be available on the real production Private Access application segment to which you want to add a decoy.",
+            "then port 3306 must be available to add a decoy service.",
+            "This prerequisite is not applicable to new Private Access decoys for real applications in Private Access.",
+            "For example, if you want to add a MySQL database decoy service on a real production Private Access application segment, which is a web server with ports 80 and 443 used"
+          ]
+        }
+      ]
+    },
+    "ztn-app-segment": {
+      "statement": "For a Zero Trust Network decoy of a production application, only application segments with at least one FQDN are supported, and the search needs at least three characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-zero-trust-network-decoy.json",
+          "quotes": [
+            "Enter at least three characters to search for a Private Access production application segment. Zscaler supports only those application segments that have at least one FQDN."
+          ]
+        }
+      ]
+    },
+    "ztn-ai-min": {
+      "statement": "AI-powered Zero Trust Network decoy recommendations need at least 5 application segments with non-wildcard FQDNs in Private Access; they use hostnames (FQDNs) and port configurations from those segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-zero-trust-network-decoy.json",
+          "quotes": [
+            "For AI-powered recommendations to work, you must have a minimum of 5 application segments with non-wildcard FQDNs in Private Access.",
+            "The hostnames (FQDNs) and port configurations from the applications segments in Private Access are fetched, the information is supplied to AI, and decoy recommendations are generated."
+          ]
+        }
+      ]
+    },
+    "ztn-conflict-filter": {
+      "statement": "The vendor says to make sure there are no FQDN-port combinations conflicting with existing Private Access application segments, and the Deception filter on the Private Access Application Segments page shows the Zero Trust Network decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-zero-trust-network-decoy.json",
+          "quotes": [
+            "Make sure that there are no FQDN-port combinations conflicting with any of the existing application segments in Private Access.",
+            "You can select the Deception filter on the Application Segments page in Private Access to view the Zero Trust Network decoys."
+          ]
+        }
+      ]
+    },
+    "ad-join": {
+      "statement": "An Internal network decoy can be added to an AD domain and AD DNS as a decoy computer object; the AD domain must be added first, and the deployment script creates the object with OS and OU details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-network-decoy-active-directory.json",
+          "quotes": [
+            "Before adding an Internal network decoy as a decoy computer object, you must add an AD domain.",
+            "To create an AD decoy computer in the AD domain with configuration details such as OS, OU path, etc., run the AD deployment script.",
+            "You can add an Internal network decoy to an Active Directory (AD) domain and AD DNS as an AD decoy computer object to make it look like a legitimate domain-joined system."
+          ]
+        }
+      ]
+    },
+    "ad-join-ou": {
+      "statement": "For an AD decoy computer the OU path is listed automatically if the AD domain has credentials and entered manually if it has none.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-network-decoy-active-directory.json",
+          "quotes": [
+            "If you configure an AD domain with credentials, the OU paths are automatically listed in the drop-down menu.",
+            "If you configure an AD domain without credentials, manually enter the OU path."
+          ]
+        }
+      ]
+    },
+    "ad-join-server-agent": {
+      "statement": "For AD decoy computers in domains managed by server agents the deployment scripts do not have to be run manually, as the server agent automates the deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-network-decoy-active-directory.json",
+          "quotes": [
+            "For AD decoy computer created in domains managed by server agents, you don't have to manually run the deployment scripts. The server agent automates AD decoy deployment."
+          ]
+        }
+      ]
+    },
+    "disable": {
+      "statement": "A single network decoy is disabled by deselecting Enabled, which turns its status icon gray, and a disabled decoy cannot be deployed until enabled again; all decoys can be stopped at once via the Summary page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-disabling-network-decoy.json",
+          "quotes": [
+            "You can stop all decoys at once via the Summary page (Deceive > Summary). If you want to stop a single decoy, you can disable it.",
+            "You cannot deploy a disabled decoy. You must enable it again to deploy it.",
+            "Deselect Enabled, and then click Submit.",
+            "The network decoy is disabled and the decoy status icon turns gray"
+          ]
+        }
+      ]
+    },
+    "export-config": {
+      "statement": "Network decoy configuration details are exported as a CSV file with Export Decoy Configuration from the Internal or Zero Trust Network tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-network-decoys-configuration.json",
+          "quotes": [
+            "You can export the network decoy configuration details as a CSV file.",
+            "Click Export Decoy Configuration.",
+            "Select the Internal or Zero Trust Network tab."
+          ]
+        }
+      ]
+    },
+    "test-other-services": {
+      "statement": "Decoys configured with other services can be tested, but those services must be accessed using their respective applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-network-decoy.json",
+          "quotes": [
+            "You can test decoys configured with other services. However, you must access these services using their respective applications."
+          ]
+        }
+      ]
+    },
+    "mitm-what": {
+      "statement": "Deception detects LLMNR, NBT-NS and mDNS poisoning by having internal network decoys broadcast decoy name resolution requests at specified intervals; a response from a tool such as Responder or Inveigh is logged as an MITM attack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-mitm-detection.json",
+          "quotes": [
+            "Zscaler Deception can detect and alert certain types of Man-in-the-Middle (MITM) attacks, such as Link-Local Multicast Name Resolution (LLMNR) poisoning, NetBIOS Name Service (NBT-NS) poisoning, and multicast DNS (mDNS) poisoning.",
+            "Deception enables you to configure your internal network decoys to broadcast decoy name resolution requests across the subnet at specified intervals.",
+            "If an adversary responds to the request using tools like Responder or Inveigh, then the activity is logged as an MITM attack."
+          ]
+        }
+      ]
+    },
+    "mitm-ports": {
+      "statement": "Responders to LLMNR queries listen on UDP 5355, to NBT-NS queries on UDP 137 and to mDNS queries on UDP 5353.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-mitm-attack-detection.json",
+          "quotes": [
+            "Responders to LLMNR queries listen to UDP port 5355.",
+            "Responders to NBT-NS queries listen to UDP port 137.",
+            "Responders to mDNS queries listen to UDP port 5353."
+          ]
+        }
+      ]
+    },
+    "mitm-os-recommendation": {
+      "statement": "LLMNR and NBT-NS are recommended for Windows environments and mDNS for environments with macOS systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-mitm-attack-detection.json",
+          "quotes": [
+            "LLMNR and NBT-NS techniques are recommended for Windows environments, and the mDNS technique is recommended for environments consisting of macOS systems."
+          ]
+        }
+      ]
+    },
+    "mitm-hostnames": {
+      "statement": "Request hostnames are picked at random from the configured list, or generated by the service per request when the field is blank; they must be unique and not assigned to real hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-mitm-attack-detection.json",
+          "quotes": [
+            "If a list of hostnames is configured in this field, then a hostname is selected at random from this list for each request. If the field is left blank, then the Zscaler service automatically generates a hostname for each request.",
+            "When configuring hostnames, make sure that they are unique and are not assigned to any real hosts on the network."
+          ]
+        }
+      ]
+    },
+    "mitm-unsupported-connectors": {
+      "statement": "MITM detection is not supported for decoys connected to Threat Intelligence, Private Access (ZPA) or cloud-based Decoy Connectors, so their subnets are not listed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-mitm-attack-detection.json",
+          "quotes": [
+            "MITM detection is not supported for decoys connected to Threat Intelligence Decoy Connectors, Private Access (ZPA) Decoy Connectors, and cloud-based Decoy Connectors. Hence, subnets associated with these Decoy Connectors are not listed."
+          ]
+        }
+      ]
+    },
+    "mitm-interval": {
+      "statement": "The Broadcast Interval is set in minutes and controls how often network decoys broadcast decoy name resolution requests.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-mitm-attack-detection.json",
+          "quotes": [
+            "Broadcast Interval (In minutes): Specify the time interval (in minutes) to configure the frequency based on how often the network decoys should broadcast decoy name resolution requests."
+          ]
+        }
+      ]
+    },
+    "radius-why": {
+      "statement": "RADIUS encrypts only the password in authentication requests, which leaves servers open to packet forgery and MITM attacks without TLS or IPSec; adversaries use Nmap to enumerate the server username, password and secret.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-radius-decoys.json",
+          "quotes": [
+            "The RADIUS protocol encrypts only the password within authentication requests, leaving the rest of the payload unencrypted.",
+            "This limitation makes RADIUS servers vulnerable to packet forgery and man-in-the-middle (MITM) attacks if additional security layers, such as TLS or IPSec, are not integrated.",
+            "Adversaries use the Network Mapper (Nmap) tool to scan the network and enumerate the server username, password, and secret."
+          ]
+        }
+      ]
+    },
+    "radius-internal-only": {
+      "statement": "RADIUS decoys are high-interaction and are deployed on an internal network via Internal decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-radius-decoys.json",
+          "quotes": [
+            "Zscaler Deception provides high-interaction RADIUS decoys that mimic RADIUS servers.",
+            "You can deploy an interactive RADIUS decoy on an internal network via Internal decoys."
+          ]
+        }
+      ]
+    },
+    "radius-threatparse": {
+      "statement": "Authentication attempts against a RADIUS decoy are enriched by the RADIUS Authentication ThreatParse rule, which scores a successful attempt higher than a failed or unknown one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-radius-decoys.json",
+          "quotes": [
+            "Deception generates event logs and enriches them using the RADIUS Authentication ThreatParse rule.",
+            "A successful authentication attempt is assigned a higher score than a failed or unknown attempt."
+          ]
+        }
+      ]
+    },
+    "radius-ports": {
+      "statement": "When the RADIUS service is enabled on an Internal decoy it starts on ports 1812 and 1813.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-deploying-radius-decoy.json",
+          "quotes": [
+            "The RADIUS service starts on ports 1812 and 1813.",
+            "On the Services tab, enable RADIUS.",
+            "Create an Internal decoy with the following General settings."
+          ]
+        }
+      ]
+    },
+    "radius-test-prereqs": {
+      "statement": "Testing a RADIUS decoy needs UDP ports 1812 and 1813 open, and the decoy automatically starts FreeRADIUS when enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-radius-decoys.json",
+          "quotes": [
+            "FreeRADIUS service is available (the decoy automatically starts this service when enabled).",
+            "UDP ports 1812 and 1813 are open and not blocked by firewalls."
+          ]
+        }
+      ]
+    },
+    "radius-test-responses": {
+      "statement": "With the documented test credentials (admin / radius / secret testing123), correct values return Access-Accept, a wrong password Access-Reject, and a wrong shared secret no reply.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-radius-decoys.json",
+          "quotes": [
+            "Username: admin",
+            "Password: radius",
+            "Shared secret: testing123",
+            "Correct username, password, and secret: Response: Access-Accept (successful authentication)",
+            "Wrong password: Response: Access-Reject (failed authentication)",
+            "Wrong server secret: Response: No reply (server does not respond)"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

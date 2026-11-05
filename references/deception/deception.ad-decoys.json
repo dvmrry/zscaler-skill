@@ -1,0 +1,719 @@
+{
+  "schema_version": 1,
+  "id": "deception.ad-decoys",
+  "title": "Active Directory decoys: domains, decoy users and computers, the deployment script, and the alert triggers that feed them",
+  "aliases": [
+    "active directory decoys",
+    "ad decoy user",
+    "ad decoy computer",
+    "ad domain",
+    "decoy deployment script",
+    "Start-Deployment.ps1",
+    "trigger script",
+    "ad triggers",
+    "siem triggers",
+    "enumeration detection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-decoys"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{mitre}} {{use-cases}} {{page-actions}} See also [[deception.landmine-policies]], [[deception.landmine-decoys]] and [[deception.overview]]."
+    },
+    {
+      "label": "AD domain.",
+      "text": "{{domain-with-without-creds}} {{domain-creds-prereqs}} {{domain-prereqs}} {{domain-no-creds}} {{domain-receiver}} {{root-ca-export}}"
+    },
+    {
+      "label": "Decoy users.",
+      "text": "{{user-ou}} {{user-attributes}} {{user-protected-groups}} {{user-status-retry}} {{user-retry-failed}} {{user-server-agent}} What a server agent is and how a domain becomes managed by one is open {{gap:server-agent}}."
+    },
+    {
+      "label": "Decoy computers.",
+      "text": "{{computers-view}}"
+    },
+    {
+      "label": "Deployment script.",
+      "text": "{{script-prereqs}} {{audit-policies}} {{script-steps}}"
+    },
+    {
+      "label": "Editing and deleting.",
+      "text": "{{domain-edit-delete}} {{user-edit-delete}}"
+    },
+    {
+      "label": "Triggers.",
+      "text": "{{sources}} {{task-scheduler-prereqs}}"
+    },
+    {
+      "label": "Azure Sentinel.",
+      "text": "{{sentinel-prereqs}} {{sentinel-logic-app}} {{sentinel-script-varies}}"
+    },
+    {
+      "label": "IBM QRadar.",
+      "text": "{{qradar-prereqs}} {{qradar-source-type}} {{qradar-forwarding}} {{qradar-qids}} How the QIDs map to Windows event IDs is open {{gap:qradar-qid-event-mapping}}."
+    },
+    {
+      "label": "LogRhythm.",
+      "text": "{{logrhythm-prereqs}} {{logrhythm-event-ids}} {{logrhythm-field-mapping}}"
+    },
+    {
+      "label": "Splunk.",
+      "text": "{{splunk-prereqs}} {{splunk-alert}} Which event IDs the Splunk and Sentinel queries filter on is not listed in these articles {{gap:splunk-sentinel-event-ids}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the AD domain was added with credentials, since a few features need them and the OU is auto-populated only then.",
+      "uses": [
+        "domain-with-without-creds",
+        "user-ou"
+      ]
+    },
+    {
+      "do": "Whether the deployment script was rerun after editing a domain or decoy user, and the triggers imported again after a username change or recreation.",
+      "uses": [
+        "domain-edit-delete",
+        "user-edit-delete"
+      ]
+    },
+    {
+      "do": "Whether the audit policies named for the Default Domain Controllers Policy are enabled before deployment.",
+      "uses": [
+        "audit-policies"
+      ]
+    },
+    {
+      "do": "Whether every domain controller can reach the Decoy Connector on port 80 or the Deception Admin Portal on port 443 for Task Scheduler alerting.",
+      "uses": [
+        "task-scheduler-prereqs"
+      ]
+    },
+    {
+      "do": "Whether a decoy user placed in Protected Groups is relied on for enumeration detection.",
+      "uses": [
+        "user-protected-groups"
+      ]
+    }
+  ],
+  "claims": {
+    "mitre": {
+      "statement": "AD decoys are listed against MITRE ATT&CK T1110 (Brute Force), T1558 (Steal or Forge Kerberos Tickets) and T1087.002 (Account Discovery: Domain Account).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-active-directory-decoys.json",
+          "quotes": [
+            "T1110 - Brute Force",
+            "T1558 - Steal or Forge Kerberos Tickets",
+            "T1087.002: Account Discovery: Domain Account"
+          ]
+        }
+      ]
+    },
+    "use-cases": {
+      "statement": "A decoy service account detects Kerberoasting attempts, a decoy privileged account detects privilege escalation techniques such as brute force, and decoy dictionary usernames use a popular list of usernames and passwords to detect brute force attacks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-active-directory-decoys.json",
+          "quotes": [
+            "Decoy service account: Detects Kerberoasting attempts.",
+            "Decoy privileged account: Detects privilege escalation techniques, such as brute force.",
+            "Decoy dictionary usernames: Uses a popular list of usernames and passwords to detect brute force attacks."
+          ]
+        }
+      ]
+    },
+    "page-actions": {
+      "statement": "The Active Directory Decoys page actions are Add decoys (an AD decoy user), Delete decoys (one or more AD decoy users), Check decoys (verify that the AD decoy user is deployed) and Upload Enumeration Detection JSON (upload the deployment JSON file).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-active-directory-decoys.json",
+          "quotes": [
+            "Check decoys: Verify if the AD decoy user is successfully deployed.",
+            "Upload Enumeration Detection JSON: Upload the deployment JSON file.",
+            "Add decoys: Add an AD decoy user.",
+            "Delete decoys: Delete one or more AD decoy users."
+          ]
+        }
+      ]
+    },
+    "domain-with-without-creds": {
+      "statement": "An AD domain can be added and configured with or without credentials; Zscaler recommends configuring it with credentials, as this is a prerequisite for a few features.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-active-directory-domain.json",
+          "quotes": [
+            "You can add and configure an AD domain with or without credentials. Zscaler recommends configuring an AD domain with credentials, as this is a prerequisite for a few features."
+          ]
+        }
+      ]
+    },
+    "domain-prereqs": {
+      "statement": "Adding an AD domain without credentials needs the domain name, the FQDN or hostname of the primary domain controller and the NetBIOS name of the AD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-active-directory-domain.json",
+          "quotes": [
+            "Domain name",
+            "FQDN or hostname of the primary domain controller",
+            "Network Basic Input/Output System (NetBIOS) name of the AD"
+          ],
+          "after": "When you add an AD domain without credentials"
+        }
+      ]
+    },
+    "domain-creds-prereqs": {
+      "statement": "Adding an AD domain with credentials needs an AD user that can add computer objects to an AD and query LDAP on domain controllers, the root CA certificate of the primary domain controller, and connectivity from one of the Decoy Connectors to the AD domain controller over TCP port 636 (LDAP).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-active-directory-domain.json",
+          "quotes": [
+            "Add computer objects to an AD",
+            "Query LDAP on domain controllers",
+            "The Root CA certificate of the primary domain controller",
+            "Connectivity from one of the Decoy Connectors to the AD domain controller over TCP port 636 (LDAP)."
+          ],
+          "after": "When you add an AD domain with credentials"
+        }
+      ]
+    },
+    "domain-receiver": {
+      "statement": "Decoy Connector as Receiver for Alerts sends all alerts to the selected Decoy Connector instead of the Deception Admin Portal, and Enable Enumeration Detection activates the enumeration detection feature for the AD domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-active-directory-domain.json",
+          "quotes": [
+            "Decoy Connector as Receiver for Alerts: Enable to send all alerts to the selected Decoy Connector instead of to the Deception Admin Portal.",
+            "Enable Enumeration Detection: Enable to activate the enumeration detection feature for the AD domain."
+          ]
+        }
+      ]
+    },
+    "domain-no-creds": {
+      "statement": "If the credentials setting is disabled, the computer objects must be added without credentials via a PowerShell script; the Username entered for a domain with credentials must have permission to add computer objects to the domain and make LDAP queries to the domain controller, and the Domain CA Certificate (.crt) is uploaded in the PEM format to enable a secure LDAP connection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-active-directory-domain.json",
+          "quotes": [
+            "If this setting is disabled, you must add the computer objects without credentials via a PowerShell script.",
+            "Username: Enter a username. The user must have permission to add computer objects to the domain and make LDAP queries to the domain controller.",
+            "Domain CA Certificate(.crt): Click Upload to upload the domain CA Certificate (.crt file) to enable a secure LDP connection in the PEM format."
+          ]
+        }
+      ]
+    },
+    "user-ou": {
+      "statement": "The decoy user's OU is the distinguished name of the organization unit, automatically populated if the AD domain is created with credentials and entered manually otherwise (for example OU=admins,OU=database,DC=example,DC=local); if the OU name is inaccurate, the deployment script throws an error during deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "OU: Enter the distinguished name of the organization unit (OU) name for the decoy user. If the AD domain is created with credentials, this field is automatically populated.",
+            "Make sure that the OU name is accurate. Otherwise, the deployment script throws an error during deployment.",
+            "If the AD domain is created without credentials, enter an OU name.",
+            "For example, enter OU=admins,OU=database,DC=example,DC=local."
+          ]
+        }
+      ]
+    },
+    "user-attributes": {
+      "statement": "Decoy user attributes include Pre-auth Not Required (makes the account vulnerable to AS-REP roasting), Make Account Kerberoastable (configures the serviceprincipalname attribute), Restrict Logon To (the logonworkstations attribute), Profile Path (the profilePath attribute), Group membership and Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "Pre-auth Not Required (Make account vulnerable to ASREPRoasting attacks): Enable to make the user account vulnerable to AS-REP roasting attacks.",
+            "Make Account Kerberoastable: (Optional) Select a decoy from the drop-down menu to configure the serviceprincipalname attribute for the decoy account to make it vulnerable to Kerberoasting attacks.",
+            "Restrict Logon To: (Optional) Select a decoy from the drop-down menu to configure the logonworkstations attribute for the decoy user account.",
+            "Profile Path: (Optional) Select a decoy from the drop-down menu to configure the profilePath attribute for the decoy user account.",
+            "Group membership: (Optional) Enter the group name of the decoy user.",
+            "Description: (Optional) Enter a description like password or password hints that can detect the presence of adversaries within the environment."
+          ]
+        }
+      ]
+    },
+    "user-protected-groups": {
+      "statement": "If a decoy user is added to the Protected Groups, enumeration detection doesn't always work because of the SDProp process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "If you add a decoy user to the Protected Groups, enumeration detection doesn't always work because of the SDProp process."
+          ]
+        }
+      ]
+    },
+    "user-status-retry": {
+      "statement": "The decoy user status icons are decoy successfully deployed, decoy updated but deployment is pending, decoy deployment pending and decoy deployment failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "Decoy updated, but deployment is pending.",
+            "Decoy deployment pending.",
+            "Decoy deployment failed.",
+            ": Decoy successfully deployed."
+          ]
+        }
+      ]
+    },
+    "user-retry-failed": {
+      "statement": "If the decoy deployment has failed, Retry Failed Deployments submits the deployment request again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "If the decoy deployment has failed, click Retry Failed Deployments to submit the deployment request again."
+          ]
+        }
+      ]
+    },
+    "user-server-agent": {
+      "statement": "For AD decoys created using domains managed by server agents, the deployment scripts do not have to be run manually; the server agent automates AD decoy user deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-decoy-active-directory-user.json",
+          "quotes": [
+            "For AD decoys created using domains managed by server agents, you don't have to manually run the deployment scripts. The server agent automates AD decoy user deployment."
+          ]
+        }
+      ]
+    },
+    "computers-view": {
+      "statement": "The Decoy Computers page shows each AD decoy computer's OU path, operating system name, IP address and the Last Updated timestamp (password resets, login actions, etc.).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-viewing-active-directory-decoy-computers.json",
+          "quotes": [
+            "OU: The organization unit (OU) path.",
+            "Operating System: The operating system (OS) name.",
+            "IP Address: The IP address of the AD decoy computer.",
+            "Last Updated: The timestamp when the AD decoy computer was last updated (password resets, login actions, etc.)."
+          ]
+        }
+      ]
+    },
+    "script-prereqs": {
+      "statement": "The deployment script must be run to create user accounts in both the credential and credential-less modes; running it needs admin access to the primary domain controller, PowerShell version 3.0 or later, and PSReadLine installed on the AD server to read user inputs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-running-decoy-deployment-script-active-directory.json",
+          "quotes": [
+            "You must run the deployment script to create user accounts in both the credential and credential-less modes.",
+            "Have admin access to the primary domain controller to run the script.",
+            "Have Powershell version 3.0 or later on your system.",
+            "Install PSReadLine on the AD server to read user inputs."
+          ]
+        }
+      ]
+    },
+    "audit-policies": {
+      "statement": "Editing the Default Domain Controllers Policy, Audit Logon, Audit Kerberos Authentication Service, Audit Kerberos Service Ticket Operations and Audit Directory Service Access are each configured for Success and Failure events; enabling the logs increases the volume of logs generated by the AD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-running-decoy-deployment-script-active-directory.json",
+          "quotes": [
+            "Right-click Default Domain Controllers Policy and select Edit from the drop-down menu.",
+            "In the Audit Logon Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+            "In the Account Logon pane, double-click Audit Kerberos Authentication Service.",
+            "In the Audit Kerberos Authentication Service Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+            "In the Account Logon pane, double-click Audit Kerberos Service Ticket Operations.",
+            "In the Audit Kerberos Service Ticket Operations Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+            "In the DS Access pane, double-click Audit Directory Service Access.",
+            "In the Audit Directory Service Access Properties window, select the Configure the following events, Success, and Failure checkboxes.",
+            "Enabling the logs increases the volume of logs generated by the AD."
+          ]
+        }
+      ]
+    },
+    "script-steps": {
+      "statement": "The deployment script (Start-Deployment.ps1) is copied to the primary domain controller; entering 1 creates a decoy user, 7 verifies the decoy deployment and 8 generates the deployment JSON file. If the script fails to upload the JSON file to the Deception Admin Portal it writes the file to the folder where the script is located, and the file must then be uploaded to the portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-running-decoy-deployment-script-active-directory.json",
+          "quotes": [
+            "Copy the deployment script (Start-Deployment.ps1)to the primary domain controller.",
+            "Enter 1 to create a decoy user.",
+            "enter 7 to verify the decoy deployment.",
+            "Enter 8 to generate the deployment JSON file.",
+            "If the script fails to upload the JSON file to the Deception Admin Portal, then the script writes the JSON file to your local computer (to the same folder where the deployment script is located).",
+            "In this case, you must upload the JSON file to the Deception Admin Portal."
+          ]
+        }
+      ]
+    },
+    "root-ca-export": {
+      "statement": "When an AD domain is created with credentials a domain CA certificate (.crt) in the PEM format is uploaded to enable a secure LDAP connection; exporting the certificate from AD CS in the Export File Format Base-64 encoded X.509 (.CER) and changing the extension from .cer to .crt produces it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-exporting-root-ca-certificate-active-directory-certificate-service.json",
+          "quotes": [
+            "This certificate must be in the PEM format.",
+            "In Export File Format, select Base-64 encoded X.509 (.CER), and then click Next.",
+            "change the file extension of the certificate from .cer to .crt.",
+            "When you create an AD domain with credentials in the Zscaler Deception Admin Portal, you must upload a domain CA certificate (.crt) to enable a secure LDAP connection."
+          ]
+        }
+      ]
+    },
+    "domain-edit-delete": {
+      "statement": "An AD domain managed by a server agent cannot be edited or deleted; after editing a domain the deployment script is downloaded and run again on the primary domain controller. Deleting an AD domain from the Deception Admin Portal does not remove the AD decoy objects created in the domain, and if the domain is created again the deployment scripts and the triggers must be redeployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-active-directory-domain.json",
+          "quotes": [
+            "You cannot edit or delete an AD domain managed by a server agent.",
+            "After you edit the AD domain, download and run the deployment script again on the primary domain controller.",
+            "Deleting an AD domain from the Deception Admin Portal does not remove the AD decoy objects created in the domain.",
+            "If you delete an AD domain and create it again in the Deception Admin Portal, you must redeploy the deployment scripts and the triggers."
+          ]
+        }
+      ]
+    },
+    "user-edit-delete": {
+      "statement": "The page tells the admin that after editing an AD decoy user the deployment script is to be downloaded and run again on the primary domain controller to sync the updated attributes; if the username changes, to remove the existing trigger configuration and import the triggers again; and if a decoy user is deleted and created again, to redeploy the deployment script and import the triggers, which is not needed in an AD domain managed by a server agent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-decoy-active-directory-user.json",
+          "quotes": [
+            "After you edit an AD decoy user, download and run the deployment script again on the primary domain controller to sync up the updated attributes from the Deception Admin Portal to the domain.",
+            "If you change the username of the AD decoy user, then you must remove the existing trigger configuration and import the triggers again.",
+            "If you delete an AD decoy user and create it again in the Deception Admin Portal, you must redeploy the deployment script and import the triggers.",
+            "When you delete an AD decoy user that is deployed in an AD domain managed by a server agent and create it again, you don't have to manually run deployment scripts and import the triggers."
+          ]
+        }
+      ]
+    },
+    "sources": {
+      "statement": "The Deception Admin Portal supports trigger sources Domain controller (Task scheduler), Splunk, IBM QRadar, LogRhythm and Azure Sentinel; alerts can be triggered when AD decoy user accounts are accessed, or when enumeration attempts across AD decoy user or computer objects are detected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-and-downloading-trigger-script.json",
+          "quotes": [
+            "Domain controller (Task scheduler)",
+            "- Splunk",
+            "- IBM QRadar",
+            "- LogRhythm",
+            "- Azure Sentinel",
+            "You can select to trigger alerts when AD decoy user accounts are accessed, or when enumeration attempts across AD decoy user or computer objects are detected."
+          ],
+          "after": "The Deception Admin Portal supports the following trigger sources"
+        }
+      ]
+    },
+    "task-scheduler-prereqs": {
+      "statement": "Importing the trigger script into Task Scheduler needs admin access to the AD domain controller, and all AD domain controllers must have access to the selected Decoy Connector on port 80 or the Deception Admin Portal on port 443. The Windows system can block the trigger script, so the .xml file is unblocked (right-click, Properties) before importing, and it is imported into every domain controller in the AD domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-windows-task-scheduler-enable-alerting.json",
+          "quotes": [
+            "You must have admin access to the AD domain controller to import the trigger script.",
+            "All AD domain controllers must have access to the selected Decoy Connector on port 80 or the Deception Admin Portal on port 443.",
+            "The Windows system can block the trigger script, so you must unblock the script before importing it to the Task Scheduler.",
+            "You must import the trigger script into every domain controller in the AD domain.",
+            "To unblock the trigger script, right-click on the script (.xml file) and select Properties."
+          ]
+        }
+      ]
+    },
+    "sentinel-prereqs": {
+      "statement": "Azure Sentinel forwarding needs all AD servers configured to forward security logs to Azure Sentinel and network connectivity from the Azure Sentinel instance to the Deception Admin Portal on TCP port 443.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-microsoft-azure-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Configure all AD servers to forward security logs to Azure Sentinel.",
+            "There is network connectivity from the Azure Sentinel instance to the Deception Admin Portal on TCP port 443."
+          ]
+        }
+      ]
+    },
+    "sentinel-logic-app": {
+      "statement": "The Sentinel logic app is created in the same resource group as the log analytics workspace, with a Sliding Window configured for 1 minute, a query copied from the SecurityEvent code of the downloaded trigger script with Time Range \"Last hour\", an HTTP POST to the URI from the trigger script, and Allow chunking disabled to avoid data trimming.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-microsoft-azure-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Create a new logic app in the same resource group as the log analytics workspace.",
+            "In the Sliding Window window, on the Parameters tab, configure the window for 1 minute.",
+            "In Query, copy the SecurityEvent code from the trigger script you downloaded.",
+            "For Time Range, enter \"Last hour\".",
+            "Under URI, copy the URI from the trigger script you downloaded.",
+            "Under Method, select POST from the drop-down menu.",
+            "To avoid data trimming, go to HTTP > Settings > Networking > Content Transfer and disable Allow chunking."
+          ]
+        }
+      ]
+    },
+    "sentinel-script-varies": {
+      "statement": "The downloaded Azure Sentinel trigger script has a different SecurityEvent code and a different URI depending on the attack use case (Decoy User Accounts or Enumeration Detection) selected and the domain controller configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-microsoft-azure-forward-active-directory-event-logs.json",
+          "quotes": [
+            "The downloaded trigger script for Azure Sentinel has a different SecurityEvent code depending on the attack use case (Decoy User Accounts or Enumeration Detection) that you selected and the domain controller configuration.",
+            "The downloaded trigger script for Azure Sentinel has a different URI depending on the attack use case (Decoy User Accounts or Enumeration Detection) that you selected and the domain controller configuration."
+          ]
+        }
+      ]
+    },
+    "qradar-prereqs": {
+      "statement": "QRadar forwarding needs the AD servers configured to forward logs to QRadar, a Decoy Connector configured as a syslog receiver with the QRadar server's IP address in its allowed IP list, and network connectivity between the QRadar server and the Decoy Connector’s management IP on TCP port 9514.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-ibm-qradar-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Configure the AD servers to forward logs to QRadar.",
+            "Configure a Decoy Connector as a syslog receiver with an IP address of the QRadar server in its allowed IP list.",
+            "Make sure that there is network connectivity between the QRadar server and the Decoy Connector’s management IP on TCP port 9514."
+          ]
+        }
+      ]
+    },
+    "qradar-source-type": {
+      "statement": "For the Decoy Connector's syslog receiver, Source Type is IBM QRadar and Source Allowed IPs is the QRadar server's IP address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-ibm-qradar-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Source Type: Select IBM QRadar.",
+            "Source Allowed IPs: Enter the QRadar server's IP address."
+          ]
+        }
+      ]
+    },
+    "qradar-forwarding": {
+      "statement": "The QRadar forwarding destination is the Decoy Connector’s management IP address configured as a syslog receiver, with Event Format Payload, Destination Port 9514 and Protocol TCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-ibm-qradar-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Destination Address: Enter the Decoy Connector’s management IP address, which is configured as a syslog receiver.",
+            "Event Format: Select Payload from the drop-down menu.",
+            "Destination Port: Enter 9514.",
+            "Protocol: Select TCP from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "qradar-qids": {
+      "statement": "The QRadar event rule is configured with QIDs 5000937, 5000475, 5000945, 5000940, 5000938, 5000581, 5000589, 5000584 and 5000835; only one QID can be added at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-ibm-qradar-forward-active-directory-event-logs.json",
+          "quotes": [
+            "- 5000937",
+            "- 5000475",
+            "- 5000945",
+            "- 5000940",
+            "- 5000938",
+            "- 5000581",
+            "- 5000589",
+            "- 5000584",
+            "- 5000835",
+            "You can add only one QID at a time."
+          ],
+          "after": "3. Browse or search for the following QIDs"
+        }
+      ]
+    },
+    "logrhythm-prereqs": {
+      "statement": "LogRhythm forwarding needs all AD servers configured to forward security logs to the LogRhythm server and, if the Deception Admin Portal receives logs, connectivity from the LogRhythm server to it on TCP port 443, or, if a Decoy Connector receives logs, connectivity to the Decoy Connector’s management IP on TCP port 80.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Configure all AD servers to forward security logs to the LogRhythm server.",
+            "If you have selected the Deception Admin Portal to receive logs, make sure that there is network connectivity from the LogRhythm server to the Deception Admin Portal on TCP port 443.",
+            "If you have selected a Decoy Connector to receive logs, make sure that there is network connectivity from the LogRhythm server and the Decoy Connector’s management IP on TCP port 80."
+          ]
+        }
+      ]
+    },
+    "logrhythm-event-ids": {
+      "statement": "In the LogRhythm AI Engine rule, the Group By tab selects event IDs 4625, 4648, 4768, 4769, 4771 and 4776 to forward to the Deception Admin Portal, and the action is a SmartResponse Plugin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Click the Group By tab, and select the following fields (event IDs) to forward to the Deception Admin Portal."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "- 4625 - 4648 - 4768 - 4769 - 4771 - 4776",
+            "Set Action: Select SmartResponse Plugin from the drop-down menu."
+          ],
+          "after": "forward to the Deception Admin Portal. To learn more, see the LogRhythm documentation:"
+        }
+      ]
+    },
+    "logrhythm-field-mapping": {
+      "statement": "The Event Field Mapping tables map LogRhythm fields to PowerShell parameters and Event Viewer fields per event ID: for event 4625, User (Origin) maps to -TargetUserName (Event Viewer TargetUserName), and for event 4648, User (Origin) maps to -SubjectUserName; if the fields don't match, changes in the actions.xml file for the corresponding SmartResponse plugin might be needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "If the fields don't match, you might have to make changes in the actions.xml file for the corresponding SmartResponse plugin."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "| LogRhythm | PowerShell Parameter | Event Viewer |",
+            "| User (Origin) | -TargetUserName | TargetUserName |"
+          ],
+          "after": "SmartResponse plugin. - 4625"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-logrythm-forward-active-directory-event-logs.json",
+          "quotes": [
+            "| User (Origin) | -SubjectUserName |"
+          ],
+          "after": "| TCP/UDP Port (Origin) | -IpPort | IpPort | - 4648"
+        }
+      ]
+    },
+    "splunk-prereqs": {
+      "statement": "Splunk forwarding needs all AD servers configured to forward security logs to the Splunk server and, if the Deception Admin Portal receives logs, connectivity between the Splunk server and it on TCP port 443, or, if a Decoy Connector receives logs, connectivity to the Decoy Connector’s management IP on TCP port 80.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-splunk-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Configure all of the AD servers to forward security logs to the Splunk server.",
+            "If you have selected the Deception Admin Portal to receive logs, make sure that there is network connectivity between the Splunk server and the Deception Admin Portal on TCP port 443.",
+            "If you have selected a Decoy Connector to receive logs, make sure that there is network connectivity between the Splunk server and the Decoy Connector’s management IP on TCP port 80."
+          ]
+        }
+      ]
+    },
+    "splunk-alert": {
+      "statement": "The Splunk alert is of type Real-Time, triggered Per-Result, with a Webhook trigger action to the URL of the Zscaler Deception API, and the query is copied from the triggers script (.txt file) downloaded from the Deception Admin Portal into the Search textbox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-splunk-forward-active-directory-event-logs.json",
+          "quotes": [
+            "Alert type: Select Real-Time.",
+            "Trigger alert when: Select Per-Result from the drop-down menu.",
+            "Trigger Actions: Click Add Actions and select Webhook from the drop-down menu, and then enter the URL to the Zscaler Deception API.",
+            "Open the triggers script (.txt file) downloaded from the Zscaler Deception Admin Portal, and copy the query into the Search textbox."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "server-agent": {
+      "kind": "semantic",
+      "title": "What is a server agent and how does an AD domain become managed by one?",
+      "status": "open",
+      "detail": "The articles say domains managed by server agents automate deployment of AD decoys and cannot be edited or deleted, but the captured articles do not describe the server agent or how a domain becomes managed by one.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "qradar-qid-event-mapping": {
+      "kind": "semantic",
+      "title": "Which Windows event IDs do the QRadar QIDs correspond to?",
+      "status": "open",
+      "detail": "The QRadar article lists the QIDs to add to the event rule but does not map them to Windows event IDs.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "splunk-sentinel-event-ids": {
+      "kind": "semantic",
+      "title": "Which event IDs do the Splunk and Azure Sentinel trigger queries filter on?",
+      "status": "open",
+      "detail": "The Splunk and Azure Sentinel articles have the query copied from the downloaded trigger script and do not list the event IDs it filters on; only the LogRhythm article lists event IDs.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,456 @@
+{
+  "schema_version": 1,
+  "id": "deception.landmine-agents",
+  "title": "Landmine agent and agentless: install, requirements, proxies, management and OS feature support",
+  "aliases": [
+    "landmine agent",
+    "landmine agentless",
+    "ZCC Integrated",
+    "Standalone agent"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.endpoint-settings"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.landmine-decoys"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.topology"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.best-practices"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{agent-vs-agentless-modes}} {{agentless-no-permanent-service}} Whether agentless is a permanent service is disputed {{divergence:agentless-service}}. {{supported-platforms}} {{agent-types}} Hub: [[deception.overview]]."
+    },
+    {
+      "label": "Zscaler Client Connector.",
+      "text": "{{itdr-components}}"
+    },
+    {
+      "label": "Agents page.",
+      "text": "{{inactive-agents}} {{safe-mode}} How Safe Mode is enabled is open {{gap:safe-mode-control}}."
+    },
+    {
+      "label": "Registration and download.",
+      "text": "{{registration-token}} {{download-formats}} {{agentless-downloads}}"
+    },
+    {
+      "label": "Windows agent.",
+      "text": "{{windows-requirements}} {{windows-net-legacy}} {{windows-install-parameters}} {{windows-proxy-order}}"
+    },
+    {
+      "label": "MECM, SCCM and GPO.",
+      "text": "{{mecm-not-msi}} {{mecm-requirements}} Whether MECM installs support Windows 11 is open {{gap:mecm-windows-11}}. {{mecm-detection-clause}} {{gpo-install}}"
+    },
+    {
+      "label": "Linux and macOS agent.",
+      "text": "{{linux-supported}} {{linux-install-token-file}} {{macos-requirements}} {{macos-4-32-changes}} The release that 4.32 refers to is open {{gap:macos-version-number}}."
+    },
+    {
+      "label": "Agentless.",
+      "text": "{{agentless-windows}} {{agentless-macos}} {{agentless-macos-log-levels}} {{agentless-linux}} {{agentless-per-user}} {{agentless-removal}}"
+    },
+    {
+      "label": "Management.",
+      "text": "{{export-config}} {{agent-logs}} {{uninstall-modes}} {{uninstall-windows-cli}} {{delete-agents}} Typos in the vendor's install and removal commands are open {{gap:command-typos}}."
+    },
+    {
+      "label": "Feature support by OS.",
+      "text": "{{feature-layout}} {{feature-defense-privilege}} {{feature-cloud-browser-lures}} {{feature-session-lures-windows}} {{feature-session-lures-unix}} {{feature-file-decoys}} {{feature-advanced-capabilities}}"
+    },
+    {
+      "label": "Related subjects.",
+      "text": "Installer customization, lure refresh, update groups and safe processes are in [[deception.endpoint-settings]]. Policies are in [[deception.landmine-policies]] and decoys in [[deception.landmine-decoys]]. Deployment minimums and the rollout order are in [[deception.best-practices]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether agentless is described as a permanent service or as needing no permanently running service, since the two pages differ.",
+      "uses": [
+        "agent-vs-agentless-modes",
+        "agentless-no-permanent-service",
+        "agentless-service"
+      ]
+    },
+    {
+      "do": "Which operating system's agentless article gives the -l log level values, since the macOS article lists Debug, verbose and Information.",
+      "uses": [
+        "agentless-windows",
+        "agentless-macos-log-levels",
+        "agentless-linux"
+      ]
+    },
+    {
+      "do": "Whether an agent is missing from the Agents page only because it is inactive, since agents with a last check-in older than 7 days are hidden by default.",
+      "uses": [
+        "inactive-agents"
+      ]
+    },
+    {
+      "do": "Whether automated deployments were stopped before the agent registration token was regenerated.",
+      "uses": [
+        "registration-token"
+      ]
+    },
+    {
+      "do": "Which of the six OS columns a feature is Yes in, before saying an agent or agentless installer supports it.",
+      "uses": [
+        "feature-defense-privilege",
+        "feature-cloud-browser-lures",
+        "feature-session-lures-windows",
+        "feature-session-lures-unix",
+        "feature-file-decoys",
+        "feature-advanced-capabilities"
+      ]
+    }
+  ],
+  "claims": {
+    "agent-vs-agentless-modes": {
+      "statement": "A landmine agent is described as a persistent agent giving full-featured active deception, and landmine agentless as a permanent service on endpoints with a limited set of lures.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["Deploy full-featured active deception via a persistent agent (in agent mode) running on endpoints in your network.", "Deploy decoys with a limited set of deception lures via a permanent service (in agentless mode) running on endpoints."]}
+      ]
+    },
+    "agentless-no-permanent-service": {
+      "statement": "The landmine agentless download article says agentless deploys a subset of the agent's features without the need for a permanently running service.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-downloading-landmine-agentless.json", "quotes": ["You can use landmine agentless to deploy a subset of features that a landmine agent installer provides without the need to have a permanently running service."]}
+      ]
+    },
+    "itdr-components": {
+      "statement": "Zscaler ITDR components (CredentialExposure.Console.exe, CredEx.exe, CredExInstaller.exe) are installed with Zscaler Client Connector, are legitimate, and do not run unless the functionality is enabled in ITDR.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["Zscaler ITDR components such as CredentialExposure.Console.exe, CredEx.exe, or CredExInstaller.exe are also installed on endpoints as part of Zscaler Client Connector.", "The processes associated with these components are legitimate processes and will not activate (run) unless the respective functionality is enabled in ITDR."]}
+      ]
+    },
+    "supported-platforms": {
+      "statement": "Landmine Agent installs on Windows, macOS, Linux and Windows via MECM or SCCM, and Landmine Agentless on Windows, macOS and Linux.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["You can install landmine agents and agentless installers on the following supported platforms:", "Landmine Agent: - Windows - macOS - Linux - Windows Using MECM or SCCM - Landmine Agentless: - Windows - macOS - Linux"]}
+      ]
+    },
+    "inactive-agents": {
+      "statement": "The Agents page hides inactive agents by default (Show all agents is disabled); ZCC Integrated and Standalone agents with a last check-in older than 7 days are inactive, and agentless is always active.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["By default, the Show all agents toggle is disabled.", "Landmine agents (ZCC Integrated and Standalone) with last check-in time older than 7 days are considered inactive and are hidden. The landmine agentless is always active."]}
+      ]
+    },
+    "agent-types": {
+      "statement": "An agent's Type is ZCC Integrated, Standalone or Agentless and can be filtered.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["Type: The type of agent (ZCC Integrated, Standalone, or Agentless).", "You can filter the agents table by choosing a specific agent type from the Type drop-down menu."]}
+      ]
+    },
+    "safe-mode": {
+      "statement": "Safe Mode stops non-essential agent operations while log uploads and cleanup/uninstall stay active; decoy application and deployment, ITDR scans, event generation and other background services stop.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["Safe Mode: Enable to stop all non-essential operations, focusing only on critical functions required for basic connectivity and manageability.", "Log uploads", "Cleanup and uninstall", "Decoy application and deployment", "ITDR scans (e.g., threat detection activities)", "Event generation", "All other non-essential background services and activities"]}
+      ]
+    },
+    "registration-token": {
+      "statement": "The agent registration token registers an endpoint at install, after which a session key is used for later requests; regenerating the token stops new agents registering with the old one, so automated deployments should be paused first.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-obtaining-agent-registration-token.json", "quotes": ["An agent registration token is a unique key used during landmine agent installation to register an endpoint with the Zscaler Deception Admin Portal.", "After the agent is registered, a session key is generated and is used for making subsequent requests with the Deception Admin Portal.", "If you regenerate the token, new landmine agents cannot register with the Deception Admin Portal using the old token.", "Therefore, make sure that you stop any automated deployment mechanisms or installations before regenerating the token."]}
+      ]
+    },
+    "download-formats": {
+      "statement": "Landmine Agent downloads are Windows EXE, Windows MSI, macOS Intel pkg, macOS Apple Silicon pkg, Linux rpm and Linux deb; with endpoint deception via Zscaler Client Connector enabled for Windows, the agent comes from Client Connector instead.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-downloading-landmine-agents.json", "quotes": ["Windows (EXE)", "Windows (MSI)", "macOS Intel (pkg)", "macOS Apple Silicon (pkg)", "Linux (rpm)", "Linux (deb)", "If endpoint deception with Zscaler Client Connector is enabled for Windows, download the landmine agent from Zscaler Client Connector."]}
+      ]
+    },
+    "windows-requirements": {
+      "statement": "The Windows install article says the Windows agent needs 64-bit Windows 10 or 11 with .NET 4.6.1 or later (Windows 7, 8 and 8.1 unsupported), 100 MB free memory, 1 GB free storage, 256 Kbps bandwidth and outbound port 443; these are also the agent's maximum utilization.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-windows.json", "quotes": ["Windows 10 (64-bit only) or Windows 11 (64-bit only) with Windows Installer and .NET version 4.6.1 or later", "Microsoft Windows 7, Windows 8, and Windows 8.1 are not supported.", "100 MB of free memory", "1 GB of free storage, preferably in an SSD", "A minimum of 256 Kbps internet bandwidth and an open outbound port 443", "The resource requirements listed here are also the landmine agent's maximum limits of utilization."]}
+      ]
+    },
+    "windows-net-legacy": {
+      "statement": "For Windows 10 version 1607 and earlier, installing the latest .NET framework is mandatory for the installation to succeed.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-windows.json", "quotes": ["For Windows 10 version 1607 and earlier, installing the latest version of the .NET framework is mandatory for the installation to succeed."]}
+      ]
+    },
+    "windows-install-parameters": {
+      "statement": "In the Windows install command, /qn (silent), CMC (portal hostname) and REGKEY (registration token) are required, and PROXIES (comma-separated, no white space) and /l*v log path are optional.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-windows.json", "quotes": ["| /qn | Enables silent mode installation | Yes |", "| CMC=<instance name> | The hostname of the Deception Admin Portal | Yes |", "| REGKEY=<Registration Token> | The Agent Registration Token | Yes |", "If there is more than one proxy, separate them with a comma. Make sure that there are no white spaces in the PROXIES parameter. | No |", "| /l*v <Path to Log File> | Enables verbose logging and sets the destination log file path | No |"]}
+      ]
+    },
+    "windows-proxy-order": {
+      "statement": "The Windows agent tries the PROXIES list left to right, then the SYSTEM user's proxy, then a direct connection; proxy credentials with special characters must be URL-encoded.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-windows.json", "quotes": ["it attempts to connect to the Deception Admin Portal using the list of proxies in a sequence from left to right.", "If all of the above methods fail, the agent attempts to connect to the Deception Admin Portal using the SYSTEM users proxy. If this also fails, the agent attempts a direct no-proxy connection.", "If the username and password have special characters (e.g., Username = user#2211 and password = pass@123), you must URL-encode them."]}
+      ]
+    },
+    "mecm-not-msi": {
+      "statement": "The MECM procedure downloads the Windows EXE installer, and states not to use the Windows MSI Installer with MECM because agents may not install properly with the MECM built-in MSI installation method.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agents-windows-using-mecm-or-sccm.json", "quotes": ["Do not use the Windows MSI Installer with MECM. The landmine agents may not install properly using the MECM built-in MSI installation method.", "Download the Windows EXE installer file from the Zscaler Deception Admin Portal."]}
+      ]
+    },
+    "mecm-requirements": {
+      "statement": "The MECM article lists 64-bit versions of Windows 10, .NET 4.6.1 or later, and a network file share reachable by all target systems (SYSVOL or any other share).",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agents-windows-using-mecm-or-sccm.json", "quotes": ["64-bit versions of Windows 10", ".NET version 4.6.1 or later (Zscaler recommends using the latest version of .NET framework)", "You must have a network file share that is accessible to all systems.", "This can be the system volume (SYSVOL) file share or any other file share that is accessible to all systems where the landmine agents are deployed."]}
+      ]
+    },
+    "mecm-detection-clause": {
+      "statement": "In MECM, if the landmine service is renamed in the Admin Portal a new detection clause must be added, and the existing clause must not be removed or existing agents may not be detected.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agents-windows-using-mecm-or-sccm.json", "quotes": ["If the landmine service is renamed in the Deception Admin Portal, you must add a new detection clause to the system. Do not remove the existing detection clause as that might cause existing agents to not be detected."]}
+      ]
+    },
+    "gpo-install": {
+      "statement": "A landmine agent can be installed on domain-joined machines through an AD Group Policy Object: a batch file with the installation command is added under Computer configuration > Policies > Windows settings > Scripts (Startup/Shutdown), and the command needs the full EXE path if it is on a shared folder.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-using-active-directory-gpo.json", "quotes": ["You can install a landmine agent on domain-joined user machines using Active Directory (AD) Group Policy Object (GPO).", "The command must contain the complete path of the landmine EXE installer if it is stored in a shared folder.", "Create a batch file using the following installation command:", "Go to Computer configuration > Policies > Windows settings > Scripts (Startup/Shutdown)."]}
+      ]
+    },
+    "linux-supported": {
+      "statement": "The Linux agent runs on 64-bit desktop Linux (not headless servers): Debian 10+, Ubuntu 20.04+ LTS, RHEL 8+, Fedora 35+ and openSUSE Leap 15.3+, with port 443 connectivity to the portal.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-linux.json", "quotes": ["You can run a landmine agent on the desktop versions of Linux operating systems. Headless server operating systems are not supported.", "64-bit (AMD64 or x86_64) versions of supported Linux distributions:", "Debian 10 or later", "Ubuntu 20.04 or later LTS releases", "Red Hat Enterprise Linux version 8 or later", "Fedora 35 or later", "openSUSE Leap 15.3 or later", "Network connectivity from the endpoints where the agent is installed to the Zscaler Deception Admin Portal instance on port 443."]}
+      ]
+    },
+    "linux-install-token-file": {
+      "statement": "In the Linux RPM install and the macOS install, the instance name and agent registration token are pasted into /tmp/landmine.txt, which is created as a root-owned file with mode 600, and an optional third line holds comma-separated proxy URLs.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-linux.json", "quotes": ["The /tmp/landmine.txt file is created as a root-owned file with mode 600, preventing non-root users from reading or modifying the file.", "add a third line containing a comma-separated list of proxy URLs", "Copy the values (Deception Admin Portal's instance name and the agent registration token) from the Download Landmine Agent window and paste them into the text file (one value per line):"], "after": "Installing a Landmine Agent on Linux Using the RPM Package"},
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-macos.json", "quotes": ["The /tmp/landmine.txt file is created as a root-owned file with mode 600, preventing non-root users from reading or modifying the file.", "Copy the values (Deception Admin Portal's instance name and the agent registration token) from the Download Landmine Agent window and paste them into the text file (one value per line):", "add a third line containing a comma-separated list of proxy URLs"]}
+      ]
+    },
+    "macos-requirements": {
+      "statement": "The macOS agent needs macOS Ventura (13) or later and port 443 connectivity to the portal; Full Disk Access (for XPCServerApp.app, with a reboot) is optional but required for Defense Evasion, file decoy events, brute force login detections and process tree.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-macos.json", "quotes": ["A Mac computer with macOS Ventura (version 13) or later.", "This is required to use the Defense Evasion, file decoy events, brute force login detections, and process tree functionality in other features.", "Enable the toggle for XPCServerApp.app.", "Network connectivity from the system where the agent is installed to the Zscaler Deception Admin Portal instance on port 443.", "Reboot the machine."]}
+      ]
+    },
+    "macos-4-32-changes": {
+      "statement": "Beginning with version 4.32, macOS .pkg installs overwrite an existing agent and move it to /opt/ with the previous service name retained, and uninstall.sh is no longer shipped (uninstall via the Admin Portal and manual removal with the updater's landmine remove command continue to be supported).",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-installing-landmine-agent-macos.json", "quotes": ["Beginning with version 4.32, the following changes apply:", "The new version of Landmine Agent overwrites the previous installation and moves it to the /opt/ directory regardless of the previous location.", "The uninstall.sh script is no longer part of the Landmine Agent installation packages.", "Uninstallation of Landmine Agents via the Deception Admin Portal and manual removal using the command (sudo <PATH_TO_updater> landmine remove) continue to be supported.", "The service name is retained from the previous installation regardless of the current configuration.", "You can install Landmine Agents using the .pkg file even if the endpoints have existing Landmine Agents."]}
+      ]
+    },
+    "agentless-downloads": {
+      "statement": "Landmine agentless downloads are Windows, macOS (Intel), macOS (Apple Silicon) and Linux, and the latest version is downloaded.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-downloading-landmine-agentless.json", "quotes": ["choose an OS installation type: - Windows - macOS (Intel) - macOS (Apple Silicon) - Linux", "The latest version of the landmine agentless is downloaded to your system."]}
+      ]
+    },
+    "agentless-windows": {
+      "statement": "Windows agentless runs Landmine.Agentless.Win.x64.exe with -c (portal hostname) and -k (token) required, optional -l (info, debug, verbose) and -r (removes the policy); it requires .NET 4.6.1 or later, uses the current user's proxy, and runs as the current user.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-windows.json", "quotes": ["Landmine.Agentless.Win.x64.exe -c <Deception Admin Portal instance> -k <Agent Registration Token>", "| -l <level> | Enables logging to console with the specified log level. Allowed values are info, debug, and verbose. | No |", "| -r | Removes the applied policy | No |", "Windows installer and .NET framework: .NET version 4.6.1 or later", "This connection is proxy aware and uses the current user’s configured proxy.", "Landmine agentless runs as the current user.", "| -c | The hostname of the Deception Admin Portal | Yes |", "| -k | The Agent Registration Token | Yes |"]}
+      ]
+    },
+    "agentless-macos": {
+      "statement": "macOS agentless needs macOS Ventura (13) or later, notarization issues might occur if the executable is not downloaded using cURL, it is registered with sudo -i and applied without sudo, it uses the HTTP_PROXY and HTTPS_PROXY environment variables, and some policies may not run unless the binary is run on a GUI terminal session.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-macos.json", "quotes": ["A Mac computer with macOS Ventura (version 13) or later.", "Notarization issues might occur if the executable is not downloaded using cURL due to Gatekeeper quarantine attributes.", "Run the following command to apply the policy. Make sure that you do not prefix sudo in the command:", "This connection is proxy aware and uses the proxy set in the HTTP_PROXY and HTTPS_PROXY environment variables. Some policies may not run unless the agentless binary is run on a GUI terminal session.", "$ sudo -i <full path to landmine.agentless.macos.x64> -c <Deception Admin Portal instance> -k <Agent Registration Token>"]}
+      ]
+    },
+    "agentless-macos-log-levels": {
+      "statement": "The macOS agentless article lists the -l log level values as Debug, verbose, and Information.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-macos.json", "quotes": ["| -l <level> | Enables logging to console with the specified log level. Allowed values are Debug, verbose, and Information. | No |"]}
+      ]
+    },
+    "agentless-linux": {
+      "statement": "Linux agentless lists Debian 10+, Ubuntu 20.04+ LTS, RHEL 8+, Fedora 35+ and openSUSE Leap 15.3+, uses the HTTP_PROXY and HTTPS_PROXY environment variables, and lists -l values info, debug and verbose.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-linux.json", "quotes": ["Supported Linux distributions: - Debian 10 or later - Ubuntu 20.04 or later LTS releases - Red Hat Enterprise Linux version 8 or later - Fedora 35 or later - openSUSE Leap 15.3 or later", "This connection is proxy aware and uses the proxy set in the HTTP_PROXY and HTTPS_PROXY environmental variables.", "Allowed values are info, debug, and verbose."]}
+      ]
+    },
+    "agentless-per-user": {
+      "statement": "The Windows, macOS and Linux agentless articles each state that landmine agentless runs as the current user and that, if multiple users use the same system, it must be run separately for each user.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-windows.json", "quotes": ["Landmine agentless runs as the current user. If multiple users use the same system, you must run landmine agentless separately for each user."]},
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-macos.json", "quotes": ["Landmine agentless runs as the current user. If multiple users use the same system, you must run the agentless installer separately for each user."]},
+        {"source": "zscaler-help", "path": "deception-running-landmine-agentless-installer-linux.json", "quotes": ["Landmine agentless runs as the current user. If multiple users use the same system, you must run the agentless installer separately for each user."]}
+      ]
+    },
+    "agentless-removal": {
+      "statement": "Removing agentless: run the removal command, separately for each user; delete C:\\ProgramData\\lma on Windows or /etc/lma (root privileges required) on macOS and Linux to remove the registration; then choose Delete Selected from the Actions menu in the portal.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-removing-landmine-agentless-registration-and-policy.json", "quotes": ["You must run this command separately for each user.", "Delete the C:\\ProgramData\\lma folder to remove the agentless registration.", "choose Delete Selected from the Actions drop-down menu.", "Run the following command to remove the agentless policy:"], "after": "Removing the Landmine Agentless Policy and Registration on Windows"},
+        {"source": "zscaler-help", "path": "deception-removing-landmine-agentless-registration-and-policy.json", "quotes": ["You must run this command separately for each user.", "Delete the /etc/lma folder to remove the agentless registration.", "You must have root privileges to delete the folder.", "choose Delete Selected from the Actions drop-down menu.", "Run the following command to remove the agentless policy:"], "after": "Removing the Landmine Agentless Policy and Registration on macOS"},
+        {"source": "zscaler-help", "path": "deception-removing-landmine-agentless-registration-and-policy.json", "quotes": ["You must run this command separately for each user.", "Delete the /etc/lma folder to remove the agentless registration.", "You must have root privileges to delete the folder.", "choose Delete Selected from the Actions drop-down menu.", "Run the following command to remove the agentless policy:"], "after": "Removing the Landmine Agentless Policy and Registration on Linux"}
+      ]
+    },
+    "export-config": {
+      "statement": "Agent configuration can be exported as CSV or JSON for all agents or filtered agents; the all-agents options export only the agents shown in the table, so Show all agents must be selected to export all agents including inactive ones.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-exporting-landmine-agent-configurations.json", "quotes": ["You can export landmine agent configuration details as a CSV or JSON file.", "The All agents as CSV and All agents as JSON options export only the agents that are shown in the agents table.", "If you want to export all agents including the inactive agents, make sure the Show all agents option is selected.", "Filtered agents as CSV: Exports the configuration details of all the filtered agents as a CSV file.", "All agents as CSV: Exports the configuration details of all agents as a CSV file.", "Filtered agents as JSON: Exports the configuration details of all the filtered agents as a JSON file."]}
+      ]
+    },
+    "agent-logs": {
+      "statement": "Agent logs are fetched with Actions > Trigger Logs, a Download icon appears after 10 minutes, the download is a .zip, and logs cannot be downloaded from landmine agentless.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-downloading-landmine-agent-logs-endpoint.json", "quotes": ["You cannot download logs from an endpoint for a landmine agentless installer.", "After 10 minutes, a Download icon appears under the Actions column of the selected agent.", "in a compressed (.zip) file.", "From the Actions drop-down menu, select Trigger Logs."]}
+      ]
+    },
+    "uninstall-modes": {
+      "statement": "Uninstall removes the policies (retrying for three days) and then uninstalls the agent, whereas Force Uninstall removes policies on a best-effort basis before uninstalling.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-uninstalling-or-deleting-landmine-agents.json", "quotes": ["Uninstall: The agent removes the policies from the endpoint, and then it uninstalls itself. The agent tries to remove the policies for three days before uninstalling itself.", "Force Uninstall: The agent uninstalls the policies from the endpoint on a best-effort basis, and then it uninstalls itself."]}
+      ]
+    },
+    "uninstall-windows-cli": {
+      "statement": "Remote uninstall from the Admin Portal can occasionally fail or fail on network connectivity issues, in which case Windows agents can be uninstalled with msiexec /qn /x {94e4ac3b-2519-46eb-97bd-d6be9b6c8f55}; the uninstaller continues after 5 consecutive failures to remove the system entry from the portal, and if that is unsuccessful the entry must be deleted manually.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-uninstalling-or-deleting-landmine-agents.json", "quotes": ["msiexec /qn /x {94e4ac3b-2519-46eb-97bd-d6be9b6c8f55}", "If the agent fails to remove the system entry for 5 consecutive times, it continues with the uninstallation. If this is unsuccessful, the entry must be deleted manually.", "Occasionally, uninstallation of agents from the Deception Admin Portal can fail when you try to remotely uninstall agents. It can also fail due to network connectivity issues.", "The uninstaller attempts to remove the system entry from the Deception Admin Portal."]}
+      ]
+    },
+    "delete-agents": {
+      "statement": "Deleting an agent removes only its portal entry without uninstalling it, and agents whose Last Seen value is under 7 days cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-uninstalling-or-deleting-landmine-agents.json", "quotes": ["When you delete an agent, its entry is removed from the Deception Admin Portal only. The agent is not uninstalled from the system.", "Landmine agents cannot be deleted if their Last Seen value is under 7 days."]}
+      ]
+    },
+    "feature-layout": {
+      "statement": "The Defense Evasion and Privilege Escalation table has a header row listing Landmine Agent and Landmine Agentless and a second row listing Windows, macOS, Linux, Windows, macOS, Linux.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |"], "after": "Defense Evasion and Privilege Escalation modules for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-defense-privilege": {
+      "statement": "Reading the six columns in order (agent Windows, macOS, Linux; agentless Windows, macOS, Linux): Fake Security Process is Yes, Yes, No, No, No, No; MITM Detection Yes, Yes, Yes, No, No, No; Brute Force Detection Yes, Yes, No, No, No, No; In-Memory Credential Detection Yes, No, No, No, No, No.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "Fake Security Process | Yes | Yes | No | No | No | No", "MITM Detection | Yes | Yes | Yes | No | No | No", "Brute Force Detection | Yes | Yes | No | No | No | No", "In-Memory Credential Detection | Yes | No | No | No | No | No"], "after": "Defense Evasion and Privilege Escalation modules for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-cloud-browser-lures": {
+      "statement": "Reading the six columns in order: AWS IAM, Chrome are Yes in all six; Firefox is Yes, No, Yes, Yes, No, Yes; Edge and Internet Explorer are each Yes, No, No, Yes, No, No.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "Identity Access Management (IAM) | Yes | Yes | Yes | Yes | Yes | Yes", "Chrome | Yes | Yes | Yes | Yes | Yes | Yes", "Firefox | Yes | No | Yes | Yes | No | Yes", "Edge | Yes | No | No | Yes | No | No", "Internet Explorer | Yes | No | No | Yes | No | No"], "after": "Cloud Lures, Browser Lures, and Session Lures modules for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-session-lures-windows": {
+      "statement": "Reading the six columns in order: DbVisualizer, Network Drives, PuTTY, RDP, Squirrel DB, Windows Credentials and WinSCP Session are each Yes, No, No, Yes, No, No; FileZilla is Yes in all six.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "DbVisualizer | Yes | No | No | Yes | No | No", "Network Drives | Yes | No | No | Yes | No | No", "FileZilla | Yes | Yes | Yes | Yes | Yes | Yes", "PuTTY | Yes | No | No | Yes | No | No", "Remote Desktop Protocol (RDP) | Yes | No | No | Yes | No | No", "Squirrel DB | Yes | No | No | Yes | No | No", "Windows Credentials | Yes | No | No | Yes | No | No", "WinSCP Session | Yes | No | No | Yes | No | No"], "after": "Cloud Lures, Browser Lures, and Session Lures modules for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-session-lures-unix": {
+      "statement": "Reading the six columns in order: /etc/hosts File is No, Yes, Yes, No, No, No; Bash History and SSH Config are each No, Yes, Yes, No, Yes, Yes.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "/etc/hosts File | No | Yes | Yes | No | No | No", "Bash History | No | Yes | Yes | No | Yes | Yes", "SSH Config | No | Yes | Yes | No | Yes | Yes"], "after": "Cloud Lures, Browser Lures, and Session Lures modules for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-file-decoys": {
+      "statement": "Reading the six columns in order: Custom File Decoys are Yes, Yes, No, Yes, No, No; Credential File Decoys Yes, Yes, No, Yes, No, Yes; Preconfigured File Dataset Decoys Yes, Yes, No, No, No, No.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "Custom File Decoys | Yes | Yes | No | Yes | No | No", "Credential File Decoys | Yes | Yes | No | Yes | No | Yes", "Preconfigured File Dataset Decoys | Yes | Yes | No | No | No | No"], "after": "File Decoys module for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    },
+    "feature-advanced-capabilities": {
+      "statement": "Reading the six columns in order: PsExec Detection, Ransomware Detection and Kerberoast Detection are each Yes, No, No, No, No, No; Triage is Yes, Yes, No, No, No, No.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "deception-supported-deception-features-landmine-agent-and-agentless.json", "quotes": ["| Modules | Features/Browsers/Software/File Decoys | Landmine Agent | Landmine Agentless |", "| Windows | macOS | Linux | Windows | macOS | Linux |", "PsExec Detection | Yes | No | No | No | No | No", "Ransomware Detection | Yes | No | No | No | No | No", "Triage | Yes | Yes | No | No | No | No", "Kerberoast Detection | Yes | No | No | No | No | No"], "after": "Advanced Deception Capabilities module for Landmine Agent and Agentless installers across operating systems."}
+      ]
+    }
+  },
+  "divergences": {
+    "agentless-service": {
+      "summary": "One landmine page calls agentless a permanent service; the download page says it needs no permanently running service.",
+      "positions": [
+        {
+          "evidence": {"source": "zscaler-help", "path": "deception-about-landmine-agent-agentless.json", "quotes": ["Deploy decoys with a limited set of deception lures via a permanent service (in agentless mode) running on endpoints."]},
+          "says": "Agentless mode runs on endpoints as a permanent service."
+        },
+        {
+          "evidence": {"source": "zscaler-help", "path": "deception-downloading-landmine-agentless.json", "quotes": ["You can use landmine agentless to deploy a subset of features that a landmine agent installer provides without the need to have a permanently running service."]},
+          "says": "Agentless deploys a subset of the agent's features without a permanently running service."
+        }
+      ],
+      "impact": "An answer about whether agentless leaves a service running on the endpoint cannot be settled from these two pages; they do not say which governs."
+    }
+  },
+  "gaps": {
+    "mecm-windows-11": {
+      "kind": "semantic",
+      "title": "Whether MECM or SCCM installs support Windows 11",
+      "status": "open",
+      "detail": "The MECM article lists 64-bit versions of Windows 10 only, while the Windows install article lists Windows 10 or Windows 11. No captured page says whether the MECM method supports Windows 11.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "safe-mode-control": {
+      "kind": "semantic",
+      "title": "How Safe Mode is enabled, by whom, and its default",
+      "status": "open",
+      "detail": "The Agents page article defines what Safe Mode stops and what stays active. It does not say where Safe Mode is set, who can set it, or its default.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "macos-version-number": {
+      "kind": "semantic",
+      "title": "Which version number 'Beginning with version 4.32' refers to",
+      "status": "open",
+      "detail": "The macOS install article gives the 4.32 changes without saying whether the number is the landmine agent or the Client Connector version.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "command-typos": {
+      "kind": "semantic",
+      "title": "Typos in the vendor's install and removal commands",
+      "status": "open",
+      "detail": "The Linux RPM command reads 'sudo rpm -ivh/tmp/Landmine.rpm' with no space before the path, the DEB step names the path where the .rpm file is downloaded, the Linux agentless apply step includes -k while the macOS apply step does not, and the Linux removal command ends in .exe. None is written as a claim.",
+      "resolves_with": ["lab-test", "source-read"]
+    }
+  }
+}

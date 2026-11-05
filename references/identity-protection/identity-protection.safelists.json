@@ -1,0 +1,518 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.safelists",
+  "title": "How the AD and Entra ID issue, object and change detection safelists work",
+  "aliases": [
+    "itdr safelist",
+    "issue safelist",
+    "object safelist",
+    "change detection safelist"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.credential-exposure"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.posture-scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-connection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.detection-policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{issue-safelist-ad}} Where the Active Directory Issue Safelist page is in the menu differs between pages {{divergence:ad-issue-safelist-menu-path}}."
+    },
+    {
+      "text": "{{issue-safelist-entra}} {{safelist-reason-and-expiry}}"
+    },
+    {
+      "heading": "Object safelists"
+    },
+    {
+      "text": "{{object-safelist-ad}} {{object-safelist-entra}}"
+    },
+    {
+      "label": "Removing.",
+      "text": "{{removal-restores}} Which default expiry applies is open {{gap:safelist-expiry-default}}."
+    },
+    {
+      "heading": "Change detection safelists"
+    },
+    {
+      "label": "AD.",
+      "text": "{{cd-issue-safelist-ad}} {{cd-object-safelist-ad}} Where the AD change detection page is reached from differs between pages {{divergence:ad-change-detection-dashboard-path}}."
+    },
+    {
+      "label": "Wording on the AD pages.",
+      "text": "{{cd-object-result-for-wording}}"
+    },
+    {
+      "label": "Entra ID.",
+      "text": "{{cd-issue-safelist-entra}} {{cd-issue-safelist-entra-fields}} {{cd-object-safelist-entra}}"
+    },
+    {
+      "label": "Custom change detections.",
+      "text": "{{cd-safelist-custom-unsupported}}"
+    },
+    {
+      "heading": "Related subjects"
+    },
+    {
+      "text": "[[identity-protection.overview]] [[identity-protection.ad-posture]] [[identity-protection.entra-posture]] [[identity-protection.credential-exposure]] [[identity-protection.change-detection]] [[identity-protection.posture-scans]] [[identity-protection.entra-connection]] [[identity-protection.detection-policies]]"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which menu path the page being read gives for a safelist page, and which dashboard path it gives for reaching the AD change detection data, before stating where to click.",
+      "uses": [
+        "ad-issue-safelist-menu-path",
+        "ad-change-detection-dashboard-path"
+      ]
+    },
+    {
+      "do": "Whether the change detection is a custom change detection, which the safelist pages say the safelist option does not support.",
+      "uses": [
+        "cd-safelist-custom-unsupported"
+      ]
+    },
+    {
+      "do": "Whether an Entra ID change has a principal_id associated with it before adding it to the Entra ID Change Detection Object Safelist.",
+      "uses": [
+        "cd-object-safelist-entra"
+      ]
+    }
+  ],
+  "claims": {
+    "issue-safelist-ad": {
+      "statement": "Adding an AD issue to the Active Directory Issue Safelist removes it from the Detailed Findings and Recommendations page and vulnerability report for the selected AD domain only, impacts the unified risk score, and is not applied when a different scanned AD domain is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-issue-safelist.json",
+          "quotes": [
+            "Adding issues to the safelist impacts the unified risk score on the Identity Posture dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-issue-active-directory-issue-safelist.json",
+          "quotes": [
+            "After you add an issue to the Active Directory Issue Safelist, it disappears from the Detailed Findings and Recommendations page and vulnerability report for the selected AD domain only.",
+            "This issue is not marked safe if you select a different scanned AD domain."
+          ]
+        }
+      ]
+    },
+    "issue-safelist-entra": {
+      "statement": "Adding an Entra ID issue to the Entra ID Issue Safelist removes it from the Detailed Findings and Recommendations page and vulnerability report for the selected tenant only, impacts the unified risk score, and is not applied when a different scanned tenant is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-issue-safelist.json",
+          "quotes": [
+            "The Entra ID Issue Safelist provides the following benefits and enables you to:",
+            "Adding issues to the safelist impacts the unified risk score on the Entra ID dashboard."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-issue-entra-id-issue-safelist.json",
+          "quotes": [
+            "After you add an issue to the safelist, it disappears from the Detailed Findings and Recommendations page and vulnerability report for the selected Entra ID tenant only.",
+            "This issue is not marked safe if you select a different scanned Entra ID tenant."
+          ]
+        }
+      ]
+    },
+    "safelist-reason-and-expiry": {
+      "statement": "Adding an issue or object to an AD or Entra ID safelist asks for a reason and an expiration date that is set if needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-issue-active-directory-issue-safelist.json",
+          "quotes": [
+            "enter a reason for marking the issue safe and set an expiration date if needed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-active-directory-object-safelist.json",
+          "quotes": [
+            "enter a reason for marking this AD object safe and set an expiration date if needed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-issue-entra-id-issue-safelist.json",
+          "quotes": [
+            "enter a reason for marking the issue safe and set an expiration date if needed."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-entra-id-object-safelist.json",
+          "quotes": [
+            "enter a reason for marking this Entra ID object safe and set an expiration date if needed."
+          ]
+        }
+      ]
+    },
+    "object-safelist-ad": {
+      "statement": "The AD Object Safelist holds AD users and computers; an object added from an issue's Who is affected? section disappears for that particular issue only (not other issues in the same domain), several objects added together share one reason and expiration date, and adding objects impacts the unified risk score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-object-safelist.json",
+          "quotes": [
+            "On the Active Directory Object Safelist (ITDR > Settings > Active Directory Object Safelist) page, you can do the following:",
+            "Type: The object type (AD user or computer)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-active-directory-object-safelist.json",
+          "quotes": [
+            "On the Detailed Findings and Recommendations page, scroll down to the Who is affected? section for the selected issue.",
+            "After you add objects to a safelist, they disappear from the Who is affected? section on the Detailed Findings and Recommendations page and vulnerability report for that particular issue only.",
+            "These objects are not marked safe if you select a different issue in the same AD domain.",
+            "If you are adding multiple objects to the safelist simultaneously, the same reason and expiration date are applied to all those objects.",
+            "Adding objects to the safelist impacts the unified risk score on the ITDR Posture - Active Directory Dashboard."
+          ]
+        }
+      ]
+    },
+    "object-safelist-entra": {
+      "statement": "The Entra ID Object Safelist holds users and service principals; an object added from an issue's Who is affected? section disappears for that particular issue only (not other issues in the same tenant), several objects added together share one reason and expiration date, and adding objects impacts the unified risk score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-object-safelist.json",
+          "quotes": [
+            "On the Entra ID Object Safelist page (ITDR > Settings > Entra ID Object Safelist), you can do the following:",
+            "Type: The object type (user or service principal)."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-entra-id-object-safelist.json",
+          "quotes": [
+            "On the Detailed Findings and Recommendations page, scroll down to the Who is affected? section for the selected issue.",
+            "After you add objects to a safelist, they disappear from the Who is affected? section on the Detailed Findings and Recommendations page and vulnerability report for that particular issue only.",
+            "These objects are not marked safe if you select a different issue in the same Entra ID tenant.",
+            "If you are adding multiple objects to the safelist simultaneously, the same reason and expiration date are applied to all those objects.",
+            "Adding objects to the safelist impacts the unified risk score on the Entra ID Dashboard."
+          ]
+        }
+      ]
+    },
+    "removal-restores": {
+      "statement": "Removing an issue or object from the AD or Entra ID issue and object safelists returns it to the Focus Area page and to the new and previous vulnerability reports.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-issue-active-directory-issue-safelist.json",
+          "quotes": [
+            "The issue is added to the Focus Area page and the new and previous vulnerability reports for the selected AD domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-object-active-directory-object-safelist.json",
+          "quotes": [
+            "When you remove an object from the safelist, it gets added to the Focus Area page and the new and previous vulnerability reports for the selected issue."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-issue-entra-id-issue-safelist.json",
+          "quotes": [
+            "The issue is added to the Focus Area page and is included in the new and previous vulnerability reports for the tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-object-entra-id-object-safelist.json",
+          "quotes": [
+            "When you remove an object from the safelist, it gets added to the Focus Areas page and the new and previous vulnerability reports for the selected issue."
+          ]
+        }
+      ]
+    },
+    "cd-issue-safelist-ad": {
+      "statement": "Safelisting an AD change detection issue such as Privileged Accounts removes all issues related to it from the Change Detection page for the selected AD domain; removing it from the AD Change Detection Issue Safelist returns it to the Change Detection dashboard for that domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-issue-safelist.json",
+          "quotes": [
+            "For example, if you mark the Privileged Accounts issue as safe, then all issues related to Privileged Accounts are removed from the Change Detection page for the selected AD domain."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-and-managing-change-detection-issue-safelist.json",
+          "quotes": [
+            "To view the Active Directory Change Detection Issue Safelist:",
+            "When you remove a change detection issue from the safelist, it gets added to the Change Detection dashboard for the selected AD domain."
+          ]
+        }
+      ]
+    },
+    "cd-issue-safelist-entra": {
+      "statement": "Safelisting an Entra ID change detection issue such as Privileged Accounts removes all issues related to it from the Entra ID Change Detection page for the selected tenant; removing it from the Entra ID Change Detection Issue Safelist returns it to the Entra ID Change Detection dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection-issue-safelist.json",
+          "quotes": [
+            "The Entra ID Change Detection Issue Safelist provides the following benefits and enables you to:",
+            "For example, if you mark the Privileged Accounts issue as safe, then all issues related to Privileged Accounts are removed from the Entra ID Change Detection page for the selected Entra ID tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-issue-entra-id-change-detection-issue-safelist.json",
+          "quotes": [
+            "When you remove an issue from the safelist, it gets added to the Entra ID Change Detection dashboard."
+          ]
+        }
+      ]
+    },
+    "cd-safelist-custom-unsupported": {
+      "statement": "The AD change detection issue and object safelist pages and the Entra ID change detection issue and object safelist pages each say the safelist option is not supported for custom change detections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-issue-safelist.json",
+          "quotes": [
+            "The safelist option is not supported for custom change detections."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-ad-change-detection-object-safelist.json",
+          "quotes": [
+            "The safelist option is not supported for custom change detections."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-issue-entra-id-change-detection-safelist.json",
+          "quotes": [
+            "The safelist option is not supported for custom change detections."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-entra-id-change-detection-object-safelist.json",
+          "quotes": [
+            "The safelist option is not supported for custom change detections."
+          ]
+        }
+      ]
+    },
+    "cd-object-safelist-ad": {
+      "statement": "The AD Change Detection Object Safelist lists each object's Name, Associated Issue, Created On, Created By, Reason and Expiry (the date the object is deleted from the safelist); the Reason or Expiry can be edited, and removing an object returns it to the AD Change Detection dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-ad-change-detection-object-safelist.json",
+          "quotes": [
+            "Name: The name of the user associated with the issue.",
+            "Created On: The date when the change detection was added to the safelist.",
+            "Created By: The name of the user who added the change detection to the safelist.",
+            "Reason: The reason why the change detection was added to the safelist.",
+            "Expiry: The date when the object is deleted from the safelist.",
+            "Associated Issue: The issue associated with the object."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-object-ad-change-detection-object-safelist.json",
+          "quotes": [
+            "You can edit or delete an Active Directory (AD) change detection object that is marked safe from the AD Change Detection Object Safelist.",
+            "Make changes to the Reason or the Expiry field as required.",
+            "When you remove an object from the safelist, it gets added to the AD Change Detection dashboard."
+          ]
+        }
+      ]
+    },
+    "cd-object-safelist-entra": {
+      "statement": "An Entra ID change can be moved to the Entra ID Change Detection Object Safelist only if a principal_id is associated with it; the list shows an Expiry (the date the object is deleted from the safelist), Reason or Expiry can be edited, and removing an object returns it to the Entra ID Change Detection dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection-object-safelist.json",
+          "quotes": [
+            "The Entra ID Change Detection Object Safelist provides the following benefits and enables you to:",
+            "Expiry: The date when the object is deleted from the safelist."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-adding-change-detection-entra-id-change-detection-object-safelist.json",
+          "quotes": [
+            "The option to add an item to change detection object safelist is available only if a principal_id is associated with the change."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-object-entra-id-change-detection-object-safelist.json",
+          "quotes": [
+            "Make changes to the Reason or the Expiry field as required.",
+            "When you remove an object from the safelist, it gets added to the Entra ID Change Detection dashboard."
+          ]
+        }
+      ]
+    },
+    "cd-issue-safelist-entra-fields": {
+      "statement": "The Entra ID Change Detection Issue Safelist lists each issue's Name, Created On, Created By and Reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection-issue-safelist.json",
+          "quotes": [
+            "The Entra ID Change Detection Issue Safelist provides the following benefits and enables you to:",
+            "Name: The name of the change detection issue.",
+            "Created On: The date when the change detection issue was added to the safelist.",
+            "Created By: The name of the user who added the change detection issue to the safelist.",
+            "Reason: The reason why the change detection issue was added to the safelist."
+          ]
+        }
+      ]
+    },
+    "cd-object-result-for-wording": {
+      "statement": "The AD Change Detection Object Safelist edit steps say \"Select a tenant from the Result for drop-down menu.\", while the Active Directory Issue Safelist deletion steps say \"Select an AD domain from the Result for drop-down menu.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-editing-or-deleting-object-ad-change-detection-object-safelist.json",
+          "quotes": [
+            "Select a tenant from the Result for drop-down menu."
+          ],
+          "after": "To edit an AD change detection object from the safelist:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-deleting-issue-active-directory-issue-safelist.json",
+          "quotes": [
+            "Select an AD domain from the Result for drop-down menu."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ad-issue-safelist-menu-path": {
+      "summary": "Two pages give different menu paths to the Active Directory Issue Safelist page.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-about-active-directory-issue-safelist.json",
+            "quotes": [
+              "On the Active Directory Issue Safelist page (ITDR > Settings > Active Directory Issue Safelist), you can do the following:"
+            ]
+          },
+          "says": "The page is at ITDR > Settings > Active Directory Issue Safelist."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-deleting-issue-active-directory-issue-safelist.json",
+            "quotes": [
+              "Go to Settings > ITDR Safelist > Active Directory Issue Safelist."
+            ]
+          },
+          "says": "The page is at Settings > ITDR Safelist > Active Directory Issue Safelist."
+        }
+      ],
+      "impact": "An operator following one page's path may not find the page where another page says it is; the pages do not say which is current."
+    },
+    "ad-change-detection-dashboard-path": {
+      "summary": "AD change detection pages give different dashboard paths for the AD change detection data.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-adding-change-detection-issue-safelist.json",
+            "quotes": [
+              "Go to ITDR > Dashboard > Change Detection > Default."
+            ]
+          },
+          "says": "The AD change detection data is reached at ITDR > Dashboard > Change Detection > Default."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-adding-change-detection-ad-change-detection-object-safelist.json",
+            "quotes": [
+              "Go to ITDR > Dashboard > Entra ID Change Detection > Default."
+            ]
+          },
+          "says": "The AD change detection data is reached at ITDR > Dashboard > Entra ID Change Detection > Default."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-change-detection-issue-and-remediation-details.json",
+            "quotes": [
+              "Go to ITDR > Dashboard > Active Directory Change Detection > Default."
+            ]
+          },
+          "says": "The AD change detection data is reached at ITDR > Dashboard > Active Directory Change Detection > Default."
+        }
+      ],
+      "impact": "The AD object safelist page names the Entra ID Change Detection dashboard in its path while selecting an AD domain; the pages do not say whether it is a copy error or a different dashboard."
+    }
+  },
+  "gaps": {
+    "safelist-expiry-default": {
+      "kind": "semantic",
+      "title": "What expiry applies when none is set on a safelist entry",
+      "status": "open",
+      "detail": "The safelist pages say an expiration date is set if needed but do not state a default expiry or what happens when none is set.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -1,0 +1,827 @@
+{
+  "schema_version": 1,
+  "id": "deception.datasets",
+  "title": "Deception datasets: application, high-interaction container, SCADA/IoT, keyword, custom service and file datasets, and CVE handlers",
+  "aliases": [
+    "application datasets",
+    "cve datasets",
+    "vulnerable application datasets",
+    "cve handler",
+    "high-interaction containers",
+    "scada/iot datasets",
+    "file templates"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "deception.overview" },
+    { "rel": "see-also", "to": "deception.miragemaker" },
+    { "rel": "see-also", "to": "deception.investigate" }
+  ],
+  "prose": [
+    {
+      "text": "See also [[deception.overview]], [[deception.miragemaker]] and [[deception.investigate]]."
+    },
+    {
+      "label": "Application datasets.",
+      "text": "{{application-dataset-kinds}} {{static-zip-root}} {{static-dataset-fields}} {{static-dataset-predefined}} {{dynamic-dataset-composition}} {{dynamic-dataset-uses}}"
+    },
+    {
+      "label": "Vulnerable application datasets.",
+      "text": "{{vulnerable-dataset-no-cve-needed}} {{vulnerable-dataset-handler-upload}} {{vulnerable-dataset-list-columns}} Whether the handler file name must match its CVE ID {{gap:handler-file-name}}."
+    },
+    {
+      "label": "CVE handlers.",
+      "text": "{{handler-location-and-validation}} {{handler-required-pieces}} {{handler-cve-id-literal}} {{handler-function-rules}} {{handler-routes-rules}} {{handler-unrouted-ignored}} {{handler-path-params}} {{handler-session-store}} {{handler-validator-run}} {{handler-validation-errors}}"
+    },
+    {
+      "label": "High-interaction containers.",
+      "text": "{{hic-types-and-deployment}} {{hic-image-requirements}} {{hic-image-example-commands}} {{hic-port-immutable}} {{hic-metrics-caveat}}"
+    },
+    {
+      "label": "SCADA/IoT datasets.",
+      "text": "{{scada-default-datasets}} {{scada-protocols}} {{scada-protocol-labels}} {{scada-dataset-example-multiprotocol}} {{scada-custom-dataset-workflow}} Dataset rows beyond the example {{gap:scada-dataset-rows}}."
+    },
+    {
+      "label": "Keyword and custom service datasets.",
+      "text": "{{keyword-config}} {{keyword-recommendation-rules}} {{custom-service-purpose}} {{custom-service-fields}}"
+    },
+    {
+      "label": "File datasets and templates.",
+      "text": "{{file-dataset-uses}} {{file-dataset-static-dynamic}} {{file-dataset-dynamic-fields}} {{file-template-baseline}}"
+    },
+    {
+      "label": "Defaults and downloads.",
+      "text": "{{default-datasets-readonly}} {{download-formats}} Upload size limits {{gap:zip-upload-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a dataset is a default one before advising an edit or deletion.",
+      "uses": ["default-datasets-readonly"]
+    },
+    {
+      "do": "Whether the files of a static application dataset zip sit at the archive root.",
+      "uses": ["static-zip-root"]
+    },
+    {
+      "do": "Whether a CVE handler declares CVE_ID as a string literal, routes async functions annotated -> Response and passes the validator.",
+      "uses": ["handler-required-pieces", "handler-cve-id-literal", "handler-function-rules", "handler-validator-run"]
+    },
+    {
+      "do": "Whether a web application container's port is final before saving, since changing it means uploading the docker image again.",
+      "uses": ["hic-port-immutable"]
+    },
+    {
+      "do": "Whether a protocol name is read from the protocol table or the datasets table, since the two label some protocols differently.",
+      "uses": ["scada-protocol-labels"]
+    }
+  ],
+  "claims": {
+    "application-dataset-kinds": {
+      "statement": "Application datasets are static (front ends of static HTML, CSS and JavaScript files), vulnerable application datasets (CVE datasets; requests and responses mimicking dynamic applications), dynamic (a static front end combined with a vulnerable dataset's interactions) and high-interaction container (docker-based) datasets, and the page describes deploying the datasets using TI decoys or web services on network decoys, and the custom protocol container page describes deploying that non-web container dataset as a network decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-custom-protocol-container.json",
+          "quotes": [
+            "which is a non-web application (e.g., PostgreSQL database server), and deploy it as a network decoy"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-application-datasets.json",
+          "quotes": [
+            "see About Vulnerable Application Datasets (CVE Datasets)",
+            "Application datasets are resources used to build and deploy decoy web applications.",
+            "Static Application Datasets: Allows you to configure the front ends of web application decoys. These datasets consist of static HTML files, CSS files, JavaScript files, etc.",
+            "Vulnerable Application Datasets: Allows you to configure requests and responses to mimic dynamic web applications.",
+            "Dynamic Application Datasets: Combines appropriate front ends (static application datasets) and dynamic interactions (vulnerable application datasets) to create interactive decoy web applications.",
+            "High-Interaction Container Datasets: Self-contained docker container datasets that are fully interactive application decoys.",
+            "deploying the datasets using Threat Intelligence (TI) decoys or web services on network decoys"
+          ]
+        }
+      ]
+    },
+    "static-zip-root": {
+      "statement": "A static application dataset is uploaded as a .zip whose files must be at the root of the archive, not in a subdirectory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-static-application-dataset.json",
+          "quotes": [
+            "you must create a compressed (.zip) file that includes the application dataset's files. The files must be present at the root of the zip file and not in a subdirectory."
+          ]
+        }
+      ]
+    },
+    "static-dataset-fields": {
+      "statement": "A static application dataset has a web server banner, hostname keywords and subdomains (used by the Admin Portal to recommend hostnames and subdomains for decoys) and a MAC manufacturer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-static-application-dataset.json",
+          "quotes": [
+            "Web Server Banner: Select a web server banner to advertise from the drop-down menu.",
+            "Hostname Keywords: Enter hostname keywords. The Zscaler Deception Admin Portal uses these keywords to recommend hostnames for decoys.",
+            "Subdomains: Enter subdomain names. The Deception Admin Portal uses these names to recommend subdomains for decoys.",
+            "MAC: Select a system manufacturer's name from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "static-dataset-predefined": {
+      "statement": "Deception provides a few predefined static application datasets that can be used to deploy network decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-static-application-dataset.json",
+          "quotes": [
+            "Zscaler Deception provides a few predefined static application datasets that you can readily use to deploy network decoys."
+          ]
+        }
+      ]
+    },
+    "vulnerable-dataset-handler-upload": {
+      "statement": "A vulnerable application dataset requires a Python handler created beforehand and uploaded as a .py file no larger than 5 MB; vulnerability classification and CVE ID are optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-vulnerable-application-dataset.json",
+          "quotes": [
+            "Before you can add a vulnerable application dataset, you must create a Python handler.",
+            "Upload: Click to upload the custom CVE handler file (.py) for the vulnerable application. The file size cannot exceed 5 MB.",
+            "Vulnerability Classification: (Optional)",
+            "CVE ID: (Optional) Enter the CVE identifier"
+          ]
+        }
+      ]
+    },
+    "vulnerable-dataset-no-cve-needed": {
+      "statement": "Vulnerable application datasets are typically based on CVE disclosures but can also mimic any vulnerability, even without a CVE disclosure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-vulnerable-application-datasets-cve-datasets.json",
+          "quotes": [
+            "Typically, the requests and responses are created based on CVE disclosures for the specific application",
+            "you can also create custom requests and responses for dynamic web applications that mimic any vulnerability, even if there is no CVE disclosure for the vulnerability"
+          ]
+        }
+      ]
+    },
+    "vulnerable-dataset-list-columns": {
+      "statement": "The Vulnerable Application Datasets page lists Name, Vulnerability Classification, CVE ID, Linked Dynamic Applications and Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-vulnerable-application-datasets-cve-datasets.json",
+          "quotes": [
+            "Name: The name of the vulnerable application dataset.",
+            "CVE ID: The CVE identifier associated with the publicly disclosed vulnerability configured in the application dataset.",
+            "Description: The description of the vulnerable application dataset.",
+            "Vulnerability Classification: The classification of the vulnerability mimicked by the vulnerable application dataset.",
+            "Linked Dynamic Applications: The list of all dynamic applications that are configured with the vulnerable application dataset."
+          ]
+        }
+      ]
+    },
+    "dynamic-dataset-composition": {
+      "statement": "A dynamic application dataset takes a vulnerable application dataset for its dynamic interactions and, optionally, a fallback static application dataset to render the front-end UI, plus an optional web server banner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-dynamic-application-dataset.json",
+          "quotes": [
+            "Vulnerable Application Dataset: Select the vulnerable application dataset that must be used to configure the dynamic interactions of the application.",
+            "Fallback Static Application Dataset: (Optional) Select a static application dataset that must be used to render the front-end UI of the application.",
+            "Web Server Banner: (Optional) Select a web server banner"
+          ]
+        }
+      ]
+    },
+    "dynamic-dataset-uses": {
+      "statement": "Dynamic application datasets are used in TI decoys and network decoys, with the dynamic interactions configured through vulnerable application datasets and the front-end UI through associated static application datasets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-dynamic-application-datasets.json",
+          "quotes": [
+            "While the dynamic interactions are configured using Vulnerable Application Datasets, the front-end UI of the application is configured by associating appropriate Static Application Datasets.",
+            "Dynamic Application Datasets allow you to configure threat intelligence decoys and network decoys with dynamic web applications"
+          ]
+        }
+      ]
+    },
+    "hic-image-requirements": {
+      "statement": "A high-interaction container dataset is a single docker image holding all components the application needs, saved with docker save and compressed with gzip before upload; the ENTRYPOINT script must not exit or the service stops.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-high-interaction-docker-container-image.json",
+          "quotes": [
+            "You must configure all the components required for the application in a single docker image, and then upload the image to the Zscaler Deception Admin Portal.",
+            "The ENTRYPOINT script must not exit. If it exits, the service stops.",
+            "docker save wordpress:latest > <image-name>",
+            "gzip <image-name>.tar"
+          ]
+        }
+      ]
+    },
+    "hic-image-example-commands": {
+      "statement": "The page's example for a docker container that runs a WordPress instance builds the image with docker build --tag <image-name> . and then saves it with docker save wordpress:latest > <image-name>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-high-interaction-docker-container-image.json",
+          "quotes": [
+            "A sample compressed file (.zip) includes the following components necessary to create a docker container that runs a WordPress instance:",
+            "In the command prompt, navigate to the directory where you have the files, and run the following commands:",
+            "docker build --tag <image-name> .",
+            "docker save wordpress:latest > <image-name>",
+            "For example, docker save wordpress:latest > myimage"
+          ]
+        }
+      ]
+    },
+    "hic-types-and-deployment": {
+      "statement": "High-interaction container datasets are Web (web application containers, deployable as TI or network decoys) or Custom (custom protocol containers for non-web applications such as a PostgreSQL server, deployed as network decoys).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-high-interaction-containers.json",
+          "quotes": [
+            "Web indicates a web application container dataset and Custom indicates a custom protocol container dataset."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-web-application-container.json",
+          "quotes": [
+            "deploy it as a Threat Intelligence (TI) or network decoy"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-custom-protocol-container.json",
+          "quotes": [
+            "which is a non-web application (e.g., PostgreSQL database server), and deploy it as a network decoy"
+          ]
+        }
+      ]
+    },
+    "hic-port-immutable": {
+      "statement": "The port of a web application container dataset cannot be changed after saving; changing it requires deleting the container and uploading the docker image again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-web-application-container.json",
+          "quotes": [
+            "The port details cannot be changed after you save the container configuration. If you want to change the port details, you must delete and upload the docker image file again."
+          ]
+        }
+      ]
+    },
+    "hic-metrics-caveat": {
+      "statement": "Some high-interaction container datasets might capture fewer metrics than their static counterparts, because the request data format varies from application to application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-high-interaction-containers.json",
+          "quotes": [
+            "Each container runs a customized application, the format of the data sent in each request varies from application to application. Therefore, some high-interaction container datasets might capture fewer metrics than their static counterparts."
+          ]
+        }
+      ]
+    },
+    "scada-protocols": {
+      "statement": "The SCADA/IoT page's table of supported protocols lists BACnet, DNP3, EtherNet/IP, Guardian AST, HTTP, IEC 60870-5-104, IEC 61850, IPMI, Kamstrup, Modbus, OPC UA, PROFINET, S7comm and SNMP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-scada-iot-datasets.json",
+          "quotes": [
+            "| BACnet | Building automation and device control | Smart buildings |",
+            "| DNP3 | Telemetry and control | Power and water |",
+            "| EtherNet/IP | Industrial device communication | Manufacturing |",
+            "| Guardian AST | Asset monitoring and threat detection | Industrial security |",
+            "| HTTP | Web/API communication | Cross-industry |",
+            "| IEC 60870-5-104 | Telecontrol systems | Power utilities |",
+            "| IEC 61850 | Substation communication | Power grids |",
+            "| IPMI | Remote hardware management | Data centers |",
+            "| Kamstrup | Smart metering communication | Utilities |",
+            "| Modbus | PLS/RU communication | Industrial automation |",
+            "| OPC UA | System integration and data exchange | Cross-industry |",
+            "| PROFINET | Real-time industrial automation | Manufacturing |",
+            "| S7comm | Siemens PLC communication | Manufacturing |",
+            "| SNMP | Network device monitoring | IoT networks |"
+          ],
+          "after": "View a table showing supported SCADA/IoT protocols."
+        }
+      ]
+    },
+    "scada-protocol-labels": {
+      "statement": "The SCADA/IoT page labels two protocols differently in its two tables: the protocol table has IEC 60870-5-104 and Guardian AST, while the datasets table has a dataset named IEC 104 whose Protocols Supported column lists IEC 104, and a dataset named Guardian AST whose Protocols Supported column lists GUARDIAN_AST.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-scada-iot-datasets.json",
+          "quotes": [
+            "| Guardian AST | Asset monitoring and threat detection | Industrial security |",
+            "| IEC 60870-5-104 | Telecontrol systems | Power utilities |"
+          ],
+          "after": "View a table showing supported SCADA/IoT protocols."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-scada-iot-datasets.json",
+          "quotes": [
+            "| IEC 104 | IEC 104, DNP3, IEC 61850, and SNMP | Power/utility automation endpoint exposing IEC 104 along with related substation protocols |",
+            "| Guardian AST | GUARDIAN_AST | Tank monitoring endpoint for fuel inventory, level, temperature, and water measurements |"
+          ],
+          "after": "View a table showing supported SCADA/IoT datasets and their protocols."
+        }
+      ]
+    },
+    "scada-default-datasets": {
+      "statement": "Deception provides device-based datasets that mimic specific SCADA/IoT devices and protocol-based datasets that mimic generic SCADA/IoT devices, and custom datasets can be uploaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-scada-iot-datasets.json",
+          "quotes": [
+            "By default, Zscaler Deception provides a list of datasets that includes device-based datasets to mimic specific SCADA/IoT devices and protocol-based datasets to mimic generic SCADA/IoT devices. You can also create and upload custom SCADA/IoT datasets."
+          ]
+        }
+      ]
+    },
+    "scada-dataset-example-multiprotocol": {
+      "statement": "The Building Automation - Siemens PLC dataset lists Modbus, OPC UA, PROFINET, S7comm, ENIP, BACnet, HTTP, IPMI and SNMP as its supported protocols.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-scada-iot-datasets.json",
+          "quotes": [
+            "| Building Automation - Siemens PLC | Modbus, OPC UA, PROFINET, S7comm, ENIP, BACnet, HTTP, IPMI, and SNMP |"
+          ],
+          "after": "View a table showing supported SCADA/IoT datasets and their protocols."
+        }
+      ]
+    },
+    "scada-custom-dataset-workflow": {
+      "statement": "A custom SCADA/IoT dataset is made by downloading an existing dataset as a .zip, changing it as needed, and uploading it under Dataset/Templates (Zip File); it is then used in network decoys.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-scadaiot-dataset.json",
+          "quotes": [
+            "Make the necessary changes to the SCADA/IoT dataset that you downloaded to meet your requirements.",
+            "Locate an existing SCADA/IoT dataset based on the new custom dataset you want to create, and click the Download icon.",
+            "The SCADA/IoT dataset (.zip) is downloaded to your system.",
+            "Dataset/Templates (Zip File): Click Upload to upload the custom dataset you saved to your system.",
+            "You can use the dataset in network decoys to deploy SCADA/IoT decoys."
+          ]
+        }
+      ]
+    },
+    "keyword-recommendation-rules": {
+      "statement": "Configured keywords are included in addition to randomly generated recommendations; a keyword is part of the generated text and never used alone, only one keyword is used per recommendation, and with multiple keywords one is chosen randomly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-keyword-datasets.json",
+          "quotes": [
+            "When keywords are configured, Zscaler generates recommendations that include the keywords in addition to randomly generated recommendations.",
+            "the keyword is part of the generated texts and is not exclusively used to avoid conflicts",
+            "if \"admin\" is a configured keyword, keyword-based recommendations can be admin-pc, adminlog, etc., and cannot be \"admin\" alone.",
+            "Only one keyword is used for each keyword-based recommendation.",
+            "when multiple keywords are configured, keywords are chosen randomly to generate a recommendation"
+          ]
+        }
+      ]
+    },
+    "keyword-config": {
+      "statement": "Keyword datasets take one keyword per line and are used to autogenerate recommendations for decoy parameters such as hostnames, file and folder names and network decoy names.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-keyword-datasets.json",
+          "quotes": [
+            "Enter keywords (one per line) of your choice.",
+            "autogenerate recommendations for decoy parameters, such as hostnames, file and folder names, network decoy names, etc."
+          ]
+        }
+      ]
+    },
+    "custom-service-purpose": {
+      "statement": "A custom service dataset creates custom network services with customized requests and responses over any binary or text-based application-layer protocol, deployed through network decoys on a configured port and TCP or UDP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-custom-service-datasets.json",
+          "quotes": [
+            "A custom service dataset is a mechanism that creates custom network services with customized requests and responses.",
+            "The custom services can be created over any binary or text-based protocols in the application layer and can then be deployed using network decoys.",
+            "you can configure specific ports and network layer protocols (TCP or UDP)"
+          ]
+        }
+      ]
+    },
+    "custom-service-fields": {
+      "statement": "A custom service dataset has a Binary or Text protocol type and optional banner and default response; for binary protocols the banner, default response and request and response messages must be Base64-encoded text.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-configuring-custom-service-dataset.json",
+          "quotes": [
+            "Protocol: Select the application layer protocol type (Binary or Text) that you want for your custom service.",
+            "Banner: (Optional) Enter the banner message that is shown to adversaries when a connection is established with the service using network decoys. For binary protocols, the value entered for this field must be a Base64-encoded text.",
+            "Default Response: (Optional) Enter the default response that is sent for unknown requests from adversaries. For binary protocols, the value entered for this field must be a Base64-encoded text.",
+            "For binary protocols, the values entered for request and response must be a Base64-encoded text."
+          ]
+        }
+      ]
+    },
+    "file-dataset-static-dynamic": {
+      "statement": "A static file dataset gives each decoy an exact copy of its uploaded .zip files, while a dynamic file dataset generates a new set of files every time a decoy is deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-static-file-dataset.json",
+          "quotes": [
+            "Each decoy configured with a static dataset contains an exact copy of the files in the static dataset.",
+            "you must have the required files in a compressed (.zip) file"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-dynamic-file-dataset.json",
+          "quotes": [
+            "Every time a decoy with a dynamic dataset is deployed, a new set of files is generated and then copied to the decoy."
+          ]
+        }
+      ]
+    },
+    "file-dataset-dynamic-fields": {
+      "statement": "A dynamic file dataset is parameterised by file classification by department, file templates, custom keywords used in file name permutations, a minimum and maximum date, and folder and file-per-folder ranges used to randomly select a few folders and files each time an instance is generated for a decoy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-dynamic-file-dataset.json",
+          "quotes": [
+            "File Classification by Department:",
+            "File Templates: Select the type of decoy file you want to deploy from the drop-down menu",
+            "Custom Keywords: Enter the keywords you want to include for the industry type. These keywords are used in file name permutations.",
+            "Minimum Date and Maximum Date: Select the start and end date.",
+            "Minimum Folders and Maximum Folders: Enter the minimum and maximum numbers of folders. This range is used to randomly select a few folders every time an instance of a file dataset is generated for a decoy.",
+            "Minimum Files Per Folder and Maximum Files Per Folder: Enter the minimum and maximum files per folder. This range is used to randomly select a few files per folder every time an instance of a file dataset is generated for a decoy."
+          ]
+        }
+      ]
+    },
+    "file-dataset-uses": {
+      "statement": "File datasets configure network decoys (services that host files, such as Shares and FTP) and landmine decoys, and a GenAI icon marks a generative AI file dataset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-file-datasets.json",
+          "quotes": [
+            "File datasets are realistic-looking decoy files and folders that you can use to configure network and landmine decoys.",
+            "Network deception: Populate decoy services that host files, such as Shares and FTP.",
+            "Landmine deception: Configure decoy files that match a user or system profile.",
+            "The GenAI icon indicates a generative AI file dataset."
+          ]
+        }
+      ]
+    },
+    "file-template-baseline": {
+      "statement": "A file template is uploaded as a .zip and is used as a baseline when adding dynamic file datasets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-adding-custom-file-template.json",
+          "quotes": [
+            "You can add a custom file template and use it as a baseline when adding dynamic file datasets.",
+            "you must create a compressed (.zip) file that includes the template's files"
+          ]
+        }
+      ]
+    },
+    "default-datasets-readonly": {
+      "statement": "Default static application, vulnerable application, dynamic application, high-interaction container, SCADA/IoT, custom service and file datasets and file templates cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-static-application-dataset.json",
+          "quotes": [
+            "The default static application datasets cannot be edited.",
+            "The default static application datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-vulnerable-application-dataset.json",
+          "quotes": [
+            "The default vulnerable application datasets cannot be edited.",
+            "The default vulnerable application datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-dynamic-application-dataset.json",
+          "quotes": [
+            "The default dynamic application datasets cannot be edited.",
+            "The default dynamic application datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-high-interaction-container.json",
+          "quotes": [
+            "The default high-interaction containers cannot be edited.",
+            "The default high-interaction containers cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-scadaiot-dataset.json",
+          "quotes": [
+            "The default SCADA/IoT datasets cannot be edited.",
+            "The default SCADA/IoT datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-custom-service-dataset.json",
+          "quotes": [
+            "The default custom service datasets cannot be edited.",
+            "The default custom service datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-file-dataset.json",
+          "quotes": [
+            "The default file datasets cannot be edited.",
+            "The default file datasets cannot be deleted."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-editing-or-deleting-file-template.json",
+          "quotes": [
+            "The default file templates cannot be edited.",
+            "The default file templates cannot be deleted."
+          ]
+        }
+      ]
+    },
+    "download-formats": {
+      "statement": "Static application, vulnerable application, SCADA/IoT and file datasets and file templates, both default and custom, download individually as a ZIP file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-static-application-dataset.json",
+          "quotes": [
+            "You can download both default and custom static application datasets individually as a ZIP file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-vulnerable-application-dataset.json",
+          "quotes": [
+            "You can download both default and custom vulnerable application datasets individually as a ZIP file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-scadaiot-dataset.json",
+          "quotes": [
+            "You can download both default and custom SCADA/IoT datasets individually as a ZIP file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-file-dataset.json",
+          "quotes": [
+            "You can download both default and custom file datasets individually as a ZIP file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-downloading-file-template.json",
+          "quotes": [
+            "You can download both default and custom file templates individually as a ZIP file."
+          ]
+        }
+      ]
+    },
+    "handler-location-and-validation": {
+      "statement": "A CVE handler is a Python file that teaches a decoy how to respond to exploit attempts targeting a specific vulnerability; each lives at datasets/aicve/<CVE-ID>.py and is validated by an AST parser before upload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "A CVE handler is a Python file that teaches a decoy how to respond to exploit attempts targeting a specific vulnerability.",
+            "Each handler file lives at datasets/aicve/<CVE-ID>.py and is validated by an AST parser before it can be uploaded."
+          ]
+        }
+      ]
+    },
+    "handler-required-pieces": {
+      "statement": "A handler file requires three top-level pieces: a CVE_ID string constant, one or more async handler functions, and a ROUTES list; imports, constants and helper functions are allowed and not inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "CVE_ID: A string constant identifying the vulnerability.",
+            "One or more handler functions (async functions) that accept a request and return a response.",
+            "ROUTES: A list that maps HTTP methods and URL paths to your handler functions.",
+            "Beyond these pieces, you can add imports, constants, and helper functions as needed.",
+            "The validator only inspects the required pieces."
+          ]
+        }
+      ]
+    },
+    "handler-cve-id-literal": {
+      "statement": "CVE_ID must be a plain string literal at module level, not computed from a function call, read from a file or defined inside a conditional block.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "Assign CVE_ID as a plain string literal at the module level. It cannot be computed from a function call, read from a file, or defined inside a conditional block."
+          ]
+        }
+      ]
+    },
+    "handler-function-rules": {
+      "statement": "Each routed handler function must be declared async def, accept exactly one argument (the Starlette Request object) and be annotated -> Response, although any Starlette response subclass can be returned at runtime.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "Async: Declared with async def, not plain def.",
+            "Single-parameter: Accepts exactly one argument (the Starlette Request object).",
+            "Annotated with -> Response and the return type must be Response.",
+            "At runtime, you can return any Starlette response subclass (PlainTextResponse, HTMLResponse, etc.), but the annotation must say Response."
+          ]
+        }
+      ]
+    },
+    "handler-routes-rules": {
+      "statement": "ROUTES is a module-level list literal of dicts each with METHOD (GET, POST, PUT, DELETE, PATCH, HEAD or OPTIONS), PATH (a string literal starting with /, supporting Starlette path parameters) and HANDLER (a bare function reference); duplicate method and path pairs in one file are rejected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "ROUTES must be a list literal assigned at the module level.",
+            "METHOD: A string literal. Must be GET, POST, PUT, DELETE, PATCH, HEAD, or OPTIONS.",
+            "PATH: A string literal starting with /. Supports Starlette path parameters like {id} or {rest:path}.",
+            "HANDLER: A bare reference to one of your async handler functions",
+            "Duplicate routes (same method and path) within a single handler file are rejected."
+          ]
+        }
+      ]
+    },
+    "handler-unrouted-ignored": {
+      "statement": "A function not referenced in ROUTES is ignored by the validator, which checks only CVE_ID, ROUTES and the functions referenced by ROUTES.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "If a function is not referenced in ROUTES, the validator ignores it entirely. Only routed handlers are checked.",
+            "It only checks CVE_ID, ROUTES, and the functions referenced by ROUTES."
+          ]
+        }
+      ]
+    },
+    "handler-path-params": {
+      "statement": "A {name} path segment matches a single path component and {name:path} matches everything including slashes; captured values are read through request.path_params.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "A {name} segment matches a single path component, while {name:path} matches everything including slashes.",
+            "access captured values through request.path_params"
+          ]
+        }
+      ]
+    },
+    "handler-session-store": {
+      "statement": "Handlers get an in-memory session store at request.state.sessions with async create(data, ttl=300), get(key), set(key, data, ttl=300) and delete(key) methods; its data is lost on decoy restart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "Access it via request.state.sessions. It provides 4 async methods:",
+            "create(data={...}, ttl=300): Creates a new session and returns a UUID key.",
+            "get(key): Retrieves session data, or None if expired or missing.",
+            "set(key, data, ttl=300): Stores data under a specific key.",
+            "delete(key): Removes a session.",
+            "All data lives in memory and is lost on the decoy restart, which is by design for decoy interactions."
+          ]
+        }
+      ]
+    },
+    "handler-validator-run": {
+      "statement": "The handler validator is downloaded as TXT, renamed to .py and run with python3 <validator>.py --file-path <handler>.py, printing OK: <file> on success or FAIL: <error-message> on failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "The validator file is downloaded in TXT format.",
+            "Rename the file by changing the extension from .txt to .py.",
+            "python3 <validator-file-name>.py --file-path <handler-file-name>.py",
+            "OK: <handler-file-name>.py",
+            "FAIL: <error-message>"
+          ]
+        }
+      ]
+    },
+    "handler-validation-errors": {
+      "statement": "Validator errors include 'Handler must assign CVE_ID as a string', 'Handler must define ROUTES as a list literal', 'ROUTES entry N: duplicate route', and handler must accept exactly 1 parameter and have return type annotation -> Response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-python-based-handler-cve-datasets.json",
+          "quotes": [
+            "Handler must assign CVE_ID as a string: Either CVE_ID is missing, or it's assigned to something other than a string literal",
+            "Handler must define ROUTES as a list literal: Either ROUTES is missing, or it's assigned to something other than a [...] list expression.",
+            "ROUTES entry N: duplicate route \"GET /path\": Another entry in the same file already uses this exact method and path combination.",
+            "ROUTES entry N: handler \"X\" must accept exactly 1 parameter: The function takes zero or more than one argument.",
+            "ROUTES entry N: handler \"X\" must have return type annotation -> Response: The function is missing a return type annotation, or the annotation is something other than Response."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "handler-file-name": {
+      "kind": "semantic",
+      "title": "Whether a handler file's name must match its CVE ID",
+      "status": "open",
+      "detail": "The handler page says each handler file lives at datasets/aicve/<CVE-ID>.py, while the vulnerable application dataset upload step takes any .py file; neither says whether the name must match.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "zip-upload-limits": {
+      "kind": "semantic",
+      "title": "Size limits for dataset and template zip uploads",
+      "status": "open",
+      "detail": "Only the 5 MB .py handler limit is stated; the pages read give no size limit for the zip uploads of static application datasets, SCADA/IoT datasets, file datasets or file templates.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "scada-dataset-rows": {
+      "kind": "semantic",
+      "title": "The remaining rows of the SCADA/IoT datasets table",
+      "status": "open",
+      "detail": "The table of datasets and their supported protocols has 28 rows; only the Building Automation - Siemens PLC row and the two labelled rows are recorded.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

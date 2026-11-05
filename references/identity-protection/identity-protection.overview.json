@@ -36,6 +36,66 @@
     {
       "rel": "see-also",
       "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.credential-exposure"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.identity-details"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.posture-scans"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-connection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.detection-policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.safelists"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.sso"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.siem-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.enrichment-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.containment-integrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.orchestration-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.service-connectors"
     }
   ],
   "prose": [
@@ -56,11 +116,11 @@
       "items": [
         {
           "label": "Active Directory.",
-          "text": "{{ad-posture}}"
+          "text": "{{ad-posture}} [[identity-protection.ad-posture]] [[identity-protection.posture-scans]]"
         },
         {
           "label": "Entra ID.",
-          "text": "{{entra-posture}}"
+          "text": "{{entra-posture}} [[identity-protection.entra-posture]] [[identity-protection.entra-connection]]"
         },
         {
           "label": "Okta.",
@@ -68,13 +128,32 @@
         },
         {
           "label": "Change detection.",
-          "text": "{{change-detection}}"
+          "text": "{{change-detection}} How fast changes are detected differs between the pages {{divergence:change-detection-timing}}. [[identity-protection.change-detection]] [[identity-protection.detection-policies]] [[identity-protection.safelists]]"
         },
         {
           "label": "Endpoints.",
-          "text": "{{credential-exposure}} Whether this scan needs Client Connector is not stated on the current page {{gap:credential-scan-agent}}. {{threat-detection}}"
+          "text": "{{credential-exposure}} Whether this scan needs Client Connector is not stated on the current page {{gap:credential-scan-agent}}. {{threat-detection}} [[identity-protection.credential-exposure]] [[identity-protection.posture-scans]]"
+        },
+        {
+          "label": "Identity details.",
+          "text": "[[identity-protection.identity-details]]"
         }
       ]
+    },
+    {
+      "heading": "Dashboards and investigation"
+    },
+    {
+      "text": "{{risk-summary-widgets}} {{risk-summary-attack-mapping}} How the 0 to 100 score is computed is not stated {{gap:risk-score-method}}."
+    },
+    {
+      "text": "{{investigate-dashboard}} {{ad-threat-detection-filter}}"
+    },
+    {
+      "heading": "Integration and SSO pages that both products document"
+    },
+    {
+      "text": "[[deception.sso]] [[deception.siem-integrations]] [[deception.enrichment-integrations]] [[deception.containment-integrations]] [[deception.orchestration-rules]] [[deception.service-connectors]]"
     },
     {
       "label": "Current and legacy consoles.",
@@ -98,6 +177,12 @@
       "do": "For missing identity threat detections, whether the threat detection endpoint policy is applied to designated machines that run Client Connector, and which detectors it enables.",
       "uses": [
         "threat-detection"
+      ]
+    },
+    {
+      "do": "Which timing the page being read gives for change detection before stating how quickly a change is detected.",
+      "uses": [
+        "change-detection-timing"
       ]
     },
     {
@@ -303,6 +388,73 @@
         }
       ]
     },
+    "risk-summary-widgets": {
+      "statement": "The Risk Summary dashboard shows a unified risk score of 0 to 100 (100 is critical) for a chosen AD domain and for a chosen Entra ID tenant, with the top 3 critical issues in each, plus the top 3 critical exposed endpoint credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-risk-summary.json",
+          "quotes": [
+            "View a unified risk score of the AD domain on a scale of 0 to 100, where 100 is critical.",
+            "View a unified risk score of the Entra ID tenant on a scale of 0 to 100, where 100 is critical.",
+            "View the top 3 issues with critical severity that are found in the AD domain.",
+            "View the top 3 issues with critical severity that are found in the tenant.",
+            "View the top 3 exposed endpoint credentials with critical severity."
+          ]
+        }
+      ]
+    },
+    "risk-summary-attack-mapping": {
+      "statement": "The Risk Summary dashboard maps risks to MITRE ATT&CK techniques on a kill chain, and its risk at-a-glance widgets list the top 10 AD users and computers and the top 10 Entra ID identities with the highest risks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-risk-summary.json",
+          "quotes": [
+            "View all the risks mapped to MITRE ATT&CK exposure techniques and displayed on a kill chain.",
+            "View the top 10 users and computers that have the highest risks in the AD domains.",
+            "View the top 10 identities (users and service principals) that have the highest risks in the Entra ID tenants."
+          ]
+        }
+      ]
+    },
+    "ad-threat-detection-filter": {
+      "statement": "The Active Directory Threat Detection filter applies this query to the Investigate dashboard, selecting itdr events and endpoint events with sub_type cbf and cbf.is_ad_decoy_credential true, or sub_type kerberoast or ad_enumeration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-understanding-ad-threat-detection-filter.json",
+          "quotes": [
+            "The Active Directory Threat Detection filter applies the following query to the Investigate dashboard.",
+            "(type is \"itdr\") or (type is \"endpoint\" and ((sub_type is \"cbf\" and cbf.is_ad_decoy_credential is true) or (sub_type in [\"kerberoast\", \"ad_enumeration\"])))"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-applying-ad-threat-detection-filter.json",
+          "quotes": [
+            "To apply the Active Directory Threat Detection filter, click AD Threat Detection from the ITDR menu."
+          ]
+        }
+      ]
+    },
+    "investigate-dashboard": {
+      "statement": "The Investigate dashboard shows all events generated by the Zscaler ITDR Admin Portal and can be filtered with built-in or custom queries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-understanding-ad-threat-detection-filter.json",
+          "quotes": [
+            "The Investigate dashboard allows you to view and interact with all events generated by the Zscaler ITDR Admin Portal.",
+            "You can use the built-in queries or custom queries to filter the dashboard"
+          ]
+        }
+      ]
+    },
     "no-client-surface": {
       "statement": "No vendored client covers Identity Protection or ITDR: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no such service; the MCP server's ZIdentity tools manage users and groups, not identity risk.",
       "tier": "B",
@@ -318,7 +470,46 @@
       "conditions": "Rests on an absence. The Python README's product list (introduced by the quoted line) names no Identity Protection API, and at the pins `git grep -i -E 'itdr|identity.protection'` finds no such code in the Go or Python SDKs, the ZIA, ZPA, ZCC or ZTC providers, the Ansible collections or the MCP server (the only hits are base64 test data); the Postman collection has no match."
     }
   },
+  "divergences": {
+    "change-detection-timing": {
+      "summary": "The architecture page describes change detection as real-time monitoring; the change detection articles describe near real-time visibility on a 15-minute cycle.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-identity-protection-architecture.json",
+            "quotes": [
+              "Identity Protection provides real-time monitoring of critical changes in your AD domains and Entra ID tenants that introduce new risks"
+            ]
+          },
+          "says": "Identity Protection provides real-time monitoring of critical changes in AD domains and Entra ID tenants."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-about-active-directory-change-detection.json",
+            "quotes": [
+              "AD Change Detection uses the AD scan results to collect data. The scan runs every 15 minutes.",
+              "Obtain near real-time visibility into new misconfigurations and security risks introduced to your AD."
+            ]
+          },
+          "says": "AD Change Detection gives near real-time visibility, from an AD scan that runs every 15 minutes."
+        }
+      ],
+      "impact": "The pages give different descriptions of how quickly a change is detected (real-time against near real-time on a 15-minute cycle) and do not say how they reconcile."
+    }
+  },
   "gaps": {
+    "risk-score-method": {
+      "kind": "semantic",
+      "title": "How the Risk Summary's 0 to 100 risk score is computed",
+      "status": "open",
+      "detail": "The Risk Summary article says the unified risk score runs from 0 to 100 where 100 is critical, but does not state how it is computed from issues or severities.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "api-and-legacy-parity": {
       "kind": "semantic",
       "title": "Identity Protection's API and connector-configuration surface, and its parity with legacy ITDR",

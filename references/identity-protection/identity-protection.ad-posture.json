@@ -1,0 +1,601 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.ad-posture",
+  "title": "Active Directory posture in Identity Protection: dashboard, issues, roadmap, reports, remediation, privileged account tracking and password analysis",
+  "aliases": [
+    "active directory posture",
+    "ad posture",
+    "ad posture dashboard",
+    "risk reduction roadmap",
+    "ad executive summary report",
+    "ad delta report",
+    "privileged account tracking",
+    "password analysis"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.identity-details"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{dashboard-top-lists}} {{dashboard-scan-actions}}"
+    },
+    {
+      "label": "Issues.",
+      "text": "{{risk-types}} {{issue-severity-chart}} {{issue-detail-fields}} The severity scale differs between pages {{divergence:severity-scale}}. The remediation scale differs between pages {{divergence:remediation-scale}}. {{multiple-remediation-flowchart}} {{remediation-detail-content}} {{who-is-affected-actions}} The full catalogue of AD checks is not in these articles {{gap:issue-catalogue}}."
+    },
+    {
+      "label": "Top users and computers.",
+      "text": "{{top-objects-columns}}"
+    },
+    {
+      "label": "Risk Reduction Roadmap.",
+      "text": "{{risk-reduction-roadmap}}"
+    },
+    {
+      "label": "Reports.",
+      "text": "{{scan-report}} {{scan-report-retention}} The retention period itself is not in these articles {{gap:report-retention-period}}. {{executive-summary}} {{executive-summary-scope}} {{delta-report}} {{delta-report-contents}}"
+    },
+    {
+      "label": "Remediation.",
+      "text": "{{remediation-server-agent}} {{remediation-eligible-identities}} {{remediation-actions}} {{remediation-pending-warning}} {{remediation-history}} {{remediation-script-run}} Change remediation is in [[identity-protection.change-detection]]."
+    },
+    {
+      "label": "Privileged account tracking.",
+      "text": "{{privileged-account-tracking}} {{privileged-account-safe}}"
+    },
+    {
+      "label": "Password analysis.",
+      "text": "{{password-analysis-method}} {{password-analysis-dashboard}} {{password-analysis-details}} {{password-weakness-values}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a server agent is configured before an AD remediation is attempted from the ITDR Admin Portal.",
+      "uses": [
+        "remediation-server-agent"
+      ]
+    },
+    {
+      "do": "For a remediation showing Failed in the history, whether the server agent ran the action within 24 hours.",
+      "uses": [
+        "remediation-history"
+      ]
+    },
+    {
+      "do": "Which remediation-assessment scale the page being read shows before comparing assessments across pages.",
+      "uses": [
+        "remediation-scale"
+      ]
+    }
+  ],
+  "claims": {
+    "dashboard-top-lists": {
+      "statement": "The AD Posture dashboard shows the domain risk severity (Critical, High, Medium or Low), the top 5 issues and the top 10 users and computers with the highest risks, and filters results by AD domain and timestamp.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture.json",
+          "quotes": [
+            "Filter scan results by AD domain and timestamp.",
+            "View the domain risk severity, categorized as Critical, High, Medium, or Low.",
+            "View a list of the top 5 issues that are found in the AD.",
+            "View a list of the top 10 users and computers that have the highest risks in the AD."
+          ]
+        }
+      ]
+    },
+    "dashboard-scan-actions": {
+      "statement": "From the AD Posture dashboard an admin can run an on-demand scan for the selected domain, include AD decoy users and computers in the posture scan, and delete a scan report, which deletes all posture results for that domain.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-posture.json",
+          "quotes": [
+            "Run an on-demand scan for the selected AD domain whenever necessary.",
+            "Include AD decoy users and computers in the AD posture scan.",
+            "Delete an AD scan report. After you delete a scan report, all the posture results pertaining to that AD domain are deleted."
+          ]
+        }
+      ]
+    },
+    "risk-types": {
+      "statement": "Zscaler ITDR detects five risk types in an AD domain: Insecure Kerberos Configuration, Insecure Permissions, Certificate Authority Misconfiguration, Insecure Password Account And Group Management, and Domain Controller Risk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issues.json",
+          "quotes": [
+            "Zscaler ITDR detects the following risk types in an AD domain:",
+            "Insecure Kerberos Configuration: Weak Kerberos configurations allow adversaries to impersonate AD account credentials.",
+            "Insecure Permissions: Insecure permissions lead to data breaches, privilege escalation, or malware exploitation.",
+            "Certificate Authority Misconfiguration: Certificate authority misconfigurations compromise the integrity of the public key infrastructure (PKI)",
+            "Insecure Password Account And Group Management: Insecure or default passwords",
+            "Domain Controller Risk: Domain Controller (DC) risks such as weak security configurations, outdated patches, etc."
+          ]
+        }
+      ]
+    },
+    "issue-severity-chart": {
+      "statement": "The AD Posture dashboard groups issues into four severity levels (Critical, High, Medium, Low), shown as a bar chart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issues.json",
+          "quotes": [
+            "The issues are categorized into four severity levels (Critical, High, Medium, and Low) and are represented as a bar chart on the AD Posture dashboard."
+          ]
+        }
+      ]
+    },
+    "issue-detail-fields": {
+      "statement": "An AD issue's detail page lists type of risk, severity, a remediation assessment of Easy, Moderate or Difficult, MITRE ATT&CK ID, and a reference link to ANSSI checklist mapping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+          "quotes": [
+            "Type Of Risk: The type of risk (e.g., Kerberos Abuse, Account Management, Credential Exposure, etc.).",
+            "Severity: The severity level (Critical, High, Medium, and Low).",
+            "Remediation: The remediation assessment (Easy, Moderate, Difficult).",
+            "MITRE ATT&CK ID: The MITRE ATT&CK technique ID (e.g., T1558.003, T1078.002, etc.).",
+            "References: A link to National Cybersecurity Agency of France (ANSSI) checklist mapping."
+          ]
+        }
+      ]
+    },
+    "multiple-remediation-flowchart": {
+      "statement": "When an AD issue has several remediations, ITDR shows a flowchart of workflows with the most appropriate remediation first, exportable as an SVG file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+          "quotes": [
+            "If there are multiple remediations for an issue, Zscaler ITDR provides a flowchart that breaks down multiple steps into distinct workflows.",
+            "The most appropriate remediation is listed first, followed by the less suitable ones.",
+            "Click Export Remediation Chart to export the flowchart as an SVG file."
+          ]
+        }
+      ]
+    },
+    "remediation-detail-content": {
+      "statement": "In an AD issue's multi-remediation flowchart, choosing a workflow and clicking a step can show a PowerShell command, a downloadable remediation script and caveats.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+          "quotes": [
+            "Commands: A command that you can run in PowerShell to remediate the issue.",
+            "Remediation Script: A script that you can download and run in PowerShell to remediate the issue.",
+            "Caveats: Warnings to consider before remediating the issue."
+          ],
+          "after": "After you choose a workflow, you can click the link in an individual step or process to view:"
+        }
+      ]
+    },
+    "who-is-affected-actions": {
+      "statement": "The Actions menu of an AD issue page can export affected user account and computer details as a CSV file and copy specific columns, click Remediations to remediate AD issues, and click Add Objects to Safelist to add the AD object to the safelist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+          "quotes": [
+            "You can use the Actions menu to export the affected user account and computer details as a CSV file and copy specific columns from the table, click Remediations to remediate AD issues, and click Add Objects to Safelist to add the AD object to the safelist."
+          ]
+        }
+      ]
+    },
+    "top-objects-columns": {
+      "statement": "Clicking Top 10 Users & Computers opens a page with All, Users and Computers tabs with Identity, Type, Type of Risk, Critical Group Membership, Identity Classification and Severity columns, and the table downloads in Excel format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-top-vulnerable-active-directory-users-and-computers.json",
+          "quotes": [
+            "Click Top 10 Users & Computers.",
+            "Identity: The AD object identity (user or computer).",
+            "Type of Risk: The type of vulnerability risk (e.g., Vulnerable to AS-REP roasting, Privileged account delegation, Stale passwords, etc.).",
+            "The issues are listed under the tabs (All, Users, and Computers)",
+            "Identity Classification: The AD user account type, such as privileged or service.",
+            "Type: The AD object type (User or Computer).",
+            "Severity: The severity level of the vulnerability issue (e.g., Critical, High, Medium, or Low). You can filter the column to view issues for a specific severity level.",
+            "Critical Group Membership: The group membership of the critical AD group.",
+            "On each of these tabs, you can use the Actions menu to download the table in the Excel format and copy specific columns from the table."
+          ]
+        }
+      ]
+    },
+    "risk-reduction-roadmap": {
+      "statement": "The AD Risk Reduction Roadmap categorizes risk severity as Critical, High, Medium or Low, has a slider for the current and target severity, and then lists issues with affected user and computer counts and remediation links.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-risk-reduction-roadmap.json",
+          "quotes": [
+            "ITDR categorizes risk severity into 4 levels: Critical, High, Medium, or Low.",
+            "The interactive slider in the Risk Reduction Roadmap on the Active Directory Posture dashboard allows you to view the current risk severity and set a target severity level.",
+            "Each identified risk shows the total number of affected objects (users and computers) and actionable remediation links."
+          ]
+        }
+      ]
+    },
+    "scan-report": {
+      "statement": "The AD posture scan report has Issues, Users and Computers tabs; it can be downloaded as an Excel report, with users and computers downloadable as CSV, and an issue can raise a ServiceNow ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-posture-scan-report.json",
+          "quotes": [
+            "The AD posture scan report shows vulnerability issues, affected user accounts, and affected computers.",
+            "Click Download Excel Report to download the report to your local system as an Excel file.",
+            "Select Download User from the Actions drop-down menu to download the report to your local system as a CSV file.",
+            "Select Download Computer from the Actions drop-down menu to download the report to your local system as a CSV file.",
+            "Click the Create ServiceNow ticket icon to create a ServiceNow ticket to track and assess the issue."
+          ]
+        }
+      ]
+    },
+    "scan-report-retention": {
+      "statement": "AD posture scan reports are permanently deleted when the retention policy period expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-posture-scan-report.json",
+          "quotes": [
+            "The scan reports are permanently deleted when the retention policy period expires."
+          ]
+        }
+      ]
+    },
+    "executive-summary": {
+      "statement": "The AD Executive Summary report downloads as a PDF; its Domain Security Rating is Critical or High if a single critical or high issue is found, and Total Changes Detected covers the last 30 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-itdr-active-directory-executive-report.json",
+          "quotes": [
+            "The report is downloaded to your system as a PDF.",
+            "Domain Security Rating: The security rating of the domain. Provides a Critical or High rating to the domain even if a single critical or high issue is identified.",
+            "Total Changes Detected: The total changes identified in the domain in the last 30 days."
+          ]
+        }
+      ]
+    },
+    "executive-summary-scope": {
+      "statement": "The AD Executive Summary report's Report Scope and Monitoring Capabilities section shows only enrolled reports, and its change detection section lists the last 10 suspicious and positive changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-itdr-active-directory-executive-report.json",
+          "quotes": [
+            "Only the enrolled reports are displayed in the Report Scope and Monitoring Capabilities section.",
+            "Active Directory Change Detection: The last 10 suspicious and positive changes made by identities in the AD domain"
+          ]
+        }
+      ]
+    },
+    "delta-report": {
+      "statement": "The AD delta report compares two historical AD scans and downloads as PDF or Excel; the Excel version calls the first scan Scan B and the second Scan A.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-active-directory-delta-report.json",
+          "quotes": [
+            "Zscaler ITDR allows you to compare two historical AD scans and generate a delta report.",
+            "ITDR allows you to download the AD delta report in PDF and Excel formats.",
+            "The delta report is downloaded to your system in the Excel format. The first scan is referred to as Scan B and the second as Scan A."
+          ]
+        }
+      ]
+    },
+    "delta-report-contents": {
+      "statement": "The AD delta report PDF reports issues resolved, new issues and overall risk level, and its Excel version has Export Summary and Detailed Changes tabs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-active-directory-delta-report.json",
+          "quotes": [
+            "The delta report is downloaded to your system in the PDF.",
+            "Issues Resolved: The number of issues resolved in the current scan (Scan B).",
+            "New Issues: The number of new issues detected in the current scan (Scan B).",
+            "Overall Risk Level: A unified risk severity comparison between Scan A and Scan B.",
+            "The delta report is downloaded to your system in the Excel format.",
+            "Export Summary: A list of all the tab names included in the delta Excel report.",
+            "Detailed Changes: The details of affected AD identities that were added or removed based on the changes recorded in the Updated Issues tab."
+          ]
+        }
+      ]
+    },
+    "remediation-server-agent": {
+      "statement": "Remediating AD identities from the ITDR Admin Portal requires a configured server agent, which runs the actions in the background via single or multiple API calls.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-active-directory-identities.json",
+          "quotes": [
+            "Before taking remediation actions against risky AD identities, you must configure a server agent.",
+            "The server agent runs these remediation actions in the background via single or multiple API calls."
+          ]
+        }
+      ]
+    },
+    "remediation-actions": {
+      "statement": "The AD remediation actions are Disable User, Enable User and Reset Password (which support bulk remediation and, for Reset Password, force a password change at next login) and Revoke Group Membership (not bulk, and only static privilege groups).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-active-directory-identities.json",
+          "quotes": [
+            "| Remediation Action Name | Action Description | Bulk Remediation Supported? |",
+            "| Disable User | Disables the AD user account. | Yes |",
+            "| Enable User | Enables the AD user account. | Yes |",
+            "| Reset Password | Enforces a password change on the next login for the AD user account. | Yes |",
+            "| Revoke Group Membership | Removes the AD user account from a specific group. Only users from the static privilege group can be removed. If a user is not a member of the specified group or if the specified group does not exist, no remediation action is taken. | No |"
+          ]
+        }
+      ]
+    },
+    "remediation-pending-warning": {
+      "statement": "If an AD identity has pending remediations and another remediation is attempted, a warning appears offering Resubmit or Close.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-active-directory-identities.json",
+          "quotes": [
+            "If there are any pending remediations for an identity, and you try to run the same or any other remediations, a warning message appears.",
+            "You can either click Resubmit to proceed with the request or click Close to exit."
+          ]
+        }
+      ]
+    },
+    "remediation-eligible-identities": {
+      "statement": "AD remediation actions can be taken on identities with active detected changes or with compromised or weak passwords.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-active-directory-identities.json",
+          "quotes": [
+            "You can take remediation actions on AD identities for which active changes are detected or identities that have compromised or weak passwords."
+          ]
+        }
+      ]
+    },
+    "remediation-history": {
+      "statement": "AD remediation history shows Status as Success, Failed, Enforcing or Pending; an action the server agent does not run within 24 hours shows a timed-out message with Failed status; Download CSV returns the latest 5,000 results.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-remediation-history.json",
+          "quotes": [
+            "Status: The status (Success, Failed, Enforcing, or Pending) of the remediation action.",
+            "If the server agent doesn't run the remediation action within 24 hours, this column displays a timed-out message and the Status column is set to Failed.",
+            "Click Download CSV to download the latest 5,000 remediation history results to a CSV file."
+          ]
+        }
+      ]
+    },
+    "remediation-script-run": {
+      "statement": "A downloaded AD remediation script is copied to the primary domain controller and run in administrative PowerShell by importing it with import-module and then running Invoke-Remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-downloading-and-running-remediation-script.json",
+          "quotes": [
+            "Copy the remediation script to the primary domain controller.",
+            "Open PowerShell on the primary domain controller with administrative privileges.",
+            "import-module .\\<Remediation script>",
+            "Invoke-Remediation"
+          ]
+        }
+      ]
+    },
+    "privileged-account-tracking": {
+      "statement": "The AD Privileged Account Tracking report lists only accounts with the Evolving status; machine learning marks suspicious logins from a user's login trend and severity is Low, Medium, High or Critical.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-the-active-directory-privileged-account-tracking-report.json",
+          "quotes": [
+            "Only user accounts with the Evolving status on the AD Privileged Account Tracking page are displayed in the report.",
+            "The machine learning system marks activity as suspicious based on a user's login activity trend.",
+            "Severity: The severity level (Low, Medium, High, or Critical) given to an anomalous login activity by the machine learning system."
+          ]
+        }
+      ]
+    },
+    "privileged-account-safe": {
+      "statement": "Marking a privileged-account tracking activity as safe stops the machine learning system flagging that activity as suspicious for that user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-the-active-directory-privileged-account-tracking-report.json",
+          "quotes": [
+            "When the activity is marked safe, the machine learning system no longer flags that activity as suspicious for the user."
+          ]
+        }
+      ]
+    },
+    "password-analysis-method": {
+      "statement": "Password analysis is enabled in the server agent policy; the agent identifies compromised or weak passwords by checking hashes against leaked databases, common patterns and custom dictionaries and monitors reuse, locally on the selected domain controller without leaving the customer environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-password-analysis.json",
+          "quotes": [
+            "After you enable password analysis in the server agent policy",
+            "the agent identifies compromised or weak passwords by checking hashes against leaked databases, common patterns, and custom dictionaries while also monitoring for password reuse or rotation",
+            "The analysis is done locally on the selected domain controller (DC) and does not leave the customer environment"
+          ]
+        }
+      ]
+    },
+    "password-analysis-dashboard": {
+      "statement": "The Password Analysis dashboard counts analyzed accounts (regular and privileged), accounts with weak passwords, and accounts with leaked passwords, and shows the percentage of AD users with reused passwords in pie charts for regular and privileged users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-password-analysis.json",
+          "quotes": [
+            "View the total number of AD user accounts analyzed, including both regular and privileged AD user accounts.",
+            "View the total number and percentage of AD user accounts with weak or easily guessed passwords.",
+            "View the total number and percentage of AD user accounts whose passwords have been found in leaked password databases.",
+            "View the percentage of AD users who have reused passwords.",
+            "The data is represented in pie charts for both regular and privileged users."
+          ]
+        }
+      ]
+    },
+    "password-analysis-details": {
+      "statement": "The Password Analysis Details page says to make sure attribute collection is enabled for ITDR to collect AD user account attributes, and offers weak-password lists: Crackable Passwords, Custom Keywords Dictionary, Have I Been Pwned, Have I Been Pwned (Top 1 Million), Keyboard Walks and Leaked Dictionaries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-password-analysis-details-remediate-issues.json",
+          "quotes": [
+            "Make sure to enable attribute collection for Zscaler ITDR to collect AD user account attributes.",
+            "Crackable Passwords: Passwords that can be easily guessed or cracked using brute force or dictionary attacks.",
+            "Custom Keywords Dictionary: Passwords that match a predefined list of organization-specific weak keywords.",
+            "Have I Been Pwned: Passwords that have appeared in publicly known data breaches.",
+            "Have I Been Pwned (Top 1 Million): Passwords that are most frequently used and exposed from breached databases.",
+            "Keyboard Walks: Passwords created using predictable keyboard patterns (e.g., qwerty, 123456, etc.).",
+            "Leaked Dictionaries: Passwords found in various leaked credential databases available online."
+          ]
+        }
+      ]
+    },
+    "password-weakness-values": {
+      "statement": "The Password Analysis Details page classifies Password Weakness as Crackable or Leaked and shows a Password Reuse Count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-password-analysis-details-remediate-issues.json",
+          "quotes": [
+            "Crackable: Passwords that can be easily cracked.",
+            "Leaked: Passwords found in publicly exposed databases.",
+            "Password Reuse Count: The total number of times a password is reused across AD user accounts within a domain, which increases security risks."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "severity-scale": {
+      "summary": "The AD issue detail page gives severity as Critical, High, Medium, and Low; the AD user details page, Posture tab, gives Critical, High, Moderate, and Low.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+            "quotes": [
+              "Severity: The severity level (Critical, High, Medium, and Low)."
+            ]
+          },
+          "says": "The issue detail page gives severity as Critical, High, Medium, and Low."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-user-account-details.json",
+            "quotes": [
+              "Severity: The severity level of the vulnerability risk (e.g., Critical, High, Moderate, and Low)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The user details page, Posture tab, gives severity as Critical, High, Moderate, and Low; the Credential Exposure tab of that page repeats the same list."
+        }
+      ],
+      "impact": "The middle severity level is named Medium on the issue and scan-report pages and Moderate on the user details page; the pages do not say whether they are the same level."
+    },
+    "remediation-scale": {
+      "summary": "The AD issue detail page gives the remediation assessment as Easy, Moderate, Difficult; the AD user details page, Posture tab, gives High, Moderate, and Easy.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-issue-finding-recommendation-details.json",
+            "quotes": [
+              "Remediation: The remediation assessment (Easy, Moderate, Difficult)."
+            ]
+          },
+          "says": "The issue detail page gives the remediation assessment as Easy, Moderate, Difficult."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-viewing-active-directory-user-account-details.json",
+            "quotes": [
+              "Remediation: The remediation assessment (e.g., High, Moderate, and Easy)."
+            ],
+            "after": "- Posture"
+          },
+          "says": "The user details page, Posture tab, gives the remediation assessment as High, Moderate, and Easy."
+        }
+      ],
+      "impact": "The two pages name different values for the same remediation assessment of an AD issue (Difficult on one, High on the other); the pages do not say which scale governs or whether they map onto each other."
+    }
+  },
+  "gaps": {
+    "issue-catalogue": {
+      "kind": "semantic",
+      "title": "Which AD checks ITDR runs and what each one's commands and script contain",
+      "status": "open",
+      "detail": "These articles name the five risk types and the issue-detail fields, but not the full list of AD issues, nor the Commands and Remediation Script text of individual issues.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "report-retention-period": {
+      "kind": "semantic",
+      "title": "The retention policy period that deletes AD posture scan reports",
+      "status": "open",
+      "detail": "The scan report article says reports are deleted when the retention policy period expires and points to a retention policy, but the period and the scan schedule defaults are not in these articles.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

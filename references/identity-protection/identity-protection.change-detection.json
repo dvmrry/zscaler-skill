@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.change-detection",
+  "title": "Active Directory and Entra ID change detection in Identity Protection: monitored issues, cycle, Impact values and remediation",
+  "aliases": [
+    "ad change detection",
+    "active directory change detection",
+    "entra id change detection",
+    "change detection policy",
+    "good bad info impact"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.identity-details"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{impact-values}}"
+    },
+    {
+      "label": "Active Directory.",
+      "text": "{{ad-prerequisite}} {{ad-scan-interval}} {{gap:change-detection-scan-identity}} {{ad-monitored-issues}} {{ad-custom-properties}} {{ad-custom-tab}} {{ad-remediation-scope}} {{ad-servicenow}}"
+    },
+    {
+      "label": "Entra ID.",
+      "text": "{{entra-api-interval}} {{entra-monitored-properties}} {{entra-impact-examples}} {{entra-raw-event}} {{entra-servicenow}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an AD change is a bad change before offering remediation or a ServiceNow ticket.",
+      "uses": [
+        "ad-remediation-scope",
+        "ad-servicenow"
+      ]
+    },
+    {
+      "do": "Whether two AD change detection scans have run, since the first creates the base results.",
+      "uses": [
+        "ad-scan-interval",
+        "change-detection-scan-identity"
+      ]
+    }
+  ],
+  "claims": {
+    "ad-monitored-issues": {
+      "statement": "AD Change Detection monitors for eleven issues: Kerberoastable accounts, AS-REP roasting vulnerability, passwords set to never expire, password not required, exposed attributes, privileged account delegation, unconstrained delegation, constrained delegation, privileged account added or removed, DCSync vulnerability and AdminSDHolder permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Kerberoastable accounts",
+            "Vulnerable to AS-REP roasting",
+            "Accounts with passwords set to never expire",
+            "Accounts with password not required",
+            "Accounts with exposed attributes",
+            "- Privileged account delegation",
+            "Unconstrained delegation",
+            "Constrained delegation",
+            "Privileged account added or removed",
+            "Vulnerable to DCSync attacks",
+            "AdminSDHolder permissions"
+          ],
+          "after": "The AD Change Detection monitors AD domains for the following issues:"
+        }
+      ]
+    },
+    "ad-scan-interval": {
+      "statement": "The AD Change Detection article says it uses the AD scan results and that the scan runs every 15 minutes, and the notification page names it the AD change detection scan; two scans are needed because the first creates the base results and changes in the second are compared with them and labelled Good, Bad or Info.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "AD Change Detection uses the AD scan results to collect data. The scan runs every 15 minutes.",
+            "Two scans are required to detect changes. The first scan creates the base results.",
+            "Any changes detected in the second scan are recorded and compared with the base results, and the data is categorized as Good, Bad, or Info."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-active-directory-change-detection-notification.json",
+          "quotes": [
+            "The AD change detection scan runs every 15 minutes."
+          ]
+        }
+      ]
+    },
+    "ad-prerequisite": {
+      "statement": "To view AD change detection data, you need to configure an AD domain for a scan and enable change detection, or configure a change detection policy for custom change detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "To view the change detection data, you need to configure an AD domain for a scan and enable the change detection feature or configure a change detection policy for custom change detection."
+          ]
+        }
+      ]
+    },
+    "ad-custom-properties": {
+      "statement": "Zscaler ITDR can customize active-change monitoring for ACLs, passwords and group membership properties for users, ACLs, members and group membership for groups, and ACLs and group membership for computers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Zscaler ITDR also allows you to customize the active changes you want to detect and monitor in the following AD properties for each identity type:",
+            "Users: Access-control lists (ACLs), passwords, and group membership properties.",
+            "Groups: ACLs, members, and group membership properties.",
+            "Computers: ACLs and group membership properties."
+          ]
+        }
+      ]
+    },
+    "impact-values": {
+      "statement": "Change detection classifies a change's Impact as Good (safe), Bad (risky) or Info (significant, good or bad depending on the environment).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Impact: Indicates the following change status.",
+            "Good: A good or safe change.",
+            "Bad: A risky change. The system administrators can review and remediate the issue.",
+            "Info: A significant change to the AD account that might be a good or bad impact based on the environment."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection.json",
+          "quotes": [
+            "Info: A significant change to the Entra ID tenant that might be a good or bad impact based on the environment."
+          ]
+        }
+      ]
+    },
+    "ad-remediation-scope": {
+      "statement": "AD change remediation is available only for users with bad changes; Revoke Group Membership is not available for bulk remediation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-remediating-active-directory-changes.json",
+          "quotes": [
+            "Remediation is available only for users with bad changes in the AD domain.",
+            "Revoke Group Membership is not available for bulk remediation action."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Select a remediation to run on the identity. This option is available only for users with bad changes."
+          ]
+        }
+      ]
+    },
+    "ad-servicenow": {
+      "statement": "A ServiceNow ticket can be created for an AD change only if it is a bad change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Create a ServiceNow ticket for a bad change. This option is available only for bad changes."
+          ]
+        }
+      ]
+    },
+    "ad-custom-tab": {
+      "statement": "The AD Custom tab lists changes by Change Date, Identity, Policy Name, Identity Type (User, Computer or Group) and Changed Properties; its identity history view lets you compare the previous and current property change details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-active-directory-change-detection.json",
+          "quotes": [
+            "Change Date: The date and time when a change is detected in AD properties.",
+            "Identity: The name of the AD user account, group, or computer.",
+            "Policy Name: The name of the AD change detection policy.",
+            "Identity Type: The type of AD identity (User, Computer, or Group).",
+            "Changed Properties: The AD properties that are changed.",
+            "View the identity details with the history of changes. You can compare the previous and current properties change for further analysis.",
+            "The previous and current AD property change details."
+          ],
+          "after": "- Custom"
+        }
+      ]
+    },
+    "entra-monitored-properties": {
+      "statement": "Zscaler ITDR can customize active-change monitoring of properties of users, service principals, Entra roles and RBAC and custom roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection.json",
+          "quotes": [
+            "Zscaler ITDR also allows you to customize the active changes you want to detect and monitor in the following Entra ID properties for each identity type:",
+            "Users: Role assignment changes, password changes, multi-factor authentication (MFA) changes, users flagged as risky, delegated permission grants to applications, administrative units, and group memberships.",
+            "Service Principals: Secret or Certificate changes, added or revoked admin permissions, added or removed API permissions, added or removed app roles, ownership changes, and group membership changes.",
+            "Entra Roles: Additions and removals of roles.",
+            "RBAC and Custom Roles: Additions and removals of roles."
+          ]
+        }
+      ]
+    },
+    "entra-api-interval": {
+      "statement": "Entra ID Change Detection uses the Entra ID scan results, and ITDR makes API calls to Entra ID every 15 minutes to detect changes in identity properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection.json",
+          "quotes": [
+            "Entra ID Change Detection uses the Entra ID scan results to collect data.",
+            "ITDR makes API calls to Entra ID every 15 minutes to detect any changes in Entra identity properties."
+          ]
+        }
+      ]
+    },
+    "entra-impact-examples": {
+      "statement": "Entra ID change detection marks a user exempted from MFA and a guest assigned a privileged role as bad impact, and revoking a service principal's permissions to access private data as good impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection.json",
+          "quotes": [
+            "If any user is exempted from MFA to sign in, the change is detected and marked as a bad impact.",
+            "Whenever a guest user is assigned a privileged role, this action is detected and marked as a bad impact.",
+            "When permissions to access private data are revoked from a service principal",
+            "This is marked as a good impact."
+          ]
+        }
+      ]
+    },
+    "entra-raw-event": {
+      "statement": "An Entra ID change's issue details include a Raw Event in JSON from the tenant's log provider, which can be downloaded as a JSON file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-change-detection-issue-and-remediation-details.json",
+          "quotes": [
+            "Raw Event: The raw event data received from the Entra ID tenant’s log provider.",
+            "Click Download JSON to download the JSON file for further investigation."
+          ]
+        }
+      ]
+    },
+    "entra-servicenow": {
+      "statement": "A ServiceNow ticket can be created for a bad Entra ID change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-entra-id-change-detection.json",
+          "quotes": [
+            "Create a ServiceNow ticket for a bad change."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "change-detection-scan-identity": {
+      "kind": "semantic",
+      "title": "Whether the 15-minute AD change detection scan is the AD scan configured in Scan Configuration",
+      "status": "open",
+      "detail": "The AD Change Detection article says it uses \"the AD scan results\" and that \"the scan runs every 15 minutes\"; the notification page calls it \"the AD change detection scan\"; the Active Directory scan configuration ([[identity-protection.posture-scans]]) sets the AD scan frequency from Daily to Quarterly. The captured pages do not say whether change detection runs its own 15-minute scan or reuses the configured AD scan.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

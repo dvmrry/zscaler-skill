@@ -1,0 +1,474 @@
+{
+  "schema_version": 1,
+  "id": "deception.orchestration-rules",
+  "title": "Deception and ITDR orchestration rules: the Orchestrate menu, rule pipeline, actions, testing, pausing and event notification templates",
+  "aliases": [
+    "itdr orchestration rules",
+    "deception orchestration rules",
+    "orchestrate rules",
+    "orchestration rule pipeline",
+    "event notification templates",
+    "event templates",
+    "pause orchestration"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "deception.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.plans"
+    },
+    {
+      "rel": "see-also",
+      "to": "deception.containment-integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "This subject covers the Deception and Identity Protection (ITDR) pages ([[deception.overview]], [[identity-protection.overview]]). {{orchestrate-menu}}"
+    },
+    {
+      "label": "Rule pipeline.",
+      "text": "{{rule-pipeline-priority}} {{internal-rules}} {{rule-columns}}"
+    },
+    {
+      "label": "Creating a rule.",
+      "text": "{{rule-action-categories}} {{rule-general-options}} {{rule-evaluation-order}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "{{workflow-actions}} {{notification-channels}} {{email-notification}}"
+    },
+    {
+      "label": "Testing, priority and pausing.",
+      "text": "{{rule-test}} {{rule-priority-enabled-only}} What pausing orchestration does is stated two ways {{divergence:pause-state}}."
+    },
+    {
+      "label": "Event notification templates.",
+      "text": "{{event-template-subject}} {{event-template-body}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For what a rule can do, which action category it uses, and whether an alert goes by email only or by phone and text as well.",
+      "uses": [
+        "rule-action-categories",
+        "notification-channels"
+      ]
+    },
+    {
+      "do": "For whether a rule is applied to an event, the rule priority order and whether an earlier matching rule has Don't process further rules selected.",
+      "uses": [
+        "rule-pipeline-priority",
+        "rule-evaluation-order"
+      ]
+    },
+    {
+      "do": "For what pausing orchestration does, report both statements.",
+      "uses": [
+        "pause-state"
+      ]
+    }
+  ],
+  "claims": {
+    "orchestrate-menu": {
+      "statement": "The Orchestrate menu has pages for Rules (workflows, notifications, containment), Enrich, Containment, API Tokens, Event Templates, Service Connectors and SIEM Integrations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-orchestrate.json",
+          "quotes": [
+            "Go to the Rules page to create and manage rules that automate workflows, notifications, and containment in response to threat detection.",
+            "Go to the Enrich page to integrate with various third-party data enrichment solutions",
+            "Go to the Containment page to integrate seamlessly with third-party security solutions",
+            "Go to the API Tokens page to create and manage API tokens for setting up programmatic access",
+            "Go to the Event Templates page to create and manage event notification templates.",
+            "Go to the Service Connectors page to create and manage service connectors",
+            "Go to the SIEM Integrations page to integrate third-party SIEM solutions"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-orchestrate.json",
+          "quotes": [
+            "Go to the Rules page to create and manage rules that automate workflows, notifications, and containment in response to threat detection.",
+            "Go to the Enrich page to integrate with various third-party data enrichment solutions",
+            "Go to the Containment page to integrate seamlessly with third-party security solutions",
+            "Go to the API Tokens page to create and manage API tokens for setting up programmatic access",
+            "Go to the Event Templates page to create and manage event notification templates.",
+            "Go to the Service Connectors page to create and manage service connectors",
+            "Go to the SIEM Integrations page to integrate third-party SIEM solutions"
+          ]
+        }
+      ]
+    },
+    "rule-pipeline-priority": {
+      "statement": "Each event generated in the admin portal runs through the orchestration rule pipeline and the corresponding actions are taken when it matches a rule's conditions; rule Priority sets the run order, priority 1 runs first, and rules can be reordered by drag and drop on the Rules page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-orchestration-rules.json",
+          "quotes": [
+            "Each event that is generated in the Zscaler Deception Admin Portal runs through the orchestration rule pipeline. When an event matches the conditions of the rule, the corresponding actions are taken.",
+            "Priority 1 has the highest priority and runs first. You can drag and drop the rules to change the order."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-orchestration-rules.json",
+          "quotes": [
+            "Each event that is generated in the Zscaler ITDR Admin Portal runs through the orchestration rule pipeline. When an event matches the conditions of the rule, the corresponding actions are taken.",
+            "Priority 1 has the highest priority and runs first. You can drag and drop the rules to change the order."
+          ]
+        }
+      ]
+    },
+    "internal-rules": {
+      "statement": "The product provides a few predefined internal rules to detect attacks; they are disabled by default, can be enabled and given actions, but their conditions cannot be changed and they cannot be deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-orchestration-rules.json",
+          "quotes": [
+            "Deception provides a few predefined or internal rules to detect attacks. By default, these rules are disabled. You can enable and configure actions based on your requirements. You cannot change the rule conditions or delete the internal rules."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-orchestration-rules.json",
+          "quotes": [
+            "ITDR provides a few predefined or internal rules to detect attacks. By default, these rules are disabled. You can enable and configure actions based on your requirements. You cannot change the rule conditions or delete the internal rules."
+          ]
+        }
+      ]
+    },
+    "rule-columns": {
+      "statement": "The Rules page lists Priority, Name, Condition (written in the custom query language), Tasks and Type (whether the rule is internal).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-orchestration-rules.json",
+          "quotes": [
+            "Priority: The rule priority that determines the order in which the rules are run.",
+            "Name: The name of the rule.",
+            "Condition: The conditions configured to trigger an action. The conditions are created using the custom query language.",
+            "Tasks: The actions taken when the rule is triggered.",
+            "Type: Indicates if the rule is internal or not."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-orchestration-rules.json",
+          "quotes": [
+            "Priority: The rule priority that determines the order in which the rules are run.",
+            "Name: The name of the rule.",
+            "Condition: The conditions configured to trigger an action. The conditions are created using the custom query language.",
+            "Tasks: The actions taken when the rule is triggered.",
+            "Type: Indicates if the rule is internal or not."
+          ]
+        }
+      ]
+    },
+    "rule-action-categories": {
+      "statement": "A rule's actions fall into Workflow (act on events in the Investigate dashboard: mark safe, delete, tag), Notification (alert notifications via emails) and Response (actions on an attacker or device through integrated SOC tools); one rule can combine actions from these categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Workflow: Automate actions performed on events within the Investigate dashboard, such as marking an event as safe, deleting an event, or adding a tag to the event.",
+            "Notification: Automate sending alert notifications via emails.",
+            "Response: Automate actions taken on an attacker or device using different Security Operation Center (SOC) tools integrated with Zscaler Deception.",
+            "A single orchestration rule can include a combination of actions from these categories."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "Workflow: Automate actions performed on events within the Investigate dashboard, such as marking an event as safe, deleting an event, or adding a tag to the event.",
+            "Notification: Automate sending alert notifications via emails.",
+            "Response: Automate actions taken on an attacker or device using different Security Operation Center (SOC) tools integrated with Zscaler ITDR.",
+            "A single orchestration rule can include a combination of actions from these categories."
+          ]
+        }
+      ]
+    },
+    "rule-evaluation-order": {
+      "statement": "With several rules, events are evaluated from the highest priority downward; when a rule matches, the administrator chooses whether to keep evaluating later rules or stop, using the rule's Don't process further rules option (optional).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Deception evaluates the rules for each event starting from the highest priority to find a matching condition and applies the rule action if the condition matches.",
+            "When a rule with a matching condition is found, you can choose to evaluate and apply subsequent rules with matching conditions or stop further rule evaluation.",
+            "Don't process further rules: (Optional) Select to stop the evaluation of subsequent rules if this rule is applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "ITDR evaluates the rules for each event starting from the highest priority to find a matching condition and applies the rule action if the condition matches.",
+            "When a rule with a matching condition is found, you can choose to evaluate and apply subsequent rules with matching conditions or stop further rule evaluation.",
+            "Don't process further rules: (Optional) Select to stop the evaluation of subsequent rules if this rule is applied."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-processing-rules.json",
+          "quotes": [
+            "Orchestration rules are processed in the order they appear on the Orchestrate page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-processing-rules.json",
+          "quotes": [
+            "Orchestration rules are processed in the order they appear on the Orchestrate page."
+          ]
+        }
+      ]
+    },
+    "rule-general-options": {
+      "statement": "Rule General options include Only ThreatParse Events (apply only to events that have a ThreatParse score), a query condition (a rule with no condition applies to all events) and a Time Zone used to evaluate date and time fields in the query.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Only ThreatParse Events: (Optional) Select to apply this rule only for events that have a ThreatParse score.",
+            "If no condition is configured, then the rule is applied to all events.",
+            "Time Zone: Select a time zone that should be used to evaluate rules if you used date and time fields in the queries in the previous step."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "Only ThreatParse Events: (Optional) Select to apply this rule only for events that have a ThreatParse score.",
+            "If no condition is configured, then the rule is applied to all events.",
+            "Time Zone: Select a time zone that should be used to evaluate rules if you used date and time fields in the queries in the previous step."
+          ]
+        }
+      ]
+    },
+    "workflow-actions": {
+      "statement": "Workflow actions are Mark as safe, Delete and Add Tags (enabled with a tag name; for example an attacker.ip condition of 192.0.2.3 with tag Team A tags all events from that IP as Team A).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Mark as safe: Enable to mark the events that match the condition as safe.",
+            "Delete: Enable to delete the events that match the condition.",
+            "Add Tags: Enable and enter a tag name to tag the events that match the condition.",
+            "if the rule condition is attacker.ip is \"192.0.2.3\" and the tag name is Team A, then all events from the IP address 192.0.2.3 are tagged as Team A."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "Mark as safe: Enable to mark the events that match the condition as safe.",
+            "Delete: Enable to delete the events that match the condition.",
+            "Add Tags: Enable and enter a tag name to tag the events that match the condition.",
+            "if the rule condition is attacker.ip is \"192.0.2.3\" and the tag name is Team A, then all events from the IP address 192.0.2.3 are tagged as Team A."
+          ]
+        }
+      ]
+    },
+    "notification-channels": {
+      "statement": "The About Orchestration Rules pages (Deception and ITDR) list alert notifications to specific users via emails, phone calls with voice messages, and text messages; the Deception Creating an Orchestration Rule page describes the Notification category and the Notify section as email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-about-orchestration-rules.json",
+          "quotes": [
+            "Configure alert notifications about attackers to specific users via emails, phone calls with voice messages, and text messages."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-orchestration-rules.json",
+          "quotes": [
+            "Configure alert notifications about attackers to specific users via emails, phone calls with voice messages, and text messages."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "Notification: Automate sending alert notifications via emails.",
+            "To do this, under the Notify section, configure an email notification:"
+          ]
+        }
+      ]
+    },
+    "email-notification": {
+      "statement": "Rule email notifications are sent to selected users at a chosen frequency using default templates to the address configured for each user, with timestamps in the time zone configured for the recipient; a Fair Usage Policy limits notifications triggered per day, and a system message is generated the first time the limit is reached in a day.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-creating-orchestration-rule.json",
+          "quotes": [
+            "The notifications use default templates and are sent to the email address configured for the user.",
+            "Select the email notification frequency from the drop-down menu.",
+            "The timestamps in the email notifications are generated according to the time zone configured for the users who are selected to receive the notification.",
+            "Deception enforces a Fair Usage Policy (FUP) that limits the number of notifications triggered per day. A system message is also generated when this limit is reached for the first time in a day."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-orchestration-rule.json",
+          "quotes": [
+            "The notifications use default templates and are sent to the email address configured for the user.",
+            "Select the email notification frequency from the drop-down menu.",
+            "The timestamps in the email notifications are generated according to the time zone configured for the users who are selected to receive the notification.",
+            "ITDR enforces a Fair Usage Policy (FUP) that limits the number of notifications triggered per day. A system message is also generated when this limit is reached for the first time in a day."
+          ]
+        }
+      ]
+    },
+    "rule-test": {
+      "statement": "A rule can be tested against events pasted as JSON (for example from the exported event logs JSON file) or an automatically added sample event; the message All events passed appears if the rule conditions match the events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-testing-rule.json",
+          "quotes": [
+            "You can use a set of events from the exported event logs JSON file, or automatically add a sample event to test a rule.",
+            "in the Events field, copy and paste the events in the JSON format, or click Add sample event to automatically add an event.",
+            "The All events passed message appears if the rule conditions match with the events."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-testing-rule.json",
+          "quotes": [
+            "You can use a set of events from the exported event logs JSON file, or automatically add a sample event to test a rule.",
+            "in the Events field, copy and paste the events in the JSON format, or click Add sample event to automatically add an event.",
+            "The All events passed message appears if the rule conditions match with the events."
+          ]
+        }
+      ]
+    },
+    "rule-priority-enabled-only": {
+      "statement": "In ITDR a rule's priority value determines the order orchestration rules are processed, is changed by dragging its Priority value, and is assigned only if the rule is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-managing-orchestration-rules.json",
+          "quotes": [
+            "The rule priority determines the order of how orchestration rules are processed.",
+            "drag its Priority value to the preferred position.",
+            "A priority value is assigned only if the rule is enabled."
+          ]
+        }
+      ]
+    },
+    "event-template-subject": {
+      "statement": "Event notification emails use the default subject {kill_chain_phase} activity on {decoy.appliance.name}; the subject can be modified using the built-in events once Enable Custom Templates is selected (Deception pages).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-event-notification-templates.json",
+          "quotes": [
+            "By default, the subject line for the email notification uses the following text:",
+            "{kill_chain_phase} activity on {decoy.appliance.name}",
+            "You can modify this text using the built-in events."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-customizing-event-notification-templates.json",
+          "quotes": [
+            "Select Enable Custom Templates.",
+            "Under Email Subject, enter the text and built-in events (within the curly braces)."
+          ]
+        }
+      ]
+    },
+    "event-template-body": {
+      "statement": "The email body template cannot be changed, but more event fields can be included through Email Custom Fields; if Email Custom Fields is blank, the default list of events is sent in the email body (Deception pages).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deception-understanding-event-notification-templates.json",
+          "quotes": [
+            "You cannot change the template of the email body. However, you can include more event fields in the email body."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deception-customizing-event-notification-templates.json",
+          "quotes": [
+            "If Email Custom Fields is blank, the default list of events is sent in the email body."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pause-state": {
+      "summary": "What pausing orchestration does: the About Orchestration Rules page ties Pause orchestration to the pipeline running, while the Managing Orchestration Rules page says no event is evaluated against any rule after pausing.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-about-orchestration-rules.json",
+            "quotes": [
+              "Pause orchestration indicates that the orchestration pipeline is running. Resume orchestration indicates that the orchestration pipeline is stopped."
+            ]
+          },
+          "says": "About Orchestration Rules (Deception): Pause orchestration indicates the pipeline is running; Resume orchestration indicates it is stopped."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-about-orchestration-rules.json",
+            "quotes": [
+              "Pause or resume orchestration rules.",
+              "Pause orchestration indicates that the orchestration pipeline is running. Resume orchestration indicates that the orchestration pipeline is stopped."
+            ]
+          },
+          "says": "About Orchestration Rules (ITDR): the same wording; its Managing Orchestration Rules page has no pausing section."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deception-managing-orchestration-rules.json",
+            "quotes": [
+              "You can pause orchestration to temporarily suspend orchestration rules without modifying their configuration.",
+              "After pausing orchestration, no event is evaluated against any orchestration rules until the orchestration is resumed."
+            ]
+          },
+          "says": "Managing Orchestration Rules (Deception): pausing suspends the rules without changing their configuration, and no event is evaluated against any rule until orchestration is resumed."
+        }
+      ],
+      "impact": "Whether the Pause orchestration label shows the current state or the action it performs is not settled by the pages, so an answer about whether rules are currently being evaluated needs the tenant's Rules page."
+    }
+  },
+  "gaps": {}
+}

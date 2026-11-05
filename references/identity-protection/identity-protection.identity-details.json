@@ -1,0 +1,321 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.identity-details",
+  "title": "Identity detail pages and Identity Search in Identity Protection: AD user, Entra ID identity, Okta enrichment and cross-platform search",
+  "aliases": [
+    "ad user account details",
+    "entra id identity details",
+    "identity search",
+    "identity details",
+    "threatparse"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.ad-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.entra-posture"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.credential-exposure"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.change-detection"
+    }
+  ],
+  "prose": [
+    {
+      "label": "AD user details.",
+      "text": "{{ad-user-password-reuse}} {{okta-enrichment}} {{okta-actions}} {{okta-event-values}} {{okta-log-retention}} {{threatparse}} {{access-risk-scim}} {{session-tracking}}"
+    },
+    {
+      "label": "Entra ID identity details.",
+      "text": "{{entra-identity-mfa}} {{entra-identity-fields}} {{entra-change-impact-and-raw}}"
+    },
+    {
+      "label": "Identity Search.",
+      "text": "{{identity-search-prerequisites}} {{identity-search-enrichment}} {{identity-search-filters}} {{identity-search-recent-changes}} {{identity-search-credentials}} Retention of ITDR or posture-scan data is not stated {{gap:posture-data-retention}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether ITDR is integrated with Okta when an Okta tile on the AD user page shows No Data.",
+      "uses": [
+        "okta-enrichment"
+      ]
+    },
+    {
+      "do": "Whether ZIA and ZPA access snapshots rely on SCIM user provisioning and authentication method.",
+      "uses": [
+        "access-risk-scim"
+      ]
+    }
+  ],
+  "claims": {
+    "ad-user-password-reuse": {
+      "statement": "The AD user Summary tab shows Password Reuse Detected as the number of other AD accounts sharing the affected user's password, excluding the affected user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "Password Reuse Detected: The total number of other AD user accounts that share the same password as the affected AD user. This count excludes the affected AD user."
+          ],
+          "after": "Provides a snapshot of identity vulnerabilities in the AD user account. On the Summary page, you can do the following:"
+        }
+      ]
+    },
+    "okta-enrichment": {
+      "statement": "To view Okta account details on the AD user page, ITDR must be integrated with Okta and the user must exist in Okta; if the user does not exist in Okta, the Okta tile shows No Data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "View the following Okta user account details, if the user exists in Okta.",
+            "To view the Okta user accounts details, ensure that ITDR is integrated with Okta. If the user doesn't exist in Okta, the Okta tile shows No Data."
+          ]
+        }
+      ]
+    },
+    "okta-actions": {
+      "statement": "The Actions menu on the AD user page offers Contain with ZPA, Contain with ZIA, Suspend, Unsuspend, Activate, Deactivate, Reset Password, Clear User Sessions and Reset Authenticators; Deactivate removes access to apps authenticated via Okta.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "Select any of these options from the Actions drop-down menu:",
+            "Contain with ZPA",
+            "Contain with ZIA",
+            "Suspend the Okta user account and disable user access.",
+            "Activate the deactivated Okta user account.",
+            "Reset Password",
+            "Reset password of the Okta user account.",
+            "Unsuspend the suspended Okta user account and enable user access.",
+            "Deactivate the Okta user account and temporarily disable user access until activated again. This removes access to all the apps that were previously authenticated via Okta.",
+            "Clear User Sessions",
+            "Clear all active sessions of the user.",
+            "Reset Authenticators",
+            "Reset the authenticators."
+          ]
+        }
+      ]
+    },
+    "okta-log-retention": {
+      "statement": "Okta system logs shown for threat detection are retained for 14 days and then permanently deleted; the retention period cannot be modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "These logs are only retained for 14 days, after which they are permanently deleted. You cannot modify the retention period."
+          ]
+        }
+      ]
+    },
+    "threatparse": {
+      "statement": "ThreatParse is a technology built into ITDR that reconstructs attacks in natural language by translating log information into plain English, linking it to MITRE ATT&CK and including risk scores assigned to attackers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "ThreatParse is a technology built into ITDR that conducts natural language reconstruction of attacks by summarizing and translating log information into plain English.",
+            "It also links this information to the MITRE ATT&CK framework and includes the risk scores assigned to attackers."
+          ]
+        }
+      ]
+    },
+    "access-risk-scim": {
+      "statement": "The ITDR integration with ZIA and ZPA works with SCIM user provisioning and authentication method only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "ITDR integration with ZIA and ZPA services works with SCIM user provisioning and authentication method only."
+          ]
+        }
+      ]
+    },
+    "session-tracking": {
+      "statement": "Session tracking can be enabled in the server agent policy to monitor logon activities for all AD administrators and privileged accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "You can enable session tracking in the server agent policy to monitor logon activities for all AD administrators and privileged accounts."
+          ]
+        }
+      ]
+    },
+    "okta-event-values": {
+      "statement": "Okta event severity is Debug, Info, Error or Warn, and event result is Allow, Challenge, Deny, Failure, Skipped, Success or Unknown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-active-directory-user-account-details.json",
+          "quotes": [
+            "Severity: The severity (Debug, Info, Error, and Warn) of the event.",
+            "Result: The result (Allow, Challenge, Deny, Failure, Skipped, Success, and Unknown) of an action in the event."
+          ],
+          "after": "Click Export CSV to export these Okta activity log details as a CSV file."
+        }
+      ]
+    },
+    "entra-identity-mfa": {
+      "statement": "The Entra ID identity details page shows MFA status as Is Capable, Is Registered, Methods Registered and Default Method; the last two show no data if MFA methods are not configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-identity-details.json",
+          "quotes": [
+            "Is Capable: Indicates if the identity is capable of using MFA.",
+            "Is Registered: Indicates if the identity is registered for MFA.",
+            "If the MFA authentication methods are not configured, the Methods Registered and Default Method fields don't display any data."
+          ]
+        }
+      ]
+    },
+    "entra-identity-fields": {
+      "statement": "The Entra ID identity details page shows User Type (Member or Guest), a View Roles link to Entra roles and Azure RBAC built-in or custom roles, and on-premises AD details including Security Identifier and Sync Enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-identity-details.json",
+          "quotes": [
+            "User Type: The Entra ID user type (Member or Guest).",
+            "Click View Roles to view the details of the Entra roles and Azure RBAC built-in or custom roles that are assigned to the identity.",
+            "Security Identifier: The security identifier (SID) details of the on-premises AD account.",
+            "Sync Enabled: Indicates if the on-premises AD account is synced with Azure Entra ID."
+          ]
+        }
+      ]
+    },
+    "entra-change-impact-and-raw": {
+      "statement": "The Entra ID identity details page shows Change Data, the details of a detected change such as the operation name, caller IP address, data source information and role details.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-entra-id-identity-details.json",
+          "quotes": [
+            "Change Data: The details of the change that was detected in the identity, such as the operation name, the caller IP address, data source information, and role details."
+          ]
+        }
+      ]
+    },
+    "identity-search-prerequisites": {
+      "statement": "Identity Search requires an AD or Entra ID posture scan with attribute collection enabled; Okta integration is required to correlate Okta identities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-search.json",
+          "quotes": [
+            "To use the Identity Search feature, you must run an AD or Entra ID posture scan with attribute collection enabled.",
+            "Integrate ITDR with Okta. This is required to correlate identities in Okta."
+          ]
+        }
+      ]
+    },
+    "identity-search-enrichment": {
+      "statement": "Identity Search is enriched by an endpoint credential exposure scan and by a threat detection policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-search.json",
+          "quotes": [
+            "Run an endpoint credential exposure scan to enrich identity information with the state of stored credentials and flag any risky credentials or settings.",
+            "Configure a threat detection policy to enrich identity information with threat events recorded for a given identity."
+          ]
+        }
+      ]
+    },
+    "identity-search-filters": {
+      "statement": "Identity Search searches AD, Entra ID and Okta identities and filters by AD, Entra ID, Okta, Is Privileged, MFA not enabled and Credential Issues; results download as CSV or JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-search.json",
+          "quotes": [
+            "Search for an identity across various identity platforms (AD, Entra ID, and Okta).",
+            "download the details as a CSV or JSON file"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-identity-search.json",
+          "quotes": [
+            "AD, Entra ID, and Okta",
+            "Is Privileged",
+            "MFA not enabled",
+            "Credential Issues"
+          ],
+          "after": "The following filters are available:"
+        }
+      ]
+    },
+    "identity-search-recent-changes": {
+      "statement": "The Identity Search identity details show Recent Changes as the total number of recent active changes detected in the last 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-identity-details.json",
+          "quotes": [
+            "Recent Changes: The total number of recent active changes detected in the last 7 days."
+          ]
+        }
+      ]
+    },
+    "identity-search-credentials": {
+      "statement": "The Identity Search identity details list exposed endpoint credentials for AD identities, and a Severity field takes the values Critical or High.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-identity-details.json",
+          "quotes": [
+            "exposed endpoint credentials (for AD identities)",
+            "Severity: Severity level (Critical or High)."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "posture-data-retention": {
+      "kind": "semantic",
+      "title": "How long ITDR or posture-scan data is retained",
+      "status": "open",
+      "detail": "The AD user details page states a 14-day retention for Okta system logs, but these articles do not state retention for ITDR or posture-scan data.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}
