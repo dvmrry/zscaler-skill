@@ -78,3 +78,25 @@ def test_checklists_link_each_claim_to_its_line_and_split_a_product_that_outgrow
     assert all(f.read_text().count("- [ ] ") == 1 for f in files)
     text = files[0].read_text()
     assert "- [ ] [`zia.rules:first`](https://github.com/o/r/blob/abc12345def/references/zia/zia.rules.json#L4) Rules stop at the first match, **always**." in text
+
+
+def test_findings_are_judged_like_claims_and_never_recorded(tmp_path, monkeypatch):
+    monkeypatch.setattr(claim_audit, "context", lambda *a, **k: None)
+    rows = tmp_path / "findings.jsonl"
+    rows.write_text('{"id": "x.incidents:columns", "statement": "The table shows ID by default.", '
+                    '"evidence": [{"source": "zscaler-help", "path": "a.json", "quotes": ["ID: The ID number."]}]}\n')
+    out = tmp_path / "run"
+    assert claim_audit.build(out, None, None, False, False, None, rows) == 0
+    t = [line for line in (out / "tasks.jsonl").read_text().splitlines() if line]
+    assert len(t) == 1 and '"x.incidents:columns"' in t[0] and "ID: The ID number." in t[0]
+    try:
+        claim_audit.write_record(out)
+        raise AssertionError("a findings run was recorded")
+    except SystemExit as e:
+        assert "nothing to record" in str(e)
+    rows.write_text('{"id": "x:no-evidence", "statement": "s"}\n')
+    try:
+        claim_audit.build(tmp_path / "run2", None, None, False, False, None, rows)
+        raise AssertionError("a finding without evidence was accepted")
+    except SystemExit as e:
+        assert "x:no-evidence" in str(e)

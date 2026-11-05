@@ -20,7 +20,11 @@ in CI. Run from the repo root; write run directories outside the checkout.
   python3 scripts/claim_audit.py build --ids <file> --out <dir>       the claims named in the file, one ID per line
   python3 scripts/claim_audit.py build --unaudited --out <dir>        claims with no current verdict [--limit N]
   python3 scripts/claim_audit.py build --calibration --out <dir>      the calibration set
-  python3 scripts/claim_audit.py run --out <dir> [--jobs 4] [--batch 20]
+  python3 scripts/claim_audit.py build --findings <jsonl> --out <dir> an extraction report's findings, one claim-shaped
+                                                                      object per line ({id, statement, evidence}), judged
+                                                                      before a writer sees them; never recorded
+  python3 scripts/claim_audit.py run --out <dir> [--jobs 4] [--batch 20] [--first-only]
+                                                                      --first-only: the Haiku pass alone (a quick check)
   python3 scripts/claim_audit.py grade --out <dir>                    a calibration run against its labels
   python3 scripts/claim_audit.py record --out <dir>                   write the run's verdicts into the record
   python3 scripts/claim_audit.py status                               audited, stale and unaudited counts
@@ -229,10 +233,19 @@ def rubric_sha() -> str:
     return hashlib.sha256((BENCH / "rubric.md").read_bytes()).hexdigest()[:16]
 
 
-def build(out: Path, base: str | None, ids: Path | None, unaudited: bool, calibration: bool, limit: int | None) -> int:
+def build(out: Path, base: str | None, ids: Path | None, unaudited: bool, calibration: bool, limit: int | None,
+          findings: Path | None = None) -> int:
     out.mkdir(parents=True, exist_ok=True)
     tasks = []
-    if calibration:
+    if findings:
+        # An extractor's findings carry a claim's shape, so the statement is judged against its quotes before any
+        # writer copies it; most first-pass overreach starts in the report.
+        rows = [json.loads(line) for line in findings.read_text().splitlines() if line.strip()]
+        bad = [r.get("id", "?") for r in rows if not (r.get("id") and r.get("statement") and r.get("evidence"))]
+        if bad:
+            raise SystemExit(f"findings need id, statement and evidence: {', '.join(bad[:5])}")
+        tasks = [task(r["id"], r) for r in rows]
+    elif calibration:
         tasks = [json.loads(line) for line in (BENCH / "calibration-tasks.jsonl").read_text().splitlines() if line.strip()]
     else:
         now = {cid: c for d in subjects() for cid, c in tier_a(d)}
@@ -254,7 +267,8 @@ def build(out: Path, base: str | None, ids: Path | None, unaudited: bool, calibr
     with (out / "tasks.jsonl").open("w") as f:
         for t in tasks:
             f.write(json.dumps(t, ensure_ascii=False) + "\n")
-    (out / "meta.json").write_text(json.dumps({"rubric_sha": rubric_sha(), "calibration": calibration, "models": [FIRST, SECOND]}, indent=2) + "\n")
+    meta = {"rubric_sha": rubric_sha(), "calibration": calibration, "models": [FIRST, SECOND], **({"findings": True} if findings else {})}
+    (out / "meta.json").write_text(json.dumps(meta, indent=2) + "\n")
     print(f"{len(tasks)} claims -> {out / 'tasks.jsonl'}")
     return 0
 
@@ -313,11 +327,12 @@ def combine(first: dict, second: dict | None) -> str:
     return "overreach" if any(v["confidence"] == "high" for v in flags) else "borderline" if flags else "covered"
 
 
-def run(out: Path, jobs: int, size: int) -> int:
+def run(out: Path, jobs: int, size: int, first_only: bool = False) -> int:
     tasks = [json.loads(line) for line in (out / "tasks.jsonl").read_text().splitlines() if line.strip()]
     first = judge_all(FIRST, tasks, jobs, size, out / "first.jsonl")
-    # Haiku's misses are almost all "covered" verdicts: Opus looks at those, and at flags it was unsure of.
-    second_tasks = [t for t in tasks if t["id"] in first and (first[t["id"]]["verdict"] == "covered" or first[t["id"]]["confidence"] == "low")]
+    # Haiku's misses are almost all "covered" verdicts: Opus looks at those, and at flags it was unsure of. A quick
+    # check skips that pass; the full audit of the written claims still runs it.
+    second_tasks = [] if first_only else [t for t in tasks if t["id"] in first and (first[t["id"]]["verdict"] == "covered" or first[t["id"]]["confidence"] == "low")]
     rejudged = {t["id"] for t in second_tasks}
     second = judge_all(SECOND, second_tasks, jobs, size, out / "second.jsonl")
     n = collections.Counter()
@@ -373,8 +388,8 @@ def grade(out: Path) -> int:
 
 def write_record(out: Path) -> int:
     meta = json.loads((out / "meta.json").read_text())
-    if meta.get("calibration"):
-        raise SystemExit("a calibration run is not about committed claims; nothing to record")
+    if meta.get("calibration") or meta.get("findings"):
+        raise SystemExit("a calibration or findings run is not about committed claims; nothing to record")
     if meta["rubric_sha"] != rubric_sha():
         raise SystemExit("the rubric changed since this run; run it again")
     rec = record()
@@ -526,9 +541,9 @@ def main(argv: list[str]) -> int:
         raise SystemExit(f"--out must be outside the checkout: {out}")
     if cmd == "build" and out:
         return build(out, opt("--base"), Path(opt("--ids")) if opt("--ids") else None, "--unaudited" in argv, "--calibration" in argv,
-                     int(opt("--limit")) if opt("--limit") else None)
+                     int(opt("--limit")) if opt("--limit") else None, Path(opt("--findings")) if opt("--findings") else None)
     if cmd == "run" and out:
-        return run(out, int(opt("--jobs") or 4), int(opt("--batch") or 20))
+        return run(out, int(opt("--jobs") or 4), int(opt("--batch") or 20), "--first-only" in argv)
     if cmd == "grade" and out:
         return grade(out)
     if cmd == "record" and out:
