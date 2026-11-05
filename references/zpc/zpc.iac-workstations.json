@@ -1,0 +1,95 @@
+{
+  "schema_version": 1,
+  "id": "zpc.iac-workstations",
+  "title": "How the ZPC IaC CLI Scanner, Visual Studio extension and JetBrains plugin scan templates on a workstation",
+  "aliases": ["zscanner", "IaC CLI Scanner", "Zscaler IaC Scan extension"],
+  "related": [
+    { "rel": "see-also", "to": "zpc.overview" },
+    { "rel": "see-also", "to": "zpc.iac-scanning" },
+    { "rel": "see-also", "to": "zpc.iac-integrations" }
+  ],
+  "prose": [
+    { "text": "{{cli-scanner-overview}} The hub is [[zpc.overview]]; the scan is in [[zpc.iac-scanning]] and the repository and CI/CD integrations are in [[zpc.iac-integrations]]." },
+    { "label": "CLI Scanner login and commands.", "text": "{{cli-scanner-login}} {{cli-scanner-commands}} {{cli-scanner-scan-options}} {{cli-scanner-update-notice}}" },
+    { "label": "Pre-commit.", "text": "{{cli-scanner-precommit}} The macOS and Linux install steps are open {{gap:cli-install-steps}}." },
+    { "label": "Visual Studio extension.", "text": "{{vscode-capabilities}} {{vscode-intro-templates}} {{vscode-commands}} {{vscode-login-region}}" },
+    { "label": "JetBrains plugin.", "text": "{{jetbrains-ides}} {{jetbrains-login}}" }
+  ],
+  "checks": [
+    {
+      "do": "The Visual Studio extension introduction names Terraform, Kubernetes, Helm and CloudFormation templates, while its key features also name ARM.",
+      "uses": ["vscode-capabilities", "vscode-intro-templates"]
+    }
+  ],
+  "claims": {
+    "cli-scanner-overview": {
+      "statement": "The IaC CLI Scanner runs on Windows, macOS and Linux, scans IaC templates in the local file system, and can be integrated with a pre-commit hook to scan before every commit.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["configuring the Zscaler IaC CLI Scanner on Windows, macOS, and Linux platforms.", "integrate it with the pre-commit hook to automatically scan your IaC files before every commit.", "The IaC CLI Scanner enables you to scan the IaC templates in your local file system."] }]
+    },
+    "cli-scanner-login": {
+      "statement": "zscanner login asks for the region (EU, US or Custom) of the ZPC Admin Portal and opens the ZPC login page in a browser, or the IdP login page if SSO is configured.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["Enter the region (EU, US, or Custom) where you want to access the ZPC Admin Portal.", "If your account is configured to use single sign-on (SSO), then you are redirected to the IdP login page.", "Press Enter to open the ZPC login page in your browser."] }]
+    },
+    "cli-scanner-commands": {
+      "statement": "The CLI scanner commands include login, logout, scan, update, version, cleanup, completion, help, info, policy list and config list.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["scan: Detect compliance and security violations in the IaC templates.", "update: Update the IaC CLI Scanner to the latest version.", "cleanup: Clean up all temporary files (from old installations).", "policy list: Display the list of policies used by the IaC CLI Scanner.", "config list: Display the configuration details used by the IaC CLI Scanner.", "login: Log in to the Zscaler account.", "logout: Log out of the Zscaler account.", "version: Check the IaC CLI Scanner version that is currently used.", "completion: Generate the auto-completion script for the specified shell.", "help: Learn more about any command.", "info: Display the login information."] }]
+    },
+    "cli-scanner-scan-options": {
+      "statement": "zscanner scan accepts -d for a folder (the repository or directory must be checked out from the specific branch first), --log-level and --log-file, and --iac-type; --show-remediation=false hides the remediation steps.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["Before performing the scan, you must check out the repository or directory from the specific branch.", "zscanner scan -f <filename> --log-level debug --log-file test.log", "zscanner scan --iac-type <template type>", "zscanner scan -d . --show-remediation=false"] }]
+    },
+    "cli-scanner-precommit": {
+      "statement": "The pre-commit hook needs the pre-commit framework (pip install pre-commit) and a .pre-commit-config.yaml in the IaC repository; once installed it scans IaC files on every git commit.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["pip install pre-commit", "Add the .pre-commit-config.yaml file to the IaC repository that must be scanned.", "After installation, the pre-commit hook automatically scans the IaC files on every git commit and displays the results within the code."] }]
+    },
+    "cli-scanner-update-notice": {
+      "statement": "When a newer CLI Scanner version is available, the CLI displays a message telling you to run the zscanner update command.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-cli-scanner.json", "quotes": ["Please run the zscanner update command to update the CLI Scanner.", "Whenever a new version of the IaC CLI Scanner is available, the following message is displayed within the CLI"] }]
+    },
+    "vscode-capabilities": {
+      "statement": "The Visual Studio extension scans Terraform, Helm, Kubernetes, ARM and CloudFormation templates with built-in policies for AWS, Azure and GCP resources, supports policy exemptions within a template, and scans individual files and directories in the workspace.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-visual-studio-code.json", "quotes": ["Scans IaC Terraform, Helm, Kubernetes, Azure Resource Manager (ARM) and CloudFormation templates with built-in policies for Amazon Web Services (AWS), Microsoft Azure, and Google Cloud Platform (GCP) resources.", "Supports creating exemptions for policies within a template.", "supports scanning individual IaC files and directories in the workspace."] }]
+    },
+    "vscode-intro-templates": {
+      "statement": "The extension introduction names Terraform, Kubernetes, Helm and CloudFormation templates.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-visual-studio-code.json", "quotes": ["enables you to scan the IaC Terraform, Kubernetes, Helm, and CloudFormation templates in VS Code and identify security misconfigurations."] }]
+    },
+    "vscode-commands": {
+      "statement": "The extension commands are Scan File (also triggered automatically on save), Scan Workspace, Open Settings, Clear Scan Results, Install/Update (the Zscaler IaC binary the extension uses) and Sign Out.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-visual-studio-code.json", "quotes": ["Scan File: Scans the currently opened file in the VS IDE editor. Scan File is also triggered automatically when you save the file.", "Scan Workspace: Scans all IaC files in the current Visual Studio workspace.", "Install/Update: Installs or updates the Zscaler IaC binary, which is used by the extension to run the IaC scans.", "Sign Out: Log out from VS Code.", "Open Settings: Opens the Settings page.", "Clear Scan Results: Clears all problems and warnings generated for the IaC resources.", "The Zscaler IaC Scan extension provides a set of commands."] }]
+    },
+    "vscode-login-region": {
+      "statement": "VS extension login offers regions EU, US or Custom; violations are shown on the Problems tab.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-visual-studio-code.json", "quotes": ["Select the required region (EU, US, or Custom) where your tenant resides.", "policy violations are displayed on the Problems tab of the VS IDE window."] }]
+    },
+    "jetbrains-ides": {
+      "statement": "The JetBrains plugin scans Terraform, Kubernetes, Helm, ARM and CloudFormation templates; the IDEs listed include DataGrip, PhpStorm, RubyMine and WebStorm.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jetbrains-ides.json", "quotes": ["enables you to scan the IaC Terraform, Kubernetes, Helm, ARM, and CloudFormation templates in the JetBrains IDE platforms", "- DataGrip", "- PhpStorm", "- RubyMine", "- WebStorm"] }]
+    },
+    "jetbrains-login": {
+      "statement": "JetBrains plugin login offers regions EU or US, and the violation view shows policy description and ID, resource name and type, template type, file path and severity.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-configuring-iac-scan-jetbrains-ides.json", "quotes": ["Select the region (EU or US) where your tenant is onboarded, then click Login.", "such as policy description and ID, resource name and type, template type, file path, and the severity (Critical, High, Medium, Low) of the policy."] }]
+    }
+  },
+  "gaps": {
+    "cli-install-steps": {
+      "kind": "semantic",
+      "title": "Which CLI Scanner install steps belong to which OS",
+      "status": "open",
+      "detail": "The page gives tar commands for iac-scanner-cli 2.0.1 and ZSCANNER_HOME steps, but the headings are lost in the capture, so it is unclear which steps belong to macOS or Linux or to sudo and non-sudo installs; not written up.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

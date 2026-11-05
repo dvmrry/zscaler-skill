@@ -1,0 +1,161 @@
+{
+  "schema_version": 1,
+  "id": "zpc.api",
+  "title": "How the ZPC API is reached, authenticated, rate limited and queried for alerts",
+  "aliases": ["ZPC API", "x-api-key", "api.zpccloud.net"],
+  "related": [
+    { "rel": "see-also", "to": "zpc.overview" },
+    { "rel": "see-also", "to": "zpc.iac-scanning" }
+  ],
+  "prose": [
+    { "text": "{{api-purpose}} {{prerequisites}} The hub is [[zpc.overview]]. Whether the service is still available is open {{gap:service-status}}." },
+    { "label": "Server and authentication.", "text": "{{server-urls}} {{authentication}} {{base-url-format}} {{getting-started-example-request}}" },
+    { "label": "Rate limits.", "text": "{{rate-limits}} {{rate-limit-scope}} The limits for calls other than GET are open {{gap:rate-limits-get-only}}." },
+    { "label": "Status codes.", "text": "{{status-codes-basic}} {{status-304}} {{status-400-401}} {{status-500}} The cause of 403 is open {{gap:forbidden-cause}}." },
+    { "label": "Alerts.", "text": "{{cloud-alerts-endpoint}} {{alerts-endpoints-paging}} {{alerts-time-window}} {{alerts-filters}} {{alerts-order-by}} {{alerts-fields-values}} {{alerts-response-example}} The alert status values are open {{gap:alert-status-values}}. The Alerts reference is open {{gap:alerts-reference-swagger}}." }
+  ],
+  "checks": [
+    {
+      "do": "The API key goes in the x-api-key header, and the ZPC API server is api.zpccloud.net/v1 for organizations in the USA and api.eu.zpccloud.net/v1 for organizations in the EU.",
+      "uses": ["authentication", "server-urls"]
+    },
+    {
+      "do": "A 429 is returned for exceeding the rate limit or quota; the limits stated are for a GET call.",
+      "uses": ["status-codes-basic", "rate-limits"]
+    }
+  ],
+  "claims": {
+    "api-purpose": {
+      "statement": "The ZPC API gives programmatic access to retrieve cloud alerts for ZPC.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-understanding-zpc-api.json", "quotes": ["Zscaler Posture Control (ZPC) API gives you programmatic access to retrieve cloud alerts for ZPC."] }]
+    },
+    "prerequisites": {
+      "statement": "Using the ZPC API requires an API key and either an API management tool or the Zscaler Help Portal.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["Create an API key.", "Use an API management tool, or use the Zscaler Help Portal."] }]
+    },
+    "server-urls": {
+      "statement": "The ZPC API server is api.zpccloud.net/v1 for organizations in the USA and api.eu.zpccloud.net/v1 for organizations in the EU.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["For organizations located in the USA, the URL for the ZPC API server is api.zpccloud.net/v1.", "For organizations located in the EU, the URL for ZPC API server is api.eu.zpccloud.net/v1."] }]
+    },
+    "authentication": {
+      "statement": "The client authenticates by sending the API key as the value of the x-api-key header.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["add it as the value for x-api-key in the header of the request."] }]
+    },
+    "base-url-format": {
+      "statement": "The Getting Started page gives the base URL form as <protocol>://<host>/v1/alerts, with /v1/alerts as the base URL.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["The protocol, host, and base URL for the cloud service API are in the <protocol>://<host>/v1/alerts format, where:", "/v1/alerts represent the base URL."] }]
+    },
+    "getting-started-example-request": {
+      "statement": "The Getting Started page example request is GET /api/v1/alerts/cloud with Host api.zpccloud.net.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["GET /api/v1/alerts/cloud HTTP/1.1 Host: api.zpccloud.net Content-Type: application/json x-api-key: xxxxxxx Cache-Control: no-cache"] }]
+    },
+    "rate-limits": {
+      "statement": "The API rate limits an endpoint called from a given IP more than 5 times in a second or 5,000 times in an hour for a GET call; limits start at the first call.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-understanding-rate-limiting.json", "quotes": ["5 times in a second interval for a GET call.", "5,000 times in an hour interval for a GET call.", "All rate limits start as soon as the first call is executed."] }]
+    },
+    "rate-limit-scope": {
+      "statement": "Rate limits throttle API calls for basic CRUD operations, and Zscaler recommends waiting to proceed if subject to rate limiting.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-understanding-rate-limiting.json", "quotes": ["Rate limits throttle the number of API calls you can make for any basic CRUD operation.", "Zscaler recommends you wait to proceed with making calls if you are subject to rate limiting."] }]
+    },
+    "status-codes-basic": {
+      "statement": "The API returns 200 Successful, 403 Forbidden and 429 for exceeding the rate limit or quota.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-api-response-codes-and-error-messages.json", "quotes": ["| 200 | Successful |", "| 403 | Forbidden |", "| 429 | Exceeded the rate limit or quota |"] }]
+    },
+    "status-304": {
+      "statement": "A 304 empty response is returned when an Etag identifier is passed in an If-None-Match header on a GET and matches the cached entry; a non-matching Etag returns 200 with new data.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-api-response-codes-and-error-messages.json", "quotes": ["If the Etag value matches the cached entry, an empty response (code 304) is returned.", "If the Etag value does not match the cached entry, a successful response (code 200) with new data is returned."] }]
+    },
+    "status-400-401": {
+      "statement": "400 is returned for an API key name that already exists, an invalid group name, or an invalid request format from invalid parameters or values; 401 is returned for a revoked API key or a corrupted JWT token.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-api-response-codes-and-error-messages.json", "quotes": ["| 400 | Invalid or Bad Request. This code is returned due to one of the following reasons: The API key name already exists. An invalid group name is provided. The request format is invalid due to invalid parameters or parameter values. |", "| 401 | Unauthorized. This code is returned due to one of the following reasons: The API key is revoked. The JWT token is corrupted. |"] }]
+    },
+    "status-500": {
+      "statement": "A 500 Internal Server Error carries a correlation ID in the x-correlation-id response header and in the response body, to be given to Zscaler Support.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-api-response-codes-and-error-messages.json", "quotes": ["500 - Internal Server Error", "A correlation ID is included in both the response header (x-correlation-id) and in the response body.", "contact Zscaler Support and provide the correlation ID to learn more."] }]
+    },
+    "cloud-alerts-endpoint": {
+      "statement": "Cloud alerts are retrieved by sending a GET request to the endpoint /alerts/cloud.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["To get a list of cloud alerts, send a GET request to the endpoint /alerts/cloud."] }]
+    },
+    "alerts-endpoints-paging": {
+      "statement": "IaC alerts come from GET /alerts/iac; in that section limit is the page size, defaulting to 100 with a maximum of 100.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["To get a list of IaC alerts, send a GET request to the endpoint /alerts/iac.", "limit: Indicates the page size. If not provided, the default page size is 100. The maximum limit for page size is 100."], "after": "# Getting IaC Alerts" }]
+    },
+    "alerts-time-window": {
+      "statement": "With the created[start], created[end], updated[start] and updated[end] parameters (epoch seconds), alerts default to the last 48 hours when no times are given; a start alone gives up to 48 hours from it, an end alone gives the 48 hours before it.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["created[start]: The created starting date for the alert in epoch seconds.", "If start and end times are not specified, then alerts are retrieved for the last 48 hours by default.", "If only the start time is specified, then alerts are retrieved for up to 48 hours from the start time.", "If only the end time is specified, then alerts are retrieved from the end time to 48 hours before.", "created[end]: The created ending date for the alert in epoch seconds.", "updated[start]: The updated starting date for the alert in epoch seconds.", "updated[end]: The updated ending date for the alert in epoch seconds."], "after": "# Getting IaC Alerts" }]
+    },
+    "alerts-filters": {
+      "statement": "The alerts filters include cloud_account_type (AWS, GCP, AZURE, KUBERNETES), alert_status (OPEN, CLOSED, RESOLVED, IGNORED) and risk_level (LOW, MEDIUM, HIGH, CRITICAL).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["cloud_account_type: Indicates the cloud account type of the alert based on the specified filter (AWS, GCP, AZURE, KUBERNETES).", "alert_status: Filters the alerts by the specified AlertStatus value (OPEN, CLOSED, RESOLVED, IGNORED).", "risk_level: Filters the alerts by the specified RiskLevel value (LOW, MEDIUM, HIGH, CRITICAL)."], "after": "# Getting IaC Alerts" }]
+    },
+    "alerts-order-by": {
+      "statement": "The order_by values listed under the IaC alerts parameters include severity:asc, severity:desc, created:desc, updated:asc and alert_status:asc.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["severity:asc: The severity level in ascending order.", "created:desc: The timestamp when the cloud alert was created, and sorted in descending order.", "alert_status:asc: The status of the cloud alert (Open, Closed, Resolved, Reopened), and sorted in ascending order.", "severity:desc: The severity level in descending order.", "updated:asc: The timestamp when the cloud alert was last modified, and sorted in ascending order."] }]
+    },
+    "alerts-fields-values": {
+      "statement": "Documented field values: csp (AWS, GCP, AZURE, KUBERNETES, OCI), theme (Compliance, Security Events, Security Exposure), alert_focus (Asset, Identity) and kubernetes cluster type (EKS, AKS, GKE).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-obtaining-alerts-using-api.json", "quotes": ["csp: The Cloud Service Providers for the alert (AWS, GCP, AZURE, KUBERNETES, OCI).", "theme: The theme for the alert (Compliance, Security Events, or Security Exposure).", "alert_focus: The focus of the alert (Asset, Identity).", "kubernetes: The cluster type (EKS, AKS, GKE)."] }]
+    },
+    "alerts-response-example": {
+      "statement": "The Getting Started example response shows total_count, prev_link and next_link, and an alert_status_description for an alert closed automatically because the cloud resource is deleted.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "zpc-getting-started-zpc-api.json", "quotes": ["\"total_count\": 103084, \"prev_link\": \"\", \"next_link\": \"https://scale.api.zscwp.net/v1/alerts/cloud?limit=2&offset=2\"", "\"alert_status_description\": \"The alert was automatically closed, as the cloud resource is deleted.\""], "after": "The following is a Python script to retrieve alerts" }]
+    }
+  },
+  "gaps": {
+    "service-status": {
+      "kind": "semantic",
+      "title": "Whether the ZPC API these pages describe is still available",
+      "status": "open",
+      "detail": "portfolio.cloud-protection records ZPC end of life as planned for March 15, 2026. None of the captured API pages says whether it describes a service still available, so none of these facts is claimed as current.",
+      "resolves_with": ["source-read"]
+    },
+    "rate-limits-get-only": {
+      "kind": "semantic",
+      "title": "Rate limits for calls other than GET",
+      "status": "open",
+      "detail": "Rate limits are stated for GET only. The Understanding the ZPC API page says a table of API calls, endpoints and rate limits exists, but the rate-limiting page has no table.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "forbidden-cause": {
+      "kind": "semantic",
+      "title": "What causes a 403 Forbidden",
+      "status": "open",
+      "detail": "The response codes page lists 403 Forbidden with no cause.",
+      "resolves_with": ["support-ticket", "lab-test"]
+    },
+    "alert-status-values": {
+      "kind": "semantic",
+      "title": "Which alert status values the API uses",
+      "status": "open",
+      "detail": "The alert_status filter lists OPEN, CLOSED, RESOLVED and IGNORED, while the alert_status:asc order_by line lists Open, Closed, Resolved and Reopened; Reopened and IGNORED are not explained. The cloud_account_type filter lists four providers and csp lists five including OCI. Both pairs are lists on one page; the page does not say whether the shorter list is a restriction.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "alerts-reference-swagger": {
+      "kind": "semantic",
+      "title": "What the Alerts reference Swagger capture says",
+      "status": "open",
+      "detail": "The Alerts reference (zpc-alerts-api.json) is a Swagger capture (OpenAPI 3.0.3, ZPC API version 2.10.0, servers api.zpccloud.net/v1 and api.eu.zpccloud.net/v1) with no anchoring text, so it needs a JSON-pointer citation. Its offset schema reads maximum 2000 on /alerts/cloud and 1000 on /alerts/iac, and limit 1-100 (read from the JSON parameters, not verified as a quote); the articles give no offset maximum.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}
