@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "soc-workbench.incident-rules",
+  "title": "Incident rules that group alerts into incidents, and incident workflows, in Agentic SOC",
+  "aliases": [
+    "incident rules copilot",
+    "auto-dispatch to external systems",
+    "outegration"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.alerts"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{consolidation}} {{default-rules}} The incidents they produce are in [[soc-workbench.incidents]]."
+    },
+    {
+      "label": "Rule fields.",
+      "text": "{{rule-fields}} {{grouping-options}} {{save-and-process}} The time window values and Copilot limits are open {{gap:rule-details}}."
+    },
+    {
+      "label": "Workflows.",
+      "text": "{{workflow-rules}} {{workflow-run-timing}} {{workflow-permission-audit}} {{outegration-defined}} What each destination receives is open {{gap:workflow-objects}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "What a rule or workflow save does: for rules, Save & Process saves and processes alert data with the updates; for workflow rules, Save makes them evaluate against each new incident and Save & Run also runs them against all existing incidents.",
+      "uses": [
+        "save-and-process",
+        "workflow-run-timing"
+      ]
+    }
+  ],
+  "claims": {
+    "consolidation": {
+      "statement": "Incidents bring together multiple disparate alerts from different products into a single location; in the article's example, 50 people in an organization receive phishing emails and Agentic SOC consolidates all the alerts into a single incident.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-rules.json",
+          "quotes": [
+            "Incidents allow you to see connections and bring together multiple disparate alerts from different products into a single location.",
+            "suppose 50 people in your organization receive phishing emails",
+            "Agentic SOC, on the other hand, consolidates all alerts into a single incident"
+          ]
+        }
+      ]
+    },
+    "default-rules": {
+      "statement": "By default Agentic SOC provides a number of incident rules to cover multiple use cases, such as phishing scams that lead to data exfiltration and data exfiltration via cloud storage; you can use Incident Rules Copilot or manually create and customize rules, at Settings > Incident Rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-rules.json",
+          "quotes": [
+            "By default, Agentic SOC provides a number of incident rules to cover multiple use cases",
+            "phishing scams that lead to data exfiltration, data exfiltration via cloud storage",
+            "you can either use Incident Rules Copilot or you can manually create and customize incident rules",
+            "go to Settings > Incident Rules."
+          ]
+        }
+      ]
+    },
+    "rule-fields": {
+      "statement": "A manually created incident rule has a unique Rule Name, an Active toggle that is enabled by default, a unique Incident Name, an optional Description, and a section for which alerts can create the incident.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-rules.json",
+          "after": "I would like to create a manual incident rule.",
+          "quotes": [
+            "Rule Name: Specify a unique name for the incident rule.",
+            "The Active toggle for the rule is enabled by default.",
+            "Incident Name: Specify a unique name for the incident itself.",
+            "Description: (Optional) Specify a description for the incident rule.",
+            "Which alerts can create this incident"
+          ]
+        }
+      ],
+      "conditions": "The create and edit procedures repeat identical text; the anchored quotes are the first occurrence after the anchor line."
+    },
+    "grouping-options": {
+      "statement": "A rule's grouping steps include selecting whether to create an incident for each alert, to group alerts into 1 incident to reduce noise (optionally only when alerts have the same entities, matching if any or if all of the entities are matched), and to attach alerts to an incident (optionally only when they have the same entities).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-rules.json",
+          "after": "I would like to create a manual incident rule.",
+          "quotes": [
+            "Select whether to Create an incident for each alert to create separate incidents for each alert that triggers the rule.",
+            "Select Group alerts into 1 incident to reduce noise around alerts",
+            "Select Group alerts only when they have the same entities",
+            "Group alerts if any of the entities are matched or to Group alerts if all of the entities are matched",
+            "Select Attach alerts to incident to specify the alerts that Agentic SOC attaches to the incident.",
+            "Select Attach alerts only when they have the same entities"
+          ]
+        }
+      ],
+      "conditions": "The create and edit procedures repeat identical text; the anchored quotes are the first occurrence after the anchor line."
+    },
+    "save-and-process": {
+      "statement": "For incident rules you click Save to save your changes, or Save & Process to save them and process alert data with the updates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-rules.json",
+          "quotes": [
+            "click Save to save your changes, or click Save & Process to save your changes and process alert data with the updates."
+          ]
+        }
+      ]
+    },
+    "workflow-rules": {
+      "statement": "The Incident Workflows page has an Auto-Dispatch to External Systems category, whose rules automatically create items or alerts in Splunk, AWS S3 and CrowdStrike when specific criteria are met. A rule triggers on incident statuses and incident severity levels, with operators that vary by field type and AND/OR logic for compound rules, and creates a third-party item by selecting the outegration for the system.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-workflows.json",
+          "quotes": [
+            "The Incident Workflows page displays the Auto-Dispatch to External Systems category.",
+            "automatically create items or alerts in Splunk, AWS S3, and CrowdStrike when specific criteria are met.",
+            "Incident status is: Select the checkbox to add incident statuses that trigger this rule.",
+            "Incident severity is: Select the checkbox to add incident severity levels that trigger this rule.",
+            "Available operators vary depending on the field type",
+            "Create a third-party item: Select the outegration for the system you want to trigger.",
+            "Use AND/OR logic to define compound rules."
+          ]
+        }
+      ]
+    },
+    "outegration-defined": {
+      "statement": "The Step-by-Step Configuration Guide for Agentic SOC refers to outbound integrations (i.e., outegrations).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-step-by-step-config-guide-agentic-soc.json",
+          "quotes": [
+            "including data sources, integrations, and outbound integrations (i.e., outegrations)."
+          ]
+        }
+      ]
+    },
+    "workflow-run-timing": {
+      "statement": "Saving a workflow rule makes it evaluate against each new incident created in the system; Save & Run saves the rule and immediately runs the rules against all existing incidents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-workflows.json",
+          "quotes": [
+            "Click Save to save the rule. Rules evaluate against each new incident created in the system.",
+            "click Save & Run to save the rule and immediately run the rules against all existing incidents in Agentic SOC."
+          ],
+          "after": "Save the rule set to complete the process"
+        }
+      ],
+      "conditions": "The create and edit procedures repeat identical text; the anchored quotes are the first occurrence after the anchor line."
+    },
+    "workflow-permission-audit": {
+      "statement": "Access to incident workflows requires an assigned role with the Read, Create, Edit and Delete permissions under the Threats App - Incident Settings resource, and a rule's audit logs (More > Audit Logs) expand to show detail about the changes made.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "agentic-soc-configuring-incident-workflows.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Threats App - Incident Settings resource.",
+            "click More > Audit Logs.",
+            "click to expand a log, and drill down into detailed information about the changes made."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "rule-details": {
+      "kind": "semantic",
+      "title": "Time window values, default rule names and Incident Rules Copilot limits",
+      "status": "open",
+      "detail": "The captured rule article does not give the time window units or maximum, the names of the default rules, the Incident Rules Copilot limits, or the Group by entity choices beyond those it mentions, nor the permissions that incident rules need.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "workflow-objects": {
+      "kind": "semantic",
+      "title": "What auto-dispatch creates in each destination",
+      "status": "open",
+      "detail": "Only Splunk, AWS S3 and CrowdStrike are named; the item or alert created in each is not described. The playbooks under AI Response Actions (Managing Playbooks) are not in these captures.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}
