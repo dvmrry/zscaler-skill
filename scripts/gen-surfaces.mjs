@@ -10,6 +10,9 @@
 //                 OpenAPI paths those packages call, and its arguments (type, required/optional/
 //                 computed, ForceNew, default, enum and other validators, nested blocks) from the
 //                 schema literals via scripts/tf-schema.go (go/ast)
+//   - legacy:     each operation the help site's legacy API reference pages document (help.zscaler.com/legacy-apis,
+//                 captured as `help-api-spec`), with the OneAPI spec path it matches by shape and method (null
+//                 when the spec has none) and the SDK packages whose endpoints reach it
 // Code is read at the submodule pin (HEAD); the spec is a committed capture, identified by its hash.
 // The output changes only when a pin or the captured spec changes.
 //
@@ -110,8 +113,9 @@ const show = (repo, file) => git(repo, "show", `HEAD:${file}`);
 const list = (repo, dir) => git(repo, "ls-tree", "-r", "--name-only", "HEAD", dir).split("\n").filter(Boolean);
 const pin = (repo) => git(repo, "rev-parse", "HEAD").trim();
 
-// Path parameters are named differently in each source ({ruleId}, %d, {rule_id}); compare shapes.
-const shape = (p) => p.replace(/\{[^}]*\}|%[dsv]/g, "{}").replace(/\/+$/, "");
+// Path parameters are named differently in each source ({ruleId}, %d, {rule_id}, :orgId); compare shapes. A colon
+// inside a segment (`groups:bulkdelete`) is a custom method, not a parameter.
+const shape = (p) => p.replace(/\{[^}]*\}|%[dsv]|(?<=\/):\w+/g, "{}").replace(/\/+$/, "");
 
 // ---------------------------------------------------------------- API
 const specText = P.spec ? fs.readFileSync(path.join(ROOT, "vendor/zscaler-api-specs", P.spec), "utf8") : null;
@@ -312,6 +316,60 @@ if (P.provider) {
   }
 }
 
+// ---------------------------------------------------------------- legacy help API reference
+const METHODS = ["get", "post", "put", "patch", "delete"];
+/** A legacy page's product, from its spec's server URL or first path; null for a page no product layer holds. */
+function legacyProduct(spec) {
+  const server = "swagger" in spec ? `${spec.host || ""}${spec.basePath || ""}` : (spec.servers || []).map((s) => s.url || "").join(" ");
+  const rules = [[/zsapi\.\[|apptotal/, "zia"], [/\/papi\b/, "zcc"], [/\/wapi\//, "ztw"], [/zdxcloud/, "zdx"], [/zsworkflow/, "zwa"], [/\/ziam\//, "zid"], [/easm-ui/, "easm"]];
+  for (const [re, key] of rules) if (re.test(server)) return key;
+  return /^\/(?:mgmtconfig|userconfig|cbiconfig)\//.test(Object.keys(spec.paths || {})[0] || "") ? "zpa" : null;
+}
+/** Shape of an SDK endpoint relative to the product base, which is how spec paths and legacy paths are written. */
+const relShape = (e) => shape(e.startsWith(P.base) ? e.slice(P.base.length) : e);
+const sdkByShape = (layer) => {
+  const m = new Map();
+  for (const [k, e] of Object.entries(layer)) for (const ep of e.endpoints) m.set(relShape(ep), [...new Set([...(m.get(relShape(ep)) || []), k])]);
+  return m;
+};
+const goByShape = sdkByShape(sdkGo);
+const pyByShape = sdkByShape(sdkPython);
+const HELP = path.join(ROOT, "vendor/zscaler-help");
+const legacy = { pages: {}, operations: {} };
+const legacyHash = createHash("sha256");
+for (const file of fs.readdirSync(HELP).filter((f) => f.endsWith(".json")).sort()) {
+  const text = fs.readFileSync(path.join(HELP, file), "utf8");
+  if (!text.includes('"help-api-spec"')) continue;
+  const doc = JSON.parse(text);
+  if (doc.kind !== "help-api-spec" || !doc.source?.url?.includes("/legacy-apis/") || legacyProduct(doc.spec) !== product) continue;
+  legacyHash.update(`${file}\0${text}\0`);
+  const sp = doc.spec;
+  // A page writes its paths relative to a base (Swagger `basePath`, or the first server URL's path).
+  const base = "swagger" in sp ? sp.basePath || "" : (sp.servers?.[0]?.url || "").replace(/^[a-z]+:\/\/[^/]*/i, "");
+  legacy.pages[file] = { title: doc.title, url: doc.source.url, base };
+  for (const [p, ops] of Object.entries(sp.paths || {})) {
+    for (const [m, op] of Object.entries(ops)) {
+      if (!METHODS.includes(m)) continue;
+      const e = ((legacy.operations[p] ||= {})[m] ||= { pages: [], ...(op.summary ? { summary: op.summary } : {}) });
+      if (!e.pages.includes(file)) e.pages.push(file);
+      // The same path may sit under different page bases; any of them can match.
+      const shapes = [...new Set(e.pages.flatMap((f) => [shape(p), shape(legacy.pages[f].base + p)]))];
+      const paths = shapes.flatMap((sh) => apiByShape.get(sh) || []);
+      const hit = paths.find((ap) => api[ap][m]);
+      e.oneapi = hit || null;
+      if (!hit && paths.length) e.oneapi_path = paths[0];
+      else delete e.oneapi_path;
+      const reach = (map) => [...new Set(shapes.flatMap((sh) => map.get(sh) || []))].sort();
+      for (const [k, map] of [["sdk_go", goByShape], ["sdk_python", pyByShape]]) {
+        const r = reach(map);
+        if (r.length) e[k] = r;
+        else delete e[k];
+      }
+    }
+  }
+}
+legacy.operations = Object.fromEntries(Object.entries(legacy.operations).sort());
+
 // ---------------------------------------------------------------- write
 const out = {
   schema_version: 1,
@@ -321,11 +379,13 @@ const out = {
   inputs: {
     ...(P.spec ? { [`zscaler-api-specs/${P.spec}`]: `sha256:${createHash("sha256").update(specText).digest("hex")}` } : {}),
     ...Object.fromEntries([P.goServices && "zscaler-sdk-go", P.pyModules && "zscaler-sdk-python", P.provider].filter(Boolean).map((r) => [r, pin(r)])),
+    ...(Object.keys(legacy.pages).length ? { "zscaler-help/legacy-apis": `sha256:${legacyHash.digest("hex")}` } : {}),
   },
   api,
   sdk_go: Object.fromEntries(Object.entries(sdkGo).sort()),
   sdk_python: Object.fromEntries(Object.entries(sdkPython).sort()),
   terraform: Object.fromEntries(Object.entries(terraform).sort()),
+  ...(Object.keys(legacy.pages).length ? { legacy } : {}),
 };
 const text = JSON.stringify(out, null, 1) + "\n";
 const target = path.join(ROOT, "references/_meta/surfaces", `${product}.json`);
@@ -341,5 +401,8 @@ if (check) {
   fs.writeFileSync(target, text);
   const n = (o) => Object.keys(o).length;
   const linked = Object.values(terraform).filter((t) => t.api.length).length;
-  console.log(`wrote ${path.relative(ROOT, target)}: ${n(api)} API paths, ${n(sdkGo)} Go packages, ${n(sdkPython)} Python modules, ${n(terraform)} Terraform types (${linked} linked to API paths)`);
+  const ops = Object.values(legacy.operations).flatMap((o) => Object.values(o));
+  const unspecced = ops.filter((e) => !e.oneapi);
+  const legacyLine = ops.length ? `; ${ops.length} legacy operations, ${unspecced.length} not in the spec (${unspecced.filter((e) => e.sdk_go || e.sdk_python).length} of them called by an SDK)` : "";
+  console.log(`wrote ${path.relative(ROOT, target)}: ${n(api)} API paths, ${n(sdkGo)} Go packages, ${n(sdkPython)} Python modules, ${n(terraform)} Terraform types (${linked} linked to API paths)${legacyLine}`);
 }

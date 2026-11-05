@@ -8,7 +8,7 @@
 import fs from "node:fs";
 import path from "node:path";
 
-const shape = (p) => p.replace(/\{[^}]*\}|%[dsv]/g, "{}").replace(/\/+$/, "");
+const shape = (p) => p.replace(/\{[^}]*\}|%[dsv]|(?<=\/):\w+/g, "{}").replace(/\/+$/, "");
 
 export function loadSurfaces(root) {
   const dir = path.join(root, "references/_meta/surfaces");
@@ -42,6 +42,7 @@ export function lookupSurface(root, query) {
         sdk_go: Object.fromEntries(Object.entries(s.sdk_go).map(([k, e]) => [k, e.functions])),
         sdk_python: Object.fromEntries(Object.entries(s.sdk_python).map(([k, e]) => [k, { class: e.class, methods: e.methods }])),
         terraform: Object.keys(s.terraform).sort(),
+        legacy_operations: Object.values(s.legacy?.operations || {}).reduce((n, o) => n + Object.keys(o).length, 0),
       });
       continue;
     }
@@ -52,6 +53,12 @@ export function lookupSurface(root, query) {
       const rel = shape(s.base && q.startsWith(s.base + "/") ? q.slice(s.base.length) : q.replace(/^\/[a-z]+\/api\/v\d+/, ""));
       const paths = Object.keys(s.api).filter((p) => shape(p) === rel || shape(p).startsWith(rel + "/"));
       if (paths.length) out.push({ product, match: "api", operations: pick(s.api, paths), reached_by: reaching(s, paths) });
+      // A legacy page writes its paths relative to its own base; the query may be written either way.
+      const L = s.legacy;
+      const wants = new Set([shape(q), rel]);
+      const legacy = Object.entries(L?.operations || {}).filter(([p, ops]) =>
+        Object.values(ops).some((e) => e.pages.some((f) => wants.has(shape(p)) || wants.has(shape(L.pages[f].base + p)))));
+      if (legacy.length) out.push({ product, match: "legacy", operations: Object.fromEntries(legacy) });
     }
     if (s.sdk_go[q]) out.push({ product, match: "sdk_go", package: q, ...s.sdk_go[q], reached_by: reaching(s, s.sdk_go[q].api) });
     for (const [mod, e] of Object.entries(s.sdk_python)) {
