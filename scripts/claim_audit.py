@@ -13,8 +13,9 @@ flagged found 97% of those flagged in both runs, and 88% of those flagged in one
 shown with the headings or enclosing function above it, as a reader of the source would see it.
 
 Verdicts are kept in references/_meta/claim-audit.json, keyed by a hash of the statement and evidence, so a claim
-is audited again only when it changes. Runs go through the `claude` CLI on your Claude plan quota; nothing here runs
-in CI. Run from the repo root; write run directories outside the checkout.
+is audited again only when it changes. Runs go through the `claude` CLI on your Claude plan quota, or on API billing
+when CLAIM_AUDIT_SETTINGS holds a settings JSON with an `apiKeyHelper` (the calls then run `--bare`, which
+authenticates only with that key); nothing here runs in CI. Run from the repo root; write run directories outside the checkout.
 
   python3 scripts/claim_audit.py build --base <git ref> --out <dir>   Tier A claims new or changed since the ref
   python3 scripts/claim_audit.py build --ids <file> --out <dir>       the claims named in the file, one ID per line
@@ -40,6 +41,7 @@ import collections
 import datetime
 import hashlib
 import json
+import os
 import re
 import subprocess
 import sys
@@ -280,7 +282,9 @@ def ask(model: str, batch: list[dict], cwd: Path) -> list[dict]:
     from the run directory, outside the checkout, so no project instructions enter the judgement."""
     claims = "\n".join(json.dumps({k: t[k] for k in ("id", "statement", "evidence", "conditions") if k in t}, ensure_ascii=False) for t in batch)
     prompt = f"{(BENCH / 'rubric.md').read_text()}\nCLAIMS:\n{claims}\n"
-    r = subprocess.run(["claude", "-p", prompt, "--model", model, "--output-format", "json", "--no-session-persistence", "--tools", ""],
+    # --bare authenticates only with the settings' apiKeyHelper, so an API-billed run cannot fall back to the plan.
+    api = ["--bare", "--settings", os.environ["CLAIM_AUDIT_SETTINGS"]] if os.environ.get("CLAIM_AUDIT_SETTINGS") else []
+    r = subprocess.run(["claude", "-p", prompt, "--model", model, "--output-format", "json", "--no-session-persistence", "--tools", "", *api],
                        capture_output=True, text=True, timeout=1800, cwd=cwd)
     try:
         reply = json.loads(r.stdout).get("result", "")
