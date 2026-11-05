@@ -1,0 +1,760 @@
+{
+  "schema_version": 1,
+  "id": "shared.logs-fair-use.log-contents",
+  "title": "What the products on the Logs and Fair Use pages define as their logs, and what extra data they capture",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-capture"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use.log-retention"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.audit-logs"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.zagent"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{zia-def}} {{zia-dlp}} {{zia-genai}} {{zia-endpoint-ctx}} The hub is [[shared.logs-fair-use]]."
+    },
+    {
+      "label": "ZPA.",
+      "text": "{{zpa-types}} {{zpa-vpn}} {{zpa-zms-agent}} {{zpa-agent}}"
+    },
+    {
+      "label": "ZDX.",
+      "text": "{{zdx-def}} {{zdx-remediation}}"
+    },
+    {
+      "label": "Cloud posture and AI products.",
+      "text": "{{dspm-scan}} {{zpc-scan}} {{ai-infra-def}} {{ai-platform-def}} {{ai-guard}} {{ai-scan-def}}"
+    },
+    {
+      "label": "Agentic SecOps and exposure products.",
+      "text": "{{secops-def}} {{breach-def}} {{threat-hunting-def}} {{aem-def}} {{uvm-def}} {{idp-def}} {{easm-def}}"
+    },
+    {
+      "label": "Client and connector products.",
+      "text": "{{zcc-types}} {{zcc-telemetry}} {{cbc-types}} {{ztg-types}} {{cellular-edge}} {{cellular-sim}} {{zsdk-types}} {{endpoint-ai-def}}"
+    },
+    {
+      "label": "Zero Trust products.",
+      "text": "{{ztb-def}} {{devseg-def}} {{ztbrowser-types}} {{ztbrowser-dash}} {{ztbrowser-agent}} {{ztbrowser-passwords}}"
+    },
+    {
+      "label": "Other products.",
+      "text": "{{auth-audit-def}} {{aae-def}} {{bi-def}} {{network-obs-def}} {{sspm-def}} {{health360-def}} {{experience-center-def}} {{deception-def}} {{deception-stream}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The log types the product's own page defines as its logs: ZIA network traffic metadata for your SaaS applications, ZPA User, App Connector, AppProtection, API Discovery and Audit Logs among others, ZDX probe telemetry metadata.",
+      "uses": [
+        "zia-def",
+        "zpa-types",
+        "zdx-def"
+      ]
+    }
+  ],
+  "claims": {
+    "zpa-types": {
+      "statement": "ZPA defines its logs as User Logs, App Connector Logs, AppProtection Logs, API Discovery Logs (derived from AppProtection Logs), Audit Logs (configuration changes via the ZPA Admin Portal), Privileged Session Recordings, Privileged Session Files and Zscaler Microsegmentation Agent Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-logs.json",
+          "quotes": [
+            "API Discovery Logs: Activity logs (derived from AppProtection Logs) that capture information about discovered APIs within your environment and associated users of those APIs.",
+            "Audit Logs: Activity logs of configuration changes you made via the ZPA Admin Portal.",
+            "Privileged Session Recordings: Screen recordings of RDP, SSH, VNC systems",
+            "Privileged Session Files: Files uploaded by users within PRA configured with a Portal Policy.",
+            "AppProtection Logs: Activity logs relating to the inspection of traffic destined to or from internal applications through ZPA.",
+            "User Logs: Activity logs of authorized users who access your internal applications through ZPA.",
+            "App Connector Logs: Activity logs of the App Connector",
+            "Zscaler Microsegmentation Agent Logs: Agent logs that include information such as hostname"
+          ]
+        }
+      ]
+    },
+    "zpa-vpn": {
+      "statement": "If you order the VPN Connectivity service, ZPA logs also include VPN Connector Logs and VPN Service Edge Logs; ZPA logs do not include your internal system logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-logs.json",
+          "quotes": [
+            "If you order the VPN Connectivity service, logs also include:",
+            "VPN Service Edge Logs: Activity logs of the VPN Service Edge",
+            "Logs do not include your internal system logs.",
+            "VPN Connector Logs: Activity logs of the VPN Connector"
+          ]
+        }
+      ]
+    },
+    "zpa-zms-agent": {
+      "statement": "Zscaler Microsegmentation Agent Logs hold host and cloud details (hostname, OS name and version, network addresses, cloud name/account/region, VPC/VNET and subnet details, user-defined cloud tags), traffic connection information and host resource telemetry (CPU, memory, file descriptor utilization).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-logs.json",
+          "quotes": [
+            "Agent logs that include information such as hostname, operating system name, operating system version, network addresses",
+            "traffic connection information and host resource telemetry (i.e., CPU, memory, file descriptor utilization).",
+            "cloud environment details (i.e., Cloud Name, Cloud Account ID, Cloud Region, VPC/VNET details, Cloud Subnet details, user defined tags in cloud)"
+          ]
+        }
+      ]
+    },
+    "zpa-agent": {
+      "statement": "The ZPA Agent operates through the ZAgent service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-logs.json",
+          "quotes": [
+            "If you utilize the ZPA Agent, it operates through the ZAgent service."
+          ]
+        }
+      ]
+    },
+    "zia-def": {
+      "statement": "ZIA logs are defined as network traffic metadata for your SaaS applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-logs.json",
+          "quotes": [
+            "For ZIA, logs are defined as network traffic metadata for your SaaS applications."
+          ]
+        }
+      ]
+    },
+    "zia-dlp": {
+      "statement": "For the ZIA Data Loss Prevention service on any channel (Inline, Endpoint, Email, API CASB, Private Applications), logs also capture metadata for certain end-user activities such as copying to removable storage or network shares, printing, sharing a file and uploading a document; Email DLP logs include senders, recipients and subjects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-logs.json",
+          "quotes": [
+            "logs also capture metadata for certain end user activities, such as copying to removable storage, copying to network shares, printing, sharing a file, and uploading a document.",
+            "For the Email DLP service, logs include the senders, recipients, and subjects of emails.",
+            "The Data Loss Prevention (DLP) service (for any channel such as Inline, Endpoint, Email, API CASB, or Private Applications)"
+          ]
+        }
+      ]
+    },
+    "zia-genai": {
+      "statement": "By default, end-user prompts to supported generative AI applications are not captured in ZIA logs; they are captured only if an administrator enables the toggle in the Admin Portal, and Gen AI Security logs include classifications of prompts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-logs.json",
+          "quotes": [
+            "By default, end user prompts to supported generative AI applications are not captured in logs.",
+            "They are captured in the logs only if your administrator enables this feature via the toggle in the Admin Portal.",
+            "Gen AI Security logs will also include classifications of end user prompts to generative AI applications."
+          ]
+        }
+      ]
+    },
+    "zia-endpoint-ctx": {
+      "statement": "Endpoint Context service logs also capture telemetry about user devices, which may include software process level information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-logs.json",
+          "quotes": [
+            "Endpoint Context service logs also capture telemetry about user devices.",
+            "This telemetry may include software process level information of the device."
+          ]
+        }
+      ]
+    },
+    "zdx-def": {
+      "statement": "ZDX logs are the telemetry metadata collected via ZDX probes and Microsoft 365 probes plus metadata that correlates with logs of other Zscaler SaaS products such as ZIA or ZPA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zdx-logs.json",
+          "quotes": [
+            "logs are defined as the telemetry metadata collected via ZDX probes and Microsoft 365 probes",
+            "as well as the metadata that correlates with logs of other Zscaler SaaS products, such as Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA)."
+          ]
+        }
+      ]
+    },
+    "zdx-remediation": {
+      "statement": "Enabling ZDX Remediation (remote scripts on user devices) allows collection of script output and device telemetry data; ZDX Snapshot captures the current state of a UI page and gives a URL for view-only access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zdx-logs.json",
+          "quotes": [
+            "Enabling this feature allows the collection of script output and device telemetry data.",
+            "The ZDX Snapshot feature captures the current state of a UI page, and provides a URL that admins can share with ZDX users or other admins for view-only access.",
+            "ZDX Remediation allows for the execution of remote scripts on user devices."
+          ]
+        }
+      ]
+    },
+    "auth-audit-def": {
+      "statement": "Authentication Service Audit Logs are activity records of configuration and authentication changes in a Zscaler administrative UI or API, including administrator and user sign-in and sign-out attempts, including unsuccessful ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-authentication-service-logs.json",
+          "quotes": [
+            "Activity records of configuration and authentication changes made within a Zscaler administrative UI or API.",
+            "Audit Logs include administrator and user sign-in and sign-out attempts, including unsuccessful attempts."
+          ]
+        }
+      ]
+    },
+    "dspm-scan": {
+      "statement": "DSPM processes cloud configuration data, CSP activity audit logs and cloud user directory information; subject to configuration and enablement it also scans and classifies cloud data stores (raw data is not saved, only static metadata) and scans CSP-hosted VM OS drives for installed packages and CVEs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-dspm-logs.json",
+          "quotes": [
+            "Cloud configuration data, Cloud Service Provider (CSP) activity audit logs, and cloud user directory information are processed",
+            "Raw data is not saved, only static metadata is stored and reported.",
+            "CSP-hosted virtual machines operating system drive is scanned for installed packages and vulnerabilities (CVEs).",
+            "Data residing in cloud data stores such as databases, storage services and data volumes (disks) is scanned and classified.",
+            "subject to customer configuration and enablement"
+          ]
+        }
+      ]
+    },
+    "zpc-scan": {
+      "statement": "ZPC processes cloud configuration data, CSP activity audit logs, cloud network logs and cloud user directory information; with the vulnerability scanning subscription (ZPC Vulnerability or ZPC Advanced) it also analyzes VM OS drives and container images, and with the IaC subscription (ZPC IaC or ZPC Advanced) it analyzes IaC scripts, subject to customer configuration and enablement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpc-logs.json",
+          "quotes": [
+            "Cloud configuration data, Cloud Service Provider (CSP) activity audit logs, cloud network logs, and cloud user directory information are processed",
+            "For customers opting for the vulnerability scanning subscription (ZPC Vulnerability or ZPC Advanced), Zscaler further analyzes the content of CSP-hosted virtual machines operating system drive and container images. (subject to customer configuration and enablement)",
+            "For customers opting for the Infrastructure as Code (ZPC IaC or ZPC Advanced) subscription, Zscaler further analyzes the content of IaC scripts in the user code repositories or CI/CD tools. (subject to customer configuration and enablement)"
+          ]
+        }
+      ]
+    },
+    "aae-def": {
+      "statement": "Adaptive Access Engine logs are Signal History (security context signals from products such as ZIA and third-party security products that typically indicate a level of risk for a user or device) and Audit Logs (configuration changes in the Admin Portal and via the Adaptive Access Engine API).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-adaptive-access-engine-logs.json",
+          "quotes": [
+            "Signal History: Security context signals received from Zscaler products such as Zscaler Internet Access (ZIA) and third-party security products that typically indicate a level of risk for a user or device.",
+            "Audit Logs: Activity records of configuration changes made in the Admin Portal and via the Adaptive Access Engine API."
+          ]
+        }
+      ]
+    },
+    "ai-guard": {
+      "statement": "AI Guard logs are prompts, responses and other metadata; application name, policy triggered and timestamp are stored, end user prompts and prompt responses are stored if you opt in to Store Prompt/Responses, and LLM details are also stored if AI Guard is deployed as a proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-guard-logs.json",
+          "quotes": [
+            "logs are defined as the data collected in the form of prompts, responses, and other metadata.",
+            "Zscaler collects and stores metadata such as application name, policy triggered, and timestamp.",
+            "If you opt in to the Store Prompt/Responses feature, the service will store end user prompts and prompt responses.",
+            "If AI Guard is deployed as a proxy, LLM details will also be stored.",
+            "You have the option to encrypt the prompts and prompt responses using your organization"
+          ]
+        }
+      ]
+    },
+    "ai-scan-def": {
+      "statement": "AI Scanning Platform logs capture information such as testing prompts, responsive outputs and AI model/application configuration data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-scanning-platform-logs.json",
+          "quotes": [
+            "logs capture information such as testing prompts, responsive outputs, and AI model/application configuration data."
+          ]
+        }
+      ]
+    },
+    "ai-infra-def": {
+      "statement": "For AI Asset Management for AI Infrastructure, logs are cloud configuration data, CSP activity audit logs and cloud user directory information, plus (subject to configuration) static metadata of data in cloud data stores and VM OS-drive scans for packages and CVEs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-asset-management-ai-infrastructure-logs.json",
+          "quotes": [
+            "logs are defined as cloud configuration data, Cloud Service Provider (CSP) activity audit logs, and cloud user directory information.",
+            "Static metadata of data residing in cloud data stores such as databases, storage services and data volumes (i.e., disks).",
+            "CSP-hosted virtual machine's operating system drive is scanned for installed packages and vulnerabilities (i.e., CVEs).",
+            "In addition, subject to your configuration and enablement, the following logs are also processed:"
+          ]
+        }
+      ]
+    },
+    "ai-platform-def": {
+      "statement": "For AI Asset Management Platform, logs are network traffic metadata for your SaaS applications and also capture telemetry about user devices, which may include software process level information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-asset-management-platform-logs.json",
+          "quotes": [
+            "logs are defined as network traffic metadata for your SaaS applications.",
+            "Logs will capture telemetry about user devices. This telemetry may include software process level information of the device."
+          ]
+        }
+      ]
+    },
+    "secops-def": {
+      "statement": "For Agentic SecOps Platform products including Agentic SOC, logs are configuration and transaction data for actions by users you authorize; for Agentic SOC this includes duplicates of applicable Zscaler SaaS product logs such as ZIA or ZPA used to identify suspicious threat patterns; some Agentic SecOps Platform products define logs differently.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-agentic-secops-logs.json",
+          "quotes": [
+            "For the Agentic SecOps Platform and its component products, including Agentic SOC, logs are defined as the configuration and transaction data collected for actions performed by users authorized by you who are using an Agentic SecOps Platform product.",
+            "Some Agentic SecOps Platform products define logs differently.",
+            "For the Agentic SOC service, this includes duplicates of applicable Zscaler SaaS product logs, such as Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA)",
+            "that Zscaler uses to identify suspicious and potentially malicious threat patterns for you."
+          ]
+        }
+      ]
+    },
+    "breach-def": {
+      "statement": "Breach Predictor logs are duplicates of the configuration and transaction data collected via logs from other Zscaler SaaS products such as ZIA or ZPA, used to identify suspicious and potentially malicious threat patterns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-breach-predictor-logs.json",
+          "quotes": [
+            "logs are defined as the duplicates of the configuration and transaction data collected via logs from other Zscaler SaaS products",
+            "that Zscaler uses to identify suspicious and potentially malicious threat patterns for the customer.",
+            "such as Zscaler Internet Access (ZIA) or Zscaler Private Access (ZPA)"
+          ]
+        }
+      ]
+    },
+    "threat-hunting-def": {
+      "statement": "Threat Hunting logs are duplicates of applicable Zscaler SaaS products' logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-threat-hunting-logs.json",
+          "quotes": [
+            "logs are defined as duplicates of applicable Zscaler SaaS products' logs."
+          ]
+        }
+      ]
+    },
+    "aem-def": {
+      "statement": "For AEM, logs are configuration and transaction data for actions by users you authorize within the AEM SaaS Application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-asset-exposure-management-aem-logs.json",
+          "quotes": [
+            "logs are defined as the configuration and transaction data collected for actions performed by users authorized by you who are acting within the AEM SaaS Application."
+          ]
+        }
+      ]
+    },
+    "uvm-def": {
+      "statement": "For UVM, logs are configuration and transaction data for actions by users you authorize within the UVM SaaS Application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-uvm-logs.json",
+          "quotes": [
+            "logs are defined as the configuration and transaction data collected for actions performed by users authorized by you who are acting within the UVM SaaS Application."
+          ]
+        }
+      ]
+    },
+    "idp-def": {
+      "statement": "For Identity Protection, logs are configuration and transaction data for actions by authorized users within the application; when enabled, data is queried from your identity provider and stored with processed analytics on the Agentic Security Operations Platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-identity-protection-logs.json",
+          "quotes": [
+            "logs are defined as the configuration and transaction data collected for actions performed by users authorized by you who are acting within the Identity Protection SaaS application.",
+            "When Identity Protection is enabled, data is queried from your identity provider.",
+            "The data and processed analytics are stored on the Agentic Security Operations Platform."
+          ]
+        }
+      ]
+    },
+    "bi-def": {
+      "statement": "Business Insights logs are SaaS Application Usage Logs and Workplace Insights Logs, generated from ZIA logs and from Business Insights connectors you configure to collect usage data from SaaS providers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-business-insights-logs.json",
+          "quotes": [
+            "Zscaler Business Insights generates logs via Zscaler Internet Access (ZIA) logs to create usage statistics for SaaS providers.",
+            "Zscaler Business Insights also generates logs via Zscaler Business Insights connectors that you have configured",
+            "SaaS Application Usage Logs - Zscaler Business Insights generates logs via Zscaler Internet Access (ZIA) logs to create usage statistics for SaaS providers.",
+            "Workplace Insights Logs - Zscaler Business Insights generates logs via ZIA logs and via Zscaler Business Insights connectors",
+            "to collect usage data from SaaS providers."
+          ]
+        }
+      ]
+    },
+    "network-obs-def": {
+      "statement": "Network Observability logs are the network telemetry collected from Network Observability probes and your network devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-network-observability-logs.json",
+          "quotes": [
+            "logs are defined as the network telemetry collected from Network Observability probes and your network devices."
+          ]
+        }
+      ]
+    },
+    "sspm-def": {
+      "statement": "SSPM logs are user and application activity metadata for your SaaS applications and third-party SaaS application integrations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-saas-security-posture-management-sspm-logs.json",
+          "quotes": [
+            "logs are defined as user and application activity metadata for your SaaS applications and for third-party SaaS application integrations."
+          ]
+        }
+      ]
+    },
+    "easm-def": {
+      "statement": "EASM logs are the public internet-facing assets that EASM discovers and scans; the page lists web pages, SSL/TLS certificates and IP addresses among them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-easm-logs.json",
+          "quotes": [
+            "logs are defined as public internet-facing assets that are discovered and scanned by Zscaler EASM",
+            "These public internet-facing corporate assets include:",
+            "Web pages",
+            "SSL/TLS certificates",
+            "IP addresses"
+          ]
+        }
+      ]
+    },
+    "health360-def": {
+      "statement": "Health360 logs are product usage data, policy and configuration data, and product health data processed to generate insights about your use of Zscaler products.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-health360-logs.json",
+          "quotes": [
+            "Product usage data, policy and configuration data, and product health data that are processed to generate insights regarding your use of Zscaler products."
+          ]
+        }
+      ]
+    },
+    "experience-center-def": {
+      "statement": "Experience Center logs are records of administrative access and usage within Experience Center.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-experience-center-logs.json",
+          "quotes": [
+            "Records of administrative access and usage within Experience Center."
+          ]
+        }
+      ]
+    },
+    "deception-def": {
+      "statement": "Deception logs are Security Telemetry Logs (from interactions between suspected attackers and auto-generated decoys) and Audit logs (configuration changes on the Deception Admin Portal); they do not include your internal system logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-deception-logs.json",
+          "quotes": [
+            "The security telemetry data that is generated based on the interactions between the suspected attackers and the auto-generated decoys.",
+            "The activity logs of configuration changes made by you on the Deception Admin Portal.",
+            "Logs do not include your internal system logs."
+          ]
+        }
+      ]
+    },
+    "deception-stream": {
+      "statement": "With the Deception log streaming service ordered, logs can be streamed in real time to an on-premises solution and sent to multiple systems for retention as long as you choose.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-deception-logs.json",
+          "quotes": [
+            "If you ordered the Deception log streaming service, then you can stream the logs in real-time to an on-premises solution.",
+            "The logs can be sent to multiple systems that allow you to retain them for however long you choose."
+          ]
+        }
+      ]
+    },
+    "endpoint-ai-def": {
+      "statement": "Endpoint AI Security logs are metadata and telemetry from AI-driven activity on managed endpoints, policy decisions, asset inventory, and content such as user prompts and tool inputs/outputs; if you opt out of prompt and tool input/output capture, tool calls are still logged but not the prompts or responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-endpoint-ai-logs.json",
+          "quotes": [
+            "logs are defined as metadata and telemetry generated by AI-driven activity on managed endpoints",
+            "content such as user prompts and tool inputs/outputs.",
+            "If you opt out, Zscaler will still log which tools were called, but not the prompts sent to each tool or the responses returned.",
+            "policy decisions, asset inventory (applications, packages, AI agent assets)"
+          ]
+        }
+      ]
+    },
+    "zcc-types": {
+      "statement": "Client Connector logs are Packet Capture Logs, Client Connector Logs and Tunnel Logs; packet capture can be globally enabled or disabled, and Client Connector log verbosity is configurable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-client-connector-logs.json",
+          "quotes": [
+            "logs are defined as Packet Capture Logs, Client Connector Logs, and Tunnel Logs.",
+            "You can globally enable or disable the packet capture.",
+            "Log verbosity is configurable."
+          ]
+        }
+      ]
+    },
+    "zcc-telemetry": {
+      "statement": "Client Connector logs might also contain local performance and diagnostic metrics (Zscaler Client Connector Telemetry); if the log tenant is in the European Union you can enable it in the Client Connector Portal settings page, for all others it is enabled by default with an opt-out on the same page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-client-connector-logs.json",
+          "quotes": [
+            "If your log tenant is located in the European Union, you can enable Zscaler Client Connector Telemetry from the settings page within the Zscaler Client Connector Portal.",
+            "Zscaler Client Connector Telemetry is enabled by default for all others with the option to opt-out within the same settings page described earlier.",
+            "logs might also contain local performance and diagnostic metrics, including technical and operational metrics related to agents, devices, and authentication (referred to as Zscaler Client Connector Telemetry)."
+          ]
+        }
+      ]
+    },
+    "cbc-types": {
+      "statement": "Cloud & Branch Connector logs are Session, Tunnel, DNS and Audit Logs; Audit Logs cover configuration changes made via the Cloud & Branch Connector Admin Portal or API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-cloud-and-branch-connector-logs.json",
+          "quotes": [
+            "logs are defined as Session Logs, Tunnel Logs, DNS Logs, and Audit Logs.",
+            "Activity logs of the configuration changes made via the Cloud & Branch Connector Admin Portal or API for Cloud Connector or Branch Connector."
+          ]
+        }
+      ]
+    },
+    "ztg-types": {
+      "statement": "Zero Trust Gateway logs are defined as Session, Tunnel, DNS and Audit Logs; its Audit Logs are configuration changes made via the Cloud & Branch Connector Admin Portal or API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-gateway-logs.json",
+          "quotes": [
+            "logs are defined as Session Logs, Tunnel Logs, DNS Logs, and Audit Logs.",
+            "Activity logs of the configuration changes made via the Cloud & Branch Connector Admin Portal or API for Cloud Connector or Branch Connector."
+          ]
+        }
+      ]
+    },
+    "cellular-edge": {
+      "statement": "Zscaler Cellular Edge logs are Session, Tunnel, DNS and Audit Logs; its Audit Logs are configuration changes via the Cloud & Branch Connector Admin Portal or API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-cellular-sim-and-cellular-edge-logs.json",
+          "quotes": [
+            "Zscaler Cellular Edge logs are defined as Session Logs, Tunnel Logs, DNS Logs, and Audit Logs.",
+            "Audit Logs: Zscaler Cellular Edge leverages the Cloud & Branch Connector Admin Portal, thus Audit Logs for Zscaler Cellular Edge consist of Activity logs of the configuration changes made via the Cloud & Branch Connector Admin Portal or API for Cloud Connector or Branch Connector."
+          ]
+        }
+      ]
+    },
+    "cellular-sim": {
+      "statement": "Zscaler SIM logs source information from the mobile network operators and include IMSI, IMEI and CDR information; SIM Event Logs record events such as SIM authenticated time, SIM location and network change, and SIM Data Usage Logs hold bytes transferred and time of usage; these apply only to the Zscaler SIM services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-cellular-sim-and-cellular-edge-logs.json",
+          "quotes": [
+            "will source information from the mobile network operators used, and include IMSI, IMEI, and CDR information.",
+            "These are only applicable to the Zscaler SIM services.",
+            "SIM Event Logs: Whenever a device connects to the Zscaler Cellular Edge, the logging service will receive events like SIM authenticated time, location of the SIM card, network change, etc.",
+            "SIM Data Usage Logs: Usage metrics like bytes transferred and time of usage from the mobile network operator."
+          ]
+        }
+      ]
+    },
+    "ztb-def": {
+      "statement": "Zero Trust Branch logs are Session Logs (traffic flow for sessions from endpoints connected to the Zscaler segmentation network) and Audit Logs (configuration changes in the Zero Trust Branch Admin Portal or API).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-branch-logs.json",
+          "quotes": [
+            "logs are defined as Session Logs and Audit Logs.",
+            "Traffic flow of information related to the sessions originating from endpoints connected to the Zscaler segmentation network.",
+            "Activity logs of the configuration changes made in the Zero Trust Branch Admin Portal or API."
+          ]
+        }
+      ]
+    },
+    "devseg-def": {
+      "statement": "Zero Trust Device Segmentation (formerly Airgap) logs are Session Logs and Audit Logs; Audit Logs are configuration changes made in the Device Segmentation Admin Portal or API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-device-segmentation-logs.json",
+          "quotes": [
+            "For Device Segmentation, logs are defined as Session Logs and Audit Logs.",
+            "Activity logs of the configuration changes made in the Device Segmentation Admin Portal or API.",
+            "the Zscaler Zero Trust Device Segmentation (formerly Airgap) service"
+          ]
+        }
+      ]
+    },
+    "zsdk-types": {
+      "statement": "ZSDK logs are User Logs, App Connector Logs and Audit Logs (configuration changes via the ZSDK Admin Portal), and do not include your internal system logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-sdk-mobile-apps-logs.json",
+          "quotes": [
+            "For ZSDK, logs are defined as follows:",
+            "These logs capture end user requests to applications, endpoint device metadata, or information related to",
+            "Audit Logs: Activity logs of configuration changes you made via the ZSDK Admin Portal.",
+            "Logs do not include your internal system logs.",
+            "User Logs: Activity logs of authorized users who access your mobile application through ZSDK.",
+            "App Connector Logs: Activity logs of the App Connector."
+          ]
+        }
+      ]
+    },
+    "ztbrowser-types": {
+      "statement": "Zero Trust Browser logs are Agent Logs, Workspaces Logs and Zero Trust Extension Tenant Dashboard Logs; the page gives Info as the default log level in the Workspaces Logs entry and says its verbosity is configurable by the user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-browser-logs.json",
+          "after": "Workspaces Logs: Logs the status, operation, and errors related to user workspace management.",
+          "quotes": [
+            "which browser profile was created as per the installation/setup actions or failure/success related to the email validation for use of the product. The default log level is set to Info. The log verbosity is configurable by the user."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-browser-logs.json",
+          "quotes": [
+            "Agent Logs: Agent logs capture information related to the agent",
+            "Workspaces Logs: Logs the status, operation, and errors related to user workspace management.",
+            "Zero Trust Extension Tenant Dashboard Logs: These logs capture telemetry-related logs"
+          ]
+        }
+      ]
+    },
+    "ztbrowser-dash": {
+      "statement": "Zero Trust Extension Tenant Dashboard Logs capture telemetry such as policy evaluation for browsing, heartbeat, authentication, audit and diagnostic logs, plus configuration change logs such as policy modifications and administrative audit logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-browser-logs.json",
+          "quotes": [
+            "Zero Trust Extension Tenant Dashboard Logs: These logs capture telemetry-related logs such as policy evaluation related to browsing activities, heartbeat, authentication, audit, and diagnostic logs.",
+            "They also capture configuration change logs such as policy modifications and administrative audit logs."
+          ]
+        }
+      ]
+    },
+    "ztbrowser-passwords": {
+      "statement": "For the Cloud Browser Isolation feature, Zero Trust Browser logs may capture passwords users enter for password-protected files, which is required to view the file within Zero Trust Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-browser-logs.json",
+          "quotes": [
+            "For the Cloud Browser Isolation feature, logs may also capture passwords that are entered by the user for password-protected files.",
+            "This is required to allow viewing the file from within the Zero Trust Browser."
+          ]
+        }
+      ]
+    },
+    "ztbrowser-agent": {
+      "statement": "The Zero Trust Browser Agent Logs entry says the default logging level is Info and that Agent Logs capture information related to the agent and posture collection activities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-zero-trust-browser-logs.json",
+          "quotes": [
+            "Agent Logs: Agent logs capture information related to the agent",
+            "posture collection activities. The default logging level is set to Info."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

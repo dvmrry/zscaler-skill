@@ -1,0 +1,478 @@
+{
+  "schema_version": 1,
+  "id": "shared.logs-fair-use.fair-use-limits",
+  "title": "What fair-use thresholds, overage and burst rules each Zscaler product's page states",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use.licensing-metrics"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.traffic-forwarding.china-premium"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{zia}} {{zpa}} {{ztbrowser}} The Zero Trust Browser cap is stated on three pages {{divergence:ztb-traffic-cap}}, and the Source IP Anchoring cap on two {{divergence:sipa-traffic-cap}}. The license units are in [[shared.logs-fair-use.licensing-metrics]] and the hub is [[shared.logs-fair-use]]."
+    },
+    {
+      "label": "ZPA Autonomous App Shield.",
+      "text": "{{zpa-shield}}"
+    },
+    {
+      "label": "ZPA China Premium.",
+      "text": "{{zpa-china-lic}} {{zpa-china-bw}} {{zpa-china-burst}} {{zpa-china-sla}} {{zpa-china-ctrl}} The page's tables are examples {{gap:zpa-china-examples}}."
+    },
+    {
+      "label": "Per-seat and per-site thresholds.",
+      "text": "{{sspm}} {{zsdk}} {{branch-connector}} {{easm}} {{ai-platform}} The cloud-wide averages carry no as-of date {{gap:cloud-average-as-of}}."
+    },
+    {
+      "label": "Scanned-data volume.",
+      "text": "{{dspm}} {{dspm-cap}} {{ai-infra}} Both pages pair 'two times the average' with a 1TB figure and an average that must stay below 1TB {{gap:volume-1tb-vs-two-times}}."
+    },
+    {
+      "label": "Per-entity and per-asset processing.",
+      "text": "{{secops}} {{aem}} {{uvm}} {{idp}}"
+    },
+    {
+      "label": "Cellular.",
+      "text": "{{cellular-overage}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The fair-use threshold stated on the product's own page: ZIA below two times the cloud-wide average (currently 8 GB per seat per month), ZPA likewise at 3 GB per seat per month, Agentic SOC 10MB per entity per day.",
+      "uses": [
+        "zia",
+        "zpa",
+        "secops"
+      ]
+    },
+    {
+      "do": "Which cap bounds Zero Trust Browser and Source IP Anchoring traffic, since the ZIA and ZPA pages state the Source IP Anchoring cap against different products' traffic, and the Zero Trust Browser cap is stated on three pages.",
+      "uses": [
+        "ztb-traffic-cap",
+        "sipa-traffic-cap"
+      ]
+    }
+  ],
+  "claims": {
+    "zia": {
+      "statement": "ZIA fair use: average ZIA Monthly Traffic across all purchased seats should be below two times the cloud-wide average (currently 8 GB per seat per month) plus any additional bandwidth entitlement; unauthenticated traffic in excess requires a subscription for additional bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zia-licensing-and-fair-use.json",
+          "quotes": [
+            "the average ZIA Monthly Traffic across all seats purchased should be less than two times the cloud-wide average (currently 8 GB per seat per month) plus any additional bandwidth entitlement you have.",
+            "Unauthenticated traffic in excess of this Fair Use Policy requires a subscription for additional bandwidth."
+          ]
+        }
+      ]
+    },
+    "zpa": {
+      "statement": "ZPA fair use: average monthly traffic across all purchased seats should be below two times the cloud-wide average (currently 3 GB per seat per month) plus any additional bandwidth entitlement; excess requires a subscription for additional entitlements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-licensing-and-fair-use.json",
+          "quotes": [
+            "the average monthly traffic across all seats purchased should be less than two times the cloud-wide average (currently 3 GB per seat per month) plus any additional bandwidth entitlement you have.",
+            "Use of ZPA monthly traffic in excess of this Fair Use Policy requires a subscription for additional entitlements."
+          ]
+        }
+      ]
+    },
+    "zpa-shield": {
+      "statement": "For Autonomous App Shield, tokens and scans are metered in-product against total entitlements across licensed assets (4M tokens and 24 scans per year per asset); when exhausted, additional scans cannot be initiated until more entitlements are purchased.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-licensing-and-fair-use.json",
+          "quotes": [
+            "For Autonomous App Shield, usage of tokens and scans is metered in-product against your total entitlements across all licensed assets (4M tokens and 24 scans per year per asset).",
+            "When these entitlements are exhausted, additional scans cannot be initiated until additional entitlements are purchased."
+          ]
+        }
+      ]
+    },
+    "ztbrowser": {
+      "statement": "Zero Trust Cloud Browser data consumption is limited to the SKU's stated data limits; if none is stated, average monthly traffic across all purchased seats must be below two times the cloud-wide average (currently 8 GB per seat per month) plus contractually stated bandwidth entitlements, covering all data uploaded and downloaded via Zero Trust Cloud Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zero-trust-browser-licensing-and-fair-use.json",
+          "quotes": [
+            "data consumption is limited to the stated data limits in the purchased SKU.",
+            "If no data limits are explicitly mentioned, then the allowable average monthly traffic across all purchased seats must be less than two times (2x) the current cloud-wide average (currently 8 GB per seat per month), plus any additional bandwidth entitlements explicitly stated in your contract.",
+            "This Fair Use Policy encompasses all data uploaded and downloaded via the Zero Trust Cloud Browser."
+          ]
+        }
+      ]
+    },
+    "sspm": {
+      "statement": "SSPM fair use: average data transfer per subscribed seat should be below two times the cloud-wide average (currently 8 GB per seat per month); excess requires a subscription for additional entitlements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-saas-security-posture-management-sspm-licensing-and-fair-use.json",
+          "quotes": [
+            "the average data transfer per subscribed seat should be less than two times the cloud-wide average (currently 8 GB per seat per month).",
+            "Usage exceeding the Fair Use Policy requires a subscription for additional entitlements."
+          ]
+        }
+      ]
+    },
+    "zsdk": {
+      "statement": "ZSDK fair use: average monthly traffic per client mobile app is expected to be below 950 TB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-sdk-mobile-apps-licensing-and-fair-use.json",
+          "quotes": [
+            "the average monthly traffic per client mobile app is expected to be less than 950 TB."
+          ]
+        }
+      ]
+    },
+    "branch-connector": {
+      "statement": "Zero Trust Branch Connector fair use: average data transfer from 50 devices/servers per site is 100 GB per month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zero-trust-branch-connector-licensing-and-fair-use.json",
+          "quotes": [
+            "the average data transfer from 50 devices/servers per site is 100 GB for each month."
+          ]
+        }
+      ]
+    },
+    "dspm": {
+      "statement": "DSPM fair use: the average volume of scanned data per data store is expected to be less than two times the observed average across Zscaler customers, and the page adds '(currently 1TB per data store)'; individual data stores can exceed 1TB provided the average across all subscribed data stores remains below 1TB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-dspm-licensing-and-fair-use.json",
+          "quotes": [
+            "The average volume of scanned data per data store is expected to be less than two times the observed average across Zscaler customers (currently 1TB per data store).",
+            "The volume of some data stores can exceed 1TB, provided that the average volume when calculated across all subscribed data stores remains below 1TB."
+          ]
+        }
+      ]
+    },
+    "dspm-cap": {
+      "statement": "DSPM's fair use includes an average volume cap for scanned data; exceeding it requires an additional volume add-on.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-dspm-licensing-and-fair-use.json",
+          "quotes": [
+            "An average volume cap for scanned data is considered as part of the fair use policy.",
+            "If you exceed that average volume cap, additional volume add-on is required."
+          ]
+        }
+      ]
+    },
+    "ai-infra": {
+      "statement": "AI Asset Management for AI Infrastructure fair use: the average volume of scanned data per data store/platform is expected to be less than two times the cloud-wide average, and the page states 'Currently, 1TB per data store/platform per month'; the volume of some data stores/platforms can exceed 1TB provided the average across all remains below 1TB; the amount scanned follows your scan settings and excess requires a subscription for additional volume.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-asset-management-ai-infrastructure-licensing-and-fair-use.json",
+          "quotes": [
+            "Currently, 1TB per data store/platform per month.",
+            "The amount of data scanned is based on your scan settings.",
+            "The volume of scanned data in excess of this Fair Use Policy requires a subscription for additional volume.",
+            "the average volume of scanned data per data store/platform is expected to be less than two times the cloud-wide average.",
+            "This means that the volume of some data stores/platforms can exceed 1TB, provided that the average volume across all data stores/platforms remains below 1TB."
+          ]
+        }
+      ]
+    },
+    "ai-platform": {
+      "statement": "AI Asset Management Platform fair use: usage must match purchased seats, traffic must be end-user activity to Gen AI, Embedded AI and Endpoint AI apps, the service must not be used for automated, synthetic or non-user-generated traffic at scale, and the provisioned ZIA tenant must not be used outside AI Asset Management.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-ai-asset-management-platform-licensing-and-fair-use.json",
+          "quotes": [
+            "Usage must be consistent with the number of purchased seats.",
+            "The service must not be used for automated, synthetic, or non-user-generated traffic at scale.",
+            "You must not use the provisioned ZIA tenant for capabilities outside AI Asset Management.",
+            "Traffic must represent your end-user activity to generative AI (Gen AI), Embedded AI, and Endpoint AI apps."
+          ]
+        }
+      ]
+    },
+    "secops": {
+      "statement": "Agentic SOC fair use: average data processing (uncompressed) no more than 10MB per entity per day, and average daily queries per account no more than 8,000.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-agentic-secops-licensing-and-fair-use.json",
+          "quotes": [
+            "The average data processing (uncompressed) is expected to be no more than 10MB per entity on a daily basis.",
+            "The average number of daily queries per account is expected to be no more than 8,000 queries per day."
+          ]
+        }
+      ]
+    },
+    "aem": {
+      "statement": "AEM fair use: average data processing (uncompressed) no more than 3MB per asset per day, and average daily queries per account no more than 4K.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-asset-exposure-management-aem-licensing-and-fair-use.json",
+          "quotes": [
+            "The average data processing (uncompressed) is expected to be no more than 3MB per asset on a daily basis.",
+            "The average number of daily queries per account is expected to be no more than 4K queries per day."
+          ]
+        }
+      ]
+    },
+    "uvm": {
+      "statement": "UVM fair use: average data processing (uncompressed) no more than 3MB per asset per day, and average daily queries per account no more than 4K.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-uvm-licensing-and-fair-use.json",
+          "quotes": [
+            "The average data processing (uncompressed) is expected to be no more than 3MB per asset on a daily basis.",
+            "The average number of daily queries per account is expected to be no more than 4K queries per day."
+          ]
+        }
+      ]
+    },
+    "idp": {
+      "statement": "Identity Protection fair use: average data processing (uncompressed) no more than 3MB per user identity per day, and average daily queries per account no more than 4K.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-identity-protection-licensing-and-fair-use.json",
+          "quotes": [
+            "The average data processing (uncompressed) is expected to be no more than 3MB per user identity on a daily basis.",
+            "The average number of daily queries per account is expected to be no more than 4K queries per day."
+          ]
+        }
+      ]
+    },
+    "easm": {
+      "statement": "EASM fair use: under the seat license type, the asset to seat ratio may not exceed 0.75; exceeding requires a subscription for additional entitlements.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-easm-licensing-and-fair-use.json",
+          "quotes": [
+            "under the seat license type, the asset to seat ratio may not exceed 0.75.",
+            "Usage exceeding the Fair Use Policy requires a subscription for additional entitlements."
+          ]
+        }
+      ]
+    },
+    "cellular-overage": {
+      "statement": "If Zscaler Cellular data usage exceeds the data pool in a calendar month, service continues and an overage charge at the Order Form rate per GB is incurred automatically; overages are uncapped unless the Order Form says otherwise, and Zscaler provides no real-time usage alerts, spending caps, throttling or automatic suspension.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zscaler-cellular-sim-and-cellular-edge-licensing-and-fair-use.json",
+          "quotes": [
+            "If data usage exceeds the data pool limit within a calendar month, the service will continue without interruption and an overage charge will be incurred automatically at the pre-agreed rate per GB as specified in the applicable Order Form",
+            "Overage charges are uncapped unless otherwise expressly stated in the applicable Order Form.",
+            "Zscaler does not provide real-time usage alerts, spending caps, throttling or automatic service suspension."
+          ]
+        }
+      ]
+    },
+    "zpa-china-bw": {
+      "statement": "ZPA China Premium bandwidth is measured in Mbps from five-minute samples; per Premium Data Center and calendar month the samples are sorted and the 95th percentile taken (P95) separately for Tx and Rx, the larger is that data center's usage, and the data center values are summed for the month.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-china-premium-service-licensing-and-fair-use.json",
+          "quotes": [
+            "Bandwidth is calculated in Megabits per second (Mbps) using five-minute samples.",
+            "the 95th percentile value is taken (P95 Accounting Method). This calculation is done separately for both the Tx and Rx values.",
+            "The larger of the two is used as that data center's bandwidth usage.",
+            "The P95 Accounting Method bandwidth usage values from all Premium Data Centers are combined (summed) in order to compute the total bandwidth usage for that calendar month."
+          ]
+        }
+      ]
+    },
+    "zpa-china-burst": {
+      "statement": "ZPA China Premium usage must stay within purchased bandwidth 95% of any calendar month (about 36 hours of burst in a 30-day month); maximum burst may not exceed 130% of purchased bandwidth at any time, and excess is best-effort and may be throttled to purchased bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-china-premium-service-licensing-and-fair-use.json",
+          "quotes": [
+            "In a 30-day calendar month, this represents approximately 36 hours.",
+            "The maximum burst bandwidth may not exceed 130% of the purchased bandwidth at any time.",
+            "Excess bursting bandwidth (whether excess in time or in bandwidth) is only available on a best-effort basis and may be subject to throttling down to your purchased bandwidth.",
+            "You must remain within your purchased bandwidth for 95% of the time in any calendar month."
+          ]
+        }
+      ]
+    },
+    "zpa-china-sla": {
+      "statement": "The Supplemental Premium China Services Availability Agreement does not apply if burst limits are exceeded (greater than 130% at any time and/or greater than 5% of five-minute samples in a calendar month).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-china-premium-service-licensing-and-fair-use.json",
+          "quotes": [
+            "The Service Availablility Agreement will not apply if you exceed the burst limits (greater than 130% at any time and/or greater than 5% of five-minute samples in a calendar month).",
+            "Supplemental Premium China Services Availability Agreement"
+          ]
+        }
+      ]
+    },
+    "zpa-china-ctrl": {
+      "statement": "Zscaler may deploy bandwidth control policies to restrict ZPA China Premium consumption to purchased bandwidth, may use third-party network/ISP reports in addition to internal tools, and provides previous-month bandwidth usage reports on written request.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-china-premium-service-licensing-and-fair-use.json",
+          "quotes": [
+            "Zscaler reserves the right to deploy bandwidth control policies to restrict bandwidth consumption to within purchased bandwidth.",
+            "When calculating bandwidth consumption, in addition to internal tools, Zscaler may use reports from 3rd-party network and internet service providers.",
+            "Upon written request, Zscaler will provide bandwidth usage reports for the previous calendar month."
+          ]
+        }
+      ]
+    },
+    "zpa-china-lic": {
+      "statement": "ZPA China Premium is licensed by the bandwidth purchased for the subscription term.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "logs-fair-use-zpa-china-premium-service-licensing-and-fair-use.json",
+          "quotes": [
+            "licensed according to the bandwidth purchased for the subscription term in an order."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "ztb-traffic-cap": {
+      "summary": "Three pages state the traffic cap for Zero Trust Browser differently: its own page gives the SKU data limits or a 2x cloud-wide average of 8 GB per seat per month, while the ZIA and ZPA licensing pages each name a maximum aggregate amount of their own Monthly Traffic across all seats.",
+      "positions": [
+        {
+          "says": "Zero Trust Cloud Browser data consumption is limited to the SKU's stated data limits, or without one to below 2x the cloud-wide average, currently 8 GB per seat per month, plus contractual bandwidth entitlements.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zero-trust-browser-licensing-and-fair-use.json",
+            "quotes": [
+              "data consumption is limited to the stated data limits in the purchased SKU.",
+              "If no data limits are explicitly mentioned, then the allowable average monthly traffic across all purchased seats must be less than two times (2x) the current cloud-wide average (currently 8 GB per seat per month), plus any additional bandwidth entitlements explicitly stated in your contract."
+            ]
+          }
+        },
+        {
+          "says": "On the ZIA licensing page, Zero Trust Browser is subscribed per seat with a maximum aggregate amount of ZIA Monthly Traffic across all seats.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zia-licensing-and-fair-use.json",
+            "quotes": [
+              "Zero Trust Browser (Isolation or Cloud Browser Isolation) and Source IP Anchoring (SIPA) are subscribed per seat with a maximum aggregate amount of ZIA Monthly Traffic across all seats."
+            ]
+          }
+        },
+        {
+          "says": "On the ZPA licensing page, Zero Trust Browser is subscribed per seat with a maximum aggregate amount of ZPA Monthly Traffic across all seats.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zpa-licensing-and-fair-use.json",
+            "quotes": [
+              "Zero Trust Browser (i.e., Browser Isolation, formerly Isolation) and Source IP Anchoring (SIPA) are subscribed per seat with a maximum aggregate amount of ZPA Monthly Traffic across all seats."
+            ]
+          }
+        }
+      ],
+      "impact": "None of the three pages states a figure for the ZIA or ZPA aggregate, and none says which page governs Zero Trust Browser traffic, so a Zero Trust Browser cap taken from one page does not hold for the others."
+    },
+    "sipa-traffic-cap": {
+      "summary": "The ZIA and ZPA licensing pages each say Source IP Anchoring (SIPA) is subscribed per seat with a maximum aggregate amount of their own product's Monthly Traffic across all seats.",
+      "positions": [
+        {
+          "says": "On the ZIA licensing page, SIPA is bounded by a maximum aggregate amount of ZIA Monthly Traffic across all seats.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zia-licensing-and-fair-use.json",
+            "quotes": [
+              "Zero Trust Browser (Isolation or Cloud Browser Isolation) and Source IP Anchoring (SIPA) are subscribed per seat with a maximum aggregate amount of ZIA Monthly Traffic across all seats."
+            ]
+          }
+        },
+        {
+          "says": "On the ZPA licensing page, SIPA is bounded by a maximum aggregate amount of ZPA Monthly Traffic across all seats.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "logs-fair-use-zpa-licensing-and-fair-use.json",
+            "quotes": [
+              "Zero Trust Browser (i.e., Browser Isolation, formerly Isolation) and Source IP Anchoring (SIPA) are subscribed per seat with a maximum aggregate amount of ZPA Monthly Traffic across all seats."
+            ]
+          }
+        }
+      ],
+      "impact": "Neither page gives a figure for the cap, and the pages do not say whether SIPA traffic counts against the ZIA aggregate, the ZPA aggregate or both."
+    }
+  },
+  "gaps": {
+    "volume-1tb-vs-two-times": {
+      "kind": "semantic",
+      "title": "What the 1TB figure is on the DSPM and AI Infrastructure pages",
+      "status": "open",
+      "detail": "Both pages say the average scanned volume is expected below two times the observed or cloud-wide average, give '1TB' in a separate 'currently' sentence, and then say some data stores can exceed 1TB provided the average remains below 1TB. If 1TB were the cloud-wide average the cap would be 2TB, which does not fit an average that must stay below 1TB; the pages do not say whether 1TB is the average or the cap.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
+    "cloud-average-as-of": {
+      "kind": "semantic",
+      "title": "As-of date of the 'currently' cloud-wide averages",
+      "status": "open",
+      "detail": "The pages give 'currently 8 GB per seat per month' for ZIA, Zero Trust Browser and SSPM, 'currently 3 GB' for ZPA and a 'currently 1TB' figure for DSPM and AI Infrastructure with no as-of date or revision rule.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "zpa-china-examples": {
+      "kind": "semantic",
+      "title": "Whether the ZPA China Premium tables state a rule or only examples",
+      "status": "open",
+      "detail": "The ZPA China Premium page gives a burst table (140 Mbps purchased; 200, 180 and 170 Mbps peaks) that support only those examples, and the 36 hours figure is stated for a 30-day month only.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}
