@@ -1,0 +1,216 @@
+{
+  "schema_version": 1,
+  "id": "zbi.file-handling",
+  "title": "Transferring and viewing files in isolation: file types, size limit, Protected Storage and printing",
+  "aliases": [
+    "Protected Storage",
+    "isolation file types",
+    "isolation file size limit",
+    "view files in isolation",
+    "isolation printing disabled"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.file-scanning"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{pdf-conversion-protected-storage}} {{zia-url-filtering-exception}}"
+    },
+    {
+      "label": "File types.",
+      "text": "{{viewable-file-types}} {{non-viewable-file-types}}"
+    },
+    {
+      "label": "Limits and prompts.",
+      "text": "{{size-limit-and-counts}} {{password-protected-prompt}}"
+    },
+    {
+      "label": "Printing.",
+      "text": "{{printing-disabled}}"
+    },
+    {
+      "label": "Browsers.",
+      "text": "{{chrome-firefox-viewing}}"
+    },
+    {
+      "label": "Mobile.",
+      "text": "{{mobile-popups-and-browsers}}"
+    },
+    {
+      "text": "Sandbox and Votiro handling of transferred files is in [[zbi.file-scanning]]. A page that lists these limits outside this area is open {{gap:ranges-limits-page}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the file type is one that can be opened in isolation or only downloaded and uploaded, and whether it is under 1 GB.",
+      "uses": [
+        "viewable-file-types",
+        "non-viewable-file-types",
+        "size-limit-and-counts"
+      ]
+    },
+    {
+      "do": "Whether an exception rule for URL filtering exists and the profile Security controls allow the transfer.",
+      "uses": [
+        "zia-url-filtering-exception"
+      ]
+    }
+  ],
+  "claims": {
+    "pdf-conversion-protected-storage": {
+      "statement": "Files rendered in isolation are converted into a PDF in the isolation browser rather than rendered in their original format, and Protected Storage holds certain files temporarily for the duration of the isolation session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "Files that you render within isolation are not rendered in their original format, but are converted into a PDF in the isolation browser and then rendered for viewing.",
+            "The isolation browser provides a secure area called Protected Storage, where certain files are rendered and held temporarily for the duration of the isolation session."
+          ]
+        }
+      ]
+    },
+    "viewable-file-types": {
+      "statement": "Files of these types can be uploaded, downloaded and opened to render and view in isolation: video .mp4, .ogg, .webm, .wav; audio .mp3, .wav, .ogg; documents .pdf, .txt, .doc, .docx, .xls, .xlsx, .xlsm, .pptx, .ppt; images .jpg, .png, .gif, .bmp, .svg, .ico, .webp, .apng; compressed .zip, .tar, .7z, .rar; other .json, .xml, .html, .csv, .rtf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "You can upload and download the following file types to your Protected Storage and your device, and you can open them directly to render and view while in isolation:",
+            "Video formats: .mp4, .ogg, . webm, .wav",
+            "Audio formats: .mp3, .wav, .ogg",
+            "Document formats: .pdf, .txt, .doc, .docx, .xls, .xlsx, .xlsm, .pptx, .ppt",
+            "Image formats: .jpg, .png, .gif, .bmp, .svg, .ico, .webp, .apng",
+            "Compressed formats: .zip, .tar, .7z, .rar",
+            "Other formats: .json, .xml, .html, .csv, .rtf"
+          ]
+        }
+      ]
+    },
+    "non-viewable-file-types": {
+      "statement": "The .odt, .ods, .odp and .vsdx types can be uploaded and downloaded but not opened for rendering in isolation; video .avi, .mov, .wmv, .avif, .m4v, .m4a, .mkv, .ogv, .oga and image .tiff, .mng, .cur cannot be rendered or viewed but can still be downloaded or uploaded directly.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "You can upload and download .odt, .ods, .odp, and .vsdx file types, but you cannot open them to render and view in isolation.",
+            "You cannot render or view the following file types in isolation. However, you can still download or upload them directly to and from your device:",
+            "Video formats: .avi, .mov, .wmv, .avif, .m4v, .m4a, .mkv, .ogv, .oga",
+            "Image formats: .tiff, .mng, .cur"
+          ]
+        }
+      ]
+    },
+    "size-limit-and-counts": {
+      "statement": "The file size limit for uploading and downloading in an isolated session is 1 GB per file; isolation sets no minimum or maximum number of files transferred at once, multiple files can be uploaded simultaneously and downloads are individual.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "The file size limit for uploading and downloading files in an isolated session is 1 GB per file.",
+            "You can upload multiple files simultaneously, and download files individually.",
+            "Isolation does not set a minimum or maximum limit on how many files you can transfer at once because it depends on each user's personal environment configurations."
+          ]
+        }
+      ]
+    },
+    "password-protected-prompt": {
+      "statement": "A user opening an Office file or password-protected file is prompted for the file-specific password, and the file is then rendered in the isolation browser for the duration of the session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "If a user accesses an Office file or password-protected file, they are prompted to enter the file-specific password.",
+            "Then the file is rendered on the isolation browser for the duration of the isolated session."
+          ]
+        }
+      ]
+    },
+    "zia-url-filtering-exception": {
+      "statement": "To access files from isolation via an Internet & SaaS isolation profile an exception rule for URL filtering must be configured, and the profile Security controls must allow file download, upload or viewing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "To ensure that you can access files from isolation via an Internet & SaaS isolation profile, you must configure an exception rule for URL filtering.",
+            "Before you can begin downloading, uploading, or viewing files within isolation, make sure the Security controls for your Internet & SaaS (ZIA) or Private Access (ZPA) isolation profile are set to allow you to do so."
+          ]
+        }
+      ]
+    },
+    "printing-disabled": {
+      "statement": "When printing is disabled on an isolation profile the user cannot see the print option in the right-click menu or the Print icon in the Zero Trust Mode menu, and File > Print or Ctrl/Cmd+P shows a message that this is disabled by policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "When printing is disabled on an isolation profile, the user cannot see the print option from the right-click menu or the Print icon in the Zero Trust Mode menu.",
+            "If the user tries to select File > Print from the browser menu, or enter the key command CTRL/CMD+P shortcut, a message appears noting that this ability is disabled by policy."
+          ]
+        }
+      ]
+    },
+    "mobile-popups-and-browsers": {
+      "statement": "On some mobile devices file types such as PDFs require the user to allow pop-ups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "Depending on the mobile device used, some file types such as PDFs require the user to allow pop-ups on their device."
+          ]
+        }
+      ]
+    },
+    "chrome-firefox-viewing": {
+      "statement": "The article says available file types can be viewed in isolation in both Google Chrome and Mozilla Firefox browsers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-transferring-and-viewing-files-isolation.json",
+          "quotes": [
+            "You can view available file types in isolation in both Google Chrome and Mozilla Firefox browsers."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "ranges-limits-page": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Whether the Ranges & Limitations page states other values for file size, sessions or mobile",
+      "detail": "The extraction report notes that the Ranges & Limitations page is cited elsewhere for the 1 GB file limit, 10 sessions, 100 MB persistent data and mobile limits but is not in this area; no claim here reads it.",
+      "blocks": "confirming the limits against the page that lists them",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

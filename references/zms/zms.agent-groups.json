@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": "zms.agent-groups",
+  "title": "How Microsegmentation agent groups are configured, aged out, upgraded and managed",
+  "aliases": [
+    "zms agent group",
+    "microsegmentation version profile",
+    "agent age out",
+    "agent group upgrade now",
+    "agent group upgrade failure",
+    "zms kubernetes cluster agent group"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.agents"},
+    {"rel": "see-also", "to": "zms.provisioning-keys"},
+    {"rel": "see-also", "to": "zms.resources"}
+  ],
+  "prose": [
+    {"text": "{{grouping-basis}}"},
+    {"label": "Agent Groups page.", "text": "{{list-columns}} {{upgrade-status-actions}}"},
+    {"label": "General settings.", "text": "{{vm-cloud-fields}} {{description-limit}} {{org-enablement}} {{k8s-platform-field}}"},
+    {"label": "Status.", "text": "{{admin-status-disabled}} {{admin-status-propagation}}"},
+    {"label": "Age out.", "text": "{{vm-age-out}} {{k8s-age-out}}"},
+    {"label": "Upgrades.", "text": "{{version-profiles}} {{upgrade-window}} {{update-sequence}} {{failure-behavior}} {{upgrade-now}}"},
+    {"label": "Open questions.", "text": "The parallel batch size is not given {{gap:parallel-batch-size}}."},
+    {"label": "Related.", "text": "Agents are in [[zms.agents]] and the keys created with a group in [[zms.provisioning-keys]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the group's Admin Status is disabled before looking for missing logs or unenforced policy.",
+      "uses": ["admin-status-disabled"]
+    },
+    {
+      "do": "Whether the group is a VM or Kubernetes Cluster group before relying on Upgrade Now or Reset Upgrade Status.",
+      "uses": ["upgrade-now"]
+    }
+  ],
+  "claims": {
+    "list-columns": {
+      "statement": "The Agent Groups page lists Name, Admin Status, Policy Status (when enabled the group can be used in policy configuration), Type (VM or Kubernetes Cluster), agent Count, Platform (cloud or on-premises) and Upgrade Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agent-groups.json",
+          "quotes": [
+            "Name: The name of the agent group.",
+            "Admin Status: The admin status of the agent group.",
+            "Upgrade Status: The upgrade status of the agent group.",
+            "Policy Status: The policy status of the agent group. If enabled, you can use the agent group in policy configuration.",
+            "Type: The type of agent group: VM or Kubernetes Cluster.",
+            "Count: The number of agents in the agent group.",
+            "Platform: The platform of the agent group (i.e., cloud or on-premises)."
+          ]
+        }
+      ]
+    },
+    "upgrade-status-actions": {
+      "statement": "Depending on an agent group's Upgrade Status, the admin can halt an upgrade in progress, start an on-demand upgrade or view details of a failed upgrade.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agent-groups.json",
+          "quotes": [
+            "Depending on the status, you can halt an upgrade that is in progress, initiate an on-demand upgrade, or view details about a failed upgrade."
+          ]
+        }
+      ]
+    },
+    "admin-status-disabled": {
+      "statement": "If an agent group's Admin Status is disabled, its agents receive configuration updates from the backend but send no logs, and policies are not enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agent-groups.json",
+          "quotes": [
+            "If disabled, the agents within the agent group receive configuration updates from the backend but do not send any logs. Additionally, if the admin status is disabled, policies are not enforced."
+          ]
+        }
+      ]
+    },
+    "admin-status-propagation": {
+      "statement": "Changing an agent group's Admin Status prompts whether to change the Admin Status of all agents in that group too.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-editing-agent-groups.json",
+          "quotes": [
+            "If you change the Admin Status, you are asked if you also want to change the Admin Status for all agents in that group."
+          ]
+        }
+      ]
+    },
+    "grouping-basis": {
+      "statement": "In the VM agent group instructions, agents must be grouped by upgrade plan and location; agents in a group inherit its version profile, schedule, serial or parallel order and halt or skip failure behavior, and on-premises agents need an admin-supplied region, VPC and Subnet IDs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "You must place agents in the same group based on the upgrade plan and location.",
+            "agents in the same agent group inherit the same upgrade plan, including version profile, upgrade schedule, upgrade order (serial or parallel), and upgrade failure behavior (halt or skip).",
+            "For agents deployed in on-premises data center environments, you must provide the admin-supplied region, virtual private cloud (VPC), and Subnet IDs."
+          ],
+          "after": "Configuring VM Agent Groups"
+        }
+      ]
+    },
+    "vm-cloud-fields": {
+      "statement": "A VM agent group's Cloud is AWS, Azure, GCP or On Premises; Azure requires the VNET ID and Subnet ID, and On Premises requires the VPC ID, Subnet ID and Region.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Cloud: Select the cloud for the agent group: AWS, Azure, GCP, or On Premises.",
+            "If you select Azure, you must provide the VNET ID and Subnet ID.",
+            "If you select On Premises, you must provide the VPC ID, Subnet ID, and Region."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "description-limit": {
+      "statement": "A VM or Kubernetes Cluster agent group description is optional and limited to 2,500 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Description: (Optional) Enter a description. The limit is 2,500 characters."
+          ],
+          "after": "To configure a VM agent group:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Description: (Optional) Enter a description. The limit is 2,500 characters."
+          ],
+          "after": "To configure a Kubernetes Cluster agent group:"
+        }
+      ]
+    },
+    "org-enablement": {
+      "statement": "In the VM agent group wizard, the Policy Status and Tamper Protection settings are enabled for an organization by contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Policy Status: Enable or disable this setting. If enabled, the agent group can be used in policy configuration. To enable this feature for your organization, contact Zscaler Support.",
+            "Enable this setting to prevent or detect unauthorized attempts at agent management. To learn more, see Understanding Anti-Tamper Protection. To enable this feature for your organization, contact Zscaler Support."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "vm-age-out": {
+      "statement": "For a VM agent group, Agent Age Out removes inactive agents after a time set in days, hours or minutes; Zscaler recommends at least 30 days and prompts for confirmation below that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Agent Age Out: (Optional) Select Automatically remove inactive agents, then enter the amount of time before the agents time out: Days, Hours, or Minutes.",
+            "Zscaler recommends an age out time of at least 30 days. If the age out time is less than 30 days, you are prompted to confirm this setting before creating the agent group."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "k8s-age-out": {
+      "statement": "For a Kubernetes Cluster agent group, Zscaler recommends an age out time of at least 7 days and prompts for confirmation below that.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Zscaler recommends an age out time of at least 7 days. If the age out time is less than 7 days, you are prompted to confirm this setting before creating the agent group."
+          ],
+          "after": "To configure a Kubernetes Cluster agent group:"
+        }
+      ]
+    },
+    "k8s-platform-field": {
+      "statement": "The Kubernetes platform of a Kubernetes Cluster agent group is optional (EKS, GKE or AKS), and AKS requires the VNET ID and Subnet ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Kubernetes platform: (Optional) Select EKS, GKE, or AKS. If you select AKS, you must provide the VNET ID and Subnet ID."
+          ],
+          "after": "To configure a Kubernetes Cluster agent group:"
+        }
+      ]
+    },
+    "version-profiles": {
+      "statement": "Agent group version profiles are Default (one or two versions older than the Latest release), Latest (the most recent release) and Custom (chosen from the historical list, which includes Latest); Default is preselected when creating a VM group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-installing-upgrading-agent-manager.json",
+          "quotes": [
+            "Default: One or two versions older than the Latest release.",
+            "Latest: The most recent release.",
+            "Custom: Your selection from the historical list of agent version profiles, which includes the Latest release."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Version Profile: The Default version profile is selected by default."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "upgrade-window": {
+      "statement": "In the VM agent group wizard, the upgrade schedule takes a day of the week, time zone, start time and upgrade window; with an 8:00 AM start and a 12-hour window the last required agent upgrade starts no later than 8:00 PM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Upgrade schedule: Select the day of the week, time zone, start time of the upgrade, and the upgrade window.",
+            "if you start the upgrade at 8:00 AM and set the upgrade window to 12 hours, then the final agent upgrade required for the group starts no later than 8:00 PM."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "update-sequence": {
+      "statement": "In the VM agent group wizard, Serial upgrades agents one at a time; Parallel upgrades them in batches whose size is calculated automatically from the group's agent count, so a small group's first batch may include all agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "If you select Serial, agents are upgraded one at a time.",
+            "the system automatically upgrades agents in one or more batches. The batch size is automatically calculated depending on the total agent count in the group.",
+            "For smaller agent groups, the first batch could include all agents"
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "failure-behavior": {
+      "statement": "In the VM agent group wizard, on upgrade failure, Halt next agent upgrade with Serial pauses immediately and marks the group Failed; with Parallel the current batch finishes, the next batch is not started and the group is marked Failed; Skip to next agent continues and marks the group Incomplete.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "If selected with the Serial upgrade sequence, then the upgrade process is immediately paused and the agent group is marked as Failed.",
+            "the current batch of agents continues upgrading until they return to their respective status. However, the next agent batch is not started, and the agent groups are marked as Failed.",
+            "If you select Skip to next agent, the system continues to upgrade the next agent, and the agent group's status is marked as Incomplete."
+          ],
+          "after": "To configure a VM agent group:"
+        }
+      ]
+    },
+    "upgrade-now": {
+      "statement": "Upgrade Now manually upgrades the whole group, lets the admin change update sequence and failure strategy, and leaves the schedule running afterwards; Upgrade Now and Reset Upgrade Status are available for VM agent groups, not Kubernetes Cluster agent groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-managing-agent-groups.json",
+          "quotes": [
+            "Select Upgrade Now to manually upgrade the agent version for the entire group.",
+            "You can change the update sequence (Serial or Parallel) and strategy (Halt next agent upgrade or Skip to next agent) when initiating an immediate upgrade.",
+            "After the agents are upgraded, the upgrade schedule continues as configured.",
+            "To learn more, see Installing & Upgrading the Agent Manager. This option is available for VM agent groups, not Kubernetes Cluster agent groups.",
+            "Select Reset Upgrade Status to refresh the results of the current upgrade status for the agent group. This option is available for VM agent groups, not Kubernetes Cluster agent groups."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "parallel-batch-size": {
+      "kind": "semantic",
+      "title": "How the parallel upgrade batch size is calculated",
+      "status": "open",
+      "detail": "The configuring article says the batch size is \"automatically calculated depending on the total agent count in the group\" and gives no formula.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

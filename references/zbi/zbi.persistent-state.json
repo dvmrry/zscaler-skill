@@ -1,0 +1,164 @@
+{
+  "schema_version": 1,
+  "id": "zbi.persistent-state",
+  "title": "Persistent State and cookie persistence in isolation: what is purged, what is restored, retention and size limits",
+  "aliases": [
+    "persistent state",
+    "isolation session restore",
+    "isolated browser expires",
+    "cookie persistence",
+    "persisting session data"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.end-user-experience"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-purge-10min}} {{enable-in-profile}}"
+    },
+    {
+      "label": "Restoring.",
+      "text": "{{restore-behavior}} {{restore-failure}}"
+    },
+    {
+      "label": "Storage.",
+      "text": "{{storage-retention-limits}}"
+    },
+    {
+      "label": "Cookie persistence.",
+      "text": "{{cookie-persistence}} Whether a profile setting by that name exists in the profile wizards is open {{gap:cookie-setting-location}}."
+    },
+    {
+      "text": "What a new container keeps otherwise is in [[zbi.cloud-browser]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether Persistent State is enabled on the user's isolation profile, and whether it was disabled between the old and new session.",
+      "uses": [
+        "enable-in-profile",
+        "restore-behavior"
+      ]
+    }
+  ],
+  "claims": {
+    "default-purge-10min": {
+      "statement": "The isolated browser expires and closes after 10 minutes of user inactivity, and by default all the data in the expired browser, including content and state, is purged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-persistent-state-isolation.json",
+          "quotes": [
+            "causes the isolated browser to expire and close after 10 minutes of user inactivity",
+            "By default, all the data in that expired isolated browser is purged, along with all the isolated web content and the associated state."
+          ]
+        }
+      ]
+    },
+    "enable-in-profile": {
+      "statement": "Persistent State must be enabled on the user's isolation profile; when enabling it in the profile wizard a consent message is shown, and if it is not enabled the data is destroyed with the container when the user logs out or exceeds the session timeout.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-persistent-state-isolation.json",
+          "quotes": [
+            "admins must enable the Persistent State setting on the user's isolation profile"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "the Enable Persistent State window displays a consent message for you to read before confirming enablement.",
+            "If you do not enable it, the data does not persist, meaning it is destroyed with the container when the user logs out or exceeds the session timeout."
+          ]
+        }
+      ]
+    },
+    "restore-behavior": {
+      "statement": "The user starts restoring by clicking the URL refresh button inside the isolated container; a brand-new isolation session then restores the authentication state for apps and browsing history from the last session, unless the feature was disabled on the profile between the old and new session.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-persistent-state-isolation.json",
+          "quotes": [
+            "the user clicks the refresh button for the URL from within the isolated container",
+            "this action restores the user's authentication state for apps and browsing history from their last session.",
+            "The only time it does not refresh the existing information is if this feature has been disabled for the user's isolation profile between the old and new session."
+          ]
+        }
+      ]
+    },
+    "storage-retention-limits": {
+      "statement": "Persisting session information is backed up encrypted to the Zscaler cloud, purged permanently if not restored for 15 days, purged as soon as persistent state is disabled for the user, and cannot exceed 100 MB.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-persistent-state-isolation.json",
+          "quotes": [
+            "The persisting session information is backed up in an encrypted state to the Zscaler cloud.",
+            "If the session with the persisting data is not restored for 15 days, the data is purged permanently.",
+            "As soon as you disable persistent state for a user, their persisting session data is also purged.",
+            "Persistent session data cannot exceed 100 MB."
+          ]
+        }
+      ]
+    },
+    "restore-failure": {
+      "statement": "If a user fails to restore a session three or more times, or the restored browser does not load, the article says to have them contact their Zero Trust Browser admin.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-persistent-state-isolation.json",
+          "quotes": [
+            "If a user attempts to restore a session three or more times without success, or the restored browser does not load, have them contact their Zero Trust Browser admin."
+          ]
+        }
+      ]
+    },
+    "cookie-persistence": {
+      "statement": "When the profile has the Cookie Persistence setting enabled in Security Controls, cookies migrate from existing or previous sessions to new sessions, but only within the same browser type (Chrome sessions share with Chrome sessions, not Firefox).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-accessing-multiple-sessions-isolation.json",
+          "quotes": [
+            "has the Cookie Persistence setting enabled in Security Controls, then the cookies migrate from existing or previous sessions to new sessions.",
+            "existing isolation sessions in Chrome browsers share cookie data with additional isolation sessions in Chrome browsers, but they cannot migrate the data to additional isolated sessions in Firefox browser windows.",
+            "However, this only applies to the same browser window type."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "cookie-setting-location": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "Where the Cookie Persistence setting appears in the isolation profile wizards",
+      "detail": "The multiple-sessions article names a Cookie Persistence setting in Security Controls. Neither profile creation article (Internet & SaaS or Private Access) lists a setting by that name; this absence was found by reading those two articles, not stated by a source.",
+      "blocks": "telling an admin where to enable cookie persistence",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

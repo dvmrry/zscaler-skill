@@ -39,6 +39,10 @@
     {
       "rel": "see-also",
       "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.file-scanning"
     }
   ],
   "prose": [
@@ -47,6 +51,9 @@
     },
     {
       "heading": "Internet & SaaS"
+    },
+    {
+      "text": "{{prerequisite-licensed-profiles}} {{isolate-action-conditions}} {{authentication-required}} {{bandwidth-control-off}} {{https-needs-ssl-inspection}}"
     },
     {
       "text": "URL Filtering's Isolate action: [[zia.url-filtering.actions:isolate-needs-zbi]], with the provider's checks on such a rule in [[zia.terraform.url-filtering-rules:isolate-validation]]. Cloud App Control's Isolate actions and their restriction: [[zia.cloud-app-control.actions:console-actions]], [[zia.cloud-app-control.actions:isolate-not-mixed]]. The Device Groups criterion has a Cloud Browser Isolation choice: [[zia.iot.policy-use:iot-device-group]]."
@@ -64,7 +71,7 @@
       "heading": "Profiles and subscription"
     },
     {
-      "text": "The profile objects every rule names are in [[zbi.isolation-profiles]]; a tenant whose subscription covers only the Miscellaneous & Unknown category gets a fixed profile and rule, in [[zbi.misc-unknown-subscription]]."
+      "text": "The profile objects every rule names are in [[zbi.isolation-profiles]]; a tenant whose subscription covers only the Miscellaneous & Unknown category gets a fixed profile and rule, in [[zbi.misc-unknown-subscription]]. Sandbox and Votiro in isolation: [[zbi.file-scanning]]."
     }
   ],
   "checks": [
@@ -118,6 +125,84 @@
             "Configure isolation policies.",
             "Configure the access policy for Cloud Browser.",
             "Configure secure SaaS access from unmanaged devices via the User Portal."
+          ]
+        }
+      ]
+    },
+    "isolate-action-conditions": {
+      "statement": "The Isolate action in an Internet & SaaS URL Filtering rule can be enabled only if the protocol is HTTP, HTTPS or both, the HTTP method is limited to CONNECT, GET, TRACE or HEAD, and the user agent is made up of at least one known browser; these parameters are set automatically once the organization enables Zero Trust Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-configuring-internet-and-saas-for-zero-trust-browser.json",
+          "quotes": [
+            "Users can only enable the Isolate action in a URL policy if:",
+            "The protocol is HTTP, HTTPS, or both.",
+            "The HTTP method is limited to CONNECT, GET, TRACE, or HEAD.",
+            "The user agent is comprised of a minimum of one or more known browsers.",
+            "These parameters are automatically set after your organization enables Zero Trust Browser."
+          ]
+        }
+      ]
+    },
+    "bandwidth-control-off": {
+      "statement": "Bandwidth Control is disabled for all traffic from the isolated browser to the Internet & SaaS Public Service Edges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-configuring-internet-and-saas-for-zero-trust-browser.json",
+          "quotes": [
+            "Bandwidth Control is disabled for all traffic from the isolated browser destined to the Public Service Edges for Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "authentication-required": {
+      "statement": "Users must be authenticated before traffic and web requests are redirected to Zero Trust Browser; the Internet & SaaS isolation profile article adds that unauthenticated traffic, or traffic from locations with authentication disabled, is not subjected to isolation policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-configuring-internet-and-saas-for-zero-trust-browser.json",
+          "quotes": [
+            "Users must first be authenticated for any traffic and web requests to be redirected to Zero Trust Browser."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Unauthenticated traffic or traffic from locations with authentication disabled is not subjected to isolation policies."
+          ]
+        }
+      ]
+    },
+    "https-needs-ssl-inspection": {
+      "statement": "For HTTPS web pages to be isolated through an Internet & SaaS isolation profile, the Zscaler service must be configured to inspect SSL traffic, because the isolation container cannot run properly without SSL inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "For HTTPS web pages to be isolated, configure the Zscaler service to inspect SSL traffic.",
+            "The isolation container cannot run properly without SSL inspection of traffic."
+          ]
+        }
+      ]
+    },
+    "prerequisite-licensed-profiles": {
+      "statement": "Before configuring the Internet & SaaS URL Filtering Isolate rule, Zero Trust Browser must be licensed for the organization, and admins use isolation profiles to configure the Internet & SaaS policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-configuring-internet-and-saas-for-zero-trust-browser.json",
+          "quotes": [
+            "Zero Trust Browser is licensed for your organization.",
+            "Admins use the isolation profiles to configure policies in Internet & SaaS."
           ]
         }
       ]

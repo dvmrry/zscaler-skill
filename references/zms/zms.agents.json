@@ -1,0 +1,283 @@
+{
+  "schema_version": 1,
+  "id": "zms.agents",
+  "title": "How Microsegmentation agents are installed, edited, deleted and protected against tampering",
+  "aliases": [
+    "zms agent manager",
+    "microsegmentation agent install",
+    "eyez agent",
+    "microsegmentation anti-tamper",
+    "zms agent uninstall",
+    "zep anti-tamper"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.agent-groups"},
+    {"rel": "see-also", "to": "zms.provisioning-keys"},
+    {"rel": "see-also", "to": "zms.dashboards"},
+    {"rel": "see-also", "to": "zms.analytics"}
+  ],
+  "prose": [
+    {"text": "{{install-tooling}}"},
+    {"label": "Agent list.", "text": "{{agents-columns}}"},
+    {"label": "Agent manager.", "text": "{{manager-prereq-cert}} {{manager-installs-agent}} {{install-failure-mtls}} {{uninstall-commands}}"},
+    {"label": "Editing and deleting.", "text": "{{edit-fields}} {{delete-unregisters}} {{deleted-resources-14d}}"},
+    {"label": "Anti-tamper protection.", "text": "{{anti-tamper-scope}} {{anti-tamper-min-version}} {{anti-tamper-platforms}} {{anti-tamper-zep}} {{anti-tamper-enable-levels}}"},
+    {"label": "Open questions.", "text": "How ZEP's installation with Client Connector fits the host rule is open {{gap:anti-tamper-zcc}}, as is anti-tamper on compatible OS releases outside its list {{gap:anti-tamper-windows}}. {{os-compat-windows-linux}}"},
+    {"label": "Related.", "text": "Agent groups are in [[zms.agent-groups]] and provisioning keys in [[zms.provisioning-keys]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the agent is at least version 1.12.2 and on a listed platform before expecting anti-tamper protection.",
+      "uses": ["anti-tamper-min-version", "anti-tamper-platforms"]
+    },
+    {
+      "do": "Whether outbound port 443 from the host is permitted and not subject to DPI when the service fails to start or register.",
+      "uses": ["install-failure-mtls"]
+    }
+  ],
+  "claims": {
+    "install-tooling": {
+      "statement": "Agents are installed on server workloads (virtual machines, bare metal servers or Kubernetes clusters) and can be installed with configuration management tools that handle Windows .msi files or Linux .deb and .rpm files.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-agent-groups.json",
+          "quotes": [
+            "Agents in Microsegmentation are installed on servers' workloads, such as virtual machines, bare metal servers, or Kubernetes clusters.",
+            "You can install agents using most configuration management tools that accommodate Windows .msi files or Linux .deb and .rpm files."
+          ]
+        }
+      ]
+    },
+    "agents-columns": {
+      "statement": "The Agents page lists each agent's Name, Type, Current Software Version, Connection Status and Admin Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-agents.json",
+          "quotes": [
+            "Name: The name of the agent.",
+            "Type: The type of agent.",
+            "Current Software Version: The software version of the agent.",
+            "Connection Status: The connection status of the agent.",
+            "Admin Status: The admin status of the agent."
+          ]
+        }
+      ]
+    },
+    "edit-fields": {
+      "statement": "An agent can be edited for name, Admin Status (Enabled, Disabled or Inherit From Group), Tamper Protection Status (Disabled or Inherit From Group), Policy Status and description; the additional information cannot be edited.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-editing-agents.json",
+          "quotes": [
+            "Name: Edit the name of the agent.",
+            "Description: (Optional) Edit the description.",
+            "Admin Status: (Optional) Select Enabled, Disabled, or Inherit From Group.",
+            "Tamper Protection Status: (Optional) Select Disabled or Inherit From Group.",
+            "Policy Status: (Optional) Enable or disable the policy status.",
+            "You cannot edit the additional information."
+          ]
+        }
+      ]
+    },
+    "delete-unregisters": {
+      "statement": "Deleting an agent only unregisters it: it stays in the Agent list, and unless the agent is manually uninstalled from the workload the resource it reported is marked as Deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-agents.json",
+          "quotes": [
+            "Deleting an agent does not remove it from the Agent list, because it still exists in the workload services.",
+            "Deleted agents are only unregistered in the system.",
+            "The agent must be manually uninstalled from the workload, otherwise the resource reported by the agent is marked as Deleted."
+          ]
+        }
+      ]
+    },
+    "deleted-resources-14d": {
+      "statement": "Deleted resources might appear in the Application Map when viewing historical flows until the logs roll over every 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-agents.json",
+          "quotes": [
+            "Deleted resources might appear in the Application map when viewing historical flows until the logs roll over every 14 days."
+          ]
+        }
+      ]
+    },
+    "manager-prereq-cert": {
+      "statement": "Before installing the agent manager a signing certificate for Microsegmentation agents must exist; a common practice is a new intermediate certificate named Microsegmentation with the root as parent and Client Certificate Type set to None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-installing-upgrading-agent-manager.json",
+          "quotes": [
+            "Before you install the agent manager, create a signing certificate to be used for Microsegmentation agents.",
+            "A common practice is to generate a new signing certificate named Microsegmentation, which is an intermediate type with the root certificate as its parent.",
+            "When generating this certificate, set the Client Certificate Type to None."
+          ]
+        }
+      ]
+    },
+    "manager-installs-agent": {
+      "statement": "After the agent manager is installed it automatically downloads and installs the agent version in the agent group's version profile, and the agent then connects to the Zscaler Zero Trust Exchange.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-installing-upgrading-agent-manager.json",
+          "quotes": [
+            "The agent manager installs the Zscaler Microsegmentation agent service onto your device.",
+            "the manager automatically downloads and installs the agent version selected in the agent group’s version profile.",
+            "the agent initiates a connection to the Zscaler Zero Trust Exchange (ZTE), and the setup is complete."
+          ]
+        }
+      ]
+    },
+    "install-failure-mtls": {
+      "statement": "If the agent service fails to start or the agent fails to register with the ZTE, the documented likely cause is a firewall or security appliance interfering with its outbound mTLS connection; the fix is to permit outbound port 443 without DPI or similar measures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-installing-upgrading-agent-manager.json",
+          "quotes": [
+            "If the service fails to start or the agent fails to register with the ZTE, it is likely that a firewall or security appliance is interfering with the agent’s outbound mTLS connection.",
+            "Ensure that this outbound connectivity to Port 443 is permitted, and that this connectivity is not subjected to DPI or similar security measures."
+          ]
+        }
+      ]
+    },
+    "uninstall-commands": {
+      "statement": "The agent and agent manager are removed on Debian with `apt remove -y eyez-agentmanager eyez-agent`, on RPM systems with `yum remove -y eyez-agentmanager eyez-agent`, and on Windows by uninstalling EyezAgent and EyezAgentManager.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-installing-upgrading-agent-manager.json",
+          "quotes": [
+            "apt remove -y eyez-agentmanager eyez-agent",
+            "yum remove -y eyez-agentmanager eyez-agent",
+            "Uninstall the EyezAgent.",
+            "Uninstall the EyezAgentManager."
+          ]
+        }
+      ]
+    },
+    "anti-tamper-min-version": {
+      "statement": "Agent version 1.12.2 is the minimum supported version for anti-tamper protection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-understanding-anti-tamper-protection-microsegmentation.json",
+          "quotes": [
+            "Agent version 1.12.2 is the minimum-supported version for the anti-tamper protection feature."
+          ]
+        }
+      ]
+    },
+    "anti-tamper-platforms": {
+      "statement": "Anti-tamper protection supports Windows Server 2022/2025, Ubuntu/Debian Linux with kernel 5.7 and later, and RHEL-like Linux with kernel 4.18.0-372 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-understanding-anti-tamper-protection-microsegmentation.json",
+          "quotes": [
+            "This feature supports Windows Server 2022/2025, Linux systems Ubuntu/Debian kernel 5.7 and later, and RHEL-like kernel 4.18.0-372 and later."
+          ]
+        }
+      ]
+    },
+    "anti-tamper-scope": {
+      "statement": "Anti-tamper protection ensures agent functionality such as reporting, enforcement and upgrades cannot be maliciously disabled or altered, including by an untrusted actor with admin privileges; its notifications are logged on the Agent Telemetry page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-understanding-anti-tamper-protection-microsegmentation.json",
+          "quotes": [
+            "ensures that agent functionality, such as reporting, enforcement, upgrades, etc., can't be maliciously disabled or altered.",
+            "This includes alterations attempted by an untrusted actor running with admin privileges.",
+            "Agent anti-tamper notifications are logged within the Agent Telemetry page."
+          ]
+        }
+      ]
+    },
+    "anti-tamper-zep": {
+      "statement": "Microsegmentation implements anti-tamper through Zscaler Endpoint Protection (ZEP), which installs as part of the Zscaler Client Connector installation but is also available standalone as ZEPInstaller.exe.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-understanding-anti-tamper-protection-microsegmentation.json",
+          "quotes": [
+            "Microsegmentation uses Zscaler Endpoint Protection (ZEP) integration to implement the anti-tamper functionality.",
+            "It installs as a part of the Zscaler Client Connector installation, but is available as a standalone option (ZEPInstaller.exe)."
+          ]
+        }
+      ]
+    },
+    "anti-tamper-enable-levels": {
+      "statement": "Anti-tamper protection can be enabled on an agent group (the preferred method) or per agent, where the agent setting Inherit From Group (Enabled) suits phased rollout, exceptions or targeted enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-enabling-anti-tamper-protection-microsegmentation.json",
+          "quotes": [
+            "Enabling Anti-Tamper Protection for Microsegmentation for an Agent Group",
+            "You can enable it via the agent or agent group.",
+            "Use this preferred method for managing anti-tamper protection.",
+            "Use this method for phased rollout, exceptions, or targeted enforcement.",
+            "In the Tamper Protection section, click Inherit From Group (Enabled)."
+          ]
+        }
+      ]
+    }
+  ,
+    "os-compat-windows-linux": {
+      "statement": "The OS compatibility page lists Windows Server 2012 R2, 2016, 2019, 2022 and 2025, RHEL 7.9 (minimum kernel 3.10.0-1160.160.1.el7.x86_64), SLES 15 and 16, and Amazon Linux AL2 and AL 2023 as compatible with Microsegmentation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-supported-versions-os-compatibility-microsegmentation.json",
+          "quotes": [
+            "Server 2012 R2 Server 2016 Server 2019 Server 2022 Server 2025",
+            "RHEL 7.9 (A minimum kernel version of 3.10.0-1160.160.1.el7.x86_64 is required.) RHEL 8 RHEL 9 RHEL 10",
+            "SLES 15 SLES 16",
+            "AL2 AL 2023"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "anti-tamper-zcc": {
+      "kind": "semantic",
+      "title": "How ZEP shipping with Zscaler Client Connector fits the rule against both on one host",
+      "status": "open",
+      "detail": "The anti-tamper article says ZEP \"installs as a part of the Zscaler Client Connector installation\", while the Microsegmentation overview says agents and Zscaler Client Connector should not be installed on the same host. The captures do not say how the two statements fit.",
+      "resolves_with": ["source-read"]
+    },
+    "anti-tamper-windows": {
+      "kind": "semantic",
+      "title": "Whether compatible OS releases outside the anti-tamper list lack anti-tamper",
+      "status": "open",
+      "detail": "The anti-tamper article lists Windows Server 2022/2025, Ubuntu/Debian kernel 5.7 and later and RHEL-like kernel 4.18.0-372 and later (zms.agents:anti-tamper-platforms), while the OS compatibility page (zms.agents:os-compat-windows-linux) lists Windows Server 2012 R2 to 2025, RHEL 7.9 on kernel 3.10, SLES 15 and 16 and Amazon Linux; no capture says whether agents on those releases lack anti-tamper.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

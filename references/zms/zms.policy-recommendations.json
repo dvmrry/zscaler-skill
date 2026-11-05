@@ -1,0 +1,138 @@
+{
+  "schema_version": 1,
+  "id": "zms.policy-recommendations",
+  "title": "How Microsegmentation flow-based policy recommendations are generated, organized and accepted",
+  "aliases": [
+    "zms policy recommendations",
+    "review policy recommendations resource groups",
+    "port conflict policy conflict",
+    "zms accept recommendation"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.policies"},
+    {"rel": "see-also", "to": "zms.resources"},
+    {"rel": "see-also", "to": "zms.dashboards"}
+  ],
+  "prose": [
+    {"text": "{{basis-14d}}"},
+    {"label": "Reviewing.", "text": "{{organization}} {{conflict-types}} {{conflict-resolution}} {{accept-toggle}}"},
+    {"label": "Where they are listed.", "text": "{{listing-path}}"},
+    {"label": "Related.", "text": "Policies are in [[zms.policies]] and the Application Map entry point in [[zms.dashboards]]. What monthly or quarterly flows do to a recommendation is open in [[zms.overview]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the recommendation shows a port conflict or a policy conflict before expecting to accept it.",
+      "uses": ["conflict-types", "accept-toggle"]
+    },
+    {
+      "do": "The route from the Application Map resource group drawer to the recommendations page.",
+      "uses": ["listing-path"]
+    }
+  ],
+  "claims": {
+    "basis-14d": {
+      "statement": "Policy recommendations for resource groups are based on historical network flows, specifically flows observed within the past 14 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "Microsegmentation provides policy recommendations for resource groups based on historical network flows.",
+            "Policy recommendations are generated based on flows observed within the past 14 days."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "Review policy recommendations for a resource group based on flows from the last 14 days."
+          ]
+        }
+      ]
+    },
+    "organization": {
+      "statement": "Recommendations are organized by managed and unmanaged flows, filterable by inbound or outbound direction.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "organized by managed and unmanaged flows. You can filter managed and unmanaged flows by direction (i.e., inbound and outbound)."
+          ]
+        }
+      ]
+    },
+    "conflict-types": {
+      "statement": "A recommendation can have a port conflict (port not mapped to an Application Catalog application) and a policy conflict (source and destination resource groups already used in an existing policy); both must be resolved before it can be accepted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "Policy recommendations can have two types of conflicts—port conflicts and policy conflicts—that you must resolve in order to accept the recommendation and apply the policy.",
+            "A port conflict means the port is not mapped to an application in the Application Catalog and must be defined in the recommended policy.",
+            "A policy conflict means the source and destination resource groups in the recommended policy are used in an existing policy."
+          ]
+        }
+      ]
+    },
+    "conflict-resolution": {
+      "statement": "A port conflict is resolved by choosing an Application Catalog application or adding the port as a manual port; a policy conflict is resolved by creating a new policy or merging into the existing one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "On the Port Conflicts tab, select the application from the Application Catalog that should be used by the port for the policy, or optionally add the port as a manual port, resolving the overlap.",
+            "You can either create the recommended policy as a new policy or merge it into an existing policy."
+          ]
+        }
+      ]
+    },
+    "accept-toggle": {
+      "statement": "The Accept toggle is enabled when a recommendation has no conflicts, and such a recommendation can be accepted as is.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "If the policy recommendation has no conflicts, the Accept toggle is enabled.",
+            "you can review and accept a recommendation as is, quickly applying the new policy and protecting flows."
+          ]
+        }
+      ]
+    },
+    "listing-path": {
+      "statement": "Both articles give the same route to a resource group's recommendations: from Zero Trust Cloud > Dashboard > Microsegmentation Application Map, select a resource group and click Review Recommended Policies in its drawer, which opens the policy recommendations page for the resource group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "From the navigation menu, go to Zero Trust Cloud > Dashboard > Microsegmentation Application Map.",
+            "On the Application Map, configure the filters as desired, then select a resource group.",
+            "In the drawer, click Review Recommended Policies.",
+            "The Policy Recommendation page for the resource group appears."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zms-reviewing-policy-recommendations-resource-groups.json",
+          "quotes": [
+            "From the navigation menu, go to Zero Trust Cloud > Dashboard > Microsegmentation Application Map.",
+            "On the Application Map, configure the filters as needed, then select a resource group.",
+            "In the drawer, click Review Recommended Policies.",
+            "The policy recommendations page for the resource group appears."
+          ]
+        }
+      ]
+    }
+  }
+}

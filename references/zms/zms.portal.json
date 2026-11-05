@@ -43,7 +43,7 @@
     },
     {
       "label": "AppZones.",
-      "text": "{{app-zones}}"
+      "text": "{{app-zones}} {{appzone-nat-blast}} {{appzone-region}} {{appzone-vpc-default}} {{appzone-overlap}} {{appzone-delete}}"
     },
     {
       "label": "Programmatic writes.",
@@ -174,6 +174,75 @@
             "Add an AppZone.",
             "Edit an AppZone.",
             "Delete an AppZone."
+          ]
+        }
+      ]
+    },
+    "appzone-nat-blast": {
+      "statement": "AppZone definition is affected by the NAT boundary (workloads in one AppZone are assumed to share it) and by policy blast radius (applications that interact and inherit common policies must be in the same AppZone).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-appzones.json",
+          "quotes": [
+            "All application workloads within an AppZone are assumed to be within a common NAT boundary.",
+            "Policy blast radius: Applications that interact with each other and inherit common policies must be in the same AppZone."
+          ]
+        }
+      ]
+    },
+    "appzone-region": {
+      "statement": "An AppZone requires at least one region, and all resources in the selected regions become members.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-appzones.json",
+          "quotes": [
+            "Select at least one region from the drop-down menu to which the AppZone applies. All resources that belong to the selected regions become members of the AppZone."
+          ]
+        }
+      ]
+    },
+    "appzone-vpc-default": {
+      "statement": "The \"Include all VPCs/VNETs for selected regions\" option is selected by default and applies all VPCs or VNETs in the region; deselecting it allows choosing specific VPCs or VNETs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-appzones.json",
+          "quotes": [
+            "Select or deselect the Include all VPCs/VNETs for selected regions checkbox.",
+            "If selected, all virtual private clouds or virtual networks in the region apply to this AppZone. It is selected by default.",
+            "If you deselect it, a new drop-down menu appears to select specific VPCs or VNETs from the regions."
+          ]
+        }
+      ]
+    },
+    "appzone-overlap": {
+      "statement": "A resource must belong to only one AppZone, but overlapping region, VPC/VNET or subnet definitions map the resource to all related AppZones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-appzones.json",
+          "quotes": [
+            "A given resource must belong to only one AppZone.",
+            "If the AppZone definition has overlapping regions either for VPCs or VNETs or subnets, this results in the mapping of resources to all related AppZones and all related data is highlighted on the Resources page."
+          ]
+        }
+      ]
+    },
+    "appzone-delete": {
+      "statement": "Deleting an AppZone removes its matched flow from Flow Logs and leaves its related resources unmapped.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-deleting-appzones.json",
+          "quotes": [
+            "When you delete an AppZone, its matched flow doesn't appear in Flow Logs and any related resources become unmapped."
           ]
         }
       ]

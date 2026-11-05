@@ -1,0 +1,232 @@
+{
+  "schema_version": 1,
+  "id": "zms.resources",
+  "title": "What Microsegmentation resources, Kubernetes cluster resources and resource groups are, including ML recommendations",
+  "aliases": [
+    "zms resource groups",
+    "microsegmentation resources",
+    "managed unmanaged resource group",
+    "system resource groups",
+    "ml recommendations for resource groups",
+    "zms dynamic membership"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.portal"},
+    {"rel": "see-also", "to": "zms.tags"},
+    {"rel": "see-also", "to": "zms.agent-groups"},
+    {"rel": "see-also", "to": "zms.policies"}
+  ],
+  "prose": [
+    {"text": "{{rg-purpose}}"},
+    {"label": "Resources.", "text": "{{resources-columns}} {{k8s-platforms}} {{k8s-columns}}"},
+    {"label": "Resource groups.", "text": "{{rg-managed-unmanaged}} {{system-rgs}} {{dynamic-scopes}} {{rg-prereq-perimeter}}"},
+    {"label": "ML recommendations.", "text": "{{ml-rg-basis}} {{ml-rg-ignore}} {{ml-rg-terms}} {{ml-rg-confidence}} {{ml-rg-top10}}"},
+    {"label": "Related.", "text": "Tags used as criteria are in [[zms.tags]], policies built on groups in [[zms.policies]] and AppZones in [[zms.portal]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the resource group is managed or unmanaged before expecting static or dynamic membership.",
+      "uses": ["rg-managed-unmanaged"]
+    },
+    {
+      "do": "Whether the ML recommendations terms agreement has been accepted, and whether Zscaler Support has enabled ML recommendations for the organization, before expecting recommendations.",
+      "uses": ["ml-rg-terms"]
+    }
+  ],
+  "claims": {
+    "resources-columns": {
+      "statement": "The Resources VM page lists each resource's Name, AppZone, Type, Cloud, Status, Platform (operating system) and Last Seen (last time the resource connected).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-resources.json",
+          "quotes": [
+            "On the Resources page (Zero Trust Cloud > Microsegmentation > Resources VM), you can do the following:",
+            "Name: The name of the resource.",
+            "Type: The type of resource.",
+            "Status: The status of the resource.",
+            "AppZone: The name of the AppZone connected to the resource.",
+            "Platform: The operating system where the resource resides.",
+            "Last Seen: The last time the resource connected.",
+            "Cloud: The cloud name where the resource resides."
+          ]
+        }
+      ]
+    },
+    "k8s-platforms": {
+      "statement": "Kubernetes Clusters are an alternative to virtual machines for agent groups and support GKE, AKS and Amazon EKS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-kubernetes-clusters-microsegmentation.json",
+          "quotes": [
+            "You can use Kubernetes Clusters as an alternative option to virtual machines when configuring agent groups for Microsegmentation.",
+            "It supports Google Kubernetes Engine (GKE), Azure Kubernetes Solution (AKS), and Amazon Elastic Kubernetes Service (Amazon EKS)."
+          ]
+        }
+      ]
+    },
+    "k8s-columns": {
+      "statement": "The Cluster Resources page filters by Name, AppZone, Status and Resource ID and lists Type (Workload, Node or Service) and Status (Active or Inactive).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-kubernetes-clusters-microsegmentation.json",
+          "quotes": [
+            "Filter the information by Name, AppZone, Status, and Resource ID.",
+            "Type: The type of cluster resource it is (Workload, Node, or Service).",
+            "Status: The status of the cluster resource (Active or Inactive)."
+          ]
+        }
+      ]
+    },
+    "rg-purpose": {
+      "statement": "Resource groups anchor Microsegmentation policies and can be built from added resources combined with dynamic criteria on hosts, environments and cloud tag data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-resource-groups.json",
+          "quotes": [
+            "Resource groups are the key factor in configuring Microsegmentation policies.",
+            "Admins can create resource groups based on a combination of the resources added to them and a mix of dynamic criteria, including hosts, environments, and cloud tag data."
+          ]
+        }
+      ]
+    },
+    "rg-managed-unmanaged": {
+      "statement": "Managed resource groups hold resources with agents that are actively protected; unmanaged groups are not actively protected, are defined as CIDR blocks or IP ranges, and only managed groups get static and dynamic membership.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-resource-groups.json",
+          "quotes": [
+            "Managed: The resources have agents and are actively protected.",
+            "Unmanaged: The resources are not actively protected by agents. Unmanaged resource groups are defined as Classless Inter-Domain Routing (CIDR) blocks or IP ranges.",
+            "The Static Membership and Dynamic Membership options are only for Managed resource groups."
+          ]
+        }
+      ]
+    },
+    "system-rgs": {
+      "statement": "System Resource Groups are unmanaged, system-level, view-only resource groups that can be used to define policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-system-resource-groups.json",
+          "quotes": [
+            "The System Resource Groups page lists unmanaged system-level resource groups. You can use these view-only resource groups to define policies."
+          ]
+        }
+      ]
+    },
+    "dynamic-scopes": {
+      "statement": "Dynamic membership criteria use the tag scopes Host (Host Name, Platform, Platform Distro, Platform Version, CPU Architecture), Environment (AMI ID, account/subscription, cloud provider and region, VPC/VNET, subnet, security group, CIDR, IP range), ZMS (agent groups), Cloud and ML.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-resource-groups.json",
+          "quotes": [
+            "Host: Allows users to define criteria for Host Name, Platform, Platform Distro, Platform Version, and CPU Architecture.",
+            "Environment: Allows users to define criteria for AMI ID, Account/Subscription ID, Cloud Provider, Cloud Region, VPC/VNET ID, Subnet ID, Security Group ID, Classless Inter-Domain Routing (CIDR), and IP Range.",
+            "ZMS: Allows the users to select different Zscaler Microsegmentation (ZMS) agent groups.",
+            "Cloud: Allows the users to select different clouds.",
+            "ML: Allows users to select machine learning (ML) recommended tags."
+          ]
+        }
+      ]
+    },
+    "rg-prereq-perimeter": {
+      "statement": "Creating a resource group requires policy enforcement to be enabled for the organization, and the option to create a perimeter policy is selected by default; that policy then appears at the bottom of the Perimeter Policies page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-configuring-resource-groups.json",
+          "quotes": [
+            "Enable policy enforcement for your organization.",
+            "Create Perimeter: The option to create a perimeter policy for the resource group is selected by default.",
+            "the policy appears at the bottom of the Perimeter Policies page."
+          ]
+        }
+      ]
+    },
+    "ml-rg-basis": {
+      "statement": "ML recommendations for resource groups are generated from user-defined cloud tags, cloud environment metadata and host data; approving one configures it automatically as a resource group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-ml-recommendations-resource-groups.json",
+          "quotes": [
+            "ML recommendations automatically find and generate suggestions for resource groups based on user-defined cloud tags, cloud environment metadata, and host data.",
+            "Selecting a recommendation for approval means it is automatically configured as a resource group."
+          ]
+        }
+      ]
+    },
+    "ml-rg-ignore": {
+      "statement": "An ML resource group recommendation can be accepted, edited and approved, or ignored; ignoring one means its specific data will not be regenerated in a future recommendation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-ml-recommendations-resource-groups.json",
+          "quotes": [
+            "Admins can review an ML recommendation and accept and approve it, edit and approve it, or ignore it for resource group configuration.",
+            "Selecting a recommendation to be ignored means that its specific data won't be regenerated in a future recommendation."
+          ]
+        }
+      ]
+    },
+    "ml-rg-terms": {
+      "statement": "Admins must first accept the terms agreement on the ML Recommendations for Resource Groups page before recommendations appear, and disabling ML recommendations requires contacting Zscaler Support; the page also offers instructions to have Zscaler Support enable or disable ML recommendations for the organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-ml-recommendations-resource-groups.json",
+          "quotes": [
+            "Admins must first accept the terms agreement that appears on the ML Recommendations for Resource Groups page in order to begin seeing recommendations. To disable it, admins must contact Zscaler Support.",
+            "View instructions to have Zscaler Support enable or disable ML recommendations for your organization."
+          ]
+        }
+      ]
+    },
+    "ml-rg-confidence": {
+      "statement": "Each ML resource group recommendation has a Confidence Score from 1 (lowest) to 100 (highest) and a name generated from its Dynamic Membership criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-ml-recommendations-resource-groups.json",
+          "quotes": [
+            "Confidence Score: The likelihood from 1 to 100 of how optimal the recommendation is for configuration. A score of 1 is considered the lowest confidence, and a score of 100 is considered the highest confidence.",
+            "Names are generated based on Dynamic Membership criteria, which you can view by clicking an individual recommendation."
+          ]
+        }
+      ]
+    },
+    "ml-rg-top10": {
+      "statement": "For ML recommendations, resource groups by default can include up to 10 dynamic criteria tags; when more than 10 are available for a recommendation the top 10 by priority are chosen: custom tags highest, then cloud tags, ML tags, network identifiers and environment fields, with agent group IDs lowest.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-about-ml-recommendations-resource-groups.json",
+          "quotes": [
+            "By default, resource groups can include up to 10 different dynamic criteria tags. When more than 10 tags are available for the recommendation, they are ranked by priority, and the top 10 ranking tags are selected for the recommendation.",
+            "Custom tags are the highest ranked, followed by cloud tags, ML tags, then network identifiers and environment fields, with agent group IDs as the lowest ranked."
+          ]
+        }
+      ]
+    }
+  }
+}

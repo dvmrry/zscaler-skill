@@ -1,0 +1,142 @@
+{
+  "schema_version": 1,
+  "id": "zms.dashboards",
+  "title": "What the Microsegmentation Flow, Agent and Overview dashboards and the Application Map show",
+  "aliases": [
+    "zms dashboards",
+    "microsegmentation flow dashboard",
+    "microsegmentation application map",
+    "zms overview dashboard",
+    "zms agent dashboard"
+  ],
+  "related": [
+    {"rel": "see-also", "to": "zms.overview"},
+    {"rel": "see-also", "to": "zms.analytics"},
+    {"rel": "see-also", "to": "zms.policy-recommendations"},
+    {"rel": "see-also", "to": "zms.agents"}
+  ],
+  "prose": [
+    {"text": "{{flow-top10}}"},
+    {"label": "Flow dashboard.", "text": "{{flow-panels}}"},
+    {"label": "Agent dashboard.", "text": "{{agent-dashboard}}"},
+    {"label": "Overview dashboard.", "text": "{{overview-status-panels}} {{overview-ml-counts}}"},
+    {"label": "Application Map.", "text": "{{appmap-defaults}} {{appmap-click}}"},
+    {"label": "Related.", "text": "Log pages behind these views are in [[zms.analytics]], and the recommendations reached from the map in [[zms.policy-recommendations]]."}
+  ],
+  "checks": [
+    {
+      "do": "Whether the period asked about falls inside the 1 Hour to 14 Days range of the Flow and Agent dashboards.",
+      "uses": ["flow-top10", "agent-dashboard"]
+    },
+    {
+      "do": "Which resource group the Application Map is showing before reading it as the whole environment.",
+      "uses": ["appmap-defaults"]
+    }
+  ],
+  "claims": {
+    "flow-top10": {
+      "statement": "The Flow dashboard shows at most 10 top metrics per category and its time range filter runs from 1 Hour to 14 Days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-flow-dashboard.json",
+          "quotes": [
+            "You can see a maximum of 10 top metrics for each category.",
+            "Time Range Filter: View flow data from 1 Hour to 14 Days."
+          ]
+        }
+      ]
+    },
+    "flow-panels": {
+      "statement": "The Flow dashboard counts talkers by Source IP and Protocol and listeners by IP, Protocol and Listening Port, and has a panel for flows between agents and resources not connected to any agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-flow-dashboard.json",
+          "quotes": [
+            "Top Permitted Talkers: The allowed resources and IP addresses sending out the number of flows in the network (Source IP and Protocol).",
+            "Top Permitted Listeners: The allowed resources and port combinations receiving the number of flows in the network (IP, Protocol, and Listening Port).",
+            "Top Permitted Flows Between Agent and Non-Agent: The flows between agents and resources not connected to any agents."
+          ]
+        }
+      ]
+    },
+    "agent-dashboard": {
+      "statement": "The Agent dashboard filters agent data from 1 Hour to 14 Days, selects agents by type (Virtual Machines, Kubernetes Node or Kube Connector), and graphs CPU usage and memory of the agent and system for one or several selected agents.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-agent-dashboard.json",
+          "quotes": [
+            "Time Range Filter: View agent data for a specified time period, from 1 Hour to 14 Days.",
+            "Agent Type: Select the type of agent: Virtual Machines, Kubernetes Node, or Kube Connector.",
+            "Agent Name: Select an agent to view graphs of the CPU usage of the agent, system, agent memory, and system memory. You can select multiple agents."
+          ]
+        }
+      ]
+    },
+    "overview-status-panels": {
+      "statement": "The Overview dashboard reports host agent status as Connected, Disconnected or Error, Kubernetes agent status as Connected or Disconnected, and licensed versus connected agents; its resource and resource-group protection panels (Protected or Unprotected) can be downloaded as CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-overview-dashboard.json",
+          "quotes": [
+            "Agent Licensing: Shows how many agents are licensed and actively connected.",
+            "Host Agent Status: Shows how many agents are Connected or Disconnected, or in Error state.",
+            "Kubernetes Agent Status: Shows how many agents are Connected or Disconnected,",
+            "Resource Protection Status: Shows how many resources are Protected or Unprotected. You can also download a CSV file of this information.",
+            "Resource Group Protection Status: Shows how many resource groups are Protected or Unprotected. You can also download a CSV file of this information."
+          ]
+        }
+      ]
+    },
+    "overview-ml-counts": {
+      "statement": "The Overview dashboard shows how many ML resource group recommendations and ML tag recommendations have been found and lets the admin review them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-overview-dashboard.json",
+          "quotes": [
+            "ML Resource Group Recommendations: Shows how many machine learning (ML) recommendations for resource groups have been found and allows you to review them.",
+            "ML Tag Recommendations: Shows how many ML tag recommendations for resource groups have been found and allows you to review them."
+          ]
+        }
+      ]
+    },
+    "appmap-defaults": {
+      "statement": "By default the Application Map displays the first resource group in alphabetical order; the Resource Group filter can be reset to show all, and further filters cover timeframe and AppZone for resource groups or VPCs/VNETs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-application-map.json",
+          "quotes": [
+            "By default, the Application Map displays the first resource group in alphabetical order.",
+            "Use the Resource Group filter to select another group or reset it to show all resource groups.",
+            "You can use additional filters to view data about your organization's resource groups or VPCs/VNETs within a specific timeframe and AppZone."
+          ]
+        }
+      ]
+    },
+    "appmap-click": {
+      "statement": "Clicking a resource group on the Application Map shows its managed and unmanaged flows and, if applicable, offers to review policy recommendations based on those flows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zms-viewing-application-map.json",
+          "quotes": [
+            "You can click a resource group to open a drawer containing its details.",
+            "the map displays information about the group's managed and unmanaged flows, and if applicable, provides the option to review policy recommendations for the resource group based on those flows."
+          ]
+        }
+      ]
+    }
+  }
+}

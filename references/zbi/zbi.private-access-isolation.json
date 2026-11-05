@@ -56,6 +56,14 @@
       "text": "{{session-timeout}} How this interacts with the container idle timeout is open {{gap:timeout-vs-idle}}. {{maintenance}}"
     },
     {
+      "label": "Forwarding internet traffic.",
+      "text": "{{pa-only-traffic-statement}} {{default-forwarding-gap}} {{forward-via-zia-option}} {{forward-profile-settings}} {{forward-dlp-sipa}} The User Portal article describes private application traffic differently {{divergence:private-app-traffic-path}}."
+    },
+    {
+      "label": "SaaS applications from unmanaged devices.",
+      "text": "{{user-portal-catalog}} {{saas-placeholder-domain}} {{saas-forward-option-required}} {{saas-auth-flow}}"
+    },
+    {
       "label": "Automation.",
       "text": "The Python SDK requires a profile ID only for the isolate action: [[zpa.policy.rule-fields:isolation-profile-required-for-isolate]]. {{mcp-create-requires-profile}}"
     }
@@ -295,6 +303,172 @@
           ]
         }
       ]
+    },
+    "pa-only-traffic-statement": {
+      "statement": "The forwarding article states that an isolation browser initiated from Private Access policies can send traffic only via Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "However, an isolation browser initiated from Private Access policies can send traffic only via Private Access."
+          ]
+        }
+      ]
+    },
+    "default-forwarding-gap": {
+      "statement": "Applications defined in Private Access are forwarded via the Private Access client on the isolation container and traffic not defined as a Private Access application is sent directly to the internet, which the article says creates a gap in the organization's security policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Any applications defined in Private Access are forwarded via the Private Access client on the isolation container, and any traffic that is not defined as a Private Access application is sent directly to the internet.",
+            "This traffic flow creates a gap in the security policies defined by the organization."
+          ]
+        }
+      ]
+    },
+    "forward-via-zia-option": {
+      "statement": "Zero Trust Browser supports sending non-private application traffic via Internet & SaaS even when the isolation session starts from a Private Access policy; the feature is enabled per Private Access isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Zero Trust Browser supports sending any non-private application traffic via Internet & SaaS, even though the isolation session is initiated via a Private Access policy.",
+            "You can enable this feature per Private Access isolation profile."
+          ]
+        }
+      ]
+    },
+    "forward-profile-settings": {
+      "statement": "The Private Access profile setting Forward Internet Traffic via Internet & SaaS (Company Settings tab), when enabled, takes a Cloud Name | Organization ID and a recommended or custom PAC file URL; for remote users on Z-Tunnel 1.0 the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings applies firewall rules to traffic forwarded using dedicated IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-private-access.json",
+          "quotes": [
+            "Forward Internet Traffic via Internet & SaaS: Enable or disable this setting.",
+            "Cloud Name (Cloud Name | Organization ID): Select the Zscaler cloud name and organization ID.",
+            "PAC File URL: Select to use either a recommended or custom PAC file.",
+            "For remote users using Z-Tunnel 1.0, select the Enable Firewall for Z-Tunnel 1.0 and PAC Road Warriors option in Advanced Settings to apply firewall rules to the traffic forwarded using dedicated IP addresses."
+          ]
+        }
+      ]
+    },
+    "forward-dlp-sipa": {
+      "statement": "Forwarding private application traffic via Internet & SaaS lets DLP and security policies apply to it and lets Internet & SaaS provide connectivity to the private applications through the Source IP Anchoring route.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "Zero Trust Browser can forward the private application traffic via Internet & SaaS ensuring that all these policies are applied.",
+            "It can also ensure that Internet & SaaS provides connectivity to the private applications via the Source IP Anchoring route.",
+            "Users who isolate private web applications might also want to enforce DLP policies or security policies on the traffic."
+          ]
+        }
+      ]
+    },
+    "saas-placeholder-domain": {
+      "statement": "To isolate a SaaS application whose domain the organization does not own, the admin defines a Private Access application segment with an application using a placeholder domain, configured for browser access; the URL is rewritten to its full extent when pushed into isolation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "Because the admin does not own this domain, they must define an application segment with an application using a placeholder domain",
+            "The admin has ensured that the application defined is configured for browser access."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+          "quotes": [
+            "However, the URL is rewritten to its full extent when pushed into isolation."
+          ]
+        }
+      ]
+    },
+    "saas-forward-option-required": {
+      "statement": "The isolation profile selected for the SaaS isolation policy must have Forward Internet Traffic via Internet & SaaS enabled under Company Settings; otherwise the SaaS traffic from the isolated browser is not forwarded via Internet & SaaS and is not inspected, logged or enforced by its policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "has the Forward Internet Traffic via Internet & SaaS option enabled under the Company Settings tab.",
+            "the SaaS application traffic generated from the isolated browser is not forwarded via Internet & SaaS and the traffic is not inspected, logged, or enforced with the policies defined on Internet & SaaS."
+          ]
+        }
+      ]
+    },
+    "saas-auth-flow": {
+      "statement": "From an unmanaged device, accessing the placeholder domain prompts authentication with the Private Access IdP, then redirects to an isolation session where the user authenticates to Internet & SaaS before the isolated browser reaches the original SaaS URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "you are prompted to authenticate with your identity provider (IdP), which is configured with Private Access.",
+            "you are redirected to an isolation session and prompted to authenticate to Internet & SaaS.",
+            "the isolated browser accesses the original SaaS application URL configured in the application segment that you created",
+            "try accessing the placeholder domain that you used to create the application segment."
+          ]
+        }
+      ]
+    },
+    "user-portal-catalog": {
+      "statement": "The User Portal is a portal where users see a catalog of all published private and SaaS applications published via Private Access Browser Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+          "quotes": [
+            "Users can access the user portal URL and see the list of all published private and SaaS applications.",
+            "You can create a portal called the User Portal for users to access as a catalog of applications published via Private Access Browser Access."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "private-app-traffic-path": {
+      "summary": "The forwarding article says private application traffic can be forwarded via Internet & SaaS (Source IP Anchoring route), while the User Portal article says traffic of applications defined on Private Access continues to be forwarded via Private Access's ZTNA service.",
+      "positions": [
+        {
+          "says": "Zero Trust Browser can forward private application traffic via Internet & SaaS, which provides connectivity to the private applications via the Source IP Anchoring route.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-forwarding-traffic-from-private-access-to-internet-and-saas-profiles-in-isolation.json",
+            "quotes": [
+              "Zero Trust Browser can forward the private application traffic via Internet & SaaS ensuring that all these policies are applied.",
+              "It can also ensure that Internet & SaaS provides connectivity to the private applications via the Source IP Anchoring route."
+            ]
+          }
+        },
+        {
+          "says": "Traffic generated by applications defined on Private Access continues to be forwarded via Private Access's ZTNA service.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-secure-saas-access-unmanaged-devices-user-portal.json",
+            "quotes": [
+              "Any traffic generated by applications defined on Private Access will continue to be forwarded via Private Access"
+            ]
+          }
+        }
+      ],
+      "impact": "An answer on which service carries private application traffic from an isolation session depends on which article is followed; the User Portal article may describe a different flow, which neither page settles."
     }
   },
   "gaps": {

@@ -1,0 +1,208 @@
+{
+  "schema_version": 1,
+  "id": "zbi.file-scanning",
+  "title": "Sandbox and Votiro CDR integration with isolation: flow, prerequisites and profile settings",
+  "aliases": [
+    "sandbox integration zero trust browser",
+    "Votiro isolation profile",
+    "Votiro Secure File Gateway",
+    "flattened PDF CDR",
+    "red Sandbox banner",
+    "isolation sandbox verdict"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zbi.cloud-browser"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.policy"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.isolation-profiles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zbi.file-handling"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Sandbox.",
+      "text": "{{sandbox-prerequisites}} {{sandbox-analysis-time}} {{sandbox-flow-verdicts}} {{sandbox-banner-colors}} The download options after a Malicious verdict differ between the two articles {{divergence:malicious-verdict-download-options}}."
+    },
+    {
+      "label": "Votiro.",
+      "text": "{{votiro-cdr-behavior}} {{votiro-profile-settings}} {{inline-scan}} The partner-page description is in [[zbi.cloud-browser:votiro-cdr]]."
+    },
+    {
+      "text": "Limits on the files sent to the sandbox are open {{gap:sandbox-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether a Sandbox policy exists in Internet & SaaS and the profile has the Sandbox option for file transfer enabled.",
+      "uses": [
+        "sandbox-prerequisites"
+      ]
+    },
+    {
+      "do": "Whether the Votiro Download or Upload toggle is on in the Internet & SaaS profile.",
+      "uses": [
+        "votiro-profile-settings"
+      ]
+    }
+  ],
+  "claims": {
+    "sandbox-flow-verdicts": {
+      "statement": "When a downloaded document meets the sandbox criteria, the user is redirected to an isolated session to view the file while analysis runs; if the verdict is Malicious the user can keep viewing in isolation or download a flattened PDF with no active content, and if Benign the user can download the original file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-sandbox-integration-zero-trust-browser.json",
+          "quotes": [
+            "When a user downloads a document file that meets the criteria to be sandboxed, they are redirected to an isolated browser session and can view the file in the isolated container while the sandbox analysis is in progress.",
+            "After the sandbox analysis is complete, if the verdict from the sandbox is Malicious, the user can continue viewing the file in isolation, or download a flattened PDF version of the file with no active content onto the local computer.",
+            "If the sandbox verdict is Benign, the user can download the original file onto their device."
+          ]
+        }
+      ]
+    },
+    "sandbox-analysis-time": {
+      "statement": "In the Internet & SaaS sandbox flow where the file is quarantined (the user sees a temporary quarantine page), the article says analysis of the file can take anywhere between 5 to 10 minutes, and that if the sandbox determines the file is malicious it blocks the file download.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-about-sandbox-integration-zero-trust-browser.json",
+          "quotes": [
+            "While analyzing the file in the sandbox, based on the policy defined, Internet & SaaS can quarantine the file so the user sees a temporary quarantine page.",
+            "The analysis of the file can take anywhere between 5 to 10 minutes.",
+            "If the sandbox environment determines that the file is malicious, it blocks the file download."
+          ]
+        }
+      ]
+    },
+    "sandbox-prerequisites": {
+      "statement": "Using Sandbox with Zero Trust Browser requires a Sandbox policy configured in Internet & SaaS and the Sandbox option for file transfer enabled in the isolation profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-sandbox-integration-with-zero-trust-browser.json",
+          "quotes": [
+            "Configure the Sandbox policy in Internet & SaaS.",
+            "In your isolation profile, enable the Sandbox option for file transfer."
+          ]
+        }
+      ]
+    },
+    "sandbox-banner-colors": {
+      "statement": "After rendering, a red Sandbox banner appears if the sandbox finds malicious content and a blue one if not; clicking the red banner offers the Original File or a Flattened PDF, and clicking the blue banner downloads the original file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-using-sandbox-integration-with-zero-trust-browser.json",
+          "quotes": [
+            "If it does, a red Sandbox banner appears. If it does not, a blue Sandbox banner appears.",
+            "If the file is malicious, click the red Sandbox banner and select your download option: the Original File or a Flattened PDF.",
+            "If the content is benign, click the blue Sandbox banner to download the original file."
+          ]
+        }
+      ]
+    },
+    "votiro-cdr-behavior": {
+      "statement": "Votiro integration sanitizes supported files downloaded from or uploaded to internet destinations through its Content Disarm and Reconstruction services, which return a file in the same format as the original, sanitized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-understanding-votiro-integration-zero-trust-browser.json",
+          "quotes": [
+            "Votiro allows supported files downloaded from, or uploaded to, internet destinations to be sanitized by their Content Disarm and Reconstruction (CDR) services.",
+            "return to the user a file in the same format as the original file, but sanitized."
+          ]
+        }
+      ]
+    },
+    "votiro-profile-settings": {
+      "statement": "Votiro is configured in the Internet & SaaS isolation profile for admins with access to the Votiro Secure File Gateway: separate Download and Upload toggles and a Votiro Policy Name, with a default Votiro policy applied if none is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-understanding-votiro-integration-zero-trust-browser.json",
+          "quotes": [
+            "If you are a Zero Trust Browser admin with access to the Votiro Secure File Gateway for Web Downloads and Uploads, you can use Votiro as part of your Internet & SaaS isolation profile configuration."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-creating-isolation-profiles-for-internet-and-saas.json",
+          "quotes": [
+            "Download: Enable or disable Votiro sanitizing files that you download.",
+            "Upload: Enable or disable Votiro sanitizing files that you upload.",
+            "Votiro Policy Name: Select the Votiro policy to enforce the sanitization. If you do not select a policy, a default Votiro policy is applied."
+          ]
+        }
+      ]
+    },
+    "inline-scan": {
+      "statement": "The Votiro article says any file downloaded or uploaded to the isolation container is inline scanned to ensure it does not contain malware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zero-trust-browser-understanding-votiro-integration-zero-trust-browser.json",
+          "quotes": [
+            "any file downloaded or uploaded to the isolation container is inline scanned to ensure that the file does not contain malware."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "malicious-verdict-download-options": {
+      "summary": "For a Malicious sandbox verdict in an isolated session, the About page says the user can keep viewing in isolation or download a flattened PDF, while the Using page says the red banner offers the Original File or a Flattened PDF.",
+      "positions": [
+        {
+          "says": "On a Malicious verdict the user can keep viewing in isolation or download a flattened PDF with no active content.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-about-sandbox-integration-zero-trust-browser.json",
+            "quotes": [
+              "After the sandbox analysis is complete, if the verdict from the sandbox is Malicious, the user can continue viewing the file in isolation, or download a flattened PDF version of the file with no active content onto the local computer."
+            ]
+          }
+        },
+        {
+          "says": "On a malicious file the red Sandbox banner offers the Original File or a Flattened PDF.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zero-trust-browser-using-sandbox-integration-with-zero-trust-browser.json",
+            "quotes": [
+              "If the file is malicious, click the red Sandbox banner and select your download option: the Original File or a Flattened PDF."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer on whether a user can download the original file after a Malicious verdict depends on which article is followed; both are quoted, neither is settled."
+    }
+  },
+  "gaps": {
+    "sandbox-limits": {
+      "kind": "semantic",
+      "status": "open",
+      "title": "File size or type limits for files an isolation session sends to the sandbox",
+      "detail": "The Sandbox integration articles give no file size or type limits for files sent to the sandbox. Votiro settings appear in the Internet & SaaS wizard text only.",
+      "blocks": "saying which files get sandboxed from isolation",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}
