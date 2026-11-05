@@ -25,6 +25,10 @@
     {
       "rel": "see-also",
       "to": "shared.oneapi.base-urls"
+    },
+    {
+      "rel": "see-also",
+      "to": "ai-security.asset-management"
     }
   ],
   "prose": [
@@ -33,7 +37,7 @@
     },
     {
       "label": "What it is.",
-      "text": "{{purpose}} {{read-only}} {{no-client}} It is a different API from AI Guard's, which evaluates prompts and manages policy: [[ai-security.ai-guard.admin-api]]. Both families of the AI Security specification are in [[ai-security.family:api-families]]."
+      "text": "{{purpose}} {{api-purpose}} {{api-auth}} Whether the API-key and bearer-token statements describe one mechanism is open {{gap:auth-mechanism}}. {{read-only}} {{no-client}} It is a different API from AI Guard's, which evaluates prompts and manages policy: [[ai-security.ai-guard.admin-api]]. Both families of the AI Security specification are in [[ai-security.family:api-families]]."
     },
     {
       "label": "Paging.",
@@ -85,6 +89,34 @@
             "The AI Infrastructure endpoints within the AI Security API expose AI asset inventory, resource metadata, and governance data collected by Zscaler scanning and discovery engines.",
             "All endpoints require a bearer token issued by Authentication Service.",
             "This data is available to external consumers such as security information and event management systems (SIEMs), security orchestration, automation, and response systems (SOARs), Information Technology Service Management (ITSM) platforms, dashboards, and partners."
+          ]
+        }
+      ]
+    },
+    "api-purpose": {
+      "statement": "The API provides programmatic access to AI asset inventory, resource metadata and governance data, for consumers such as SIEMs, SOARs, ITSM platforms and custom dashboards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-zscaler-ai-security-api.json",
+          "quotes": [
+            "The Zscaler AI Security API provides programmatic access to the AI asset inventory, resource metadata, and governance data collected by the Zscaler AI Security.",
+            "The API surfaces this data to external consumers such as SIEMs, SOARs, ITSM platforms, and custom dashboards"
+          ]
+        }
+      ]
+    },
+    "api-auth": {
+      "statement": "The AI Security API authenticates with API keys issued and managed through the Authentication Service (ZID) platform, scoped to roles and Business Units.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-zscaler-ai-security-api.json",
+          "quotes": [
+            "All API access is authenticated via API keys issued and managed through the Authentication Service (ZID) platform.",
+            "API keys are scoped to roles and Business Units to enforce least-privilege access across your organization."
           ]
         }
       ]
@@ -537,6 +569,29 @@
     }
   },
   "gaps": {
+    "auth-mechanism": {
+      "kind": "semantic",
+      "title": "Whether API keys and bearer tokens are one authentication mechanism for the AI Security API",
+      "status": "open",
+      "detail": "One help page says all API access is authenticated via API keys issued through the Authentication Service (ZID) platform; another says every endpoint requires a bearer token issued by Authentication Service. The bearer token issued from Authentication Service client credentials is documented in [[shared.oneapi.authentication]]. Neither page says how a key relates to the token, and the key-creation steps are not on the captured page.",
+      "resolves_with": ["source-read", "lab-test"],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-understanding-zscaler-ai-security-api.json",
+          "quotes": [
+            "All API access is authenticated via API keys issued and managed through the Authentication Service (ZID) platform."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "automate-zscaler/understanding-ai-security-api.json",
+          "quotes": [
+            "All endpoints require a bearer token issued by Authentication Service."
+          ]
+        }
+      ]
+    },
     "rate-window": {
       "kind": "semantic",
       "title": "Whether the AI Security rate limit is per second or per minute",
@@ -562,7 +617,7 @@
       "kind": "data",
       "title": "Entitlement, scopes and data availability for the AI Infrastructure API",
       "status": "open",
-      "detail": "Unverified legacy statement: the contract documents resource shape and routing, not tenant entitlement, authentication scopes or data availability; confirm those against an entitled tenant before depending on the API.",
+      "detail": "Unverified legacy statement: the contract documents resource shape and routing, not tenant entitlement or data availability (role and Business Unit scoping of API keys is stated in api-auth); confirm those against an entitled tenant before depending on the API.",
       "blocks": "whether a tenant can call the inventory API and what it returns",
       "resolves_with": [
         "tenant-data"

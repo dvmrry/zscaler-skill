@@ -1,0 +1,578 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.onboarding",
+  "title": "Account onboarding in AI Security: supported targets, page metrics, integration tabs and actions, Copilot Studio, GitHub and Azure prerequisites and scopes",
+  "aliases": [
+    "account onboarding",
+    "ai security onboarding",
+    "onboard copilot studio",
+    "onboard github tenant",
+    "onboard azure tenant or management group",
+    "zscaler hosted single azure subscription",
+    "configured integrations table",
+    "orchestrator config status"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.onboarding-aws" },
+    { "rel": "see-also", "to": "ai-security.asset-management.onboarding-gcp" },
+    { "rel": "see-also", "to": "ai-security.asset-management.onboarding-azure" },
+    { "rel": "see-also", "to": "ai-security.asset-management.cloud-accounts" },
+    { "rel": "see-also", "to": "ai-security.asset-management.roles" },
+    { "rel": "see-also", "to": "ai-security.asset-management.integrations" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" }
+  ],
+  "prose": [
+    {
+      "text": "{{supported-targets}} {{guide-units}}"
+    },
+    {
+      "label": "The Account Onboarding page.",
+      "text": "{{page-metrics}} {{table-columns}} {{integration-detail-tabs}} {{manage-actions}}"
+    },
+    {
+      "label": "Microsoft Copilot Studio.",
+      "text": "{{copilot-auth}} {{copilot-roles}} {{copilot-app-registration}} {{copilot-flow}} {{copilot-cert}}"
+    },
+    {
+      "label": "GitHub.",
+      "text": "{{github-access}} {{github-scan-schedule}} {{github-frameworks}}"
+    },
+    {
+      "label": "Azure tenant or management group.",
+      "text": "{{azure-scopes}} {{azure-role-creation-modes}} {{azure-roles}} The Azure and Entra tenant pages list different roles {{divergence:azure-tenant-roles}}. {{azure-graph-permissions}} {{azure-tool-versions}} {{azure-tf-state}} {{azure-notification-emails}} {{azure-reader-discovery}} {{azure-scope-autodetect}} {{azure-bu-default}} {{azure-services-roles}} {{azure-evidence-storage}}"
+    },
+    {
+      "label": "Zscaler hosted single Azure subscription.",
+      "text": "{{azure-single-sub-scope}} {{azure-single-sub-privrole}} {{azure-single-sub-fields}}"
+    },
+    {
+      "text": "What each optional Graph permission enables is open {{gap:optional-graph-permissions}}. Whether subscriptions can be added or removed from the Accounts tab without re-onboarding is open {{gap:accounts-tab-reonboarding}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Azure onboarding scope is in use (Tenant, Management Group or Subscription) before judging the roles and role-assignment level.",
+      "uses": ["azure-scopes", "azure-roles", "azure-tenant-roles"]
+    },
+    {
+      "do": "Whether the Azure Graph permissions marked Mandatory are configured; entitlements are affected if the optional ones are not.",
+      "uses": ["azure-graph-permissions"]
+    },
+    {
+      "do": "For Copilot Studio, the authentication type chosen, Client Secret or Certificate, since it determines the credentials needed.",
+      "uses": ["copilot-auth"]
+    }
+  ],
+  "claims": {
+    "supported-targets": {
+      "statement": "AI Security supports onboarding AWS accounts, Azure subscriptions, GCP projects and SaaS applications such as Microsoft Copilot Studio; onboarded accounts are continuously monitored and scanned for sensitive data and vulnerabilities, and issues are generated from data security policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-account-onboarding.json",
+          "quotes": [
+            "AI Security supports the onboarding of Amazon Web Services (AWS) accounts, Microsoft Azure subscriptions, Google Cloud Platform (GCP) projects, and SaaS applications like Microsoft Copilot Studio.",
+            "AI Security continuously monitors and scans the onboarded accounts for sensitive data and vulnerabilities, and generates issues based on data security policy violations."
+          ]
+        }
+      ]
+    },
+    "guide-units": {
+      "statement": "The Step-by-Step Configuration Guide says AWS organizations, Microsoft Azure tenants or GCP organizations can be onboarded into AI Security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-step-step-configuration-guide-ai-security.json",
+          "quotes": [
+            "You can onboard the Amazon Web Services (AWS) organizations, Microsoft Azure tenants, or Google Cloud Platform (GCP) organizations into AI Security."
+          ]
+        }
+      ]
+    },
+    "page-metrics": {
+      "statement": "The Account Onboarding page (Administration> Account Onboarding) reports four metrics: Total Environments, Healthy Integrations, Unhealthy Integrations and Pending Configuration, each with a stated definition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-account-onboarding.json",
+          "quotes": [
+            "On the Account Onboarding page (Administration> Account Onboarding), you can do the following:",
+            "Total Environments: The total number of environments that have been added and configured across all integrations.",
+            "Healthy Integrations: Integrations for which all required permission checks and access validations have passed.",
+            "Unhealthy Integrations: Integrations where one or more permission checks, access validations, or configuration checks have failed or reported issues.",
+            "Pending Configuration: Integrations with one or more environments that are added but still require configuration to be completed."
+          ]
+        }
+      ]
+    },
+    "table-columns": {
+      "statement": "The Configured Integrations table has Integration Alias, Provider, Accounts, Business Units, Health Status, Orchestrator Config Status, Issues and Actions columns; Health Status examples are Passed, Pending and Needs Attention.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-account-onboarding.json",
+          "quotes": [
+            "Search for a specific integration in the Configured Integrations table.",
+            "Integration Alias: The display name for the integration as configured in the system.",
+            "Provider: The service the integration connects to, e.g., AWS, Azure, GCP, Copilot Studio, etc.",
+            "Health Status: The overall integration health based on validation checks, e.g., Passed, Pending, Needs Attention, etc.",
+            "Orchestrator Config Status: The configuration state of the orchestrator or connector used to run the integration, e.g., Successfully Configured, Pending Configuration, Needs Attention).",
+            "Accounts: The number of accounts, tenants, or environments onboarded under the integration.",
+            "Business Units: The organizational groups associated with the integration.",
+            "Issues: A summary or count of detected problems affecting the integration, e.g., failed checks, missing permissions, configuration errors.",
+            "Actions: Available actions are as follows:"
+          ]
+        }
+      ]
+    },
+    "integration-detail-tabs": {
+      "statement": "After onboarding completes successfully, an integration shows Overview, an accounts-detail tab named by account type (Subscriptions, Projects, Accounts or Environments), Issues, and Roles and Templates tabs; while onboarding is in progress or has hit issues, the issue or paused step can be viewed and onboarding resumed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-account-onboarding.json",
+          "quotes": [
+            "When the onboarding process is completed successfully, you can view the following tabs:",
+            "While the onboarding process is in progress or if AI Security has encountered issues, you can view the issue or paused step and resume onboarding.",
+            "Overview: The onboarding status and the orchestrator details.",
+            "Subscriptions, Projects, Accounts, or Environments (based on the cloud account or SaaS application): Details of the onboarded cloud account.",
+            "Issues: The issues encountered while onboarding.",
+            "Roles and Templates: The roles created while onboarding and templates generated by AI Security."
+          ]
+        }
+      ]
+    },
+    "manage-actions": {
+      "statement": "Under \"Manage the cloud accounts:\" the actions are monitoring and autodetection, business unit mapping, on-demand validation, regions, custom tags, notification emails, orchestrator network and orchestrator change, and delete; under \"Manage SaaS Applications:\" they are add account/environment, update credentials and delete. The custom orchestrator network applies only if the AI Security Connection Status is failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-about-account-onboarding.json",
+          "quotes": [
+            "Manage the cloud accounts:",
+            "Monitoring & Autodetection: Add new accounts to the monitoring scope and enable autodetection.",
+            "On Demand Validation: Validate the onboarded accounts.",
+            "Manage Notification Emails: Add email addresses of the recipient to be notified of any configuration or permissions issues while onboarding.",
+            "Managing Orchestrator Network (Custom): Configure the orchestrator network (applicable only if the AI Security Connection Status is failed).",
+            "Business Units Mapping: Assign a different business unit to the account.",
+            "Manage Regions: Select regions that must be monitored and scanned or configure regions to deploy scanning resources for custom network configuration.",
+            "Manage Custom Tags: Add, edit, or delete custom tags.",
+            "Configure New Orchestrator (Zscaler): Change the orchestrator account.",
+            "Delete Account: Delete or offboard an account.",
+            "Manage SaaS Applications:",
+            "Add New Account/Environment: Add new account or environment.",
+            "Update Credentials: Update credentials.",
+            "Delete Integration: Delete integration."
+          ]
+        }
+      ]
+    },
+    "copilot-auth": {
+      "statement": "Onboarding a Microsoft Copilot Studio tenant requires choosing an authentication type, Client Secret (a shared secret from the Azure app registration) or Certificate (a PEM file); the choice determines the credentials needed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-copilot-studio-tenant.json",
+          "quotes": [
+            "You can choose either Client Secret, which uses a shared secret key generated in your Azure app registration, or Certificate, which uses a PEM file for certificate-based authentication.",
+            "The authentication type you select determines the credentials you need to provide during the onboarding process."
+          ]
+        }
+      ]
+    },
+    "copilot-roles": {
+      "statement": "Copilot Studio onboarding needs these roles: Entra ID Application Developer, Cloud Application Administrator and Power Platform Administrator; Power Platform environment System Administrator and Environment Maker; and a Power Automate license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-copilot-studio-tenant.json",
+          "quotes": [
+            "| Entra ID | Application Developer | To create app registrations (creator becomes owner, enabling secret/cert/token/API config) |",
+            "| Entra ID | Cloud Application Administrator | To grant admin consent on API permissions |",
+            "| Entra ID | Power Platform Administrator | To manage Power Platform environments, add S2S app users, use admin connectors in flows |",
+            "| Power Platform Environment | System Administrator | To assign security roles (Service Reader) to app user in Dataverse |",
+            "| Power Platform Environment | Environment Maker | To create flows in the target environment |",
+            "| Licensing | Power Automate license | To create and run Power Automate flows |"
+          ]
+        }
+      ]
+    },
+    "copilot-app-registration": {
+      "statement": "The Copilot Studio app registration needs six Microsoft Graph permissions (Application.Read.All, AuditLog.Read.All, Directory.Read.All, LicenseAssignment.Read.All, User.Read.All, User.Read by default), added under Microsoft Graph > Application Permissions, with admin consent, and a client secret that expires after 180 days by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-copilot-studio-tenant.json",
+          "quotes": [
+            "Search and add all the six required permissions from Microsoft Graph (one by one). The list of permissions are:",
+            "- Application.Read.All",
+            "- AuditLog.Read.All",
+            "- Directory.Read.All",
+            "- LicenseAssignment.Read.All",
+            "- User.Read.All",
+            "- User.Read (by default)",
+            "select Microsoft Graph > Application Permissions.",
+            "click Grant admin consent for <your Azure tenant name>.",
+            "Expires: Select the expiration time from the drop-down menu. By default, 180 days (6 months) is selected."
+          ]
+        }
+      ]
+    },
+    "copilot-flow": {
+      "statement": "Copilot Studio onboarding uses a Power Automate instant cloud flow triggered by an HTTP request, with the Get Connections as Admin action, which generates a flow URL; the flow must be in the environment being onboarded. The Service Reader security role is assigned under Security Roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-copilot-studio-tenant.json",
+          "quotes": [
+            "select the trigger as When an HTTP request is received.",
+            "The Power Automate flow must be created in the same environment where you are onboarding to ensure that the connection details are discovered correctly.",
+            "Under Security Roles, click Edit and assign the Service Reader role.",
+            "Click New Flow > Instant cloud flow.",
+            "locate and select the Get Connections as Admin option.",
+            "A flow URL is generated."
+          ]
+        }
+      ]
+    },
+    "copilot-cert": {
+      "statement": "With the Certificate authentication type, the downloaded PEM file is uploaded to the app registration and Validate is then clicked in the Download Certificate section of AI Security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-microsoft-copilot-studio-tenant.json",
+          "quotes": [
+            "Upload the downloaded PEM file and click Add.",
+            "Return to the Download Certificate section in AI Security and click Validate."
+          ]
+        }
+      ]
+    },
+    "github-scan-schedule": {
+      "statement": "AI Security checks onboarded GitHub tenants for new repositories twice daily, at 12:00 AM and 12:00 PM UTC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-github-tenant.json",
+          "quotes": [
+            "The system checks for new repositories twice daily, at 12:00 AM and 12:00 PM UTC."
+          ]
+        }
+      ]
+    },
+    "github-frameworks": {
+      "statement": "The agentic frameworks supported for GitHub onboarding are CrewAI, n8n, OpenAI Agents, Langchain, Pydantic AI, Google ADK, LlamaIndex, DeepAgents, Strands, Microsoft Agent Framework and Haystack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-github-tenant.json",
+          "quotes": [
+            "The following agentic frameworks are supported: CrewAI, n8n, OpenAI Agents, Langchain, Pydantic AI, Google ADK, LlamaIndex, DeepAgents, Strands, Microsoft Agent Framework and Haystack."
+          ]
+        }
+      ]
+    },
+    "github-access": {
+      "statement": "The Zscaler GitHub integration app reads GitHub metadata and repository files for scanning; repository access can be All repositories (current and future, including public) or Only select repositories (also including public).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-github-tenant.json",
+          "quotes": [
+            "You are prompted to install the integration app so that it can read metadata of GitHub and read files from your repository for scanning.",
+            "All repositories: All current and future repositories owned by the resource owner. This also includes public repositories.",
+            "Only select repositories: Select one or more repositories. This also includes public repositories."
+          ]
+        }
+      ]
+    },
+    "azure-graph-permissions": {
+      "statement": "The Azure tenant or management group page lists, for its app registration, Microsoft Graph Application.Read.All (Application) and User.Read (Delegated) as mandatory; the other listed permissions are optional, and entitlements are affected if they are not configured. The Copilot Studio app registration above lists a different permission set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "| Application.Read.All | Mandatory | Application | Read all applications |",
+            "| User.Read | Mandatory | Delegated | Sign in and read user profile |",
+            "| AuditLog.Read.All | Optional | Application | Read all audit log data |",
+            "| UserAuthenticationMethod.Read.All | Optional | Application | Read all users' authentication methods |",
+            "- Entitlements are affected if the optional API permissions are not configured."
+          ]
+        }
+      ]
+    },
+    "azure-roles": {
+      "statement": "The Azure tenant or management group onboarding page lists these roles: User Access Administrator at the root tenant management group or target subscription (by onboarding scope), Storage Account Contributor on the storage account for the Terraform state file, and Privileged Role Administrator in Microsoft Entra ID to grant API permissions. The Entra tenant page lists a different set.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "| Root Tenant Management Group Target Subscription | User Access Administrator (Based on your onboarding scope) |",
+            "| Storage account | Storage Account Contributor (For Terraform State File) |",
+            "| Microsoft Entra ID | Privileged Role Administrator (For granting the API permission) |"
+          ]
+        }
+      ]
+    },
+    "azure-tool-versions": {
+      "statement": "Documented tool versions for running the Azure templates, by Environment (Terraform, Azure CLI): Mac v1.10.3, 2.65.0; Cloud Shell - Bash v1.9.5, 2.65.0; Cloud Shell - PowerShell v1.9.5, 2.65.0; Windows - Command line v1.7.5, 2.67.0; Windows - PowerShell v1.9.8, 2.67.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "| Environment | Terraform Version | Azure CLI Version | PowerShell or Bash Version |",
+            "| Mac | v1.10.3 | 2.65.0 | version 3.2.57(1)-release (arm64-apple-darwin23) |",
+            "| Cloud Shell - Bash | v1.9.5 | 2.65.0 | version 5.1.8(1)-release (x86_64-pc-linux-gnu) |",
+            "| Cloud Shell - PowerShell | v1.9.5 | 2.65.0 | 7.4.5 |",
+            "| Windows - Command line | v1.7.5 | 2.67.0 | NA |",
+            "| Windows - PowerShell | v1.9.8 | 2.67.0 | 7.4.6 |"
+          ]
+        }
+      ]
+    },
+    "azure-tf-state": {
+      "statement": "Terraform state files must be stored in a storage container, because they are needed to manage resources created by the AI Security Terraform templates and to upgrade to new templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Identify the storage containers where Terraform state files must be stored.",
+            "The state files are required to manage resources created by the AI Security Terraform templates and to upgrade to new templates."
+          ]
+        }
+      ]
+    },
+    "azure-scopes": {
+      "statement": "Azure onboarding scopes are Tenant (role assignment at the tenant root management group, discovering every subscription), Management Group (a group and its descendants; recommended when coverage is needed for only part of the tenant) and Subscription.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Tenant: To onboard the entire Azure AD tenant. A role assignment is created at the tenant root management group, enabling discovery of every subscription in the tenant.",
+            "Management Group: To onboard subscriptions under a specific management group and its descendants. This is the recommended approach when Zscaler coverage is needed for only part of the tenant.",
+            "Subscription: To onboard a single Azure subscription without requiring tenant enumeration."
+          ]
+        }
+      ]
+    },
+    "azure-role-creation-modes": {
+      "statement": "Role creation is Automated (Zscaler generates Terraform modules for the custom role and role assignment using the azurerm provider) or Manual (custom role created and assigned using the existing workflow).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Automated Role Creation: To allow Zscaler to generate Terraform modules for the custom role and role assignment using the azurerm provider.",
+            "Manual Role Creation: To create a custom role and assign roles using the existing workflow."
+          ]
+        }
+      ]
+    },
+    "azure-notification-emails": {
+      "statement": "Up to 30 notification email addresses can be added during Azure onboarding for configuration or permissions issues, and more can be added after onboarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Enter the email addresses of the recipients who must be notified of any configuration or permissions issues encountered with the onboarded tenant.",
+            "You can add up to 30 email addresses to receive notifications about the issues.",
+            "You can also add email addresses after completing the onboarding process."
+          ]
+        }
+      ]
+    },
+    "azure-reader-discovery": {
+      "statement": "In the flow where Zscaler Hosted deployment mode is chosen, the Reader role is granted to the Zscaler service principal at tenant root scope by a PowerShell one-liner; discovery in the next step fails if that step is not completed. Running it requires the Az PowerShell module and a Connect-AzAccount sign-in as User Access Administrator or Owner on the target scope, and the Zscaler app must have admin consent in Azure AD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "In the Select Deployment Mode window, choose Zscaler Hosted.",
+            "Grant Reader Role to Zscaler: Copy the PowerShell one-liner and run it in the Azure Portal to assign the built-in Reader role to the Zscaler service principal at the tenant root scope.",
+            "Discovery in the next step fails if this step is not completed. Ensure the Az PowerShell module is installed, and you are signed in with Connect-AzAccount as a User Access Administrator or Owner on the target scope.",
+            "The Zscaler app must also have admin consent granted in your Azure AD."
+          ]
+        }
+      ]
+    },
+    "azure-scope-autodetect": {
+      "statement": "Autodetection can be enabled on a management group where all current subscriptions are selected, to onboard future subscriptions automatically; custom role definitions are created at the tenant root level and propagate to selected subscriptions. For manual role creation the same page says the custom role is defined at the Management Group or Tenant scope depending on the onboarding scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Enable autodetection on any management group where all current subscriptions are selected to automatically onboard future subscriptions.",
+            "Custom role definitions are created at the tenant root level and propagate to the selected subscriptions.",
+            "Ensure your custom role is defined at the Management Group or Tenant scope depending on your onboarding scope."
+          ]
+        }
+      ]
+    },
+    "azure-bu-default": {
+      "statement": "Every Azure subscription is assigned to a business unit; if no mapping is specified, the Default option is applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "All subscriptions are assigned to a business unit. If no mapping is specified, then the Default option is applied."
+          ]
+        }
+      ]
+    },
+    "azure-services-roles": {
+      "statement": "Each scanning service enabled adds a scoped set of Azure permissions to the Scanning custom role; automated role creation uses an Asset Discovery Role Name and a Scanning Role Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Each service you enable adds a specific, scoped set of Azure permissions to the Scanning custom role, ensuring that only the permissions required for the selected services are granted.",
+            "Asset Discovery Role Name",
+            "Scanning Role Name"
+          ]
+        }
+      ]
+    },
+    "azure-evidence-storage": {
+      "statement": "Evidence Storage is optional: AI Security stores snippets of evidence data from discovered files and tables with sensitive data in a chosen storage account container, configured with an Evidence Role Name, Storage Account Resource ID and Container Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+          "quotes": [
+            "Evidence Storage (Optional): AI Security discovers files and tables containing sensitive data and generates snippets of evidence data to investigate and validate the findings.",
+            "You can choose an existing storage account container or add a new one to store these evidence snippets.",
+            "Evidence Role Name: The name of the evidence role.",
+            "Storage Account Resource ID: The resource ID of the storage account.",
+            "Container Name: The name of the container."
+          ]
+        }
+      ]
+    },
+    "azure-single-sub-scope": {
+      "statement": "For a single Azure subscription with manual role creation the custom role definition is at the subscription scope and the role assignment is performed at Subscription scope; the optional evidence role is defined at the storage account subscription scope and assigned at the evidence storage account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-zscaler-hosted-single-azure-subscription.json",
+          "quotes": [
+            "If you choose manual role creation: Assign a custom role definition with the required Azure permissions to the Zscalerservice principal at your target scope.",
+            "Ensure your custom role is defined at the subscription scope depending on your onboarding scope. The role assignment is performed at the Subscription scope.",
+            "Ensure your custom role is defined in the Storage account Subscription scope and the role assignment is performed at the evidence Storage account."
+          ]
+        }
+      ]
+    },
+    "azure-single-sub-privrole": {
+      "statement": "On the Zscaler hosted single Azure subscription page, granting the API permissions requires the Privileged Role Administrator role in Microsoft Entra ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-zscaler-hosted-single-azure-subscription.json",
+          "quotes": [
+            "You must have the Privileged Role Administrator role in the Microsoft Entra ID to grant API permissions."
+          ]
+        }
+      ]
+    },
+    "azure-single-sub-fields": {
+      "statement": "Single-subscription onboarding takes Subscription ID as a field and Subscription Name as an optional field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ai-asset-mgmt-onboarding-zscaler-hosted-single-azure-subscription.json",
+          "quotes": [
+            "Subscription ID: Enter the Subscription ID.",
+            "Subscription Name (Optional): Enter a subscription name."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "azure-tenant-roles": {
+      "summary": "The Azure tenant or management group onboarding page and the Microsoft Entra tenant or management group page list different roles for onboarding a tenant or management group.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-asset-mgmt-onboarding-azure-tenant-or-management-group.json",
+            "quotes": [
+              "| Root Tenant Management Group Target Subscription | User Access Administrator (Based on your onboarding scope) |",
+              "| Storage account | Storage Account Contributor (For Terraform State File) |",
+              "| Microsoft Entra ID | Privileged Role Administrator (For granting the API permission) |"
+            ]
+          },
+          "says": "The Azure page lists User Access Administrator, Storage Account Contributor and Privileged Role Administrator."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ai-asset-mgmt-onboarding-microsoft-entra-tenant-or-management-group.json",
+            "quotes": [
+              "| Tenant or Management group | Global Administrator | Root |",
+              "| Management group | Contributor | Orchestrator subscription |"
+            ]
+          },
+          "says": "The Entra page lists Global Administrator at Root and, for a management group, Contributor on the orchestrator subscription."
+        }
+      ],
+      "impact": "Which roles to verify depends on which onboarding page the tenant followed; neither page says it supersedes the other."
+    }
+  },
+  "gaps": {
+    "optional-graph-permissions": {
+      "kind": "semantic",
+      "title": "What each optional Azure Graph permission enables",
+      "status": "open",
+      "detail": "No captured page says what each optional Graph permission enables beyond that entitlements are affected if the optional API permissions are not configured.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "accounts-tab-reonboarding": {
+      "kind": "semantic",
+      "title": "Whether adding or removing subscriptions from the Accounts tab requires re-onboarding",
+      "status": "open",
+      "detail": "The Azure tenant page says subscriptions can be added or removed from the integration's Accounts tab 'with re-onboarding required', which can be read as with or without re-onboarding.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

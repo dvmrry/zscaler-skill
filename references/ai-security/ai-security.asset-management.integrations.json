@@ -1,0 +1,228 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.integrations",
+  "title": "How AI Asset Management external integrations work: Amazon S3, Azure Blob Storage, Amazon Security Lake, ServiceNow and Jira",
+  "aliases": [
+    "ai security external integrations",
+    "ai security cloud storage integration",
+    "ai security security lake",
+    "ai security servicenow integration",
+    "ai security jira integration"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" },
+    { "rel": "see-also", "to": "ai-security.asset-management.posture-policies" },
+    { "rel": "see-also", "to": "ai-security.asset-management.roles" },
+    { "rel": "see-also", "to": "ai-security.asset-management.scan-rules" },
+    { "rel": "see-also", "to": "ai-security.asset-management.model-scanning" }
+  ],
+  "prose": [
+    {
+      "text": "{{supported-services}} {{admin-only}} The hub is [[ai-security.asset-management]]. {{gap:integration-scope-and-delete}}"
+    },
+    {
+      "label": "Cloud storage integrations.",
+      "text": "{{list-status-values}} {{data-transfer-toggle}} {{gap:alert-vs-issue-rules}}"
+    },
+    {
+      "label": "Amazon S3.",
+      "text": "{{s3-bucket-policy}} {{s3-sse-kms}} {{s3-initial-pending}}"
+    },
+    {
+      "label": "Azure Blob Storage.",
+      "text": "{{blob-purpose-pending}} {{blob-connection-string}}"
+    },
+    {
+      "label": "Amazon Security Lake.",
+      "text": "{{seclake-ocsf-parquet}} {{seclake-custom-source}} {{seclake-ids-role}} {{seclake-fields-test}} {{seclake-pending}} {{seclake-partitioning}} {{seclake-ocsf-static}} {{seclake-ocsf-map}} {{seclake-troubleshoot}}"
+    },
+    {
+      "label": "ServiceNow.",
+      "text": "{{servicenow-prereqs}} {{servicenow-auth-delay}} {{servicenow-sync}} {{servicenow-routing}} {{gap:servicenow-routing-names}} {{servicenow-tables}} {{gap:servicenow-client-secret-field}}"
+    },
+    {
+      "label": "Jira.",
+      "text": "{{jira-purpose}} {{jira-oauth}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "The bucket encryption key type on an Amazon S3 integration: SSE-S3 for the connection to succeed, and the connection fails with SSE-KMS.",
+      "uses": ["s3-sse-kms"]
+    },
+    {
+      "do": "Whether a Security Lake integration still shows Pending: it stays Pending until alert rules are configured and associated and AI Security starts sending alert data.",
+      "uses": ["seclake-pending"]
+    },
+    {
+      "do": "Which event class the Security Lake custom source uses when the Glue Crawler cannot parse the alert data: the page requires the Security_Finding event class.",
+      "uses": ["seclake-custom-source", "seclake-troubleshoot"]
+    },
+    {
+      "do": "The ServiceNow data delay: the page says to allow up to an hour for data to be pushed into the ServiceNow tables.",
+      "uses": ["servicenow-auth-delay"]
+    }
+  ],
+  "claims": {
+    "supported-services": {
+      "statement": "AI Security integrates with Amazon S3, Azure Blob Storage and Amazon Security Lake cloud storage services to send alert data logs, and with ServiceNow and Jira as ITSM tools.",
+      "tier": "A",
+      "evidence": [
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-cloud-storage-services.json", "quotes": ["The integration enables AI Security to send the alert data logs to these cloud storage services.", "- Amazon S3", "- Azure Blob Storage", "- Amazon Security Lake"]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["IT Service: Select ServiceNow."]},
+        {"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-jira.json", "quotes": ["For IT Service, select Jira."]}
+      ]
+    },
+    "admin-only": {
+      "statement": "Only users with the administrator role can configure cloud storage integrations.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-cloud-storage-services.json", "quotes": ["Only users with the administrator role can configure cloud storage integrations."]}]
+    },
+    "list-status-values": {
+      "statement": "The list of cloud storage integrations shows Last Sent and a Status of Success, Failed, Paused or Pending for the previous data transfer, with the failure reason on hover.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-external-integrations.json", "quotes": ["View the list of cloud storage integrations. For each integration, you can see:", "Last Sent: The date and time when the data was last sent to the storage service.", "Status: The outcome (Success, Failed, Paused, or Pending) of the previous data transfer. For failed status, hover over the label to see the reason for failure."]}]
+    },
+    "data-transfer-toggle": {
+      "statement": "Data transfer is enabled by default on a cloud storage integration; disabling it pauses transfer without deleting the integration, and a transfer in progress completes first.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-about-external-integrations.json", "quotes": ["By default, the data transfer is enabled.", "If you want to pause the transfer without deleting the integration, click the toggle to disable the data transfer.", "If any data transfer is in progress, the activity is completed and then the data transfer is disabled."]}]
+    },
+    "s3-bucket-policy": {
+      "statement": "The Amazon S3 integration authorizes AI Security through an S3 bucket policy that is copied from the Admin Portal and pasted into the bucket in the AWS console, and takes the bucket name and Folder Location.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-s3.json", "quotes": ["Click the Copy icon to copy the S3 Bucket policy.", "For Amazon S3 Bucket Name, enter the bucket name where the data must be stored.", "The policy authorizes AI Security to access the S3 bucket. You need to paste this policy in the AWS console.", "enter the Folder Location of the bucket"]}]
+    },
+    "s3-sse-kms": {
+      "statement": "For the Amazon S3 integration the bucket default encryption must be Amazon S3 managed keys (SSE-S3) for the connection to succeed; with AWS Key Management Service (SSE-KMS) the connection fails.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-s3.json", "quotes": ["Select Amazon S3 managed keys (SSE-S3) as the encryption key type for the connection to be successful", "If you select AWS Key Management Service (SSE-KMS), then the connection fails."]}]
+    },
+    "s3-initial-pending": {
+      "statement": "A new Amazon S3 integration shows Pending until Issue rules are configured and associated with it and AI Security sends data logs, after which the status changes to Success.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-s3.json", "quotes": ["The initial status is shown as Pending because data is not yet sent to the Amazon S3 bucket.", "You must first configure and associate the Issue rules with this integration for AI Security to be able to send the data logs.", "then the status changes to Success."]}]
+    },
+    "blob-connection-string": {
+      "statement": "The Azure Blob Storage integration uses a storage account connection string from the Azure portal; Container Location is optional, but a folder must first be created in Blob Storage before its name is entered.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-azure-blob-storage.json", "quotes": ["A connection string includes the authorization information required for AI Security to access data in your Azure Storage account.", "(Optional) Container Location: Enter the location of the storage container. It is mandatory to first create a folder in your Azure Blob Storage and then add the name."]}]
+    },
+    "blob-purpose-pending": {
+      "statement": "The Azure Blob Storage integration sends issue data logs to Blob Storage containers for storage and data analysis by external tools; its status starts as Pending until issue rules are configured and associated and data is sent, then changes to Success.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-azure-blob-storage.json", "quotes": ["send the issue data logs of your cloud resources to the Azure Blob Storage containers for storage and data analysis by external tools.", "The initial status is shown as Pending because data is not yet sent to the Azure Blob Storage.", "You must configure and associate the issue rules with this integration for AI Security to be able to send the data logs.", "When AI Security sends the data logs to the Blob Storage, then the status changes to Success."]}]
+    },
+    "seclake-ocsf-parquet": {
+      "statement": "Amazon Security Lake uses the Open Cybersecurity Schema Framework (OCSF) for the alert information and requires the Parquet file format for stored alerts; the AI Security integration exports alert data to a pre-configured S3 bucket.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["Amazon Security Lake uses the Open Cybersecurity Schema Framework (OCSF) as the selected format for the alert information and requires the Parquet file format for the stored alerts.", "to export and store the alert data in a dedicated Amazon Simple Storage Service (S3) bucket that is pre-configured as part of the Amazon Security Lake setup."]}]
+    },
+    "seclake-custom-source": {
+      "statement": "Zscaler is set up as a custom source in Security Lake using the Security_Finding event class, in the region where the AWS console is connected; the data source name determines the path in the S3 bucket.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["Zscaler is regarded as a source integration for Amazon Security Lake.", "This name determines the path in the S3 bucket to which the alert data is written.", "Make sure you use the Security_Finding event class.", "The custom source is created in the region where the AWS console is connected."]}]
+    },
+    "seclake-ids-role": {
+      "statement": "The custom source takes the AI Security AWS account ID and External ID copied from the Cloud Storage page of the Admin Portal, which identify AI Security as the source writing to the data lake; the ARN IAM role copied after creating the source is entered in the integration.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["Account ID: Enter the account ID that you copied from the Cloud Storage page in the AI Security Admin Portal.", "External ID: Enter the external ID that you copied from the Cloud Storage page in the AI Security Admin Portal.", "The AWS Account ID and External ID are identifiers of the custom source (AI Security) that writes logs and events to the data lake.", "Copy the ARN IAM role. You need to provide this value while setting up the Security Lake integration in the AI Security Admin Portal."]}]
+    },
+    "seclake-fields-test": {
+      "statement": "The Security Lake integration takes the IAM role ARN, S3 bucket name, bucket region and folder location, and its Test Connection validates that the S3 bucket exists.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["Amazon S3 Bucket Name: Provide the Amazon S3 bucket name.", "Folder Location: Provide the folder path for the S3 bucket set for Amazon Security Lake.", "IAM Role: Enter the AWS Identity and Access Management (IAM) ARN role that you copied after creating the custom source.", "Bucket Region: Select the bucket region from the drop-down menu.", "The test connection validates that the S3 bucket exists."]}]
+    },
+    "seclake-pending": {
+      "statement": "A new Amazon Security Lake integration shows Pending until alert rules are configured and associated and AI Security starts sending alert data, after which the status changes to Success.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["The initial status shows as Pending because data is not yet sent to the Amazon Security Lake.", "After you configure and associate the alert rules with this integration, and when AI Security starts sending the alert data to Amazon Security Lake, the status changes to Success."]}]
+    },
+    "seclake-partitioning": {
+      "statement": "Alert files in Security Lake are posted when the file size reaches 256 MB or after 5 minutes, under the custom source root path in the folder structure region=<awsregion>/accountid=<cloudaccountid>/eventDay=<YYYYMMDD>.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["The files are stored under the root path created for the custom source.", "A new file is generated and posted whenever the file size reaches 256 MB or after 5 minutes.", "The folder structure is: region=<awsregion>/accountid=<cloudaccountid>/eventDay=<YYYYMMDD>."]}]
+    },
+    "seclake-ocsf-static": {
+      "statement": "Alerts exported to Security Lake carry static OCSF values category_name Findings, category_uid 2, class_name Security Finding, class_uid 2001, metadata.product.name ai security, metadata.product.vendor_name zscaler and metadata.version 2.2.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["| category_name |  | Findings |", "| category_uid |  | 2 |", "| class_name |  | Security Finding |", "| class_uid |  | 2001 |", "| metadata.product.name |  | ai security |", "| metadata.product.vendor_name |  | zscaler |", "| metadata.version |  | 2.2 |"]}]
+    },
+    "seclake-ocsf-map": {
+      "statement": "In the OCSF mapping, severity comes from the AI Security cloud alert field risk, finding.uid from alert_id, finding.title from policy_name, time from csp_event_timestamp, status from alert_status and status_detail from alert_status_description.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["| severity | risk |  |", "| finding.uid | alert_id |  |", "| finding.title | policy_name |  |", "| time | csp_event_timestamp |  |", "| status | alert_status |  |", "| status_detail | alert_status_description |  |"]}]
+    },
+    "seclake-troubleshoot": {
+      "statement": "Security Lake troubleshooting: a Glue Crawler failing to parse alert data in the bucket typically means the custom source used the wrong event class (it must be Security Finding); a Failed status means AI Security lacks permission on the S3 bucket; alerts present in the Admin Portal but not exported call for checking the alert rule notification configuration and scope.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-amazon-security-lake.json", "quotes": ["This issue typically occurs when the custom source that is created for the integration is using the wrong event class. Make sure you create the custom source with the Security Finding event class.", "This indicates that AI Security does not have the permission to access the Amazon Security Lake S3 bucket.", "Make sure you've configured the alert rule notification and check the scope of the alert rule."]}]
+    },
+    "servicenow-prereqs": {
+      "statement": "The ServiceNow integration needs an online ServiceNow instance, a ServiceNow user with the roles import_admin, import_set_loader and import_transformer, and an inbound integration using OAuth – Client Credential Grant limited to the Table API and Import Set API.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["Ensure that your ServiceNow instance is online.", "- import_admin", "- import_set_loader", "- import_transformer", "Select OAuth – Client Credential Grant as the authentication type.", "- Table API", "- Import Set API"]}]
+    },
+    "servicenow-sync": {
+      "statement": "The ServiceNow integration can sync the asset types Agents, Data stores, MCP servers, Guardrails, Models, Workloads, Software Libraries, Code Repositories and Identities, or all of them, and an Issues toggle pushes findings.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["AI Assets types: To sync asset types such as Agents, Data stores, MCP servers, Guardrails, Models, Workloads, Software Libraries, Code Repositories and Identities with ServiceNow.", "Select All: To sync all available asset types.", "Issues: Enable the Issues toggle to push findings to ServiceNow."]}]
+    },
+    "servicenow-routing": {
+      "statement": "The ServiceNow integration page describes two routing methods for issues: Create Ticket pushes issues to the ServiceNow Import Set (staging) table, and Import Set Table pushes issues directly to the ServiceNow Incident table.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["Create Ticket: Push issues to the ServiceNow Import Set (staging) table.", "Import Set Table: Push issues directly to the ServiceNow Incident table."]}]
+    },
+    "servicenow-tables": {
+      "statement": "The ServiceNow integration takes a Table Prefix for the import set tables, and a downloaded JavaScript script run in the ServiceNow JavaScript console creates the import set tables and necessary roles; Check Tables can fail if the integration user lacks sufficient roles even when the tables exist.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["Click Download Script to download the JavaScript setup script.", "Log in to your ServiceNow instance and open the JavaScript console.", "Table Prefix: Enter a table prefix for the import set tables to be created in ServiceNow and click Check Tables.", "The script automatically creates the required import set tables and the necessary roles.", "Table validation may fail even if the tables exist, if the user lacks sufficient permissions."]}]
+    },
+    "servicenow-auth-delay": {
+      "statement": "The ServiceNow integration uses OAuth 2.0 as the authentication method by default, and after saving, the integration appears on the Integrations page and up to an hour should be allowed for data to be pushed into the ServiceNow tables.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-servicenow.json", "quotes": ["Authentication Method: OAuth 2.0 is selected by default.", "After saving, the integration appears on the Integrations page. Allow up to an hour for the data to be pushed into the ServiceNow tables."]}]
+    },
+    "jira-oauth": {
+      "statement": "The Jira integration needs an OAuth 2.0 (3LO) app created in the Atlassian Developer console with Jira API scopes (example read:jira-work) and the Admin Portal application URL as its Callback URL; the Client ID and Client Secret are entered in AI Security, which can integrate with Jira cloud versions that support the required authentication mechanism and APIs.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-jira.json", "quotes": ["Sign in to the Atlassian Developer console.", "You need to use these values while adding the Jira integration in the AI Security Admin Portal.", "Under Create a New OAuth 2.0 (3LO) integration, enter a name for the application.", "For example, select read:jira-work to read the Jira project, issue data, etc.", "For Callback URL, paste the application URL you copied from the AI Security Admin Portal.", "Copy the Client ID and Client Secret.", "AI Security can be integrated with Jira cloud versions, provided there is support for the required authentication mechanism and APIs to create a Jira task."]}]
+    },
+    "jira-purpose": {
+      "statement": "AI Security uses Jira APIs to create tickets automatically when sensitive data or misconfigurations are detected in cloud resources; the integration steps validate the Jira connection with Authorize and select the required Jira project from a drop-down menu.",
+      "tier": "A",
+      "evidence": [{"source": "zscaler-help", "path": "ai-asset-mgmt-integrating-ai-security-jira.json", "quotes": ["AI Security leverages Jira APIs to automatically create tickets when sensitive data or any misconfigurations are detected in your cloud resources.", "Click Authorize to validate the Jira connection.", "Select the required Jira project from the drop-down menu."]}]
+    }
+  },
+  "gaps": {
+    "integration-scope-and-delete": {
+      "kind": "semantic",
+      "title": "What does the integrations tool list cover, and what happens when an integration with rules attached is deleted?",
+      "status": "open",
+      "detail": "The About External Integrations tool list names only cloud storage services although ITSM integrations are described on other pages. Behaviour when deleting an integration that has rules attached is not documented in the captured articles.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "alert-vs-issue-rules": {
+      "kind": "semantic",
+      "title": "Are alert rules and issue rules one object?",
+      "status": "open",
+      "detail": "The S3 page says alert data logs and Issue rules, the Azure Blob page issue data logs and issue rules, and the Security Lake page alert rules. The pages do not say whether alert rules and issue rules are one object.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "servicenow-routing-names": {
+      "kind": "semantic",
+      "title": "Why does Create Ticket push to the Import Set table and Import Set Table to the Incident table?",
+      "status": "open",
+      "detail": "The page pairs Create Ticket with the Import Set (staging) table and Import Set Table with the Incident table; the names and destinations read opposite and the page does not explain them. Both are stated as written.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "servicenow-client-secret-field": {
+      "kind": "semantic",
+      "title": "Which value goes in the ServiceNow Client Secret field?",
+      "status": "open",
+      "detail": "The Client Secret field says to enter the Client ID created in the prerequisites section, the same as the Client ID field; the page does not say which value goes there.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    }
+  }
+}

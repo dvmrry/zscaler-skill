@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "ai-security.asset-management.posture-policies",
+  "title": "How AI Posture Policies, threat categories and DLP data classification work in AI Asset Management",
+  "aliases": [
+    "ai posture policies",
+    "ai security policies",
+    "data classification ai security",
+    "dlp engines ai security"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "ai-security.asset-management" },
+    { "rel": "see-also", "to": "ai-security.asset-management.issues" },
+    { "rel": "see-also", "to": "ai-security.asset-management.discovery" },
+    { "rel": "see-also", "to": "ai-security.asset-management.system-logs" },
+    { "rel": "see-also", "to": "ai-security.asset-inventory-api" }
+  ],
+  "prose": [
+    { "text": "{{policy-scan-scope}} {{threat-categories}} {{threat-category-meanings}} {{divergence:threat-category-names}}" },
+    { "label": "Managing policies.", "text": "{{policy-list-fields}} {{action-availability}} {{disabled-policy-issues}} {{edit-custom-policy}} {{delete-custom-policy}} {{clone-policy}} {{change-severity}} {{custom-policy-fields}} {{policy-details-tabs}}" },
+    { "label": "Data classification.", "text": "{{dlp-engines-source}} {{sensitivity-default}} {{sensitivity-disable-sync}} {{data-classification-table}}" },
+    { "text": "The issues policies raise, and the dispute over whether disabling a policy closes them, are in [[ai-security.asset-management.issues]]. The assets they evaluate are in [[ai-security.asset-management.discovery]], and the hub is [[ai-security.asset-management]]." },
+    { "label": "Open.", "text": "{{gap:predefined-policy-list}} {{gap:policy-permissions}} {{gap:navigation-paths}}" }
+  ],
+  "claims": {
+    "policy-scan-scope": {
+      "statement": "AI Security scans resources against the policies enabled in AWS accounts, Azure subscriptions and Google Cloud Storage, generates issues, and groups policies by threat category; predefined policies align to benchmarks such as NIST, GDPR and PCI, and custom policies can be created.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-ai-posture-policies.json", "quotes": [
+          "AI Security scans the resources against the policies enabled in your Amazon Web Services (AWS) accounts, Azure subscriptions, and Google Cloud Storage",
+          "AI Security generates issues that help you prioritize an incident and quickly remediate the issue.",
+          "The policies are grouped by threat categories.",
+          "predefined policies that are aligned with industry standard cybersecurity and compliance benchmarks such as NIST, GDPR, PCI, etc.",
+          "You can create custom policies to meet your organization's requirements."
+        ] }
+      ]
+    },
+    "threat-categories": {
+      "statement": "AI Security defines five threat categories: AI Data Exposure, AI Governance, AI Safety, Model Lifecycle Risk and Risky Access.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-understanding-threat-categories.json", "quotes": [
+          "AI Security defines the following threat categories:",
+          "| AI Data Exposure |",
+          "| AI Governance |",
+          "| AI Safety |",
+          "| Model Lifecycle Risk |",
+          "| Risky Access |"
+        ] }
+      ]
+    },
+    "threat-category-meanings": {
+      "statement": "AI Governance covers breaches from misconfigurations or vulnerabilities such as disabled encryption, logging or backup; AI Safety covers exposure of unsafe responses to users; Risky Access covers insecure user credentials such as users without MFA.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-understanding-threat-categories.json", "quotes": [
+          "AI breach due to misconfigurations or vulnerabilities (e.g., encryption or logging is disabled on the resource, backup feature disabled).",
+          "Exposure of unsafe responses to users (e.g., instructions about self harm).",
+          "User credentials are not secure (e.g., users without MFA)."
+        ] }
+      ]
+    },
+    "policy-list-fields": {
+      "statement": "The AI Posture Policies page (Policies & Controls > AI Posture Policies) shows each policy's severity (Critical, High, Medium or Low), source (predefined or custom), status (Enabled or Disabled) and category.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-ai-posture-policies.json", "quotes": [
+          "Severity: The severity level (Critical, High, Medium, or Low) of the policy.",
+          "Policy Source: Whether the policy is a predefined or a custom policy.",
+          "Policy Status: The status (Enabled or Disabled) of the policy.",
+          "Policy Category: The category (Public Exposure, Data Loss, etc.) to which this policy belongs."
+        ] }
+      ]
+    },
+    "action-availability": {
+      "statement": "Enable is available only when a policy is disabled and Disable only when it is enabled; Change Severity, Edit and Delete are available only when the policy is disabled, and predefined policies cannot be edited, deleted or have their severity changed.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-ai-posture-policies.json", "quotes": [
+          "Enable: Enable a policy. This option is available only when the policy is disabled.",
+          "Disable: Disable a policy. This option is available only when the policy is enabled.",
+          "Change Severity: Change the severity level of the policy. This option is available only when the policy is disabled.",
+          "Edit: Edit a custom policy. This option is available only when the policy is disabled.",
+          "Delete: Delete a custom policy. This option is available only when the policy is disabled.",
+          "You cannot edit, delete, or change the severity level for predefined policies."
+        ] }
+      ]
+    },
+    "disabled-policy-issues": {
+      "statement": "New issues are not generated for disabled policies, but the status of existing issues remains unchanged.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": ["New issues are not generated for disabled policies. However, the status of the existing issues remains unchanged."] }
+      ]
+    },
+    "edit-custom-policy": {
+      "statement": "Editing a custom policy's title or remediation procedure shows the new information on the Issues page and dashboard, but editing its query logic closes all existing issues and generates new ones from the updated query.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": [
+          "If you edit any custom policy, such as the policy title or remediation procedure, the new information is displayed on the Issues page and the dashboard.",
+          "If you edit the custom policy query logic, AI Security determines that the custom policy has changed and closes all existing issues, and generates new issues based on the updated custom policy query logic."
+        ] }
+      ]
+    },
+    "delete-custom-policy": {
+      "statement": "Deleting a custom policy closes all issues previously generated by it, and only custom policies can be deleted.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": [
+          "When you delete a custom policy, all issues previously generated by the policy are closed.",
+          "You can edit or delete only the custom policies. Predefined policies cannot be edited or deleted."
+        ] }
+      ]
+    },
+    "clone-policy": {
+      "statement": "A predefined or an existing custom policy can be cloned, reusing its query structure, to create a custom policy; policies that are temporarily hidden cannot be cloned or viewed.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": [
+          "You can clone a predefined or an existing custom policy by reusing its query structure and modifying some parameters, as required, to create another custom policy.",
+          "You cannot clone policies that are temporarily hidden."
+        ] },
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-policy-details.json", "quotes": ["You cannot view policies that are temporarily hidden."] }
+      ]
+    },
+    "change-severity": {
+      "statement": "Changing a policy's severity affects the risk level of issues triggered by findings of that policy.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-managing-policies.json", "quotes": ["When you change the policy severity, it impacts the issue risk level that is triggered for any findings by this policy."] }
+      ]
+    },
+    "custom-policy-fields": {
+      "statement": "Creating a custom policy needs a cloud provider, primary resource type, a query, and a Markdown remediation procedure; Policy Name and Policy Severity (Critical, High, Medium or Low) are given, while description, category and MITRE ATT&CK technique are optional.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-creating-custom-policies.json", "quotes": [
+          "for Select Cloud Provider, select the cloud type.",
+          "Build the query by selecting the required predicates.",
+          "Policy Name: The name of the security policy.",
+          "For Primary Resource Type, select the required resource (EC2 instance, RDS instance, etc.).",
+          "Enter the remediation procedure in Markdown format, then click Save.",
+          "Policy Severity: Static value signaling the severity of policy failure. The value can be Critical, High, Medium, or Low.",
+          "Policy Description (Optional): The description of the policy.",
+          "Policy Category (Optional): Select the threat category from the drop-down menu.",
+          "MITRE ATT&CK (Optional): Select the MITRE technique ID that must be associated with this policy."
+        ] }
+      ]
+    },
+    "policy-details-tabs": {
+      "statement": "A policy's page has a Policy Overview tab (rationale, related MITRE techniques, policy ID, category, resource type, compliance frameworks, and the policy query) and a Remediation tab, and policies query data stores in AWS, Azure and GCP.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-viewing-policy-details.json", "quotes": [
+          "You can view the details of policies that are used to query data stores in AWS, Azure, and GCP cloud resources.",
+          "Policy Rationale: A brief explanation about what the policy detects.",
+          "MITRE: The MITRE techniques that are related to the detected issue.",
+          "Policy ID: The unique identifier for the policy.",
+          "Policy Category: The threat category to which the policy belongs.",
+          "Resource Type: The type of data store (EC2, Storage Account, RDS Instance, etc.)",
+          "Compliance Framework: The list of compliance frameworks that are applicable for this policy.",
+          "Policy Query: The details of the query used to create this policy.",
+          "On the Remediation tab, you can see the remediation steps to resolve the issue detected in the resource."
+        ] }
+      ]
+    },
+    "dlp-engines-source": {
+      "statement": "AI Security data classification uses DLP engines and dictionaries synced from Internet & SaaS (ZIA) plus predefined engines; engines can only be viewed in the AI Security Admin Portal and are added or modified in Internet & SaaS given the necessary permissions, and only engines assigned to the AI Security channel in ZIA are displayed and available.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-data-classification.json", "quotes": [
+          "AI Security supports data classification by using robust DLP engines and dictionaries that are synced from Internet & SaaS (ZIA) and predefined DLP engines.",
+          "You can only view the DLP engines in the AI Security Admin Portal.",
+          "You can add or modify a DLP engine in Internet & SaaS if you have the necessary permissions."
+        ] },
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-understanding-dlp-engines-and-dictionaries.json", "quotes": ["Only DLP engines assigned to the AI Security channel in Internet & SaaS (ZIA) are displayed and available for selection."] }
+      ]
+    },
+    "sensitivity-default": {
+      "statement": "The sensitivity setting is enabled by default for all DLP engines on the Data Classification page (Administration > Data Classification), and can be disabled for all engines or for a specific engine.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-data-classification.json", "quotes": [
+          "By default, the sensitivity setting is enabled for all DLP engines.",
+          "Disable the sensitivity setting for all DLP engines.",
+          "Enable or disable the sensitivity setting for a specific DLP engine"
+        ] }
+      ]
+    },
+    "sensitivity-disable-sync": {
+      "statement": "If the sensitivity setting is disabled for all DLP engines, a new DLP engine added in Internet & SaaS (ZIA) is not automatically synced with AI Security and its sensitivity setting must be enabled manually in the AI Security Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-disabling-sensitivity-settings-dlp-engines.json", "quotes": [
+          "If you disable the sensitivity setting for all DLP engines, any new DLP engine that is added to Internet & SaaS (ZIA) is not automatically synced with AI Security.",
+          "You need to manually enable the sensitivity settings for such DLP engines in the AI Security Admin Portal."
+        ] }
+      ]
+    },
+    "data-classification-table": {
+      "statement": "The Data Classification page lists each DLP engine's name, description, type (Predefined or Custom), last modified time, an Enabled toggle for whether it is active, and the Sensitive setting.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "ai-asset-mgmt-about-data-classification.json", "quotes": [
+          "DLP Engine Name: The name of the DLP engine.",
+          "Description: The description of the DLP engine.",
+          "Last Modified: The date and time the DLP engine was last modified.",
+          "Engine Type: The type (Predefined or Custom) of DLP engine.",
+          "Enabled: The toggle that indicates whether the DLP engine is active.",
+          "Sensitive: The sensitivity setting (enabled or disabled) for the DLP engine."
+        ] }
+      ]
+    }
+  },
+  "divergences": {
+    "threat-category-names": {
+      "summary": "The threat categories page lists five categories (AI Data Exposure, AI Governance, AI Safety, Model Lifecycle Risk, Risky Access), while other pages give Public Exposure and Data Loss as examples of a policy's threat category.",
+      "positions": [
+        {
+          "says": "AI Security defines five threat categories, none of them Public Exposure or Data Loss.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-understanding-threat-categories.json", "quotes": ["AI Security defines the following threat categories:"] }
+        },
+        {
+          "says": "A policy's category (the About Issues page calls it the threat category) can be Public Exposure or Data Loss.",
+          "evidence": { "source": "zscaler-help", "path": "ai-asset-mgmt-about-issues.json", "quotes": ["Policy Category: The threat category (Public Exposure, Data Loss, etc.) to which the policy belongs."] }
+        }
+      ],
+      "impact": "The captured pages do not settle which names the console shows as threat categories; the five-category count is what the threat categories page prints."
+    }
+  },
+  "gaps": {
+    "predefined-policy-list": { "kind": "semantic", "title": "Which predefined policies exist and how many", "status": "open", "detail": "The pages give no policy count or names; View the list of predicates and operators in Creating Custom Policies links to a separate page that was not captured here.", "resolves_with": ["source-read"] },
+    "policy-permissions": { "kind": "semantic", "title": "Which roles can view policies and Data Classification", "status": "open", "detail": "The pages do not state which roles or permissions allow viewing or managing policies or Data Classification.", "resolves_with": ["source-read"] },
+    "navigation-paths": { "kind": "semantic", "title": "Which navigation path leads to AI Posture Policies", "status": "open", "detail": "The policy pages name Policies & Controls > AI Posture Policies; the Viewing Policy Details page prints Policies & Control > AI Posture Policies, which is probably a typo. Administration > Issues is the path of the Managing Issues page, a different page, so it is not a conflict. No path is recorded as a fact beyond what the claims quote.", "resolves_with": ["lab-test"] }
+  }
+}
