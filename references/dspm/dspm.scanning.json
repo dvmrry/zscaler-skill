@@ -22,6 +22,14 @@
     {
       "rel": "see-also",
       "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.scan-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.vulnerability-scanning"
     }
   ],
   "prose": [
@@ -46,7 +54,11 @@
     },
     {
       "label": "Classification.",
-      "text": "{{classification}} {{database-sampling}} {{overlapping-rules}}"
+      "text": "{{classification}} {{database-sampling}} Whether the managed database rule pages' Full Scan conflicts with that is in dispute {{divergence:sampling-vs-full-scan}}. {{overlapping-rules}}"
+    },
+    {
+      "label": "Rules and operations.",
+      "text": "Per-resource scan rule fields, scan statuses, running and stopping scans, and scan scopes are in [[dspm.scan-rules]]. Vulnerability scanning support is in [[dspm.vulnerability-scanning]]."
     }
   ],
   "checks": [
@@ -59,7 +71,8 @@
     {
       "do": "Whether a relational database was scanned in full or sampled, before concluding sensitive data is absent.",
       "uses": [
-        "database-sampling"
+        "database-sampling",
+        "sampling-vs-full-scan"
       ]
     },
     {
@@ -237,7 +250,8 @@
       ]
     },
     "database-sampling": {
-      "statement": "For relational databases such as PostgreSQL, Oracle, SQL Server and MySQL, DSPM scans a sample of the data instead of the whole database, to avoid affecting database operations.",
+      "statement": "The About Scan Settings page says that when scanning relational databases such as PostgreSQL, Oracle, SQL Server and MySQL, DSPM scans a sample of the data instead of the whole database, to avoid affecting database operations.",
+      "conditions": "The sentence is not scoped on the page to unmanaged or on-premises databases; see divergence sampling-vs-full-scan for the managed-database Full Scan.",
       "tier": "A",
       "evidence": [
         {
@@ -261,6 +275,56 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "sampling-vs-full-scan": {
+      "summary": "The About Scan Settings sentence says that when scanning relational databases such as PostgreSQL, Oracle, SQL Server and MySQL DSPM samples instead of scanning the entire database, without scoping it to unmanaged or on-premises databases. The same page's Scan Types table, the supported-data-stores matrix and the AWS-managed and GCP-managed rule pages offer a Full Scan for managed databases next to Data Sampling Scan; the four engines the sentence names are the rows the matrix lists as Supported by Sampling scan only (unmanaged and on-premises).",
+      "positions": [
+        {
+          "says": "When scanning relational databases such as PostgreSQL, Oracle, SQL Server and MySQL, DSPM uses data sampling to scan a subset of data instead of the entire database.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-scan-settings.json",
+            "quotes": [
+              "When scanning relational databases such as PostgreSQL, Oracle, SQL Server, and MySQL, DSPM uses the data sampling technique to scan a subset of data, instead of scanning the entire database."
+            ]
+          }
+        },
+        {
+          "says": "The same page's Scan Types table gives Managed Database both a Full Scan and a Data Sampling Scan.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-scan-settings.json",
+            "quotes": [
+              "| Managed Database | Full Scan: Scan all the data in the selected data or object stores."
+            ]
+          }
+        },
+        {
+          "says": "The matrix lists RDS Instance and Cluster, and Azure SQL Servers, with Full Scan and Sampling Scan.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "supported-data-stores-file-types-and-regions.json",
+            "quotes": [
+              "| RDS Instance and Cluster | Cross-Account IAM Role | Public Exposure Encryption Logging Retention | Full Scan Sampling Scan |",
+              "| Azure SQL Servers | Managed Identity | Public Exposure Encryption Logging Retention | Full Scan Sampling Scan |"
+            ]
+          }
+        },
+        {
+          "says": "The AWS-managed database rule page (databases such as MySQL, Aurora MySQL and Aurora PostgreSQL) offers a Full Scan: a complete scan of all databases across all onboarded accounts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-configuring-scan-rule-aws-managed-databases.json",
+            "quotes": [
+              "AWS) databases such as MySQL, Aurora MySQL, and Aurora PostgreSQL.",
+              "Full Scan: A complete scan of all databases across all onboarded accounts."
+            ]
+          }
+        }
+      ],
+      "impact": "Read with its scope, the sentence holds for unmanaged and on-premises databases; applied to managed databases it conflicts with the Full Scan the table, matrix and rule pages offer. Check the Scan Type chosen in the rule before concluding sensitive data is absent. The rule pages are in dspm.scan-rules."
     }
   }
 }

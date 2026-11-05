@@ -1,0 +1,543 @@
+{
+  "schema_version": 1,
+  "id": "dspm.on-premises",
+  "title": "How DSPM covers on-premises data: data centers, scanner integrations and the scanner VM, and evidence settings",
+  "aliases": [
+    "dspm on-premises data center",
+    "dspm premises scanner",
+    "dspm scanner integration",
+    "dspm scanner vm",
+    "zds init",
+    "dspm evidence settings",
+    "dspm evidence rule"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.scanning"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.action-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.roles"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Data centers.",
+      "text": "{{dc-scope}} {{dc-prereqs}} The unmanaged database prerequisites are the same list in [[dspm.service-registration-databases]]. {{dc-edit-effect}} {{dc-delete-restriction}}"
+    },
+    {
+      "label": "Scanner integrations.",
+      "text": "{{scanner-purpose}} {{scanner-status-fields}} {{scanner-image}} {{scanner-api-key}} {{scanner-regenerate-reasons}} {{scanner-not-editable}}"
+    },
+    {
+      "label": "Scanner VM requirements.",
+      "text": "{{scanner-vm-reqs}} {{scanner-network-reqs}} {{scanner-outbound-ports}} {{scanner-protocols}} Outbound destination addresses and scan scale are open {{gap:scanner-sizing}}."
+    },
+    {
+      "label": "Initializing the scanner VM.",
+      "text": "{{scanner-init-prereqs}} {{scanner-default-login}} {{scanner-init-commands}} {{scanner-proxy-restart}} {{scanner-registered}}"
+    },
+    {
+      "label": "Evidence.",
+      "text": "{{evidence-definition}} {{evidence-storage-options}} {{evidence-linked-dc}} {{evidence-path}} {{evidence-iam-role}}"
+    },
+    {
+      "label": "Evidence rules.",
+      "text": "{{evidence-rule-prereqs}} {{evidence-rule-fields}} {{evidence-rule-enabled-validate}} {{evidence-validation}} {{evidence-cache}} Other clouds and bucket limits are open {{gap:evidence-clouds}}. Whether disabling stops collection at once is open {{gap:evidence-disable-timing}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which on-premises content is in scope: the data center page names databases, and the scanner page names file servers and unmanaged resources.",
+      "uses": [
+        "dc-scope",
+        "scanner-purpose"
+      ]
+    },
+    {
+      "do": "The scanner VM's CPU, RAM, storage, network interface, outbound ports and SMB and NFS versions against the documented minimums.",
+      "uses": [
+        "scanner-vm-reqs",
+        "scanner-network-reqs",
+        "scanner-outbound-ports",
+        "scanner-protocols"
+      ]
+    },
+    {
+      "do": "The Connection Status of the evidence rule (Success, Pending or Failed) and the Error column.",
+      "uses": [
+        "evidence-validation"
+      ]
+    }
+  ],
+  "claims": {
+    "dc-scope": {
+      "statement": "DSPM scans the databases in on-premises data centers; the data center page gives this as the scanned content.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-on-premises-data-centers.json",
+          "quotes": [
+            "DSPM scans the databases in these on-premises data centers, providing visibility into the sensitive data that is stored in the databases."
+          ]
+        }
+      ]
+    },
+    "dc-prereqs": {
+      "statement": "The Managing On-Premises Data Center page lists as prerequisites an account onboarded with a custom model for connectivity, security groups allowing the scanner or orchestrator subnets, a custom role to configure SQL authentication, and SQL connection strings and credentials.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-premises-data-center.json",
+          "quotes": [
+            "Onboard the account using a custom model to establish network connectivity to the on-premises data center.",
+            "Modify security groups to allow connections from the scanner or orchestrator subnets.",
+            "Create a custom role with required permissions to configure SQL authentication.",
+            "Provide SQL connection strings and authentication credentials for our solution to access the on-premises data centers."
+          ]
+        }
+      ]
+    },
+    "dc-edit-effect": {
+      "statement": "Changes to an on-premises data center configuration take effect only at the next scheduled scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-premises-data-center.json",
+          "quotes": [
+            "Changes made to the on-premises data center configuration only take effect at the next scheduled scan."
+          ]
+        }
+      ]
+    },
+    "dc-delete-restriction": {
+      "statement": "An on-premises data center associated with any unmanaged databases cannot be deleted; the Delete option is grayed out.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-premises-data-center.json",
+          "quotes": [
+            "Deleting an on-premises data center is restricted if it is associated with any unmanaged databases. The Delete option is grayed out in such cases."
+          ]
+        }
+      ]
+    },
+    "scanner-purpose": {
+      "statement": "On-premises scanners deployed in the organization's network scan data in on-premises systems such as file servers and unmanaged resources.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "DSPM provides support to integrate the on-premises scanners deployed in your organization's network and use them to scan the data stored in on-premises systems such as file servers and unmanaged resources."
+          ]
+        }
+      ]
+    },
+    "scanner-status-fields": {
+      "statement": "The scanner list shows Scanner Status as operational or pending and Last Connected On, the last successful connection of the scanner instance to DSPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "Scanner Status: Whether the scanner is operational or pending.",
+            "Last Connected On: The last time the on-premises scanner instance was successfully connected with DSPM."
+          ]
+        }
+      ]
+    },
+    "scanner-image": {
+      "statement": "The scanner image is an OVA for VMware or a VHD for Hyper-V, and a checksum is shown to verify the downloaded image.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "Name and format of the scanner image: OVA for VMware and VHD for Hyper-V.",
+            "Checksum: The checksum value for image verification."
+          ]
+        }
+      ]
+    },
+    "scanner-api-key": {
+      "statement": "The scanner's API key is not recoverable and regenerating it invalidates all existing scanners using the current key; the integration name cannot be changed after saving.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-or-deleting-scanner-integration.json",
+          "quotes": [
+            "API keys are not recoverable. Store the key securely during scanner installation. Regenerating the key invalidates all existing scanners using the current key.",
+            "The integration name cannot be modified after it is saved."
+          ]
+        }
+      ]
+    },
+    "scanner-regenerate-reasons": {
+      "statement": "The page gives compromise, exceeding the rotation threshold, or rotating credentials per policy as reasons to regenerate the scanner API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "Regenerate Key: Click to generate a new API key when the key is compromised, exceeds your rotation threshold, or you need to rotate credentials per policy."
+          ]
+        }
+      ]
+    },
+    "scanner-not-editable": {
+      "statement": "A scanner integration's details cannot be edited; the API key can be regenerated and the image downloaded again to reinstall or redeploy the scanner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-or-deleting-scanner-integration.json",
+          "quotes": [
+            "You cannot edit the scanner details but you can:",
+            "Regenerate the API key to renew it.",
+            "Download the scanner image to reinstall or redeploy the scanner."
+          ]
+        }
+      ]
+    },
+    "scanner-vm-reqs": {
+      "statement": "The scanner VM minimum is 16 virtual cores (Intel Xeon or AMD EPYC; ARM not supported), 32 GB RAM and 100 GB SSD, with Ubuntu 22.04 embedded in the OVA and no separate OS license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "CPU | 16 Virtual Cores | Intel Xeon or AMD EPYC, or the latest. ARM processors are not supported.",
+            "RAM | 32 GB | Dedicated memory for the VM.",
+            "Storage | 100 GB SSD | High-performance storage is crucial for efficient scanning.",
+            "Operating System | Embedded within OVA (Ubuntu 22.04) | The image includes the OS; no separate license is required."
+          ]
+        }
+      ]
+    },
+    "scanner-network-reqs": {
+      "statement": "The scanner VM needs a dedicated 10 GbE network interface (wired preferred), a static IP address and DNS resolution of internal and external hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "Network Interface | 10 Gigabit Ethernet (GbE) | Dedicated to the VM. Wired connection preferred.",
+            "IP Addressing | Static IP Address | For consistent connectivity and management.",
+            "DNS Resolution | To resolve internal and external hosts | Required for communication with file servers and cloud services."
+          ]
+        }
+      ]
+    },
+    "scanner-outbound-ports": {
+      "statement": "The scanner VM's required outbound ports are 443 to the DSPM Cloud Management Platform, 445 (SMB) and 2049 (NFS) to file servers, 53 to DNS, 88 to Kerberos and 111 for the NFS portmapper.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "Port 443 (HTTPS) | To DSPM Cloud Management Platform | For updates and configuration synchronization.",
+            "Port 445 (SMB) | To SMB File Servers | For scanning SMB file shares.",
+            "Port 2049 (NFS) | To NFS File Servers | For scanning NFS file shares.",
+            "Port 53 (DNS) | To DNS Server | For DNS resolution.",
+            "Port 88 (Kerberos) | To Kerberos | For Kerberos authentication.",
+            "Port 111 (NFS) | To NFS File Servers | For NFS Portmapper."
+          ]
+        }
+      ]
+    },
+    "scanner-protocols": {
+      "statement": "The file-server scanner supports SMB versions 2.0, 2.1, 3.0, 3.02 and 3.1.1 and NFS v4.0, v4.1 and v4.2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-premises-scanner-integrations.json",
+          "quotes": [
+            "SMB | 2.0, 2.1, 3.0, 3.02, 3.1.1 | Required for scanning Windows file shares.",
+            "NFS | v4.0, v4.1, v4.2 | Required for scanning Linux/Windows shares."
+          ]
+        }
+      ]
+    },
+    "scanner-init-prereqs": {
+      "statement": "Initializing the scanner VM needs an API key generated in the Zscaler Admin Console and outbound internet connectivity to the DSPM services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-initializing-premises-scanner-vm.json",
+          "quotes": [
+            "Generate an API key in the Zscaler Admin Console.",
+            "Ensure the scanner VM has outbound internet connectivity to the DSPM services."
+          ]
+        }
+      ]
+    },
+    "scanner-default-login": {
+      "statement": "The scanner VM's default login is username zdspmuser with password zscaler@scanner, and the first login prompts for a new password for zdspmuser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-initializing-premises-scanner-vm.json",
+          "quotes": [
+            "Username: zdspmuser",
+            "Password: zscaler@scanner",
+            "Upon your first login, the system prompts to set a new password for the zdspmuser account."
+          ]
+        }
+      ]
+    },
+    "scanner-init-commands": {
+      "statement": "The VM is configured with `sudo zds preconfigure` (static IP/CIDR, gateway, primary DNS, optional secondary DNS, optional HTTPS proxy), initialized with `sudo zds init <API_KEY>`, and optionally checked with `sudo zds healthcheck`.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-initializing-premises-scanner-vm.json",
+          "quotes": [
+            "- sudo zds preconfigure",
+            "Enter IP CIDR to assign to VM (e.g., 10.25.32.12/24): Enter the static IP address and CIDR for the VM.",
+            "Enter Gateway IP: Enter the IP address for the default gateway.",
+            "Enter Primary DNS Server: Enter the IP address for the primary DNS server.",
+            "Configure HTTPS Proxy Server.(Requires VM Restart): Enter y to configure a proxy or n to skip.",
+            "Enter Secondary DNS Server (Optional): Enter the IP address for the secondary DNS server, or press Enter to skip.",
+            "- sudo zds init <API_KEY>",
+            "- sudo zds healthcheck"
+          ]
+        }
+      ]
+    },
+    "scanner-proxy-restart": {
+      "statement": "Configuring an HTTPS proxy during preconfigure restarts the VM automatically; without a proxy the network settings apply without a restart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-initializing-premises-scanner-vm.json",
+          "quotes": [
+            "If you configure a proxy server, the VM restarts automatically to apply the changes. If you do not configure a proxy, the network settings are applied without a restart."
+          ]
+        }
+      ]
+    },
+    "scanner-registered": {
+      "statement": "After initialization the scanner VM registers with the DSPM tenant and its status becomes Operational in the Zscaler Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-initializing-premises-scanner-vm.json",
+          "quotes": [
+            "After the initialization completes, the scanner VM registers with the DSPM tenant, and the status changes to Operational in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "evidence-definition": {
+      "statement": "Evidence is the data captured when sensitive information is found during an on-premises scan; the snippets are stored in the organization's cloud storage and not in Zscaler infrastructure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-evidence-settings.json",
+          "quotes": [
+            "Evidence is the data captured when sensitive information is discovered during an on-premises scan.",
+            "The data snippets are stored directly in your organization's cloud storage (e.g., AWS S3 bucket) and are not stored in the Zscaler infrastructure"
+          ]
+        }
+      ]
+    },
+    "evidence-storage-options": {
+      "statement": "Evidence storage is either Zscaler Managed (DSPM creates and manages a bucket in the customer's cloud account, the recommended simple option) or Custom (an existing S3 bucket the customer provides).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-evidence-settings.json",
+          "quotes": [
+            "Zscaler Managed: DSPM automatically creates and manages a storage bucket in your cloud account. This is the recommended option for a simple setup.",
+            "Custom: You provide an existing S3 bucket that is already configured in your organization's cloud account."
+          ]
+        }
+      ]
+    },
+    "evidence-linked-dc": {
+      "statement": "Evidence configuration is linked to specific on-premises data centers, and any scanner assigned to a rule's data centers uses that rule for evidence uploads.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-evidence-settings.json",
+          "quotes": [
+            "Evidence configuration is linked to specific on-premises data centers.",
+            "Any scanner assigned to these data centers uses this rule for evidence uploads."
+          ]
+        }
+      ]
+    },
+    "evidence-path": {
+      "statement": "Evidence is routed through the existing DSPM service connection, so the on-premises scanner network need not be opened to external cloud storage IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-evidence-settings.json",
+          "quotes": [
+            "Route the evidence data through the existing DSPM service connection and eliminate the need to open the on-premises scanner network to external cloud storage IP addresses."
+          ]
+        }
+      ]
+    },
+    "evidence-iam-role": {
+      "statement": "The evidence IAM role (example name z-dspm-evidence-role) is created in the customer's cloud and lets the scanner upload findings and the Zscaler Admin Console read them; a CloudFormation template automates provisioning the required IAM roles and policies, and a Terraform template can also be downloaded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-evidence-settings.json",
+          "quotes": [
+            "IAM Role: The IAM role (e.g., z-dspm-evidence-role) created in your cloud environment. This role grants the scanner permission to upload findings and the Zscaler Admin Console permission to read them.",
+            "CloudFormation: Download CloudFormation template to automate the provisioning of the required IAM roles and policies.",
+            "Terraform: Download Terraform template for managing your infrastructure configuration."
+          ]
+        }
+      ]
+    },
+    "evidence-rule-prereqs": {
+      "statement": "Adding an evidence rule needs an on-premises data center configured in DSPM and a cloud storage bucket available for the evidence data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-evidence-rule.json",
+          "quotes": [
+            "An on-premises data center is configured in DSPM.",
+            "A cloud storage bucket is available in your cloud storage account to store the evidence data."
+          ]
+        }
+      ]
+    },
+    "evidence-rule-fields": {
+      "statement": "A custom-bucket rule takes the S3 bucket name, bucket account ID and KMS key ARN used to encrypt the evidence; a Zscaler-managed rule takes the AWS account ID where the template is deployed; the IAM role name has a prefilled default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-evidence-rule.json",
+          "quotes": [
+            "S3 Bucket Name: Enter the name of an existing S3 bucket.",
+            "S3 Bucket Account ID: Enter the AWS account ID associated with the S3 bucket.",
+            "KMS Key ARN: Enter the ARN of the KMS key used to encrypt the evidence data in the S3 bucket.",
+            "Account ID: Enter the AWS account ID in which you'll deploy the template.",
+            "A default name is prefilled."
+          ]
+        }
+      ]
+    },
+    "evidence-rule-enabled-validate": {
+      "statement": "A new evidence rule is enabled by default and should be validated to confirm the template deployment succeeded, after which DSPM uploads evidence from its data centers to the configured bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-evidence-rule.json",
+          "quotes": [
+            "The evidence rule is created, enabled by default, and appears on the Evidence Settings page.",
+            "After creating the rule, validate the rule to verify that the template deployment is successful.",
+            "After it is validated, and the evidence rule is set to enabled, DSPM uses this rule to upload evidence data from the associated on-premises data centers to the configured cloud storage bucket."
+          ]
+        }
+      ]
+    },
+    "evidence-validation": {
+      "statement": "DSPM validates evidence rules every 4 hours; Connection Status is Success (template deployed and S3 connection works), Pending (template not yet deployed or validation incomplete) or Failed (connection failed, details in the Error column), and evidence is collected only when the connection succeeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-rules.json",
+          "quotes": [
+            "DSPM validates the evidence rules every 4 hours to verify if the template is deployed and the connection to the S3 bucket via IAM role is successful.",
+            "Evidence data is collected in the S3 bucket only if the DSPM connection is successful.",
+            "Success: The evidence template is deployed and DSPM connection to the S3 bucket is successful.",
+            "Pending: The evidence template is yet to be deployed or validation is incomplete.",
+            "Failed: DSPM failed to establish a connection to the S3 bucket (e.g., Template deployment failed, IAM role not created). You can view the details in the Error column."
+          ]
+        }
+      ]
+    },
+    "evidence-cache": {
+      "statement": "Evidence data is cached for 60 minutes: after a rule is disabled, evidence continues to be collected and stored for 60 minutes, and collection does not start until the cache clears.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-rules.json",
+          "quotes": [
+            "Evidence data is cached for 60 minutes. If you disable a rule, evidence data continues to be collected and stored for 60 minutes.",
+            "When disabled, evidence collection is not started until the 60-minute cache is cleared."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "scanner-sizing": {
+      "kind": "semantic",
+      "title": "Scanner outbound IPs, scan scale and status wording",
+      "status": "partial",
+      "about": [
+        "dspm.orchestrator:ips-us",
+        "dspm.orchestrator:ips-eu",
+        "dspm.orchestrator:ips-india"
+      ],
+      "detail": "The Initializing the Scanner VM page defers the required outbound IPs to Understanding Orchestrator; the orchestrator service IPs are in dspm.orchestrator (ips-us, ips-eu, ips-india), but no captured page says those are the IPs for the scanner VM. The supported file-server scan scale (shares, files, throughput) is not stated. The scanner list says status is operational or pending, while the details view says operational or not. Configuring Scan Settings for On-Premises Data Center is referenced but not captured here.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "evidence-clouds": {
+      "kind": "semantic",
+      "title": "Evidence clouds, snippet limits and retention",
+      "status": "open",
+      "detail": "Only AWS (S3, KMS ARN, IAM role, CloudFormation) is documented, although the rule wizard has a Cloud Type step and a column reads S3 Bucket Name (or equivalent). Snippet size or count limits and retention in the bucket are not stated.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "evidence-disable-timing": {
+      "kind": "semantic",
+      "title": "Whether disabling an evidence rule stops collection at once or after 60 minutes",
+      "status": "open",
+      "detail": "The page says evidence data continues to be collected and stored for 60 minutes after a rule is disabled, and that collection is not started until the 60-minute cache is cleared. It does not say whether collection stops at once or after the cache period.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

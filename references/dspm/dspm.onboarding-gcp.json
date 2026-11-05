@@ -1,0 +1,340 @@
+{
+  "schema_version": 1,
+  "id": "dspm.onboarding-gcp",
+  "title": "How to onboard a GCP organization or project to DSPM: prerequisites, APIs, OAuth scopes, service account and key maintenance, error resolutions and the service account roles",
+  "aliases": [
+    "dspm gcp onboarding",
+    "dspm gcp organization",
+    "dspm gcp project",
+    "dspm gcp service account",
+    "dspm gcp errors",
+    "dspm gcp iam roles",
+    "dspm terraform gcp error"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.onboarding-aws" }
+  ],
+  "prose": [
+    { "text": "{{org-prereq-admin}} The scan orchestrator is in [[dspm.scanning:orchestrator]]; whether project onboarding is a listed type is open {{gap:project-onboarding-type-listing}}; service accounts are named in [[dspm.scanning:authentication]]; the hub is [[dspm.overview]] and the scanning subject is [[dspm.scanning]]." },
+    { "label": "Roles and policy.", "text": "{{org-custom-admin-role}} {{sa-key-policy-override}} {{project-required-roles}} {{select-project-tile}}" },
+    { "label": "APIs and scopes.", "text": "{{org-api-table}} {{api-networkmanagement-byon}} {{api-compute-billing}} {{project-api-table}} {{terraform-api-check}} {{oauth-scopes}}" },
+    { "label": "Details and templates.", "text": "{{org-details-naming}} {{tree-discovery-json}} {{org-network-config-default}} {{project-network-config}} {{log-bucket-name}} {{org-monitoring-scope-autodetect}} {{evidence-default-custom}} {{project-evidence}} {{org-evidence-template-s3-wording}} {{onboarding-template-regions}} {{validation-timing}} {{project-prefixes}}" },
+    { "label": "Maintenance.", "text": "{{monitoring-scope-prereq}} {{monitoring-scope-no-remove}} {{monitoring-scope-subscription-wording}} {{target-projects-prereq}} {{target-projects-fields}} {{change-orchestrator-scope}} {{change-orchestrator-interim-states}} {{change-orchestrator-purge}} {{service-account-deleted}} {{service-account-update-paths}} {{private-key-update}}" },
+    { "label": "Errors.", "text": "{{error-table-scope}} {{err-subnetwork-403}} {{err-logging-bucket-not-active}} {{err-logging-bucket-modify}} {{err-provider-version-lock}} {{err-managed-group-network-mismatch}} {{err-keyring-409}} {{err-instance-template-404}} {{err-service-networking-peering}} The error table is not a full list {{gap:error-table-incomplete}}, which resolution applies to the repeated 400 message is open {{gap:logging-bucket-400-two-resolutions}}, and the provider version is open {{gap:provider-version}}." },
+    { "label": "IAM roles and permissions.", "text": "{{discovery-sa-roles}} {{orchestrator-sa-roles}} {{orchestrator-logging-sinks}} {{scanner-and-target-sa}} {{bigquery-permissions}} {{cloudsql-backup-permissions}}" },
+    { "label": "Open.", "text": "Whether a project onboarding needs a tree discovery project is open {{gap:project-tree-discovery}}. Whether Zscaler network configuration for a project needs Zscaler Support is open {{gap:project-network-default}}. The status names are undefined {{gap:status-names-undefined}}." }
+  ],
+  "checks": [
+    { "do": "Which GCP error message the CLI app shows, and the resolution the page lists for exactly that message.", "uses": ["error-table-scope", "err-subnetwork-403", "err-keyring-409", "err-provider-version-lock"] },
+    { "do": "Which APIs the page lists for each project role: the organization page for Tree Discovery, Orchestrator and Target, the project page for Orchestrator and Target.", "uses": ["org-api-table", "project-api-table"] },
+    { "do": "Whether the service account was deleted or its key is invalid or expired, and which update path the page gives for a GCP organization and for a GCP project.", "uses": ["service-account-deleted", "service-account-update-paths", "private-key-update"] },
+    { "do": "Whether the tenant was onboarded through Zscaler network configuration, since changing the orchestrator project is available only then.", "uses": ["change-orchestrator-scope", "org-network-config-default"] }
+  ],
+  "claims": {
+    "org-prereq-admin": {
+      "statement": "Onboarding a GCP organization requires Super Admin access to the Google Admin console and both a GCP Organization Administrator role and an owner role; the page lists Terraform CLI v1.7.5 or later for Windows and the gcloud CLI.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["You must have Super Admin access to the Google Admin console.", "You must have a GCP Organization Administrator role and an owner role.", "Terraform CLI v1.7.5 or later to run the Terraform on a Windows system.", "gcloud CLI to connect to the Google Cloud project and deploy the template using gcloud CLI."] }]
+    },
+    "org-custom-admin-role": {
+      "statement": "The custom role in the Google Admin console is an optional step; the resulting roles give read access to user data, group and member data, and domain resources, and if it is skipped DSPM cannot gain read-only access to this resource data.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["Create a custom role in the Google Admin console to assign permissions to user, group, and domain resources. This is an optional step. If skipped, DSPM cannot gain read-only access to this resource data.", "| User | Read | To collect the user data |", "| Group | Read | To collect the group and member data |", "| Domain Management | Read | To collect domain resources |"] }]
+    },
+    "sa-key-policy-override": {
+      "statement": "The Disable service account key creation organization policy blocks service account key creation by default and must be overridden for the project where the service account is created, ending in a Not enforced status.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["By default, the disable service account key creation policy prevents you from creating a service account key.", "Override the disable service account key creation policy for the project where you want to create the service account.", "Ensure the status of Disable service account key creation policy is set to Not enforced."] }]
+    },
+    "org-api-table": {
+      "statement": "On the GCP organization page, admin.googleapis.com is enabled on the Tree Discovery and Target projects, serviceusage.googleapis.com on Tree Discovery, Orchestrator and Target, cloudkms.googleapis.com on Orchestrator and Target, and aiplatform.googleapis.com on Target.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["| admin.googleapis.com | Discover Google Workspace account resources | Tree Discovery, Target |", "| serviceusage.googleapis.com | Consume quota for a project | Tree Discovery, Orchestrator, Target |", "| cloudkms.googleapis.com | Discover KMS resources and perform KMS-related operations | Orchestrator, Target |", "| aiplatform.googleapis.com | Interact with Google's unified artificial intelligence and machine learning platform for DSPM to scan the AI models for vulnerabilities | Target |"] }]
+    },
+    "api-networkmanagement-byon": {
+      "statement": "networkmanagement.googleapis.com is enabled on the Orchestrator project and is described as required for BYON, and servicenetworking.googleapis.com on the Orchestrator for private connections between the VPC network and DSPM.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["| networkmanagement.googleapis.com | Check connections between virtual private cloud (VPC) network and DSPM. It is required for BYON | Orchestrator |", "| servicenetworking.googleapis.com | Enable private connections between the virtual private cloud (VPC) network and DSPM | Orchestrator |"] }]
+    },
+    "api-compute-billing": {
+      "statement": "compute.googleapis.com is needed to enable notebooks.googleapis.com and compute resources on the target project, requires the project to be linked to billing, and must be enabled on the target project before notebooks.googleapis.com.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["This is required to enable notebooks.googleapis.com and compute resources on the target project.", "To enable this API, the project must be linked to billing.", "compute.googleapis.com must be enabled on the target project to enable notebooks.googleapis.com."] }]
+    },
+    "project-api-table": {
+      "statement": "On the single GCP project page, admin.googleapis.com, serviceusage.googleapis.com and iam.googleapis.com are each listed for the Orchestrator and Target projects (the organization page lists admin.googleapis.com for Tree Discovery and Target).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["| admin.googleapis.com | Discover Google Workspace account resources | Orchestrator, Target |", "| serviceusage.googleapis.com | Consume quota for a project | Orchestrator, Target |", "| iam.googleapis.com | Discover identity and access control for Google Cloud resources | Orchestrator, Target |"] }, { "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["| admin.googleapis.com | Discover Google Workspace account resources | Tree Discovery, Target |"] }],
+      "conditions": "Covers only the three rows quoted; the project page's other API rows are not claimed here (see gap project-tree-discovery)."
+    },
+    "terraform-api-check": {
+      "statement": "When terraform plan or terraform apply runs for the tree discovery template, Terraform verifies that the required APIs are enabled and shows an error prompting to enable any missing API.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["When you run the terraform plan or terraform apply command, Terraform verifies that all the required APIs are enabled.", "If any API is missing, an error message is displayed prompting you to enable the APIs and then continue with the verification."], "after": "c. Initialize the tree discovery template." }]
+    },
+    "oauth-scopes": {
+      "statement": "DSPM uses OAuth scopes including cloud-platform and the read-only admin.directory scopes for user, group member and domain for API authentication.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["Zscaler DSPM leverages the following OAuth scopes for API authentication:", "https://www.googleapis.com/auth/cloud-platform", "https://www.googleapis.com/auth/admin.directory.user.readonly", "https://www.googleapis.com/auth/admin.directory.group.member.readonly", "https://www.googleapis.com/auth/admin.directory.domain.readonly"] }]
+    },
+    "org-details-naming": {
+      "statement": "In the GCP organization details, the role and service account names may contain only alphabetic characters, numbers, hyphens and underscores; the organization name is validated against the Organization ID; and up to 30 notification emails can be added.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["The role and service account names must contain only alphabetic characters, numbers, hyphens (\"-\"), and underscores (\"_\").", "This organization name will be validated with the Organization ID on the GCP console.", "You can add up to 30 email addresses to receive notifications about the issues."] }]
+    },
+    "tree-discovery-json": {
+      "statement": "Applying the tree discovery template returns JSON containing the project ID, private key ID, private key and client email, which is pasted under Generated JSON in DSPM.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["The command returns a JSON output that includes the project ID, private key ID, private key, client email address, and other credentials for DSPM to connect with the GCP organization.", "In the Connect to the Organization section, under Generated JSON, paste the JSON output generated with the Terraform apply command."] }]
+    },
+    "org-network-config-default": {
+      "statement": "On the GCP organization page the custom network configuration is selected by default, and using the Zscaler configuration requires contacting Zscaler Support.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["By default, the custom configuration is selected. If you want to use the Zscaler configuration, contact Zscaler Support."] }]
+    },
+    "project-network-config": {
+      "statement": "For a single GCP project, the Zscaler network configuration makes DSPM automatically provision network resources in the orchestrator project after the template is deployed, while Custom uses the organization's resources and takes a VPC Selflink.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["Zscaler: Select to use Zscaler resources to deploy the orchestrator. DSPM automatically provisions network resources in the orchestrator project after the template is deployed.", "Custom: Select to use your organization's resources to deploy the orchestrator.", "VPC Selflink: Enter the selflink of the VPC network where you want to deploy the orchestrator."] }]
+    },
+    "log-bucket-name": {
+      "statement": "The GCP Log Bucket Name must be unique or DSPM shows an error; the log bucket stores the target projects' activity logs and is created when the onboarding template is deployed, and DSPM automatically excludes Cloud Storage buckets used for storing logs.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["This log bucket stores the target projects' activity logs. The log bucket is created while deploying the onboarding template. The name must be unique, otherwise, DSPM shows an error message.", "DSPM automatically excludes Google Cloud Storage buckets used for storing logs."], "after": "Zscaler Network Configuration" }]
+    },
+    "org-monitoring-scope-autodetect": {
+      "statement": "For a GCP organization, selecting the main project group scans all projects under it, Autodetection includes new projects added to the management group, and the business unit assigned to a management group applies to all its projects.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["Select the main project group if all projects under that group must be scanned.", "Select Autodetection if you want DSPM to automatically include and scan new projects that are added to the management group in the future.", "All projects in that management group are assigned to the same business unit."] }]
+    },
+    "evidence-default-custom": {
+      "statement": "For GCP evidence storage the Custom Bucket type is selected by default; Zscaler Managed Bucket makes DSPM create a new bucket in the orchestrator project.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["By default, the Custom Bucket storage type is selected.", "Zscaler Managed Bucket", "DSPM creates a new bucket in the orchestrator project to upload the snippet of evidence data."] }]
+    },
+    "project-evidence": {
+      "statement": "On the single GCP project page, evidence storage is Custom (name of a storage account in the orchestrator project) or Zscaler (DSPM creates a storage container in the orchestrator project).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["Custom: Enter the name of the storage account present in the orchestrator project.", "Zscaler: DSPM creates a storage container in the orchestrator project to upload the snippet of evidence data."] }]
+    },
+    "org-evidence-template-s3-wording": {
+      "statement": "On the GCP organization page the evidence template is described as available \"only if you have configured an S3 bucket to store evidence data\", while the same page's evidence step describes a Custom Bucket or Zscaler Managed Bucket in the orchestrator project.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["This template is available only if you have configured an S3 bucket to store evidence data.", "Zscaler Managed Bucket", "By default, the Custom Bucket storage type is selected.", "DSPM creates a new bucket in the orchestrator project to upload the snippet of evidence data."] }]
+    },
+    "onboarding-template-regions": {
+      "statement": "When running the GCP onboarding template, DSPM creates resources required for scanning only in the regions entered at the prompt, and network analysis is enabled or disabled by setting enable_test_connectivity to true or false.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["DSPM creates resources required for data scanning only in these specified regions.", "To run the Terraform script and deploy resources with network analysis enabled:", "terraform apply -var=‘enable_test_connectivity=true’", "terraform apply -var=‘enable_test_connectivity=false’"], "after": "c. Initialize the GCP onboarding template." }]
+    },
+    "validation-timing": {
+      "statement": "Clicking Validate for the GCP template takes a couple of minutes, and DSPM also validates the deployment every hour by checking the created roles and granted permissions.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["Click Validate to verify if the template is deployed. This process takes a couple of minutes to complete.", "DSPM validates the template deployment every hour by checking the roles that are created and permissions granted."] }]
+    },
+    "project-required-roles": {
+      "statement": "For a single GCP project, mandatory roles include GCP Owner (orchestrator project), Project IAM Admin (target project) and Storage Object Admin (Terraform state bucket project); Organization Policy Administrator and Super Admin are optional.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["| GCP Owner | roles/owner | Orchestrator project | Mandatory |", "| Project IAM Admin | roles/resourcemanager.projectIamAdmin | Target project | Mandatory |", "| Storage Object Admin | roles/storage.objectAdmin | Terraform state file GCP bucket project | Mandatory |", "| Organization Policy Administrator | roles/orgpolicy.policyAdmin | Orchestrator project | Optional |", "| Super Admin | - | Admin portal | Optional |"] }]
+    },
+    "project-prefixes": {
+      "statement": "For a single GCP project, the Custom Role Name Prefix is added as a prefix to all custom roles created during onboarding and the Service Account Prefix to the service account created.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["Custom Role Name Prefix: Enter a unique role name.", "This role name is added as a prefix to all the custom roles that are created during the onboarding process.", "Service Account Prefix: Enter a unique name for the service account.", "This is added as a prefix to the service account created during the onboarding process."] }]
+    },
+    "select-project-tile": {
+      "statement": "The GCP organization onboarding page says \"Under Select Onboarding Type, click the Project tile.\", and the GCP project page gives the same tile instruction, \"For Select Onboarding Type, click the Project tile.\".",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-onboarding-gcp-organization.json", "quotes": ["Under Select Onboarding Type, click the Project tile."] },
+        { "source": "zscaler-help", "path": "dspm-onboarding-gcp-project.json", "quotes": ["For Select Onboarding Type, click the Project tile."] }
+      ]
+    },
+    "monitoring-scope-no-remove": {
+      "statement": "After a GCP project is added to the monitoring scope it cannot be removed; to stop monitoring it the project must be deleted from the DSPM organization.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-gcp.json", "quotes": ["After a project has been added to the monitoring scope, you cannot remove it from the monitoring scope.", "you need to delete the project from the DSPM organization."] }]
+    },
+    "monitoring-scope-prereq": {
+      "statement": "Managing the GCP monitoring scope requires an Administrator role or any role with the Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-gcp.json", "quotes": ["Be assigned either an Administrator role or any role with the Configure Monitoring Scope permission in the Zscaler Admin Console."] }]
+    },
+    "monitoring-scope-subscription-wording": {
+      "statement": "The GCP monitoring scope page tells the reader to enable Autodetection so DSPM detects and onboards any new \"subscriptions\" added in the future.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-managing-monitoring-scope-gcp.json", "quotes": ["Enable Autodetection so DSPM can automatically detect and onboard any new subscriptions that are added in the future."] }]
+    },
+    "target-projects-prereq": {
+      "statement": "Adding target projects to an onboarded GCP account requires an Administrator role or a custom role with the Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-gcp-target-projects.json", "quotes": ["You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the Zscaler Admin Console."] }]
+    },
+    "target-projects-fields": {
+      "statement": "Adding GCP target projects takes Project ID, optional Project Name and a Business Unit, and the GCP Onboarding template on the Roles and Templates tab is then downloaded and deployed.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-adding-gcp-target-projects.json", "quotes": ["Project ID: Enter the subscription ID.", "Project Name (Optional): Enter the subscription name.", "Business Unit: Select a business unit for the subscription.", "On the Roles and Templates tab, click GCP Onboarding to download and deploy the template."] }]
+    },
+    "change-orchestrator-scope": {
+      "statement": "Changing the GCP orchestrator project is available only for tenants onboarded through Zscaler network configuration mode and needs an administrator role or a custom role with the Configure New Orchestrator permission.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-gcp-orchestrator-account.json", "quotes": ["This option is available only for tenants onboarded through Zscaler network configuration mode.", "Be assigned either an administrator role or a custom role with the Configure New Orchestrator permission in the Zscaler Admin Console."] }]
+    },
+    "change-orchestrator-interim-states": {
+      "statement": "Until the new GCP orchestrator project is validated, the existing orchestrator is disabled, the DSPM connection status is Waiting for Connection and Configuration status Pending, data scans stop, and target projects are Needs Attention.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-gcp-orchestrator-account.json", "quotes": ["The existing orchestrator is disabled.", "The DSPM connection status moves to the Waiting for Connection state and Configuration status moves to the Pending state.", "The data scans are stopped.", "The target projects move to the Needs Attention state."] }]
+    },
+    "change-orchestrator-purge": {
+      "statement": "Before running the template on a new GCP orchestrator project the previous template is purged with terraform destroy, and the Log Bucket Name entered must be unique or DSPM shows an error message.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-changing-gcp-orchestrator-account.json", "quotes": ["Before running the template on the new orchestrator subscription, purge the template that was previously deployed on the existing orchestrator by running the terraform destroy command.", "Log Bucket Name: Enter a unique name for the log bucket. This log bucket stores the activity logs of the target projects.", "The name must be unique, otherwise DSPM shows an error message."] }]
+    },
+    "service-account-deleted": {
+      "statement": "If the GCP service account is accidentally deleted, DSPM access to the onboarded account is impacted and all onboarded projects move to Needs Attention until the service account details are updated; after the template is successfully deployed, access is restored and the projects move to Successfully Configured.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-updating-gcp-service-account.json", "quotes": ["If the service account is accidentally deleted, DSPM's access to the onboarded account is impacted, and all the onboarded projects move to the Needs Attention state.", "To restore access, you must update the service account details.", "After the template is successfully deployed, DSPM's access to the GCP account is restored, and the onboarded projects move to the Successfully Configured state."] }]
+    },
+    "service-account-update-paths": {
+      "statement": "For a GCP organization, updating the service account means running the Tree Discovery template and the GCP Onboarding template; for a GCP project, the GCP Onboarding template is run.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-updating-gcp-service-account.json", "quotes": ["In the Update Service Account window, download and run the Tree Discovery template:", "On the Roles and Templates tab, download and run the GCP Onboarding template:", "For GCP Organization", "For GCP Project", "In the Update Service Account window, download and run the GCP Onboarding template."] }]
+    },
+    "private-key-update": {
+      "statement": "The service account private key is generated in JSON format when the tree discovery template is applied; it can be replaced at any time by uploading a JSON key file in the Update Private Key window, and DSPM shows an error if the key is invalid or does not match the service account.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-updating-private-key-gcp.json", "quotes": ["a private key is generated in JSON format when you apply the tree discovery template", "If your service account keys need to be updated or have expired, you can update your service account key at any time.", "In the Update Private Key window, upload the downloaded JSON file to the Zscaler Admin Console", "If the private key is invalid, or it does not match the service account, an error is displayed."] }]
+    },
+    "error-table-scope": {
+      "statement": "The GCP configuration issues page lists error messages shown in the CLI app during onboarding, each with a resolution.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["The following error messages are displayed in the CLI app if there are issues while onboarding accounts:", "| Error Message | Resolution |"] }]
+    },
+    "err-subnetwork-403": {
+      "statement": "Error 403 creating a Subnetwork (permission denied on locations/[REGION]) is resolved by running terraform destroy, changing the orchestrator in the console, deploying a new GCP template, and ensuring the selected region has the necessary permissions.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Error creating Subnetwork: googleapi: Error 403: Permission denied on 'locations/[REGION]' (or it may not exist).", "Run the terraform destroy command to purge the template. Change the orchestrator in the Zscaler Admin Console. Download and deploy the new GCP template.", "Ensure that the selected region has the necessary permissions."] }]
+    },
+    "err-logging-bucket-not-active": {
+      "statement": "In the error table row for Error 400 \"Only buckets in state ACTIVE can be deleted\" on a Logging Bucket Config with [BUCKET_LOCATION]/[BUCKET_NAME] placeholders, the resolution is to restore the bucket on the Logs Storage page in the Google Cloud console and run terraform destroy.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Error deleting Logging Bucket Config \"[BUCKET_LOCATION]/[BUCKET_NAME]\": googleapi: Error 400: Only buckets in state ACTIVE can be deleted", "In the Google Cloud console, go to the Logs Storage page. Restore the bucket for which the error is occurring.", "To learn more, refer to the Google Cloud documentation. Run the terraform destroy command to purge the template."] }]
+    },
+    "err-logging-bucket-modify": {
+      "statement": "Error 400 \"Buckets must be in an ACTIVE state to be modified\" when updating a Logging Bucket Config is resolved by restoring the log bucket, running terraform destroy and rerunning the template.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Error 400: Buckets must be in an ACTIVE state to be modified", "Restore the log bucket. Run the terraform destroy command to purge the template. Rerun the template."] }]
+    },
+    "err-provider-version-lock": {
+      "statement": "The error \"Failed to query available provider packages\" (locked hashicorp/google 5.40.0 does not match configured constraint 6.0.0) is resolved by running terraform init -upgrade to allow selection of new versions.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["locked provider registry.terraform.io/hashicorp/google 5.40.0 does not match configured version constraint 6.0.0", "Run the terraform init -upgrade command to allow the selection of new versions."] }]
+    },
+    "err-managed-group-network-mismatch": {
+      "statement": "The error \"Networks specified in new and old network interfaces must be the same\" while updating managed group instances is caused by a mismatch between old and new network interfaces of the managed instance group; the fix is to stop the impacted VM, delete its template and the instance group, then redeploy the template.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Cause: The issue is due to a mismatch between the network interfaces specified in the old and new configurations for the managed instance group.", "Stop the VM instance and delete the associated template.", "Delete the instance group. Download and redeploy the template."] }]
+    },
+    "err-keyring-409": {
+      "statement": "Error 409 \"KeyRing ... already exists\" (duplicate KeyRing name conflict) is resolved by changing the orchestrator in the Zscaler Admin Console and downloading and deploying the new GCP template.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Creating a duplicate KeyRing resource with the specified name results in a conflict.", "Error creating KeyRing: googleapi: Error 409: KeyRing"] },
+        { "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Change the orchestrator in the Zscaler Admin Console. Download and deploy the new GCP template."], "after": "Error creating KeyRing: googleapi: Error 409: KeyRing" }
+      ]
+    },
+    "err-instance-template-404": {
+      "statement": "Error 404 creating an instance template is caused by a specified network resource that does not exist; the fix is to verify the network resource and update its reference in the instance template configuration.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["Error creating instance template: googleapi: Error 404: The resource <resource_path> was not found, notFound", "Cause: Specified network resource does not exist.", "Verify the existence of the specified network resource. Update the network resource reference in the instance template configuration."] }]
+    },
+    "err-service-networking-peering": {
+      "statement": "\"Unable to Remove Service Networking Connection\" (Error code 3, a peering operation in progress) is caused by an ongoing operation and is resolved by rerunning the template.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-resolving-configuration-issues-gcp.json", "quotes": ["There is a peering operation in progress on the local or peer network. Try again later.", "Cause: Unable to remove the Service Networking Connection because of an ongoing operation. | Rerun the template."] }]
+    },
+    "discovery-sa-roles": {
+      "statement": "The GCP Discovery service account discovers resources in GCP projects and instructs the Local Scanner Platform; its managed roles include Organization Policy Viewer, Security Reviewer and Cloud Asset Viewer.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["This service account is used by DSPM to discover resources in the GCP projects and to instruct Local Scanner Platform to perform scan-related instructions.", "- Organization Policy Viewer", "- Security Reviewer", "- Cloud Asset Viewer"] }]
+    },
+    "orchestrator-sa-roles": {
+      "statement": "The GCP Orchestrator service account is used by the orchestrator instance for scan and management operations; its managed roles include Cloud KMS CryptoKey Encrypter or Decrypter and Service Account Token Creator.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["This service account is used by the orchestrator instance to perform scan and management operations.", "- Cloud KMS CryptoKey Encrypter or Decrypter", "- Service Account Token Creator"], "after": "Orchestrator Service Account" }]
+    },
+    "orchestrator-logging-sinks": {
+      "statement": "The Orchestrator service account holds logging.sinks.update and logging.sinks.list at GCP Organisation scope to update the DSPM org log sink for bucket incremental scans.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["| logging.sinks.update | GCP Organisation | To update Zscaler DSPM org log sink for buckets incremental scans |", "| logging.sinks.list | GCP Organisation | To update Zscaler DSPM org log sink for buckets incremental scans |"] }]
+    },
+    "scanner-and-target-sa": {
+      "statement": "The GCP Scanner service account is used by the scanner instance for scan tasks (its roles include Logs View Accessor), and the Target role service account performs scan tasks on data stores.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["This service account is used by the scanner instance to perform scan-related tasks.", "- Logs View Accessor", "The service account with this role is used to perform scan-related tasks on data stores."] }]
+    },
+    "bigquery-permissions": {
+      "statement": "Scanning GCP BigQuery projects requires permissions including bigquery.tables.getData (read table contents for scanning), bigquery.models.getData (read ML model data for scanning) and bigquery.jobs.create (run BigQuery jobs).",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["The following permissions are required to scan GCP BigQuery projects:", "| bigquery.tables.getData | Monitored Projects | To read the contents of BigQuery tables for scanning |", "| bigquery.models.getData | Monitored Projects | To read data from BigQuery ML models for scanning |", "| bigquery.jobs.create | Monitored Projects | To run BigQuery jobs |"] }]
+    },
+    "cloudsql-backup-permissions": {
+      "statement": "For Cloud SQL scanning the Target role holds cloudsql.backupRuns.create and cloudsql.backupRuns.delete on monitored projects, and the orchestrator service account holds cloudsql.instances.restoreBackup in the orchestrator project.",
+      "tier": "A",
+      "evidence": [{ "source": "zscaler-help", "path": "dspm-iam-roles-and-permissions-gcp.json", "quotes": ["| cloudsql.backupRuns.create | Monitored Projects | To create latest cloud SQL backup |", "| cloudsql.backupRuns.delete | Monitored Projects | To delete cloud SQL backups |", "| cloudsql.instances.restoreBackup | Orchestrator Project | To restore latest cloud SQL backup |"] }]
+    }
+  },
+  "gaps": {
+    "project-onboarding-type-listing": {
+      "kind": "semantic",
+      "title": "Whether single-project onboarding is a supported onboarding type",
+      "status": "open",
+      "detail": "dspm.scanning:onboarding-types lists only GCP Organization for GCP, while this subject has a single GCP project onboarding page (dspm-onboarding-gcp-project.json). The scanning claim is a shorter list than the project page; the conflict is not settled here.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "error-table-incomplete": {
+      "kind": "semantic",
+      "title": "Whether the GCP error table is complete and when each 403 resolution step applies",
+      "status": "open",
+      "detail": "The GCP error page gives no error code list; the local-exec provisioner row (module.test-connectivity) resolves to \"Rerun the template.\" but the row ends at its output (\"Connectivity test failed\") and gives no cause. The first 403 row's resolution mixes destroy, change-orchestrator and deploy steps without saying which applies when.",
+      "resolves_with": ["source-read", "support-ticket"]
+    },
+    "logging-bucket-400-two-resolutions": {
+      "kind": "semantic",
+      "title": "Which resolution applies to the Logging Bucket Config 400 \"Only buckets in state ACTIVE can be deleted\" error",
+      "status": "open",
+      "detail": "The error table lists this 400 message twice: one row (with [BUCKET_LOCATION]/[BUCKET_NAME] placeholders) resolves it by restoring the bucket on the Logs Storage page and running terraform destroy, and a second row (a concrete bucket path, introduced by \"Attempt to delete a Logging Bucket Config that is not in the ACTIVE state.\") resolves it by changing the orchestrator in the Zscaler Admin Console and deploying the new GCP template. The page does not say when each applies.",
+      "resolves_with": ["support-ticket", "source-read"]
+    },
+    "provider-version": {
+      "kind": "semantic",
+      "title": "Which hashicorp/google provider version other template releases support",
+      "status": "open",
+      "detail": "The provider constraint error (6.0.0 against locked 5.40.0) is given without stating the supported provider version for other template releases.",
+      "resolves_with": ["source-read"]
+    },
+    "project-tree-discovery": {
+      "kind": "semantic",
+      "title": "Whether a single-project onboarding needs a tree discovery project",
+      "status": "open",
+      "detail": "The organization page scopes admin.googleapis.com to Tree Discovery and Target projects; the project page scopes the same API to Orchestrator and Target, and the other API rows that name Tree Discovery on the organization page likewise read Orchestrator, Target on the project page. The project page has no Tree Discovery wording (searched its blocks for 'tree discovery', 0 matches). The pages do not say whether a project onboarding needs a tree discovery project.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "project-network-default": {
+      "kind": "semantic",
+      "title": "Whether Zscaler network configuration for a GCP project needs Zscaler Support",
+      "status": "open",
+      "detail": "The organization page says the Custom network configuration is the default and that the Zscaler configuration needs Zscaler Support; the GCP project page offers the Zscaler configuration without that statement.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "status-names-undefined": {
+      "kind": "semantic",
+      "title": "What the onboarding status names mean",
+      "status": "partial",
+      "detail": "Now known: Successfully Configured, Pending Configuration and Needs Attention are defined in dspm.cloud-accounts:account-status, and Waiting for connection and Pending in dspm.cloud-accounts:connection-status and dspm.cloud-accounts:configuration-status. Still open: whether the GCP onboarding pages' use of these names matches those definitions.",
+      "resolves_with": ["source-read", "lab-test"]
+    }
+  }
+}

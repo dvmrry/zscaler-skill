@@ -1,0 +1,256 @@
+{
+  "schema_version": 1,
+  "id": "dspm.roles",
+  "title": "Who can do what in DSPM: predefined and custom access roles, their permissions, and business units",
+  "aliases": [
+    "dspm access roles",
+    "dspm predefined roles",
+    "dspm custom roles",
+    "dspm permissions",
+    "dspm business units",
+    "dspm rbac"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.on-premises"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.action-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "zidentity.entitlements"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{predefined-roles}} {{predefined-immutable}} {{view-only-admin}}"
+    },
+    {
+      "label": "Custom roles.",
+      "text": "{{custom-role-fields}}"
+    },
+    {
+      "label": "Business units.",
+      "text": "{{business-unit-definition}}"
+    },
+    {
+      "label": "Permissions in the predefined roles.",
+      "text": "{{zia-viewer-alerts}} {{view-only-alerts}} {{sso-permissions}} {{evidence-permissions}} {{it-admin-cloud-accounts}} The full permission matrix is open {{gap:permission-matrix}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the admin's role is predefined or custom, since predefined roles cannot be edited or deleted.",
+      "uses": [
+        "predefined-roles",
+        "predefined-immutable"
+      ]
+    },
+    {
+      "do": "Whether a missing Actions column or a failed create, update or delete is the View-Only Administrator role.",
+      "uses": [
+        "view-only-admin"
+      ]
+    },
+    {
+      "do": "The module permission (Access, View Only or None) and, for Scan Settings, the Cloud Accounts permission on a custom role.",
+      "uses": [
+        "custom-role-fields"
+      ]
+    }
+  ],
+  "claims": {
+    "predefined-roles": {
+      "statement": "The About Access Roles page lists these predefined roles: Administrator, View-Only Administrator, Security Officer, IT Administrator, Data Analyst, ZIA Viewer and DLP Policy Manager; the last two are assigned to Internet & SaaS users who reach the dashboard or policy via SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-access-roles.json",
+          "quotes": [
+            "Administrator: The default super admin role with the highest level of privilege and has access to all DSPM modules and actions.",
+            "View-Only Administrator: A default administrator role with View-Only access to all modules and the permission to export data.",
+            "Security Officer: A role with View-Only access to all modules and permissions to perform actions across Policies, Investigation, and Reports.",
+            "IT Administrator: A role with administrative access to perform actions across Cloud Accounts, and Integrations.",
+            "Data Analyst: A role with administrative and View-Only access to perform actions across Policies, Investigation, Reports, Alerts, and Evidence.",
+            "ZIA Viewer: A role assigned to the Internet & SaaS user to access the dashboard via SSO.",
+            "DLP Policy Manager: A role assigned to the Internet & SaaS user to access the dashboard or Policy via SSO."
+          ]
+        }
+      ]
+    },
+    "predefined-immutable": {
+      "statement": "Predefined roles cannot be edited or deleted, while custom roles can be created, edited and deleted; the roles list shows role type (Predefined or Custom) and permission count.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-access-roles.json",
+          "quotes": [
+            "You can also create custom roles and add specific permissions.",
+            "Edit a custom role.",
+            "Delete a custom role.",
+            "You cannot edit or delete predefined roles.",
+            "Role Type: The type of role (Predefined or Custom).",
+            "Permission Count: The number of permissions assigned to this role."
+          ]
+        }
+      ]
+    },
+    "view-only-admin": {
+      "statement": "A View-Only Administrator cannot perform create, update or delete operations, and the Actions column in Admin Console tables is hidden for the role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "quotes": [
+            "Users with a View-Only Administrator role cannot perform any create, update, and delete operations. The Actions column in the table across the Zscaler Admin Console is hidden for this role."
+          ]
+        }
+      ]
+    },
+    "custom-role-fields": {
+      "statement": "A custom role has a unique name of letters, numbers, hyphens or underscores, and each module's permission is Access, View Only or None; for the Scan Settings module, Access or View Only on Cloud Accounts must also be assigned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-and-managing-custom-roles.json",
+          "quotes": [
+            "Role Name: Enter a unique name for the custom role.",
+            "The role name can include letters, numbers, or special characters (hyphen (-) or underscore (_)).",
+            "Access: Select the checkbox for tasks that users can perform in each module or global module.",
+            "View Only: Select to provide view only access to specific modules or global modules.",
+            "None: Select to restrict users from accessing or viewing specific modules or global modules.",
+            "For the Scan Settings module, along with assigning the required permissions, you also need to assign Access or View Only permissions for Cloud Accounts."
+          ]
+        }
+      ]
+    },
+    "business-unit-definition": {
+      "statement": "Business units are logical containers for cloud accounts that govern DSPM from an RBAC perspective, users or user groups must be assigned to them, and the default business unit cannot be edited or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-business-units.json",
+          "quotes": [
+            "Business units are logical containers for cloud accounts in the Zscaler Admin Console. Business units govern DSPM from a role-based access control (RBAC) perspective.",
+            "You must assign users or user groups to the business units.",
+            "You cannot edit or delete the default business unit."
+          ]
+        }
+      ]
+    },
+    "zia-viewer-alerts": {
+      "statement": "In the permissions list, the ZIA Viewer role's alerts module (spelled Alerts Views) carries Export Alerts, Resolve Alerts, Snooze Alerts and View Alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- ZIA Viewer",
+          "quotes": [
+            "Alerts Views | Export Alerts Resolve Alerts Snooze Alerts View Alerts"
+          ]
+        }
+      ]
+    },
+    "view-only-alerts": {
+      "statement": "In the permissions list, the View-Only Administrator role's Alert Views module carries Export Alerts and View Alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- View-Only Administrator",
+          "quotes": [
+            "Alert Views | Export Alerts View Alerts"
+          ]
+        }
+      ]
+    },
+    "sso-permissions": {
+      "statement": "The Administrator role's Single Sign-On module has Add IdP, Delete IdP, Edit IdP and View SSO, and the View-Only Administrator role's has View SSO.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- Administrator",
+          "quotes": [
+            "Single Sign-On | Add IdP Delete IdP Edit IdP View SSO"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- View-Only Administrator",
+          "quotes": [
+            "Single Sign-On | View SSO"
+          ]
+        }
+      ]
+    },
+    "evidence-permissions": {
+      "statement": "The Data Analyst role has an Evidence module with View Evidence Triggers, and the View-Only Administrator role has View Evidence Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- Data Analyst",
+          "quotes": [
+            "Evidence | View Evidence Triggers"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- View-Only Administrator",
+          "quotes": [
+            "Evidence Settings | View Evidence Settings"
+          ]
+        }
+      ]
+    },
+    "it-admin-cloud-accounts": {
+      "statement": "The IT Administrator role's Cloud Accounts permissions are Delete Account, Add Account, Configure Monitoring Scope, Business Unit Mapping, Change Application Details, Manage Cloud Trail, Update GCP Service Account Key, Acknowledge Template Notification, Configure New Orchestrator, Update GCP Service Account and View Cloud Accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-predefined-roles-and-permissions.json",
+          "after": "- IT Administrator",
+          "quotes": [
+            "Cloud Accounts | Delete Account Add Account Configure Monitoring Scope Business Unit Mapping Change Application Details Manage Cloud Trail Update GCP Service Account Key Acknowledge Template Notification Configure New Orchestrator Update GCP Service Account View Cloud Accounts"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "permission-matrix": {
+      "kind": "semantic",
+      "title": "The full per-role permission matrix and its inconsistencies",
+      "status": "open",
+      "detail": "The About page says the Administrator role has access to all DSPM modules and actions, yet the Administrator table has no Evidence module row (Data Analyst has Evidence with View Evidence Triggers; Administrator has Evidence Settings). The Scan Management and Model Scan Management rows list identical permissions, all named Model Scan Integrations, in the capture. The full matrix is in the permissions page; only the rows above are claimed, because most rows repeat across roles and cannot be quoted uniquely.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

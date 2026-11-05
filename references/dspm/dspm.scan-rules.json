@@ -1,0 +1,555 @@
+{
+  "schema_version": 1,
+  "id": "dspm.scan-rules",
+  "title": "How DSPM scan rules are configured per resource type, how scans are run and stopped, and how scan scopes select DLP engines",
+  "aliases": [
+    "dspm scan rule",
+    "dspm scan settings",
+    "dspm scan scope",
+    "dspm scan status",
+    "dspm on-demand scan",
+    "dspm delta scan",
+    "dspm malware scanning",
+    "dspm scan schedule"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.vulnerability-scanning" },
+    { "rel": "see-also", "to": "dspm.onboarding-aws-cloudtrail" },
+    { "rel": "see-also", "to": "zia.dlp.engines" }
+  ],
+  "prose": [
+    {
+      "text": "Scan rules select the resources, the scan type and the scan frequency: [[dspm.scanning:orchestrator]]. {{rule-name-description}} {{resource-types-by-page}}"
+    },
+    {
+      "label": "Before and while configuring.",
+      "text": "{{prerequisite-registration}} {{ai-services-category}} {{databricks-scan-all}}"
+    },
+    {
+      "label": "Scan types.",
+      "text": "{{file-scan-types}} The incremental options on AWS need CloudTrail integration: [[dspm.onboarding-aws-cloudtrail:integration-incremental-vs-full]]. {{lookback-range}} {{azure-nfs-no-incremental}} {{managed-db-scan-types}} The GCP and DynamoDB options are in dispute {{divergence:gcp-managed-db-sampling}} {{divergence:dynamodb-recent-data}}. {{sampling-scan-type}} {{unmanaged-db-scan-type}} How sampling relates to relational databases is in [[dspm.scanning:database-sampling]]. {{matrix-sampling-only}} {{about-unmanaged-sampling}} Whether Full Scan is unavailable where only sampling is shown is open {{gap:full-scan-availability}}. The limits and syntax the pages leave undefined are open {{gap:undefined-options}}. {{deleted-files-not-detected}}"
+    },
+    {
+      "label": "Schedules.",
+      "text": "{{schedule-default-on-demand}} {{schedule-weekly-time}} {{schedule-aws-databricks}} {{schedule-aws-unmanaged}} The lookback range on the file server page is open {{gap:file-server-lookback}}."
+    },
+    {
+      "label": "Selecting and excluding.",
+      "text": "{{tag-or-logic}} {{gcp-labels}} {{storage-exclusion-formats}} {{exclusion-next-incremental}} {{aws-storage-auto-exclusions}} {{vm-os-directory-exclusion}} {{vm-folder-exclusion-formats}} Overlapping rules are in [[dspm.scanning:overlapping-rules]]."
+    },
+    {
+      "label": "Systems the rule pages exclude or require.",
+      "text": "{{azure-vm-excluded-systems}} {{gcp-vm-disk-support}} {{azure-sql-cmk-rbac}} {{azure-db-restore-cleanup}} Vulnerability scanning support is in [[dspm.vulnerability-scanning]]."
+    },
+    {
+      "label": "Malware scanning.",
+      "text": "{{malware-resource-types}} {{malware-opt-in}} {{malware-schedule}} {{malware-engine}}"
+    },
+    {
+      "label": "Running and stopping scans.",
+      "text": "{{scan-statuses}} {{status-issues}} Which other statuses exist is open {{gap:scan-status-others}}. {{enable-required}} {{disable-effect}} {{on-demand}} Which resource types allow it is in dispute {{divergence:on-demand-resource-types}}. {{start-queued}} {{stop-scan}} {{delta-scan}} {{delta-s3-membership}}"
+    },
+    {
+      "label": "Scan scope.",
+      "text": "{{what-scope-does}} {{criteria-fields}} {{engine-states}} {{ocr-file-types}} {{optimized-resources}} {{applied-in-rule}} The engines themselves are in [[zia.dlp.engines]], and classification and OCR in [[dspm.scanning:classification]] and [[dspm.scanning:ocr]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Scan Type options the rule page for the resource type lists.",
+      "uses": ["file-scan-types", "managed-db-scan-types", "sampling-scan-type", "unmanaged-db-scan-type"]
+    },
+    {
+      "do": "Whether the rule is enabled and whether a scan is In-Progress before expecting it to run or stop.",
+      "uses": ["enable-required", "disable-effect", "stop-scan", "delta-scan"]
+    },
+    {
+      "do": "Whether the resource is one of the six types malware scanning supports and whether Enable Malware Scanning is on for the rule.",
+      "uses": ["malware-resource-types", "malware-opt-in"]
+    },
+    {
+      "do": "Whether a DLP engine in the scan scope is enabled; the scanner does not evaluate a disabled one.",
+      "uses": ["engine-states"]
+    }
+  ],
+  "claims": {
+    "malware-opt-in": {
+      "statement": "In the scan rule wizard for AWS cloud storage, AWS virtual machines, Azure Blob Storage, Azure file shares, Azure virtual machines, Google Cloud Storage and GCP virtual machines, Enable Malware Scanning is an option that is disabled by default.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-blob-storage.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-file-shares.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-google-cloud-storage.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-virtual-machines.json", "quotes": ["Enable Malware Scanning: Enable this option if the resources must be scanned for malware. This option is disabled by default."] }
+      ]
+    },
+    "malware-resource-types": {
+      "statement": "DSPM supports malware scanning for six resource types: AWS S3 Bucket, AWS EC2 Instance, Azure Storage Account, Azure Virtual Machine, Google Cloud Storage and GCP Compute Engine (VM).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-understanding-malware-scanning.json", "quotes": ["DSPM supports malware scanning for the following resource types:", "- AWS S3 Bucket", "- AWS EC2 Instance", "- Azure Storage Account", "- Azure Virtual Machine", "- Google Cloud Storage", "- GCP Compute Engine (VM)"] }
+      ]
+    },
+    "malware-schedule": {
+      "statement": "Malware and sensitive data scanning run on the same scan schedule, with the malware scan before, concurrently with, or immediately after the sensitive data scan; malware results appear on the Data Inventory page.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-understanding-malware-scanning.json", "quotes": ["DSPM performs malware and sensitive data scanning on the same scan schedule.", "the malware scan happens either before, concurrently, or immediately after the sensitive data scan.", "The scan results are displayed on the Data Inventory page, and you can view the malware details."] }
+      ]
+    },
+    "malware-engine": {
+      "statement": "Zscaler says it uses an industry-leading AV vendor for signature-based detection, plus malware feeds from trusted partners such as Microsoft and Adobe and its own technologies.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-understanding-malware-scanning.json", "quotes": ["Zscaler uses an industry-leading AV vendor for signature-based detection and protection so it can provide comprehensive web security.", "the service uses malware feeds from its trusted partners, such as Microsoft and Adobe, as well as its own technologies to detect and block malware."] }
+      ]
+    },
+    "aws-storage-auto-exclusions": {
+      "statement": "For AWS cloud storage rules, DSPM automatically excludes active CloudTrail and VPC flow log buckets from sensitive data scans even if they match the criteria, and the same page also says DSPM excludes AWS workloads created using the AWS Marketplace from scanning.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["DSPM automatically excludes the active CloudTrail and VPC flow log buckets from sensitive data scans even if they match the scan criteria.", "DSPM also excludes AWS workloads that were created using the AWS Marketplace from scanning."] }
+      ]
+    },
+    "tag-or-logic": {
+      "statement": "In the AWS cloud storage, Google Cloud Storage and GCP BigQuery rule pages, when several key-value pairs are entered to include resources, DSPM scans every resource that matches at least one pair (OR logic); the exclude list works the same way on the AWS cloud storage and Google Cloud Storage pages.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["If multiple key-value pairs are added, DSPM scans all buckets that match at least one of the specified key-value pairs. This means the rule uses OR logic, and a bucket is included if it matches any of the key-value pairs.", "If multiple key-value pairs are added, DSPM excludes any bucket that matches at least one of the specified key-value pairs. This means the rule uses OR logic, and a bucket is excluded if it matches any of the key-value pairs."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-google-cloud-storage.json", "quotes": ["If multiple key-value pairs are added, DSPM scans all storage buckets that match at least one of the specified key-value pairs. This means the rule uses OR logic, and a bucket is included if it matches any of the key-value pairs.", "If multiple key-value pairs are added, DSPM excludes any bucket that matches at least one of the specified key-value pairs. This means the rule uses OR logic, and a bucket is excluded if it matches any of the key-value pairs."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-bigquery.json", "quotes": ["If multiple key-value pairs are added, DSPM scans all datasets that match at least one of the specified key-value pairs. This means the rule uses OR logic, and a dataset is included if it matches any of the key-value pairs."] }
+      ]
+    },
+    "gcp-labels": {
+      "statement": "On the Google Cloud Storage rule page, buckets are selected and excluded by labels (key-value pairs); excluding by labels is disabled by default.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-google-cloud-storage.json", "quotes": ["Select by labels: Specify the labels in key-value pairs. All the storage buckets that match the label are scanned.", "Exclude Cloud Storage Buckets By Labels: Enable this option and enter the key-value pairs of the buckets that must be excluded from scanning. This option is disabled by default."] }
+      ]
+    },
+    "exclusion-next-incremental": {
+      "statement": "On the exclusion step of the AWS cloud storage and AWS-managed databases rules, if a full scan is already initiated or completed, the excluded bucket, folder or database is excluded in the next incremental scan.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["If a full scan is already initiated or completed, the bucket or folder is excluded in the next incremental scan."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-managed-databases.json", "quotes": ["If a full scan is already initiated or completed, the databases are excluded in the next incremental scan."] }
+      ]
+    },
+    "storage-exclusion-formats": {
+      "statement": "In the AWS S3 rule, a folder is excluded by entering the bucket name followed by the folder and a forward slash (example my-bucket/reports/); wildcard exclusions on bucket names (example *logs*) match both existing buckets and ones added in the future.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["For example, to exclude a folder named reports within a bucket named my-bucket, enter my-bucket/reports/.", "Based on the wildcard, DSPM excludes all the matching S3 buckets from scanning. This is applicable to both existing S3 buckets and the ones that might be added in the future.", "For example, *logs* — excludes any bucket name that contains the word logs."] }
+      ]
+    },
+    "file-scan-types": {
+      "statement": "For AWS cloud storage rules the Scan Type page offers Full, Full + Incremental, Incremental, Historical and Historical + Incremental scans; Incremental Scan takes a duration of 1 Day, 1 Week, 1 Month, Continuous or Custom Duration.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["On the Scan Type page, choose one of the following options:", "Full Scan: Scans all objects in the S3 buckets.", "Full + Incremental Scan: Scans all objects, including those that are newly added or modified since the previous scan.", "Incremental Scan: Scans only the files that are newly added or modified since the previous scan.", "Historical Scan: Scans files based on a specified look back period.", "Historical + Incremental Scan: Scans files based on a specified lookback period and scan files that are newly added or modified since the previous scan."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "after": "Incremental Scan: Scans only the files that are newly added or modified since the previous scan.", "quotes": ["Select one of the scan durations: 1 Day, 1 Week, 1 Month, Continuous, Custom Duration."] }
+      ]
+    },
+    "lookback-range": {
+      "statement": "Historical + Incremental scans take a lookback period of 1 to 365 days in the AWS cloud storage, Azure Blob Storage, Azure file shares and Google Cloud Storage rule pages; on the AWS cloud storage page Historical + Incremental also takes a duration in days for the incremental part.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "after": "Historical + Incremental Scan: Scans files based on a specified lookback period", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-blob-storage.json", "after": "Historical + Incremental Scan: Scans files based on a specified lookback period", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-file-shares.json", "after": "Historical + Incremental Scan: Scans files based on a specified lookback period", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-google-cloud-storage.json", "after": "Historical + Incremental Scan: Scans files based on a specified lookback period", "quotes": ["Lookback Period: Enter the number of days (1 to 365 days) to scan historical data."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Duration: Specify the number of days for incremental scanning."] }
+      ]
+    },
+    "azure-nfs-no-incremental": {
+      "statement": "For Azure NFS file shares, DSPM does not support incremental scans (Incremental, Full + Incremental, Historical + Incremental); the page suggests running periodic historical scans or scheduling frequent full scans instead. The rule scans Azure file shares over SMB and NFS.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-file-shares.json", "quotes": ["DSPM scans the Azure file shares over SMB and NFS for any sensitive data.", "For Azure NFS file shares, DSPM does not support incremental scans (Incremental, Full + Incremental, Historical + Incremental), run periodic historical scans or schedule frequent full scans instead."] }
+      ]
+    },
+    "managed-db-scan-types": {
+      "statement": "For AWS-managed databases, Azure-managed databases, GCP-managed databases and AWS NoSQL data stores, the Scan Type page offers a Data Sampling Scan (a sample of recent data) or a Full Scan.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-managed-databases.json", "quotes": ["On the Scan Type page, you can choose to perform one of the following scans:", "Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded accounts."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-managed-databases.json", "quotes": ["On the Scan Type page, you can choose to perform one of the following scans:", "Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded accounts."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-managed-databases.json", "quotes": ["On the Scan Type page, you can choose to perform one of the following scans:", "Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded projects."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["On the Scan Type page, you can choose to perform one of the following scans:", "Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all DynamoDB tables across all onboarded accounts."] }
+      ]
+    },
+    "matrix-sampling-only": {
+      "statement": "In the supported-data-stores tables, Azure Cosmos DB for NoSQL, GCP BigQuery, Snowflake on AWS and Databricks on AWS list Sampling Scan as the data classification method, and the unmanaged databases list Supported by Sampling scan.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "quotes": ["| Azure Cosmos DB for NoSQL | Managed Identity using BYOR | Public Exposure Encryption Logging Retention | Sampling Scan |", "| GCP BigQuery | Service Account | Public Exposure Encryption Logging Retention | Sampling Scan |"] },
+        { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "after": "## Unmanaged Databases", "quotes": ["Supported by Sampling scan"] },
+        { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "after": "## Snowflake", "quotes": ["| AWS | Username and Password | Public Exposure Encryption Logging Retention | Sampling Scan |"] },
+        { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "after": "## Databricks", "quotes": ["| AWS | Username and Password | Public Exposure Encryption Logging Retention | Sampling Scan |"] }
+      ],
+      "conditions": "Scoped to the matrix tables; they list the methods without saying Full Scan is unavailable (gap full-scan-availability)."
+    },
+    "about-unmanaged-sampling": {
+      "statement": "The About Scan Settings Scan Types table gives Unmanaged Database only the Data Sampling Scan: scan a subset of data.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-about-scan-settings.json", "quotes": ["| Unmanaged Database | Data Sampling Scan: Scan a subset of data. |"] }
+      ]
+    },
+    "sampling-scan-type": {
+      "statement": "On the Scan Type page of the AWS Databricks, Azure Databricks, Azure NoSQL, GCP BigQuery and Snowflake rule pages, the instruction is to select Data Sampling Scan to scan a sample of recent data.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-databricks-workspace.json", "quotes": ["On the Scan Type page, select Data Sampling Scan to scan a sample of recent data in the workspace or accounts."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-databricks-workspace.json", "quotes": ["On the Scan Type page, select Data Sampling Scan to scan a sample of recent data in the workspace."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-nosql-data-stores.json", "quotes": ["On the Scan Type page, select Data Sampling Scan to scan a sample of recent data in the database."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-bigquery.json", "quotes": ["On the Scan Type page, select Data Sampling Scan to scan a sample of recent data in the database."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-snowflake-databases.json", "quotes": ["On the Scan Type page, select Data Sampling Scan to scan a sample of recent data in the database."] }
+      ]
+    },
+    "unmanaged-db-scan-type": {
+      "statement": "On the Scan Type page of the AWS unmanaged, Azure unmanaged and on-premises unmanaged database rule pages, the Scan Type page lists Data Sampling Scan: scan a sample of recent data in the database.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-unmanaged-databases.json", "quotes": ["On the Scan Type page:", "Data Sampling Scan: Scan a sample of recent data in the database."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-unmanaged-databases.json", "quotes": ["On the Scan Type page:", "Data Sampling Scan: Scan a sample of recent data in the database."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-premises-unmanaged-databases.json", "quotes": ["On the Scan Type page:", "Data Sampling Scan: Scan a sample of recent data in the database."] }
+      ]
+    },
+    "deleted-files-not-detected": {
+      "statement": "The rule pages for AWS cloud storage, AWS-managed databases, Azure Blob Storage, Azure-managed databases, Google Cloud Storage, GCP BigQuery, Snowflake and on-premises file servers each state that DSPM cannot detect files that are deleted in the source (the AWS, Azure or GCP console, the Snowflake database or the file server).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["DSPM cannot detect files that are deleted in the AWS console."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-managed-databases.json", "quotes": ["DSPM cannot detect files that are deleted in the AWS console."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-blob-storage.json", "quotes": ["DSPM cannot detect files that are deleted in Azure."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-managed-databases.json", "quotes": ["DSPM cannot detect files that are deleted in the Azure console."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-google-cloud-storage.json", "quotes": ["DSPM cannot detect files that are deleted in Cloud Storage."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-bigquery.json", "quotes": ["DSPM cannot detect files that are deleted in the GCP console."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-snowflake-databases.json", "quotes": ["DSPM cannot detect files that are deleted from the Snowflake database."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-premises-file-servers.json", "quotes": ["DSPM cannot detect files that are deleted from the on-premises file server."] }
+      ]
+    },
+    "schedule-default-on-demand": {
+      "statement": "In the scan schedule step of the AWS virtual machine, AWS-managed database, Azure virtual machine, GCP virtual machine and GCP BigQuery rule pages, On Demand is the default frequency; the AWS virtual machine page also lists Weekly (day chosen from a drop-down) and Monthly.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["On Demand (Default): Scan the data manually when needed.", "Weekly: Scan the data once a week. Select the day from the drop-down menu.", "Monthly: Scan the data once a month."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-managed-databases.json", "quotes": ["On Demand (Default): Scan the data manually when needed."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["On Demand (Default): Scan the data manually when needed."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-virtual-machines.json", "quotes": ["On Demand (Default): Scan the data manually when needed."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-bigquery.json", "quotes": ["On Demand (Default): The scan runs only when it is initiated manually by the user."] }
+      ]
+    },
+    "schedule-weekly-time": {
+      "statement": "On the Microsoft Foundry, Azure OpenAI, Snowflake and on-premises unmanaged database rule pages, the Weekly schedule frequency asks for the day from a drop-down menu and a time.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-microsoft-foundry.json", "quotes": ["Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM)."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-openai.json", "quotes": ["Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM)."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-snowflake-databases.json", "quotes": ["Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM)."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-premises-unmanaged-databases.json", "quotes": ["Weekly: Scan the data once a week. Select the day from the drop-down menu and specify the time (e.g., Tuesday at 11:59 PM)."] }
+      ]
+    },
+    "vm-os-directory-exclusion": {
+      "statement": "In the AWS, Azure and GCP virtual machine rule pages, Exclude Operating System Directories Files from Scanning is enabled by default (disable it to scan OS directories); the excluded directories include Linux /usr/local/ and /usr/share/, the Windows Program Files and Windows directories, and the package path /opt/elasticbeanstalk/.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["Exclude Operating System Directories Files from Scanning: Disable this option if you want to scan the OS directories. This option is enabled by default.", "- /usr/local/", "- /usr/share/", "C:\\Windows\\", "C:\\Program Files\\", "- /opt/elasticbeanstalk/"] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["Exclude Operating System Directories Files from Scanning: Disable this option if you want to scan the OS directories. This option is enabled by default.", "- /usr/local/", "- /usr/share/", "C:\\Windows\\", "C:\\Program Files\\", "- /opt/elasticbeanstalk/"] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-virtual-machines.json", "quotes": ["Exclude Operating System Directories Files from Scanning: Disable this option if you want to scan the OS directories. This option is enabled by default.", "- /usr/local/", "- /usr/share/", "C:\\Windows\\", "C:\\Program Files\\", "- /opt/elasticbeanstalk/"] }
+      ]
+    },
+    "vm-folder-exclusion-formats": {
+      "statement": "For VM rules (AWS, Azure and GCP pages), Exclude Folders / Directories accepts an exact path, which excludes only that directory (example /var/log/), or a wildcard path, which excludes all files and subdirectories within it (example /var/log/*).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-virtual-machines.json", "quotes": ["Exclude Folders / Directories", "Exact path — Excludes only the specified directory (e.g., /var/log/).", "Wildcard — Excludes all files and subdirectories within the specified directory (e.g., /var/log/*)."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["Exclude Folders / Directories", "Exact path — Excludes only the specified directory (e.g., /var/log/).", "Wildcard — Excludes all files and subdirectories within the specified directory (e.g., /var/log/*)."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-virtual-machines.json", "quotes": ["Exclude Folders / Directories", "Exact path — Excludes only the specified directory (e.g., /var/log/).", "Wildcard — Excludes all files and subdirectories within the specified directory (e.g., /var/log/*)."] }
+      ]
+    },
+    "azure-vm-excluded-systems": {
+      "statement": "The Azure virtual machine rule page lists systems excluded from scanning: VMs encrypted using ADE, Windows 10 or 11 desktop VMs, Windows Server 2012 VMs, Azure VMs created using unmanaged disks (.vhd from storage account), and storage accounts with public network access disabled.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-virtual-machines.json", "quotes": ["The following systems are excluded from scanning:", "- VMs encrypted using ADE.", "- Windows desktop VMs running with Windows version 10 or 11.", "- Windows Server 2012 VMs.", "- Azure VMs created using unmanaged disks (.vhd from storage account).", "- Storage accounts with public network access disabled."] }
+      ]
+    },
+    "gcp-vm-disk-support": {
+      "statement": "The GCP virtual machine rule page says DSPM supports scanning attached GCP disks, and that FreeBSD, virtual appliances, Windows desktops, and filesystems like BitLocker or CryptoDM are not supported.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-virtual-machines.json", "quotes": ["DSPM provides support for scanning attached GCP disks. FreeBSD, virtual appliances, Windows desktops, and filesystems like BitLocker or CryptoDM are not supported."] }
+      ]
+    },
+    "azure-sql-cmk-rbac": {
+      "statement": "Azure-managed database rules require the Azure SQL database to have a Role-Based Access Control (RBAC) policy for the Key Vault; DSPM does not support scanning Azure SQL databases encrypted with a Customer-Managed Key (CMK) without that policy.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-managed-databases.json", "quotes": ["Before configuring the scan, ensure your Azure SQL database has a Role-Based Access Control (RBAC) policy for the Key Vault.", "DSPM does not provide support for scanning Azure SQL databases that are encrypted with a Customer-Managed Key (CMK) without the RBAC policy."] }
+      ]
+    },
+    "azure-db-restore-cleanup": {
+      "statement": "On the Azure-managed database rule page, after completing the scan DSPM deletes the restored servers, databases and File System (FS) Analyzer to reduce the cost for customers.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-managed-databases.json", "quotes": ["After completing the scan, DSPM deletes the restored servers, databases, and File System (FS) Analyzer to reduce the cost for customers."] }
+      ]
+    },
+    "resource-types-by-page": {
+      "statement": "Resource types covered by the rule pages: AWS-managed databases (MySQL, Aurora MySQL, Aurora PostgreSQL), AWS NoSQL (DynamoDB), Azure-managed databases (Azure SQL and PostgreSQL Flexible servers), Azure Cosmos DB, GCP-managed databases (SQL, MySQL, PostgreSQL), GCP BigQuery, Microsoft Foundry projects and Azure OpenAI services.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-managed-databases.json", "quotes": ["databases such as MySQL, Aurora MySQL, and Aurora PostgreSQL."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["NoSQL data stores and DynamoDB."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-managed-databases.json", "quotes": ["Azure SQL databases and Azure-Managed PostgreSQL Flexible servers."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-nosql-data-stores.json", "quotes": ["scan Azure Cosmos DB accounts."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-managed-databases.json", "quotes": ["databases such as SQL, MySQL and PostgreSQL."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-bigquery.json", "quotes": ["scan Google Cloud Platform (GCP) BigQuery databases."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-microsoft-foundry.json", "quotes": ["scan Microsoft Foundry projects."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-openai.json", "quotes": ["scan OpenAI services."] }
+      ]
+    },
+    "prerequisite-registration": {
+      "statement": "Before configuring a scan rule, the AWS and Azure Databricks workspaces and the on-premises file servers must be configured, Azure Cosmos DB accounts must be registered in the Admin Console, the Snowflake account must be configured, and the on-premises data center must be configured for on-premises unmanaged databases.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-databricks-workspace.json", "quotes": ["Before configuring the scan rule, you need to configure the Databricks workspace or accounts."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-databricks-workspace.json", "quotes": ["Before configuring the scan rule, you need to configure the Databricks workspaces."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-premises-file-servers.json", "quotes": ["Before configuring the scan rule, you need to configure the on-premises file servers."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-nosql-data-stores.json", "quotes": ["Before you configure a scan rule, you need to register the Azure Cosmos DB in the Zscaler Admin Console."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-snowflake-databases.json", "quotes": ["Before configuring the scan rule, you need to configure the Snowflake account."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-premises-unmanaged-databases.json", "quotes": ["Before configuring the scan rule, you need to configure the on-premises data center."] }
+      ]
+    },
+    "rule-name-description": {
+      "statement": "A scan rule needs a unique name, and its optional description is limited to 500 characters (AWS cloud storage rule page).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["Scan Rule Name: Enter a unique and descriptive name for the scan rule.", "Scan Rule Description (Optional): Enter a description of the scan rule (maximum is 500 characters)."] }
+      ]
+    },
+    "databricks-scan-all": {
+      "statement": "On the AWS Databricks rule page, Scan All Resources covers all onboarded and future workspaces and catalogs.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-databricks-workspace.json", "quotes": ["Scan All Resources: Scan all the resources across all onboarded and future workspaces and catalogs."] }
+      ]
+    },
+    "ai-services-category": {
+      "statement": "Microsoft Foundry and Azure OpenAI rules use the Resource Category AI & Machine Learning.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-microsoft-foundry.json", "quotes": ["For Resource Category, select AI & Machine Learning.", "For Resource Type, select Microsoft Foundry."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-azure-openai.json", "quotes": ["For Resource Category, select AI & Machine Learning.", "For Resource Type, select Azure OpenAI."] }
+      ]
+    },
+    "schedule-aws-databricks": {
+      "statement": "On the AWS Databricks rule page, On-Demand Scan is the default schedule, and the schedule is set in the selected local timezone and displayed in it.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-databricks-workspace.json", "quotes": ["Select the local timezone for the scan schedule. The scan schedule is displayed in the local timezone.", "On-Demand Scan (Default): The scan runs only when it is initiated manually by the user."] }
+      ]
+    },
+    "schedule-aws-unmanaged": {
+      "statement": "On the AWS unmanaged database rule page, On-Demand Scan is the default schedule and Monthly takes the day of the month plus a time.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-unmanaged-databases.json", "quotes": ["On-Demand Scan (Default): The scan runs only when it is initiated manually by the user.", "Monthly: Scan the data once a month. Select the day of the month from the drop-down menu and specify the time"] }
+      ]
+    },
+    "scan-statuses": {
+      "statement": "DSPM scan statuses are Disabled (scan turned off and does not run), Scheduled (planned to run at a specified time), On-Demand (manually triggered by the user) and In Progress (actively running, for both full and incremental scans).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-understanding-scan-status.json", "quotes": ["The following statuses are supported:", "Disabled: The scan is turned off and does not run.", "Scheduled: The scan is planned to run at a specified time.", "On-Demand : The scan is manually triggered by the user.", "In Progress: The scan is actively in progress for both full scans and incremental scans."] }
+      ]
+    },
+    "status-issues": {
+      "statement": "The scan status page says that if there are issues in the data stores DSPM cannot complete the process, which can result in different scan statuses.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-understanding-scan-status.json", "quotes": ["if there are any issues in the data stores, DSPM cannot complete the process and this can result in different scan statuses."] }
+      ]
+    },
+    "enable-required": {
+      "statement": "After a scan rule is configured it must be enabled to run on its schedule; disabling pauses scanning without deleting the rule.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-enabling-or-disabling-scan-rule.json", "quotes": ["you must enable the scan rule to initiate the according to the configured schedule, or disable it to pause scanning without deleting the rule."] }
+      ]
+    },
+    "disable-effect": {
+      "statement": "Disabling a scan rule lets in-progress full scans complete but disables subsequent incremental scans; to stop a full scan immediately, first stop it from the Actions menu on the Scan Settings page.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-enabling-or-disabling-scan-rule.json", "quotes": ["When you disable a scan rule, any full scans that are currently in progress are completed, but subsequent incremental scans are disabled.", "To stop the full scan immediately, you need to first stop the scan from the Actions menu on the Scan Settings page."] }
+      ]
+    },
+    "on-demand": {
+      "statement": "The running-an-On-Demand-scan page says an On-Demand scan runs instantly on any configured scan rule, regardless of resource type; that it does not affect the configured schedule (the next scheduled scan runs as planned); and that results show on the Resource Inventory page.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-running-demand-scan.json", "quotes": ["You can use the On-Demand scan option to run a scan instantly on any configured scan rule, regardless of resource type.", "Running an On-Demand scan does not affect the configured scan schedule. The next scheduled scan runs as planned after the On-Demand scan completes.", "The scan is initiated, and the results are displayed on the Resource Inventory page."] }
+      ],
+      "conditions": "Scoped to the running-an-On-Demand-scan page; the About Scan Settings page limits on-demand scans to databases and virtual machines (divergence on-demand-resource-types)."
+    },
+    "start-queued": {
+      "statement": "Starting a scan uses the On-Demand Scan option, and the configured scan rule is then queued for scanning.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-starting-stopping-scan.json", "after": "# Starting a Scan", "quotes": ["Select the On-Demand Scan option.", "The configured scan rule is queued for scanning."] }
+      ]
+    },
+    "stop-scan": {
+      "statement": "The Stop Scan option is only visible when a scan is In-Progress, and stopping only stops the scan in progress; upcoming scans continue as scheduled.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-starting-stopping-scan.json", "quotes": ["The Stop Scan option is only visible when a scan is in In-Progress status.", "Stopping a scan only stops the scan currently in progress. Upcoming scans continue as scheduled."] }
+      ]
+    },
+    "delta-scan": {
+      "statement": "A Delta scan (Only New Files scan, covering only new and modified files on the selected cloud storage resource) cannot be stopped; to stop it entirely the scan rule must be disabled.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-starting-stopping-scan.json", "quotes": ["You cannot stop a Delta scan. To stop the scan entirely, you need to disable the scan rule.", "Delta scan or Only New Files scan refers to scanning only new and modified files on the selected cloud storage resource (data store) as part of the scan setting."] }
+      ]
+    },
+    "delta-s3-membership": {
+      "statement": "New S3 buckets added to the scan rule are included in the Delta scan automatically and scanned with the latest DLP engine configuration; removing an S3 bucket from the rule stops the scan for that bucket.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-starting-stopping-scan.json", "quotes": ["New S3 buckets that are added to the scan rule are included in the Delta scan automatically.", "the buckets are scanned with the latest DLP engine configuration.", "If an S3 bucket is removed from the scan rule, the scan stops for that bucket."] }
+      ]
+    },
+    "what-scope-does": {
+      "statement": "A scan scope selects the DLP engines used to detect and classify sensitive data in specific file types, and DSPM uses only the specified DLP engines to scan the resources.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["Scan scope allows you to select specific DLP engines that must be used to detect and classify sensitive data in specific file types.", "DSPM uses only the specified DLP engines to scan the resources for sensitive data."] }
+      ]
+    },
+    "engine-states": {
+      "statement": "A DLP engine must be enabled to be selected in a scan scope (a non-enabled engine is grayed out); a disabled engine already selected is shown grayed out with a partial selection indicator and the scanner does not evaluate it; a deleted engine is removed from all existing scan scopes.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["A DLP engine must be enabled so you can select it while configuring the scan scope. A DLP engine that is not enabled appears grayed out and cannot be selected.", "If you disable a DLP engine that is currently selected in a scan scope, it is displayed as grayed out with a partial selection indicator.", "The scanner does not evaluate this DLP engine, even if it is still partially selected.", "When a DLP engine is deleted, it is automatically removed from all existing scan scopes."] }
+      ]
+    },
+    "criteria-fields": {
+      "statement": "The scan scope Select Criteria page has a DLP Engine choice (All or Specific DLP Engines), a File Type selection and a Machine Learning Document Scan toggle; when editing a scope, the Specific DLP Engines list is enabled only when specific engines are chosen.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["On the Select Criteria page:", "DLP Engine: Choose DLP engines for the scan scope. Choose All or Specific DLP Engines.", "File Type: Choose the file types that must be included in the scan scope.", "Machine Learning Document Scan: Enable if you want to use machine learning-powered document scanning."] },
+        { "source": "zscaler-help", "path": "dspm-editing-or-deleting-scan-scopes.json", "quotes": ["Specific DLP Engines: Choose the DLP engines you want to include in your scope. This option is enabled only if you select specific DLP engines to scan."] }
+      ]
+    },
+    "ocr-file-types": {
+      "statement": "Scan scope documents DSPM OCR for image files (examples .png, .jpeg, .tiff, .bmp, .gif) and images embedded in documents (examples .pdf, .docx, .pptx).",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["DSPM uses OCR to scan and identify sensitive data in image files (e.g., .png, .jpeg, .tiff, .bmp, .gif) and also images that are embedded within documents (e.g., .pdf, .docx, .pptx)."] }
+      ]
+    },
+    "optimized-resources": {
+      "statement": "File type filters and machine learning document scans are optimized for cloud storage and VM resources.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["File type filters, and machine learning document scans are optimized for cloud storage and VM resources."] },
+        { "source": "zscaler-help", "path": "dspm-editing-or-deleting-scan-scopes.json", "quotes": ["File type filters and machine learning document scans are optimized for cloud storage and virtual machine resources."] }
+      ]
+    },
+    "applied-in-rule": {
+      "statement": "A scan scope is created first and applied while configuring a scan rule, by choosing it from a drop-down on the rule's Scan Scope page.",
+      "tier": "A",
+      "evidence": [
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-scope.json", "quotes": ["After creating a scan scope, you can apply the scan scope while configuring a scan rule."] },
+        { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-cloud-storage.json", "quotes": ["On the Scan Scope page, choose a scan scope from the drop-down menu to set up your scan rule."] }
+      ]
+    }
+  },
+  "divergences": {
+    "on-demand-resource-types": {
+      "summary": "The running-an-On-Demand-scan page says an On-Demand scan can run on any configured scan rule regardless of resource type; the About Scan Settings page says it can be performed only on databases and virtual machines.",
+      "positions": [
+        {
+          "says": "An On-Demand scan runs instantly on any configured scan rule, regardless of resource type.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-running-demand-scan.json", "quotes": ["You can use the On-Demand scan option to run a scan instantly on any configured scan rule, regardless of resource type."] }
+        },
+        {
+          "says": "An on-demand scan can be performed only on databases and virtual machines.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-about-scan-settings.json", "quotes": ["You can perform an on-demand scan only on databases and virtual machines."] }
+        }
+      ],
+      "impact": "Whether an On-Demand scan can be started on a storage rule is not settled by the pages; check the Actions menu for the rule before promising one."
+    },
+    "gcp-managed-db-sampling": {
+      "summary": "The GCP-managed database rule page offers Data Sampling Scan or Full Scan; the supported-data-stores matrix lists GCP Cloud SQL with Full, Incremental and Historical scans and no sampling.",
+      "positions": [
+        {
+          "says": "The GCP-managed databases Scan Type page offers a Data Sampling Scan or a Full Scan.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-gcp-managed-databases.json", "quotes": ["Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all databases across all onboarded projects."] }
+        },
+        {
+          "says": "The matrix lists GCP Cloud SQL with Full Scan, Incremental Scan and Historical Scan as its data classification methods.",
+          "evidence": { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "quotes": ["| GCP Cloud SQL | Service Account | Public Exposure Encryption Logging Retention | Full Scan Incremental Scan Historical Scan |"] }
+        }
+      ],
+      "impact": "Which scan types a GCP Cloud SQL rule really offers is not settled; read the Scan Type page in the console."
+    },
+    "dynamodb-recent-data": {
+      "summary": "The AWS NoSQL rule page offers Data Sampling Scan (a sample of recent data) or Full Scan for DynamoDB; the matrix and About Scan Settings give it a Full Scan plus a Recent Data scan (new or modified files since the previous scan), not sampling.",
+      "positions": [
+        {
+          "says": "The AWS NoSQL data stores Scan Type page offers a Data Sampling Scan of a sample of recent data, or a Full Scan of all DynamoDB tables.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-configuring-scan-rule-aws-nosql-data-stores.json", "quotes": ["Data Sampling Scan: Scan a sample of recent data in the database.", "Full Scan: A complete scan of all DynamoDB tables across all onboarded accounts."] }
+        },
+        {
+          "says": "The matrix lists DynamoDB with Full Scan and Recent Data Scan.",
+          "evidence": { "source": "zscaler-help", "path": "supported-data-stores-file-types-and-regions.json", "quotes": ["| DynamoDB | Cross-Account IAM Role | Public Exposure Encryption Logging Retention | Full Scan Recent Data Scan |"] }
+        },
+        {
+          "says": "About Scan Settings gives NoSQL data stores Full Scan or Scan Only Recent Data, defined as files newly added or modified since the previous scan.",
+          "evidence": { "source": "zscaler-help", "path": "dspm-about-scan-settings.json", "quotes": ["Scan Only Recent Data: Scan only those files that are newly added or modified since the previous scan."] }
+        }
+      ],
+      "impact": "A sample of recent data and only the data changed since the previous scan are different coverage; which one a DynamoDB rule runs is not settled."
+    }
+  },
+  "gaps": {
+    "scan-status-others": {
+      "kind": "semantic",
+      "title": "Which scan statuses exist beyond Disabled, Scheduled, On-Demand and In Progress",
+      "status": "open",
+      "detail": "The scan status page lists four statuses yet says issues in the data stores can result in different scan statuses. No failed, completed or partial status, and no cause, is defined in the captured pages.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "full-scan-availability": {
+      "kind": "semantic",
+      "title": "Whether Full Scan is unavailable for the resource types whose Scan Type page shows only Data Sampling Scan",
+      "status": "partial",
+      "detail": "The unmanaged database, Databricks, Cosmos DB, BigQuery and Snowflake rule pages show only Data Sampling Scan on the Scan Type page; they do not say whether Full Scan is unavailable there. The supported-data-stores matrix lists them as sampling only (matrix-sampling-only) and About Scan Settings gives Unmanaged Database only Data Sampling Scan (about-unmanaged-sampling); no page states outright that Full Scan is unavailable.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "undefined-options": {
+      "kind": "semantic",
+      "title": "Limits of Continuous and Custom Duration, how Delta maps to the wizard's scan types, and wildcard syntax beyond *logs*",
+      "status": "open",
+      "detail": "The captured pages define no limits on the Continuous or Custom Duration incremental durations, do not say how a Delta (Only New Files) scan maps onto the Scan Type page options, and show only the *logs* wildcard example.",
+      "resolves_with": ["lab-test", "source-read"]
+    },
+    "file-server-lookback": {
+      "kind": "semantic",
+      "title": "Lookback range for on-premises file server rules",
+      "status": "open",
+      "detail": "The on-premises file server page says \"Enter the number of days to scan historical data.\" with no 1 to 365 range, unlike the AWS cloud storage, Azure Blob Storage, Azure file shares and Google Cloud Storage pages.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

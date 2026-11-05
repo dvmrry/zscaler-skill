@@ -1,0 +1,735 @@
+{
+  "schema_version": 1,
+  "id": "dspm.cloud-accounts",
+  "title": "The DSPM Cloud Accounts page: onboarding and orchestrator status, issues, templates, validation, business units, deletion, and per-account settings (services, tags, regions, evidence storage)",
+  "aliases": [
+    "about cloud accounts",
+    "dspm onboarding status",
+    "dspm connection status",
+    "dspm configuration status",
+    "dspm custom tags",
+    "dspm evidence configuration",
+    "Manage Regions",
+    "Manage Services"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.orchestrator" },
+    { "rel": "see-also", "to": "dspm.network-configuration" }
+  ],
+  "prose": [
+    { "text": "{{onboarding-units}} [[dspm.overview]] [[dspm.scanning:onboarding-types]]" },
+    {
+      "label": "Manage menu.",
+      "text": "{{manage-menu}} {{manage-menu-csp}} Which providers have Manage Evidence and Manage Services is disputed {{divergence:manage-menu-providers}}. [[dspm.onboarding-aws-cloudtrail:change-org-effects]] [[dspm.onboarding-aws:change-orchestrator-scope]] [[dspm.onboarding-aws:monitoring-scope-add-only]] [[dspm.onboarding-gcp:private-key-update]] What two of these actions do is not described {{gap:manage-actions-undescribed}}."
+    },
+    {
+      "label": "Account page and status.",
+      "text": "{{account-tabs}} {{account-status}} {{orchestrator-details-overview}} {{overview-aws-panes}} {{account-details}}"
+    },
+    {
+      "label": "Orchestrator status.",
+      "text": "{{connection-status}} {{configuration-status}} What Pending Validation means is open {{gap:pending-validation}}. [[dspm.orchestrator]]"
+    },
+    {
+      "label": "Validation.",
+      "text": "{{health-validation}} What a failed validation does beyond the status values is open {{gap:validation-failure-effect}}."
+    },
+    {
+      "label": "Issues.",
+      "text": "{{issues}} {{issue-types}} What the suspended and deleted issues mean is open {{gap:issue-meanings}}."
+    },
+    {
+      "label": "Roles and templates.",
+      "text": "{{templates}} {{template-acknowledge}} {{template-redeploy}}"
+    },
+    {
+      "label": "Business unit.",
+      "text": "{{business-unit}}"
+    },
+    {
+      "label": "Deleting an account.",
+      "text": "{{delete-effects}} {{delete-module-impact}} What all the resources within the account are deleted covers is open {{gap:delete-all-resources}}."
+    },
+    {
+      "label": "Services.",
+      "text": "{{services}}"
+    },
+    {
+      "label": "Custom tags.",
+      "text": "{{tags-meaning}} {{tags-aws}} {{tags-azure}} {{tags-gcp}} {{tags-reserved}}"
+    },
+    {
+      "label": "Regions.",
+      "text": "{{regions}} {{regions-custom-fields}} {{regions-deploy}} [[dspm.network-configuration]]"
+    },
+    {
+      "label": "Evidence storage.",
+      "text": "{{evidence-storage}} {{evidence-immutable}} {{evidence-aws-azure}} {{evidence-azure-keyvault}} {{evidence-gcp}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which article the status value comes from (Viewing the Onboarding Status or Viewing the Orchestrator Status, which both describe the Overview Orchestrator Details section) before quoting its values, since the pages list different values.",
+      "uses": ["orchestrator-details-overview", "connection-status", "configuration-status"]
+    },
+    {
+      "do": "Which role the template acknowledgement needs.",
+      "uses": ["template-acknowledge"]
+    },
+    {
+      "do": "Whether deleting the account leaves resources created while deploying templates in place.",
+      "uses": ["delete-effects"]
+    }
+  ],
+  "claims": {
+    "onboarding-units": {
+      "statement": "The Cloud Accounts help describes onboarding AWS accounts, Microsoft Azure subscriptions and GCP projects, which DSPM continuously monitors and scans for sensitive data and vulnerabilities, alerting on data security policy violations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-cloud-accounts.json",
+          "quotes": [
+            "DSPM continuously monitors and scans the onboarded cloud accounts for sensitive data and vulnerabilities and generates alerts based on data security policy violations.",
+            "DSPM supports the onboarding of Amazon Web Services (AWS) accounts, Microsoft Azure subscriptions, and Google Cloud Platform (GCP) projects."
+          ]
+        }
+      ]
+    },
+    "manage-menu": {
+      "statement": "The Cloud Accounts Manage menu offers Monitoring & Autodetection, Business Units Mapping, Manage Regions, Manage Custom Tags, Manage Notification Emails, Managing Orchestrator Network (Custom), On Demand Validation, Configure New Orchestrator (Zscaler) and Delete Account; Managing Orchestrator Network applies only if the DSPM Connection Status is failed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-cloud-accounts.json",
+          "quotes": [
+            "Monitoring & Autodetection: Add new accounts to the monitoring scope and enable autodetection.",
+            "Business Units Mapping: Assign a different business unit to the account.",
+            "Manage Notification Emails: Add email addresses of the recipient to be notified of any configuration or permissions issues while onboarding.",
+            "Managing Orchestrator Network (Custom): Configure the orchestrator network (applicable only if the DSPM Connection Status is failed).",
+            "On Demand Validation: Validate the onboarded accounts.",
+            "Configure New Orchestrator (Zscaler): Change the orchestrator account.",
+            "Delete Account: Delete or offboard an account.",
+            "Manage Regions: Select regions that must be monitored and scanned or configure regions to deploy scanning resources for custom network configuration.",
+            "Manage Custom Tags: Add, edit, or delete custom tags."
+          ]
+        }
+      ]
+    },
+    "manage-menu-csp": {
+      "statement": "Provider-specific Manage actions: AWS has Manage CloudTrail, Manage Services, Manage Evidence and Manage Data Events; Azure has Change Application Details, Manage Private Endpoint, Manage Services and Manage Evidence; GCP has Update Service Account and Update Private Key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-cloud-accounts.json",
+          "quotes": [
+            "AWS: Manage CloudTrail, Manage Services, Manage Evidence, and Manage Data Events.",
+            "Azure: Change Application Details, Manage Private Endpoint, Manage Services, and Manage Evidence.",
+            "GCP: Update Service Account and Update Private Key."
+          ]
+        }
+      ]
+    },
+    "account-tabs": {
+      "statement": "After successful onboarding an account page shows Overview, an Accounts, Subscriptions or Projects tab by cloud, Issues, and Roles and Templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-cloud-accounts.json",
+          "quotes": [
+            "Overview: The onboarding status and the orchestrator details.",
+            "Subscriptions, Projects, or Accounts (based on the cloud account): Details of the onboarded cloud account.",
+            "Issues: The issues encountered while onboarding.",
+            "Roles and Templates: The roles created while onboarding and templates generated by DSPM."
+          ]
+        }
+      ]
+    },
+    "account-status": {
+      "statement": "The Overview Account Status chart uses Successfully Configured (configured and validated), Needs Attention (misconfigurations or permission issues) and Pending Configuration (roles and permissions yet to be configured and validated).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "Successfully Configured: The number of accounts that are configured and validated successfully.",
+            "Needs Attention: The number of accounts that have misconfigurations or permission issues.",
+            "Pending Configuration: The number of accounts for which the roles and permissions are yet to be configured and validated."
+          ]
+        }
+      ]
+    },
+    "health-validation": {
+      "statement": "DSPM runs a health validation service that checks onboarding templates are deployed and roles and permissions are configured, and validates cloud accounts every hour; an on-demand validation can run without waiting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-validating-cloud-accounts.json",
+          "quotes": [
+            "DSPM validates the cloud accounts every hour to check if the onboarding templates are deployed successfully and roles and permissions are configured for each account.",
+            "You can also run an on-demand validation without waiting for DSPM's hourly validations."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "DSPM runs a health validation service to check if the onboarding templates are deployed successfully and roles and permissions are configured for each cloud account."
+          ]
+        }
+      ]
+    },
+    "orchestrator-details-overview": {
+      "statement": "The Overview Orchestrator Details show number of custom tags, primary region, network type, a DSPM Connection Status described as Successful or Failed, a Configuration Status described as Successful, Warning, Failed or Pending Validation, and Last Connected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "DSPM Connection Status: The connection status (Successful or Failed) of the orchestrator instance with DSPM.",
+            "Configuration Status: The configuration status (Successful, Warning, Failed, or Pending Validation)",
+            "Region: The primary region selected while onboarding.",
+            "Network Type: The network configuration used for onboarding the account or organization.",
+            "Custom Tags: The number of custom tags added.",
+            "Last Connected: The last time the orchestrator instance was successfully connected with DSPM."
+          ]
+        }
+      ]
+    },
+    "connection-status": {
+      "statement": "DSPM Connection Status: Successful means the orchestrator instance is connected, Failed means it cannot establish a connection with DSPM, and Waiting for connection means the orchestrator template is not yet deployed in the CSP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-orchestrator-status.json",
+          "quotes": [
+            "Successful: The orchestrator instance is connected to DSPM successfully.",
+            "Failed: The orchestrator instance is unable to establish a connection with DSPM.",
+            "Waiting for connection: The orchestrator template is not yet deployed in the cloud service provider (CSP)."
+          ]
+        }
+      ]
+    },
+    "configuration-status": {
+      "statement": "Configuration Status: Successful means all resources are deployed and permissions configured; Warning means some resources or permissions are unavailable, tampered with or not visible; Failed means the orchestrator cannot launch scanner instances or roles and permissions are missing; Pending means the orchestrator account changed or the template is not yet deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-orchestrator-status.json",
+          "quotes": [
+            "Successful: All resources are successfully deployed and permissions are configured in the orchestrator account.",
+            "Warning: Some resources or permissions are unavailable, tampered with, or not visible.",
+            "Failed: The orchestrator instance cannot launch scanner instances, or some roles and permissions are missing in the orchestrator account.",
+            "Pending: The orchestrator account has changed or the template is yet to be deployed in the CSP."
+          ]
+        }
+      ]
+    },
+    "overview-aws-panes": {
+      "statement": "For AWS, the Overview shows CloudTrail details and Data Events panes, which the page says are available only for AWS organizations, and an Evidence pane (S3 bucket name, storage type Zscaler or Custom, bucket account ID).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "This field is available only for AWS organizations.",
+            "CloudTrail Bucket Name: The name of the S3 bucket where the CloudTrail events are logged."
+          ],
+          "after": "CloudTrail: The details of the organization CloudTrail provided while onboarding. You can see:"
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "Storage Type: The storage type (Zscaler or Custom).",
+            "S3 Bucket Name: The S3 bucket name.",
+            "S3 Bucket Account ID: The S3 bucket account ID."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-status.json",
+          "quotes": [
+            "This field is available only for AWS organizations.",
+            "CloudTrail Bucket Name: The name of the S3 bucket where the data events are stored."
+          ],
+          "after": "Data Events: The details of the CloudTrail where the data events are stored. You can see:"
+        }
+      ]
+    },
+    "account-details": {
+      "statement": "The account list shows Last Validated (the date and time the account is validated to check all configurations); the CloudTrail details are in the Details view opened by clicking an account's name and are shown only for AWS accounts; several accounts can be selected to change the business unit or delete them together.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarded-account-details.json",
+          "quotes": [
+            "Account Name: The name of the account. Click the name to view additional details:",
+            "Last Validated: The date and time when the account is validated to check all configurations.",
+            "Cloud Trail details are displayed only for AWS accounts.",
+            "Select multiple accounts and perform the same action on all of them at the same time, like changing the business unit or deleting the onboarded accounts."
+          ]
+        }
+      ]
+    },
+    "issues": {
+      "statement": "The Issues tab lists issues detected in the onboarded AWS organization, GCP organization or Azure tenant with resolution steps, and an account or project with an issue moves to Needs Attention until it is resolved; unaddressed issues might impact scanning.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-issues.json",
+          "quotes": [
+            "DSPM detects issues in the onboarded AWS organization, GCP organization, or Azure tenant and lists them on the Issues tab.",
+            "If the issues are not addressed, they might impact the scanning of the data stores.",
+            "If an issue is detected in the target accounts, or projects, the status of the target accounts or projects moves to the Needs Attention state until the issue is resolved.",
+            "You can also view the resolution steps to resolve the issue."
+          ]
+        }
+      ]
+    },
+    "issue-types": {
+      "statement": "Onboarding issues include, for AWS, role not found in the orchestrator or target accounts and CloudTrail configuration problems; for Azure, admin consent not granted, invalid client secret and application object unavailable; for GCP, missing permissions in the service account and missing resources in the Orchestrator project.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-onboarding-issues.json",
+          "quotes": [
+            "Role not found in the orchestrator or target accounts",
+            "Configuration issues in the CloudTrail or incorrect CloudTrail configuration",
+            "Admin consent not granted",
+            "Client Secret is invalid",
+            "Application object unavailable",
+            "Missing permissions in the service account",
+            "Missing resources in the Orchestrator project"
+          ]
+        }
+      ]
+    },
+    "templates": {
+      "statement": "Roles and Templates offers downloadable templates: AWS includes Monitoring Scope and Data Events, in CloudFormation or Terraform; Azure includes Azure Onboarding; GCP includes GCP Onboarding; the downloaded file name includes the template version number, and an AWS external ID can be viewed and copied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-roles-and-templates.json",
+          "quotes": [
+            "The file name of the downloaded template includes the template version number.",
+            "Download either the CloudFormation or Terraform template to your local system, extract the ZIP file, and run it on the AWS organization.",
+            "Monitoring Scope",
+            "Data Events",
+            "Azure Onboarding",
+            "GCP Onboarding",
+            "You can view and copy the external ID, an optional identifier that is attached to the role.",
+            "AWS recognizes this external ID and allows DSPM to access the AWS resources."
+          ]
+        }
+      ]
+    },
+    "template-acknowledge": {
+      "statement": "Acknowledging a new template overrides the existing one and is limited to the Administrator role, while a role with View Cloud Accounts can only view or download; acknowledging for one organization or tenant updates all onboarded ones; until acknowledged, validations continue on the existing template.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-roles-and-templates.json",
+          "quotes": [
+            "If you click Acknowledge, the new template overrides the existing template, and DSPM validations and health checks are then performed on the new template upon deployment.",
+            "If not acknowledged, DSPM validations and health checks continue on the existing template.",
+            "You can acknowledge the template only if you are assigned an Administrator role.",
+            "If you have a role with the View Cloud Accounts permission, you can only view or download the templates, but you cannot acknowledge them.",
+            "If you acknowledge the new template for one organization or tenant, it is updated for all the onboarded organizations or tenants."
+          ]
+        }
+      ]
+    },
+    "template-redeploy": {
+      "statement": "DSPM templates can be redeployed to upgrade to a new template, when custom roles created during onboarding have issues, or to modify or delete a role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-roles-and-templates.json",
+          "quotes": [
+            "Upgrade to a new template",
+            "Experience issues with custom roles that are created during onboarding",
+            "Modify or delete a role"
+          ]
+        }
+      ]
+    },
+    "business-unit": {
+      "statement": "A business unit assigned to an OU or management group applies to all accounts in it, changing it overrides the current assignment, and it requires the Administrator role or a role with the Business Unit Mapping permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-changing-business-unit.json",
+          "quotes": [
+            "When a business unit is assigned to an OU or a management group, all the accounts within that OU or management group are assigned to the same business unit.",
+            "Changing the business unit overrides the currently assigned business unit.",
+            "You must be assigned either an Administrator role or any role with the Business Unit Mapping permission."
+          ]
+        }
+      ]
+    },
+    "delete-effects": {
+      "statement": "Deleting an account cannot be reverted; it does not delete resources created while deploying templates, which must be removed manually (terraform destroy); deleting a single or multiple accounts removes them only from the DSPM Admin Portal; it requires an Administrator role or a role with Delete Account permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-deleting-onboarded-account.json",
+          "quotes": [
+            "The delete action cannot be reverted. You must onboard the cloud account again if it must be scanned.",
+            "Deleting the account does not delete resources created while deploying templates. You must manually delete these resources. To delete the resources, run the terraform destroy command.",
+            "When you delete either a single account or multiple accounts, it is only deleted from the DSPM Admin Portal and there is no impact on these accounts on the cloud service provider.",
+            "You must be assigned either an Administrator role or any role with Delete Account permissions."
+          ]
+        }
+      ]
+    },
+    "delete-module-impact": {
+      "statement": "Deleting an account closes its alerts, disables alert rules or ignore filters and scan configurations scoped only to it, and marks its custom policies invalid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-deleting-onboarded-account.json",
+          "quotes": [
+            "| Alerts | All alerts generated for the deleted account are closed. You cannot filter the alerts for the deleted account. |",
+            "| Alert Notifications, Ignore Alert Filter | If the deleted account was the only account defined for the filter scope, then the alert rule or ignore alert filter is disabled with an exclamation mark indicating that it is invalid. |",
+            "| Scan Settings | If the deleted account was the only account selected for scanning, then the scan configuration is disabled. |",
+            "| Policies | The deleted account is not shown while creating custom policies. Any existing custom policy created for the deleted account is marked as invalid. |"
+          ]
+        }
+      ]
+    },
+    "services": {
+      "statement": "After onboarding the services to scan can be selected and DSPM permissions are restricted to those services; the Unmanaged Database option is enabled only for organizations or tenants onboarded via custom configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-services.json",
+          "quotes": [
+            "DSPM permissions are restricted to monitor and scan the data only in the selected services.",
+            "The Unmanaged Database option is enabled only if the organization or tenant was onboarded via custom configuration.",
+            "After onboarding a cloud account, you can select the services that must be scanned by DSPM."
+          ]
+        }
+      ]
+    },
+    "tags-meaning": {
+      "statement": "Custom tags are key-value pairs applied to DSPM-created resources while deploying templates; managing them needs an Administrator role or Configure Monitoring Scope permission, and an edit overrides the existing tag once templates are deployed while a delete removes the tag after deployment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-custom-tags.json",
+          "quotes": [
+            "Custom tags are key-value pairs that allow you to organize, identify, and distinguish the resources created and deployed by DSPM in your cloud environment.",
+            "You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the Zscaler Admin Console.",
+            "When you modify a custom tag and deploy the templates, the new custom tag overrides the existing custom tag, and the resources are updated with the modified tags.",
+            "When you delete custom tags, the tags are removed from the resources after you deploy the templates.",
+            "Custom tags are created and applied to the DSPM resources while deploying the templates."
+          ]
+        }
+      ]
+    },
+    "tags-aws": {
+      "statement": "AWS custom tag rules: case-sensitive; keys 1-127 characters, values up to 256; tags shouldn't start with aws.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-custom-tags.json",
+          "quotes": [
+            "Keys and values are case-sensitive.",
+            "Custom tags shouldn't start with aws.",
+            "Keys must have a minimum of 1 character and not exceed 127 characters, and values must not exceed 256 characters."
+          ]
+        }
+      ]
+    },
+    "tags-azure": {
+      "statement": "Azure custom tag rules: keys case-insensitive, keys 1-128 characters, values up to 256 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-custom-tags.json",
+          "quotes": [
+            "Keys are case-insensitive.",
+            "Keys must have a minimum of 1 character and not exceed 128 characters.",
+            "Values cannot exceed 256 characters."
+          ]
+        }
+      ]
+    },
+    "tags-gcp": {
+      "statement": "GCP custom tag rules: keys and values only lowercase letters, numbers, _ or -; keys start with a lowercase letter and are 1-63 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-custom-tags.json",
+          "quotes": [
+            "Keys and values must include only lowercase letters, numbers, or special characters (_ or -).",
+            "Keys must start with a lowercase letter.",
+            "Keys must have a minimum of 1 character and not exceed 63 characters."
+          ]
+        }
+      ]
+    },
+    "tags-reserved": {
+      "statement": "Custom tags must not use the predefined DSPM tags, including z-dspm-tenant-id, z-dspm-tenant-name, z-dspm-resource, z-lp-resource-type, z-dspm-integration-id, z-dspm-scanner-resource and z-dspm-scan-id, nor microsoft or windows (a partial list of the page's entries).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-custom-tags.json",
+          "quotes": [
+            "Do not use the following predefined tags that are automatically assigned to the DSPM resources:",
+            "z-lp-resource-type",
+            "z-dspm-integration-id",
+            "z-dspm-scanner-resource",
+            "z-dspm-scan-id",
+            "- microsoft",
+            "- windows",
+            "- z-dspm-tenant-id",
+            "- z-dspm-tenant-name",
+            "- z-dspm-resource"
+          ]
+        }
+      ]
+    },
+    "regions": {
+      "statement": "Regions can be selected to deploy scanner instances so as to control resource allocation and cost; it needs an Administrator role or Configure Monitoring Scope permission, and after template deployment later scans cover the selected regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-regions.json",
+          "quotes": [
+            "You can choose to deploy scanner instances in specific regions to control resource allocation and costs.",
+            "You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the Zscaler Admin Console.",
+            "After the templates are deployed, the regions are updated in the Zscaler Admin Console and subsequent data scans are performed on the resources in the selected regions."
+          ]
+        }
+      ]
+    },
+    "regions-custom-fields": {
+      "statement": "With the custom network configuration, each selected region needs AWS Subnet ARN, Security Group ID and, if required, a DB Subnet Group ARN, or Azure Subnet ID, Network Security Group ID and, if required, a Postgres Delegated Subnet ID; and with the Zscaler network configuration the regions are chosen by checkbox.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-regions.json",
+          "quotes": [
+            "If you select the Zscaler network configuration while onboarding the cloud account",
+            "If you select the custom network configuration while onboarding the cloud account",
+            "Select the checkbox for the regions where you want to deploy the resources. For each region, update the following details.",
+            "Add the DB Subnet Group ARN (if required).",
+            "Add the Postgres Delegated Subnet ID (if required).",
+            "Enter the Storage Account Resource ID (This field is displayed only if you have enabled the option to create storage accounts in each region while onboarding the Azure accounts using a custom configuration.)",
+            "Enter the Subnet ARN.",
+            "Enter the Security Group ID.",
+            "Enter the Subnet ID.",
+            "Enter the Network Security Group ID.",
+            "Select the checkbox for the regions where you want to deploy the resources. This allows DSPM to monitor the resources only in the selected regions."
+          ]
+        }
+      ]
+    },
+    "regions-deploy": {
+      "statement": "For AWS, added regions are applied by adding stacks to the orchestrator StackSet and replacing the StackSet template; for Azure the Azure Onboarding template and for GCP the GCP Onboarding template is redeployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-regions.json",
+          "quotes": [
+            "Identify and select the StackSet created while running the orchestrator template.",
+            "Select Replace current template.",
+            "Download and deploy the Azure Onboarding template.",
+            "Download the deploy the GCP Onboarding template.",
+            "Click Actions and select Add stacks to StackSet."
+          ]
+        }
+      ]
+    },
+    "evidence-storage": {
+      "statement": "DSPM generates evidence data for files and tables with sensitive data and can store snippets in an AWS S3 bucket or Azure storage account container, either existing in a region selected while onboarding or newly created by DSPM in the orchestrator account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-configuration.json",
+          "quotes": [
+            "DSPM identifies files and tables containing sensitive data and generates evidence data for review.",
+            "You can configure an AWS S3 bucket or Azure storage account container to store these classified evidence data snippets.",
+            "You can also use an existing storage account or S3 bucket present in one of the regions selected while onboarding or allow DSPM to create a new one in the orchestrator account."
+          ]
+        }
+      ]
+    },
+    "evidence-immutable": {
+      "statement": "The evidence S3 bucket or storage account container cannot be changed after it is added; only the evidence configuration can be enabled or disabled, and disabling stops DSPM sending evidence data to the storage account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-configuration.json",
+          "quotes": [
+            "The S3 bucket or storage account container cannot be changed after it is added. You can only enable or disable the evidence configuration.",
+            "When disabled, DSPM stops sending evidence data to the specified storage account."
+          ]
+        }
+      ]
+    },
+    "evidence-aws-azure": {
+      "statement": "Custom evidence storage takes, for AWS, an S3 bucket name, a 12-digit bucket account ID and a KMS key ARN used to encrypt the evidence, and for Azure a storage account resource ID, container name and key vault resource ID used to encrypt the evidence; the Zscaler Managed options create the storage in the orchestrator account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-configuration.json",
+          "quotes": [
+            "S3 Bucket Account ID: The 12-digit account ID of the S3 bucket.",
+            "KMS Key ARN: The KMS key or CMK key ARN. This key is used to encrypt the evidence data in the S3 bucket.",
+            "Key Vault Resource ID: The resource ID of the key vault. This key vault is used to encrypt the evidence data in the container.",
+            "DSPM creates an S3 bucket in the orchestrator account to upload the evidence data.",
+            "DSPM creates a storage container in the orchestrator account to upload the snippet of evidence data.",
+            "S3 Bucket Name: The name of the S3 bucket.",
+            "Storage Account Resource ID: The resource ID of the storage account.",
+            "Container Name: The name of the container."
+          ]
+        }
+      ]
+    },
+    "evidence-azure-keyvault": {
+      "statement": "For Azure Zscaler Managed Container evidence storage, if Deploy private endpoint for secure communication was selected during onboarding, the system's IP address must be added to the orchestrator account's key vault before running the evidence template; Zscaler recommends the latest onboarding templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-configuration.json",
+          "quotes": [
+            "To configure evidence storage for Azure, Zscaler recommends you to use the latest onboarding templates.",
+            "For Zscaler Managed Container storage type, if you select Deploy private endpoint for secure communication while onboarding, you must add your system's IP address to the Azure key vault created in the orchestrator account before running the evidence template."
+          ]
+        }
+      ]
+    },
+    "evidence-gcp": {
+      "statement": "GCP evidence storage is a Custom Bucket by name or a Zscaler Managed Bucket that DSPM creates in the orchestrator project.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-evidence-configuration.json",
+          "quotes": [
+            "Enter the name of the bucket where you want to store the evidence data.",
+            "DSPM creates a bucket in the orchestrator project to upload the evidence data.",
+            "Custom Bucket",
+            "Zscaler Managed Bucket"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "manage-menu-providers": {
+      "summary": "Which providers have Manage Evidence and Manage Services: the About page lists them for AWS and Azure only, while the evidence page has a GCP Manage Evidence procedure and the services page opens with cloud accounts of AWS, Azure or GCP.",
+      "positions": [
+        {
+          "says": "The About page lists Manage Services and Manage Evidence under AWS and Azure, and GCP only Update Service Account and Update Private Key.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-cloud-accounts.json",
+            "quotes": [
+              "AWS: Manage CloudTrail, Manage Services, Manage Evidence, and Manage Data Events.",
+              "Azure: Change Application Details, Manage Private Endpoint, Manage Services, and Manage Evidence.",
+              "GCP: Update Service Account and Update Private Key."
+            ]
+          }
+        },
+        {
+          "says": "The evidence page gives a GCP Manage Evidence procedure with a bucket entered by name and a bucket DSPM creates in the orchestrator project.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-managing-evidence-configuration.json",
+            "quotes": [
+              "Click Manage, and then select Manage Evidence.",
+              "Enter the name of the bucket where you want to store the evidence data.",
+              "DSPM creates a bucket in the orchestrator project to upload the evidence data."
+            ]
+          }
+        },
+        {
+          "says": "The services page has the reader pick a cloud account (AWS, Azure, or GCP) and then Manage Services.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-managing-services.json",
+            "quotes": [
+              "On the Cloud Accounts page, click the required cloud account (AWS, Azure, or GCP).",
+              "Click Manage, and then select Manage Services."
+            ]
+          }
+        }
+      ],
+      "impact": "Do not rule out Manage Evidence or Manage Services on a GCP account from the About page's list alone; the evidence page documents the GCP evidence procedure."
+    }
+  },
+  "gaps": {
+    "manage-actions-undescribed": {
+      "kind": "semantic",
+      "title": "What Manage Private Endpoint and Manage Notification Emails do",
+      "status": "partial",
+      "detail": "Manage Private Endpoint (Azure) is named in the About page's provider list and Manage Notification Emails gets only its one-line description; no captured article describes either further. The other actions are described in captured articles: changing CloudTrail, Update Private Key, Configure New Orchestrator and Monitoring & Autodetection (linked in the Manage menu prose). Update CloudTrail is in the Action menu of the account-details page, not the About page, which lists Manage CloudTrail.",
+      "resolves_with": ["source-read"]
+    },
+    "pending-validation": {
+      "kind": "semantic",
+      "title": "What Pending Validation in Configuration Status means",
+      "status": "open",
+      "detail": "The Overview lists Pending Validation as a Configuration Status; no captured article defines it. The orchestrator status page names the value Pending and defines it as the orchestrator account having changed or the template not yet being deployed (configuration-status).",
+      "resolves_with": ["source-read"]
+    },
+    "validation-failure-effect": {
+      "kind": "semantic",
+      "title": "What a failed validation does beyond the status values",
+      "status": "open",
+      "detail": "The validation article states the hourly interval; it does not say what a failed validation does beyond the status values.",
+      "resolves_with": ["source-read"]
+    },
+    "issue-meanings": {
+      "kind": "semantic",
+      "title": "What the suspended and deleted onboarded account issues mean, and the cause and resolution of each issue",
+      "status": "open",
+      "detail": "Causes and resolution steps for each issue are in the portal, not in the article; Onboarded account is currently suspended and is deleted are listed without a meaning.",
+      "resolves_with": ["source-read"]
+    },
+    "delete-all-resources": {
+      "kind": "semantic",
+      "title": "What All the resources within the account are deleted covers on account deletion",
+      "status": "open",
+      "detail": "The deletion article says all the resources within the account are deleted without defining them; the same page says template-created resources stay and single-account deletion has no impact on the cloud provider (delete-effects).",
+      "resolves_with": ["source-read"]
+    }
+  }
+}

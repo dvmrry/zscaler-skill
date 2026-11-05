@@ -1,0 +1,773 @@
+{
+  "schema_version": 1,
+  "id": "dspm.alerts",
+  "title": "How DSPM alerts work: risk level, statuses, snooze and resolve, alert details, and the alert rules and ignore alert filters that act on them",
+  "aliases": [
+    "dspm alert status",
+    "dspm snooze alert",
+    "dspm resolve alert",
+    "dspm alert notifications",
+    "dspm alert rules",
+    "dspm ignore alert filter",
+    "dspm policy exceptions",
+    "dspm alert graph"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.policies"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.roles"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.scanning"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{alert-definition}} {{alert-risk-level}} {{resource-risk-level}} {{alert-age}}"
+    },
+    {
+      "label": "Alert tabs.",
+      "text": "{{all-alerts-defaults}} {{grouped-policy-default}} {{grouped-resource-default-vuln}} {{alert-detail-fields}} {{alert-detail-tabs}} {{remediation}}"
+    },
+    {
+      "label": "Graph.",
+      "text": "{{graph-interactivity}} {{graph-vs-inventory}}"
+    },
+    {
+      "label": "Actions.",
+      "text": "{{actions-availability}} {{resolve-permission}} {{resolve-local-only}} {{snooze-behaviour}} Whether every administrator role can resolve or snooze is in dispute {{divergence:resolve-role-scope}}. {{unsnooze-reset-recompute}}"
+    },
+    {
+      "label": "Status lifecycle.",
+      "text": "{{status-initial}} {{status-open}} {{status-reopen-180}} {{status-closed}} {{status-resolved}} {{status-snoozed}}"
+    },
+    {
+      "text": "Whether a deleted resource or policy closes a snoozed alert is in dispute {{divergence:snoozed-delete-closes}}. Whether an edited or disabled policy closes its alerts is in dispute {{divergence:policy-change-closes}}."
+    },
+    {
+      "label": "Alert rules.",
+      "text": "{{rule-purpose}} What the third-party integrations support is open {{gap:third-party-integrations}}. {{rule-scope-defaults}} {{rule-scope-values}} {{rule-channel-itsm}} {{rule-channel-storage-chatops}}"
+    },
+    {
+      "label": "Alert rule state.",
+      "text": "{{rule-no-tools-disabled}} {{rule-invalid}} {{rule-disable-effect}}"
+    },
+    {
+      "label": "Ignore alert filters.",
+      "text": "{{ignore-location}} {{ignore-effect}} {{ignore-added-default}} {{ignore-scope}} {{ignore-invalid}} {{ignore-new-only}}"
+    },
+    {
+      "text": "Which inputs the risk level averages is open {{gap:risk-inputs}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the alert is Open, Resolved, Closed or Snoozed, and which of the page's listed causes moved it.",
+      "uses": [
+        "status-initial",
+        "status-open",
+        "status-resolved",
+        "status-closed",
+        "status-snoozed"
+      ]
+    },
+    {
+      "do": "Whether a snoozed alert whose resource or policy was deleted stays snoozed or is closed: the DSPM pages disagree.",
+      "uses": [
+        "snoozed-delete-closes"
+      ]
+    },
+    {
+      "do": "Whether a disabled or edited policy closes its alerts: the DSPM pages disagree.",
+      "uses": [
+        "policy-change-closes"
+      ]
+    },
+    {
+      "do": "The roles that can resolve or snooze an alert: the Resolve Alerts or Snooze Alerts permission; the pages disagree on whether any administrator role, View-Only Administrator included, qualifies.",
+      "uses": [
+        "resolve-permission",
+        "snooze-behaviour",
+        "resolve-role-scope"
+      ]
+    },
+    {
+      "do": "Whether the alert rule or ignore alert filter is shown disabled with an exclamation mark.",
+      "uses": [
+        "rule-no-tools-disabled",
+        "rule-invalid",
+        "ignore-invalid"
+      ]
+    }
+  ],
+  "claims": {
+    "alert-definition": {
+      "statement": "An alert is the outcome of a policy evaluation on a resource type; in the page's example, a policy enabled to detect publicly exposed S3 buckets containing sensitive data produces 5 alerts when 5 such buckets exist.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alerts.json",
+          "quotes": [
+            "An alert is an outcome of a policy evaluation done on a resource type (e.g., S3 bucket, database).",
+            "If a security policy is enabled to detect any publicly exposed S3 bucket containing sensitive data",
+            "there are 5 such S3 buckets in your cloud storage, DSPM generates 5 alerts."
+          ]
+        }
+      ]
+    },
+    "alert-risk-level": {
+      "statement": "An alert's risk level (Critical, High, Medium or Low) is the average of the policy severity and the resource impact; the page's example gives High for a Critical policy and Medium resource impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alerts.json",
+          "quotes": [
+            "Risk Level: The risk level (Critical, High, Medium, or Low) of the alert.",
+            "The risk level of an alert is calculated as the average of the policy severity and the resource impact.",
+            "if the policy severity is Critical and the resource impact is Medium, then the alert risk level is High."
+          ]
+        }
+      ]
+    },
+    "resource-risk-level": {
+      "statement": "On the Grouped by Resource tab, a resource's risk level depends on the highest risk level among the alerts generated for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alerts-grouped-resource.json",
+          "quotes": [
+            "The resource risk level depends on the highest risk level of the alerts generated for that resource."
+          ]
+        }
+      ]
+    },
+    "alert-age": {
+      "statement": "Alert Age is the number of days an alert was in the open state, counted from zero when the alert is generated or reset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alert-details.json",
+          "quotes": [
+            "Alert Age: The number of days the alert was in an open state. When an alert is generated or reset, its age is calculated from zero."
+          ]
+        }
+      ]
+    },
+    "all-alerts-defaults": {
+      "statement": "The All Alerts tab shows alerts with an open status by default, and an alert's status is one of Open, Closed, Resolved or Snoozed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alerts.json",
+          "quotes": [
+            "By default, alerts with an open status are displayed.",
+            "Alert Status: The status (Open, Closed, Resolved, and Snoozed) of the alert."
+          ]
+        }
+      ]
+    },
+    "grouped-policy-default": {
+      "statement": "The Grouped by Policy tab shows policies with an open alert status by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alerts-grouped-policy.json",
+          "quotes": [
+            "By default, policies with an open alert status are displayed."
+          ]
+        }
+      ]
+    },
+    "grouped-resource-default-vuln": {
+      "statement": "On the Grouped by Resource tab, resources with an open alert status are shown by default, and the Grouped by Resource page says the Vulnerabilities tab of a resource is displayed only for EC2 instances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alerts-grouped-resource.json",
+          "quotes": [
+            "By default, resources with an open alert status are displayed.",
+            "Vulnerabilities: View the vulnerabilities detected in the resources. Vulnerabilities are displayed only for EC2 instances."
+          ]
+        }
+      ]
+    },
+    "alert-detail-fields": {
+      "statement": "The Alert Details tab shows the policy's MITRE ATT&CK technique and ID and the compliance benchmark associated with the policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alert-details.json",
+          "quotes": [
+            "MITRE ATT&CK: The MITRE ATT&CK technique and ID (e.g., Vulnerability Scanning (T1595), Data Destruction (T1485)).",
+            "Compliance Benchmark: The compliance benchmark (e.g., GDPR, HIPAA) associated with the policy."
+          ]
+        }
+      ]
+    },
+    "alert-detail-tabs": {
+      "statement": "An alert's Sensitive Data tab is visible only for alerts from policies that detect sensitive data, and its Malware tab only for alerts from policies that detect malware.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alert-details.json",
+          "quotes": [
+            "On the Sensitive Data tab, you can view the details of the sensitive data",
+            "This tab is visible only when alerts are generated for policies that detect sensitive data in data stores.",
+            "On the Malware tab, you can view the malware details detected in your cloud resources",
+            "This tab is visible only when alerts are generated for policies that detect malware in data stores."
+          ]
+        }
+      ]
+    },
+    "remediation": {
+      "statement": "The Remediation tab gives steps to perform in the CSP; once the violation is addressed there, all alerts generated for that policy are resolved and move from Open to Resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-remediation-details.json",
+          "quotes": [
+            "The Remediation tab provides detailed steps that you need to perform in your cloud service provider (CSP) to address the policy violation.",
+            "After the violation is addressed in the CSP, all the corresponding alerts generated for that policy are resolved.",
+            "The alert moves from the Open state to the Resolved state."
+          ]
+        }
+      ]
+    },
+    "graph-interactivity": {
+      "statement": "The alert graph is interactive only for open and snoozed alerts; for resolved and closed alerts it is frozen, and it is reactivated for a resolved alert only when the alert is reset and moves to open.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alert-graph.json",
+          "quotes": [
+            "The alert graph is interactive only for open and snoozed alerts. For resolved and closed alerts, the graph is frozen and the nodes are unclickable.",
+            "The graph is reactivated for a resolved alert only when you reset it and the alert moves to the open state based on the latest policy findings."
+          ]
+        }
+      ]
+    },
+    "graph-vs-inventory": {
+      "statement": "The alert graph is a subset of the Resource Inventory graph; its sensitive data path shows only associated resources that contain sensitive data with the matched DLP engines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-alert-graph.json",
+          "quotes": [
+            "The alert graph is a subset of the Resource Inventory graph with the following differences:",
+            "The sensitive data path represents only the associated resources that contain sensitive data along with matched DLP engines."
+          ]
+        }
+      ]
+    },
+    "actions-availability": {
+      "statement": "Unsnooze is available only when an alert is snoozed, and Reset only when it is resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alerts.json",
+          "quotes": [
+            "Unsnooze: Unsnooze the alert. This option is available only when the alert is snoozed.",
+            "Reset: Reset the alert. This option is available only when the alert is resolved."
+          ]
+        }
+      ]
+    },
+    "resolve-permission": {
+      "statement": "The Managing Alerts page says resolving an alert requires an administrator role or a custom role with the Resolve Alerts permission, which also grants permission to reset manually resolved alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-alerts.json",
+          "quotes": [
+            "To resolve an alert, you must be assigned either an administrator role or a custom role with the Resolve Alerts permission.",
+            "If you have the Resolve Alerts permission, you are automatically assigned permissions to reset manually resolved alerts."
+          ]
+        }
+      ]
+    },
+    "resolve-local-only": {
+      "statement": "A manual resolve applies only in the Zscaler Admin Console, the policy violation persists in the cloud service provider, and the alert stays resolved until reset.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-alerts.json",
+          "quotes": [
+            "When you manually resolve an alert, the alert is resolved only in the Zscaler Admin Console and the policy violation persists in the cloud service provider (CSP).",
+            "The alert remains in the resolved state until you reset it."
+          ]
+        }
+      ]
+    },
+    "snooze-behaviour": {
+      "statement": "Snoozing an alert pauses its notifications to recipients and third-party integrations for the snooze period, which defaults to 1 day; the Managing Alerts page says snoozing needs an administrator role or a custom role with the Snooze Alerts permission, which also grants permission to reset snoozed alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-alerts.json",
+          "quotes": [
+            "When you snooze an alert, the alert notifications are paused and not shared with the recipients or third-party integrations within the specified snooze period.",
+            "By default, the alert is snoozed for 1 day.",
+            "To snooze an alert, you must be assigned either an administrator role or a custom role with the Snooze Alerts permission.",
+            "If you have the Snooze Alerts permission, you are automatically assigned permissions to reset snoozed alerts."
+          ]
+        }
+      ]
+    },
+    "unsnooze-reset-recompute": {
+      "statement": "Unsnoozing or resetting an alert updates its status from the latest policy findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-alerts.json",
+          "quotes": [
+            "When you unsnooze an alert, the status of the alert is updated based on the latest policy findings.",
+            "When you reset an alert, the status of the alert is updated based on the latest policy findings."
+          ]
+        }
+      ]
+    },
+    "status-initial": {
+      "statement": "Newly generated alerts are Open and later move to Resolved, Closed or Snoozed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "quotes": [
+            "Alerts that are initially generated are in Open status.",
+            "the status transitions to Resolved, Closed, or Snoozed."
+          ]
+        }
+      ]
+    },
+    "status-open": {
+      "statement": "An open alert moves to resolved, closed or snoozed from the latest policy findings, manual actions, or an ignore alert filter; the page's Open row says that when a data store is removed from the scan settings its alerts remain open based on the data store's posture assessment, while its Closed row lists a data store removed earlier and not added back to the scan settings as a cause of closing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "quotes": [
+            "An open alert moves to the resolved, closed, or snoozed state based on the latest policy findings, manual actions (resolve, snooze, unsnooze, or reset), or alert filter (ignore alert filter).",
+            "When a data store is removed from the scan settings, the alerts remain open based on the posture assessment of the data store.",
+            "The data store that was removed earlier is not added back to the scan settings."
+          ]
+        }
+      ]
+    },
+    "status-reopen-180": {
+      "statement": "An automatically resolved alert moves back to Open if the issue is detected within 180 days of resolving it, and DSPM generates a new alert if the violation is detected again after 180 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "after": "| Resolved | The policy violation detected in the data store is fixed.",
+          "quotes": [
+            "An automatically resolved alert moves to the open state if the issue is detected within 180 days of resolving the alert.",
+            "DSPM generates a new alert if the policy violation is detected again after 180 days."
+          ]
+        }
+      ]
+    },
+    "status-closed": {
+      "statement": "Closed is the final state: the page lists as causes an offboarded or deleted cloud account, an edited, disabled or deleted policy, a deleted data store, and a data store removed earlier that is not added back to the scan settings, and a closed alert is deleted from the Zscaler Admin Console after 180 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "quotes": [
+            "A closed alert is the final state of an alert (i.e., it does not move to any other state).",
+            "The cloud account is offboarded. The cloud account is deleted from the CSP. The policy is edited, disabled, or deleted. The data store is deleted.",
+            "The data store that was removed earlier is not added back to the scan settings.",
+            "The closed alert is deleted from the Zscaler Admin Console after 180 days."
+          ]
+        }
+      ]
+    },
+    "status-resolved": {
+      "statement": "A manually resolved alert stays resolved until reset, and a resolved alert moves to Closed if its data store, policy or cloud account is deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "quotes": [
+            "A manually resolved alert remains in the resolved state until you reset it.",
+            "A resolved alert moves to the closed state if the data store, policy, or cloud account is deleted."
+          ]
+        }
+      ]
+    },
+    "status-snoozed": {
+      "statement": "The Alert Status page says a snoozed alert stays snoozed even if the violation is fixed in the CSP; on unsnooze or expiry it becomes open or resolved from the latest findings; if its data store or policy is deleted it becomes closed regardless of the snooze period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-alert-status.json",
+          "quotes": [
+            "A snoozed alert remains snoozed even if the policy violation is resolved in the CSP.",
+            "If you unsnooze an alert or if the snooze period expires, the alert status changes to open or resolved based on the latest policy findings.",
+            "If the data store or policy is deleted when the alert is snoozed, the alert moves to the closed state irrespective of the snooze period."
+          ]
+        }
+      ]
+    },
+    "rule-purpose": {
+      "statement": "Alert rules export alert notifications to third-party integrations whenever an alert's status changes, and DSPM must be integrated with those tools first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alert-notifications.json",
+          "quotes": [
+            "You can create alert rules to export alert notifications to third-party integrations (Jira, Slack, etc.) for further investigation and remediation.",
+            "These alert notifications are sent whenever the alert status changes.",
+            "DSPM must be integrated with third-party tools to export alert notifications."
+          ]
+        }
+      ]
+    },
+    "rule-scope-defaults": {
+      "statement": "An alert rule's Notification Scope needs at least one filter, and the Policies, Cloud Accounts, Tags, Resources and DLP Engines filters default to All Policies, All Account, All Tags, All Resources and All DLP Engines respectively.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-alert-rule.json",
+          "quotes": [
+            "In the Notification Scope section, select at least one of the following filters:",
+            "By default, the All Policies option is selected.",
+            "By default, the All Account option is selected.",
+            "By default, the All Tags option is selected.",
+            "By default, the All Resources option is selected.",
+            "By default, the All DLP Engines option is selected."
+          ]
+        }
+      ]
+    },
+    "rule-scope-values": {
+      "statement": "For alert rules, the policy filter can select by threat category (Public Exposure, External Users, Risky Credentials, Malicious Access, Data Loss, Data Governance) or severity (Critical, High, Medium, Low), and the cloud provider filter offers AWS, Azure or GCP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-alert-rule.json",
+          "quotes": [
+            "Select the threat category (Public Exposure, External Users, Risky Credentials, Malicious Access, Data Loss, Data Governance) from the drop-down menu.",
+            "Select the policy severity (Critical, High, Medium, and Low) from the drop-down menu.",
+            "Select the cloud provider (AWS, Azure, or GCP) from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "rule-channel-itsm": {
+      "statement": "The ITSM/Ticketing channel of an alert rule takes ServiceNow, JIRA or both, an assignee email, and optional notifications for closed and resolved alerts; ticking Remediation includes remediation steps in the alert payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-alert-rule.json",
+          "quotes": [
+            "ITSM/Ticketing",
+            "Select ServiceNow or JIRA or both.",
+            "Include in Alert payload: Select the Remediation checkbox to include remediation steps in the alert payload.",
+            "Assignee: Enter the recipient's email ID.",
+            "Send notifications for closed alerts: Select the checkbox to send notifications for closed alerts.",
+            "Send notifications for resolved alerts: Select the checkbox to send notifications for resolved alerts."
+          ]
+        }
+      ]
+    },
+    "rule-channel-storage-chatops": {
+      "statement": "An alert rule can also send to a Cloud Storage service through an integration account (with an optional Remediation payload checkbox) or to ChatOps, where Slack and its channels are selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-alert-rule.json",
+          "quotes": [
+            "Select the checkbox for the required Cloud Storage service, then select the integration account from the drop-down menu.",
+            "Include in Alert payload: Select the Remediation checkbox to include remediation steps in alert payload.",
+            "- ChatOps",
+            "Select Slack and then select the required Slack channels."
+          ]
+        }
+      ]
+    },
+    "rule-no-tools-disabled": {
+      "statement": "If no third-party tool is selected when adding an alert rule, the rule is disabled and shown with an exclamation mark as invalid; tools can be added later by editing, and a rule is shown enabled by default after the wizard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-alert-rule.json",
+          "quotes": [
+            "If you do not select the third-party tools and proceed to the next step, the alert rule is disabled, and an exclamation mark is displayed indicating the rule is invalid.",
+            "You can add third-party tools later by editing the alert notification.",
+            "The alert rule is displayed on the Alert Notifications page and is enabled by default."
+          ]
+        }
+      ]
+    },
+    "rule-invalid": {
+      "statement": "An alert rule is disabled with an exclamation mark when its third-party tools were not configured or its selected filters were deleted, and it can be enabled only when at least one filter scope is available and at least one third-party tool is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-alert-notifications.json",
+          "quotes": [
+            "The third-party tools are not configured while adding the alert rule.",
+            "The selected filters in the filter scope are deleted (e.g., policies are deleted, accounts are offboarded, or the business unit is deleted).",
+            "You can enable the alert rule only after at least one filter scope is available and at least one third-party tool is configured."
+          ]
+        }
+      ]
+    },
+    "rule-disable-effect": {
+      "statement": "Disabling an alert rule stops DSPM sending alert notifications to the configured third-party tools.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-alert-rules.json",
+          "quotes": [
+            "When you disable an alert rule, DSPM stops sending alert notifications to the configured third-party tools."
+          ]
+        }
+      ]
+    },
+    "ignore-location": {
+      "statement": "Ignore alert filters are managed on the Ignore Alert Filter page, reached under Data Security > DSPM > Policy Exceptions, and are enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-ignore-alert-filters.json",
+          "quotes": [
+            "On the Ignore Alert Filter page (Data Security > DSPM > Policy Exceptions), you can do the following:",
+            "By default, the ignore alert filter is enabled."
+          ]
+        }
+      ]
+    },
+    "ignore-effect": {
+      "statement": "Adding an ignore alert filter stops DSPM generating alerts for the selected filter scope and stops notifications to third-party integrations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-ignore-alert-filters.json",
+          "quotes": [
+            "When you add an ignore alert filter, DSPM stops generating alerts for the selected filter scope, and notifications aren't sent to any third-party integrations."
+          ]
+        }
+      ]
+    },
+    "ignore-added-default": {
+      "statement": "A new ignore alert filter is enabled by default and newly triggered alerts matching its criteria are ignored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-ignore-filters.json",
+          "quotes": [
+            "The ignore alert filter is added to the ignore alert filter table and is enabled by default. The newly triggered alerts matching these filter criteria are ignored."
+          ]
+        }
+      ]
+    },
+    "ignore-scope": {
+      "statement": "An ignore alert filter needs at least one filter in its scope, defaults the policy filter to All Policies, and its cloud provider filter offers AWS, Azure, GCP, On-Premises or Snowflake.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-ignore-filters.json",
+          "quotes": [
+            "In the Filter Scope section, select at least one of the following filters:",
+            "By default, the All Policies option is selected.",
+            "Select the cloud provider (AWS, Azure, GCP, On-Premises, or Snowflake) from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "ignore-invalid": {
+      "statement": "An ignore alert filter is disabled and marked invalid when its selected scope is deleted, except that deleting only one of several selected policies, accounts or resource types does not affect it; it can be enabled only once at least one filter scope is available.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-ignore-alert-filters.json",
+          "quotes": [
+            "If the selected scope is deleted (e.g., policies are deleted, accounts are offboarded, or the business unit is deleted), the ignore alert filter is disabled, and an exclamation mark is displayed indicating the alert filter is invalid.",
+            "You can enable the filter only after at least one filter scope is available.",
+            "If multiple policies, accounts, or resource types are selected for the filter scope and only one of them is deleted, the ignore alert filter is not impacted."
+          ]
+        }
+      ]
+    },
+    "ignore-new-only": {
+      "statement": "Editing or deleting ignore alert filters affects only newly triggered alerts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-ignore-alert-filters.json",
+          "quotes": [
+            "Editing or deleting the ignore alert filters impact only the newly triggered alerts."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "snoozed-delete-closes": {
+      "summary": "The Managing Alerts page says a snoozed alert stays snoozed if its resource or policy is deleted; the Alert Status page says it moves to closed.",
+      "positions": [
+        {
+          "says": "A snoozed alert remains snoozed for the specified duration if the resource or policy is deleted.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-managing-alerts.json",
+            "quotes": [
+              "A snoozed alert remains snoozed for the specified duration if the issue is resolved in the CSP or if the resource or policy is deleted."
+            ]
+          }
+        },
+        {
+          "says": "If the data store or policy is deleted while the alert is snoozed, the alert moves to closed irrespective of the snooze period.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-alert-status.json",
+            "quotes": [
+              "If the data store or policy is deleted when the alert is snoozed, the alert moves to the closed state irrespective of the snooze period."
+            ]
+          }
+        }
+      ],
+      "impact": "The status of a snoozed alert after a policy or data store is deleted is read differently on the two pages; check the console rather than assume either."
+    },
+    "resolve-role-scope": {
+      "summary": "The Managing Alerts page says an administrator role or a custom role can resolve or snooze alerts; the permissions page gives Resolve Alerts and Snooze Alerts to some predefined roles but not View-Only Administrator, which the About Access Roles page calls a default administrator role.",
+      "positions": [
+        {
+          "says": "Resolving an alert requires an administrator role or a custom role with the Resolve Alerts permission.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-managing-alerts.json",
+            "quotes": [
+              "To resolve an alert, you must be assigned either an administrator role or a custom role with the Resolve Alerts permission."
+            ]
+          }
+        },
+        {
+          "says": "View-Only Administrator is a default administrator role.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-access-roles.json",
+            "quotes": [
+              "View-Only Administrator: A default administrator role with View-Only access to all modules and the permission to export data."
+            ]
+          }
+        },
+        {
+          "says": "The View-Only Administrator role's alerts module carries only Export Alerts and View Alerts, with no Resolve Alerts or Snooze Alerts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-predefined-roles-and-permissions.json",
+            "after": "- View-Only Administrator",
+            "quotes": [
+              "Alert Views | Export Alerts View Alerts"
+            ]
+          }
+        }
+      ],
+      "impact": "Whether every administrator role, View-Only Administrator included, can resolve or snooze alerts is read differently on the pages; check the admin's role against the permissions list in [[dspm.roles]]."
+    },
+    "policy-change-closes": {
+      "summary": "The Alert Status page lists a policy being edited or disabled as a cause of closed alerts; the Managing Policies page says disabling leaves existing alerts unchanged and only a query-logic edit closes them.",
+      "positions": [
+        {
+          "says": "A policy being edited, disabled or deleted is a cause of closed alerts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-alert-status.json",
+            "quotes": [
+              "The cloud account is offboarded. The cloud account is deleted from the CSP. The policy is edited, disabled, or deleted. The data store is deleted."
+            ]
+          }
+        },
+        {
+          "says": "Disabling a policy leaves existing alerts unchanged, and editing a custom policy closes alerts only when the query logic is edited.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-managing-policies.json",
+            "quotes": [
+              "New alerts are not generated for disabled policies. However, the status of the existing alerts remains unchanged.",
+              "If you edit the custom policy query logic, DSPM determines that the custom policy has changed and closes all existing alerts, and generates new alerts based on the updated custom policy query logic."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether alerts close when a policy is disabled, or edited without changing its query logic, is read differently on the two pages."
+    }
+  },
+  "gaps": {
+    "third-party-integrations": {
+      "kind": "semantic",
+      "title": "What the third-party integrations behind alert rules support",
+      "status": "partial",
+      "about": [
+        "dspm.integrations:purpose-and-tools"
+      ],
+      "detail": "Alert rules need DSPM integrated with third-party tools (ServiceNow, JIRA, Slack, Cloud Storage). The integrations page that the alert notifications page points to is covered in dspm.integrations (purpose-and-tools and the per-tool claims). Still not stated in this subject's captures: the alert payload format and how an alert rule's channels map to each integration's limits.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "risk-inputs": {
+      "kind": "semantic",
+      "title": "How resource impact is scored and how the risk average rounds",
+      "status": "open",
+      "detail": "The alert risk level is the average of the policy severity and the resource impact, with one example (Critical and Medium give High). Resource impact is not defined or scored, and how the average rounds is not stated. Alert Status Reason is named on the alert pages but its values are not listed.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

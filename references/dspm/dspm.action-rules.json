@@ -1,0 +1,397 @@
+{
+  "schema_version": 1,
+  "id": "dspm.action-rules",
+  "title": "How DSPM action rules apply Microsoft Purview sensitivity labels, and how SaaS tenants (Microsoft 365) are onboarded",
+  "aliases": [
+    "dspm action rules",
+    "dspm mip labels",
+    "dspm sensitivity labels",
+    "dspm saas tenants",
+    "dspm saas applications",
+    "dspm microsoft 365 onboarding",
+    "dspm leverage mip label"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.scanning"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.on-premises"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.roles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.mip-labels"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{action-rule-scope}} {{action-rule-prereqs}} {{action-rule-user-defined}}"
+    },
+    {
+      "label": "Timing and priority.",
+      "text": "{{action-rule-timing}} {{action-rule-priority}} Which rule wins when several match one file is open {{gap:rule-precedence}}."
+    },
+    {
+      "label": "Rule state.",
+      "text": "{{action-rule-default-disabled}} {{action-rule-default-enabled}} The default state of a new action rule is in dispute {{divergence:action-rule-default-state}}. {{action-rule-invalid}}"
+    },
+    {
+      "label": "SaaS tenants.",
+      "text": "{{saas-purpose}} {{saas-tenant-status}} Tenant types other than Microsoft 365 are open {{gap:saas-tenant-types}}."
+    },
+    {
+      "label": "Onboarding Microsoft 365.",
+      "text": "{{m365-prereq-role}} {{m365-api-permissions}} {{m365-client-secret}} {{m365-certificate}} {{m365-tenant-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the action rule is enabled: the two DSPM pages give opposite defaults for a new rule.",
+      "uses": [
+        "action-rule-default-state"
+      ]
+    },
+    {
+      "do": "Which sensitivity labels and file shares an action rule can cover: labels with user-defined permissions cannot be applied, and only Azure file shares and on-premises SMB and NFS file shares are supported.",
+      "uses": [
+        "action-rule-scope",
+        "action-rule-user-defined"
+      ]
+    },
+    {
+      "do": "Whether the SaaS tenant shows Needs Attention, and its Status Details, before looking at the client secret or certificate.",
+      "uses": [
+        "saas-tenant-status",
+        "m365-client-secret"
+      ]
+    }
+  ],
+  "claims": {
+    "action-rule-scope": {
+      "statement": "Action rules currently support only applying sensitivity labels to Azure file shares and on-premises SMB and NFS file shares, based on criteria such as DLP engines and document types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-action-rules.json",
+          "quotes": [
+            "Currently, action rules only support the application of sensitivity labels to Azure file shares and on-premises SMB and NFS file shares based on specific criteria, such as DLP engines (e.g., PII, GDPR) and document types."
+          ]
+        }
+      ]
+    },
+    "action-rule-prereqs": {
+      "statement": "Azure file share rules need the Leverage MIP Label option selected under Manage Services, and on-premises file share rules need a Microsoft 365 SaaS tenant added with the MIP Label service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-action-rule.json",
+          "after": "- Azure File Share Service",
+          "quotes": [
+            "On the Manage services to monitor page, select the Leverage MIP Label checkbox."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-action-rule.json",
+          "after": "- On-Premises File Share",
+          "quotes": [
+            "Tenant Type: Select Microsoft 365.",
+            "Services: Select MIP Label."
+          ]
+        }
+      ]
+    },
+    "action-rule-user-defined": {
+      "statement": "Sensitivity labels configured with user-defined permissions cannot be applied by action rules, and for Azure file shares DSPM overrides previously assigned labels on files in the rule's scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-action-rule.json",
+          "quotes": [
+            "Sensitivity labels configured with user-defined permissions cannot be applied automatically."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-action-rule.json",
+          "after": "- Azure File Share: Select one or more files from the drop-down menu.",
+          "quotes": [
+            "DSPM overrides any previously assigned labels for files that fall within its scope."
+          ]
+        }
+      ]
+    },
+    "action-rule-timing": {
+      "statement": "DSPM scans and discovers sensitivity labels every 12 hours and applies labels every 4 hours after an action rule is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-action-rules.json",
+          "quotes": [
+            "DSPM scans and discovers the sensitivity labels every 12 hours. After you create an action rule, DSPM applies the labels every 4 hours."
+          ]
+        }
+      ]
+    },
+    "action-rule-priority": {
+      "statement": "Action rule priority ranges from 1 to 2,000 and a lower value means higher priority.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-action-rules.json",
+          "quotes": [
+            "The value can range from 1 to 2,000. A lower value (e.g., 1) indicates a higher priority."
+          ]
+        }
+      ]
+    },
+    "action-rule-default-disabled": {
+      "statement": "The Adding an Action Rule page says a newly created action rule is disabled by default and must be enabled with the toggle.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-action-rule.json",
+          "quotes": [
+            "By default, the action rule is disabled. Click the toggle to enable the action rule."
+          ]
+        }
+      ]
+    },
+    "action-rule-default-enabled": {
+      "statement": "The About Action Rules page says that, by default, the action rule is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-action-rules.json",
+          "quotes": [
+            "By default, the action rule is enabled."
+          ]
+        }
+      ]
+    },
+    "action-rule-invalid": {
+      "statement": "An action rule is disabled when all resources in its scope are deleted or its label is deleted from Microsoft Purview Information Protection, and an invalid rule keeps its priority until deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-action-rules.json",
+          "quotes": [
+            "All resources for the selected scope are deleted.",
+            "The selected label is deleted from Microsoft Purview Information Protection.",
+            "Invalid rules retain their assigned priority. Deleting an invalid rule is necessary to make its specific priority level available for a new valid action rule."
+          ]
+        }
+      ]
+    },
+    "saas-purpose": {
+      "statement": "SaaS tenants can be integrated to monitor and scan SaaS data stores, apply Microsoft Information Protection labels to on-premises Azure file shares (the About SaaS Applications page's wording; the Microsoft 365 onboarding page says Azure or on-premises Azure file shares), or integrate with Microsoft Copilot; results appear on the SaaS Overview dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "to access Microsoft Information Protection (MIP) labels for Azure or on-premises Azure file shares."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-saas-applications.json",
+          "quotes": [
+            "You can integrate application tenants with DSPM to monitor and scan the data stores within the SaaS applications, apply the Microsoft Information Protection (MIP) labels to on-premises Azure file shares, or integrate with Microsoft Copilot.",
+            "You can view the scan results of the SaaS applications on the SaaS Overview dashboard."
+          ]
+        }
+      ]
+    },
+    "saas-tenant-status": {
+      "statement": "The About SaaS Applications page describes the SaaS tenant statuses Successfully Configured and Needs Attention (configuration failed, for example an invalid client secret or certificate), and Status Details is available only for Needs Attention tenants.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-saas-applications.json",
+          "quotes": [
+            "Successfully Configured: The tenant is configured and validated successfully.",
+            "Needs Attention: The tenant configuration has failed (e.g., invalid client secret or certificate).",
+            "Status Details: The details of the status. This is available only for tenants with the Needs Attention status."
+          ]
+        }
+      ]
+    },
+    "m365-prereq-role": {
+      "statement": "Onboarding an M365 tenant needs the Administrator role or a custom role with the Add SaaS Application permission, and an application registered with API permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "You must be assigned either an Administrator role or a custom role with the Add SaaS Application permission.",
+            "Create and register an application and assign API permissions."
+          ]
+        }
+      ]
+    },
+    "m365-api-permissions": {
+      "statement": "The registered app is given application permissions on Azure Rights Management Services (Application.Read.All and Content.Writer), Microsoft Information Protection Sync Service (UnifiedPolicy.Tenant.Read) and Microsoft Graph (Application.Read.All and InformationProtectionPolicy.Read.All), followed by admin consent.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "In the Microsoft APIs tab, select Azure Rights Management Services.",
+            "On the Azure Rights Management Services page, select Application permissions.",
+            "Under Content, select Content.Writer.",
+            "On the Microsoft Information Protection Sync Service page, select Application permissions.",
+            "On the Microsoft Graph page, select Application permissions.",
+            "Select Microsoft Information Protection Sync Service from the search results.",
+            "under UnifiedPolicy, select UnifiedPolicy.Tenant.Read.",
+            "In the Microsoft APIs tab, select Microsoft Graph.",
+            "Under InformationProtectionPolicy, select InformationProtectionPolicy. Read.All.",
+            "Click Grant admin consent for <tenant name>."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "after": "On the Azure Rights Management Services page, select Application permissions.",
+          "quotes": [
+            "Under Application, select Application. Read.All."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "after": "On the Microsoft Graph page, select Application permissions.",
+          "quotes": [
+            "Under Application, select Application. Read.All."
+          ]
+        }
+      ]
+    },
+    "m365-client-secret": {
+      "statement": "The client secret expiry defaults to 180 days (6 months), and the secret must be copied immediately when generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "Expires: Select the expiration time from the drop-down menu. By default, 180 days (6 months) is selected.",
+            "Copy the secret immediately and save it for later use."
+          ]
+        }
+      ]
+    },
+    "m365-certificate": {
+      "statement": "A self-signed X.509 certificate valid for 365 days can be generated with openssl; a CER file is uploaded to Azure or Entra and a PEM file to the Zscaler Admin Console, with the certificate's export password as Client Password.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "To generate a self-signed X.509 certificate using an existing private key that is valid for 365 days:",
+            "openssl req -new -x509 -key <filename>.key -out <filename>.crt -days 365 -subj \"/CN=<filename>\"",
+            "To convert the CRT file type to CER and upload to the Azure portal or Microsoft Entra admin center:",
+            "To create a PEM file from the CER file and upload it to the Zscaler Admin Console:",
+            "Client Password: The export password for the certificate.",
+            "Certificate File: Upload the certificate file (PEM file) from your local folder or drag and drop the file."
+          ]
+        }
+      ]
+    },
+    "m365-tenant-fields": {
+      "statement": "Adding a tenant takes Tenant Type Microsoft 365, a unique Tenant Alias, the MIP Label service, and an Authentication Type, where Client Secret takes the client secret and the certificate option takes a Client Password and a PEM certificate file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-onboarding-microsoft-365-tenant.json",
+          "quotes": [
+            "Tenant Type: Select Microsoft 365.",
+            "Tenant Alias: Enter a unique name for the tenant.",
+            "Services: Select MIP Label.",
+            "Authentication Type: Select one of the following:",
+            "Client Secret: The client secret created for the app registration.",
+            "Client Password: The export password for the certificate.",
+            "Certificate File: Upload the certificate file (PEM file) from your local folder or drag and drop the file."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "action-rule-default-state": {
+      "summary": "The Adding an Action Rule page says a new action rule is disabled by default; the About Action Rules page says the action rule is enabled by default.",
+      "positions": [
+        {
+          "says": "By default, a new action rule is disabled and the toggle enables it.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-adding-action-rule.json",
+            "quotes": [
+              "By default, the action rule is disabled. Click the toggle to enable the action rule."
+            ]
+          }
+        },
+        {
+          "says": "By default, the action rule is enabled.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "dspm-about-action-rules.json",
+            "quotes": [
+              "By default, the action rule is enabled."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a newly created rule starts applying labels without the toggle is read differently on the two pages; check the rule's state on the Action Rules page."
+    }
+  },
+  "gaps": {
+    "rule-precedence": {
+      "kind": "semantic",
+      "title": "Which action rule wins when several match one file",
+      "status": "open",
+      "detail": "The Rule Priority field is said to determine the order for applying rules, and a lower value is a higher priority. No captured page says whether the first or the last matching rule wins.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "saas-tenant-types": {
+      "kind": "semantic",
+      "title": "SaaS tenant types beyond Microsoft 365, and the Copilot integration",
+      "status": "open",
+      "detail": "The only tenant type documented in these captures is Microsoft 365 (Tenant Type: Select Microsoft 365). The Microsoft Copilot integration steps are not in these pages, and Manage Services (Cloud Accounts) belongs to another area.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

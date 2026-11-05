@@ -1,0 +1,551 @@
+{
+  "schema_version": 1,
+  "id": "dspm.policies",
+  "title": "How DSPM data posture policies work: threat categories, custom policy queries, managing policies, and the compliance frameworks that map to them",
+  "aliases": [
+    "dspm data posture policies",
+    "dspm custom policy",
+    "dspm threat categories",
+    "dspm compliance frameworks",
+    "dspm custom compliance framework",
+    "dspm security policies"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "dspm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.alerts"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.scanning"
+    },
+    {
+      "rel": "see-also",
+      "to": "dspm.roles"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp.engines"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{policy-definition}} {{threat-categories}} {{primary-resource-types}}"
+    },
+    {
+      "label": "Managing policies.",
+      "text": "{{predefined-restrictions}} {{view-policy-query}} {{clone-policy}} {{disable-policy}} {{delete-custom-policy}} {{edit-custom-policy}} {{change-severity}}"
+    },
+    {
+      "text": "How the alert status page reads a disabled or edited policy is in [[dspm.alerts]]."
+    },
+    {
+      "label": "Custom policies.",
+      "text": "{{custom-policy-purpose}} {{custom-policy-fields}} {{primary-resource-definition}} {{predicate-categories}} {{multi-value-operators}}"
+    },
+    {
+      "label": "Predicates.",
+      "text": "{{has-data-predicate}} {{has-vulnerability-predicate}} {{malware-detection-scope}} {{ai-predicates}} {{posture-predicates-notable}} Which predicate tables belong to which cloud is open {{gap:posture-tables}}. Which resource types policies cover is open {{gap:resource-type-lists}}."
+    },
+    {
+      "label": "Compliance.",
+      "text": "{{supported-frameworks-categories}} {{supported-frameworks-list}} {{compliance-counts}} {{disabled-framework}} {{summary-tab}} {{detail-search-export}}"
+    },
+    {
+      "label": "Custom frameworks.",
+      "text": "{{custom-framework-build}} Limits on custom frameworks are open {{gap:compliance-limits}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the policy is predefined or custom: predefined policies cannot be edited, deleted or have their severity changed, and the query is viewable only for custom policies.",
+      "uses": [
+        "predefined-restrictions",
+        "view-policy-query"
+      ]
+    },
+    {
+      "do": "What happens to existing alerts when a policy is disabled, deleted or has its query logic edited; the DSPM pages disagree on disabling and editing.",
+      "uses": [
+        "disable-policy",
+        "delete-custom-policy",
+        "edit-custom-policy",
+        "dspm.alerts:policy-change-closes"
+      ]
+    },
+    {
+      "do": "Whether a framework is disabled, or a mapped policy is disabled or deleted, before reading its compliance counts.",
+      "uses": [
+        "disabled-framework",
+        "compliance-counts"
+      ]
+    }
+  ],
+  "claims": {
+    "policy-definition": {
+      "statement": "Data Posture policies are queries or rules DSPM defines to protect cloud resources, and predefined policies are aligned with benchmarks such as NIST, GDPR and PCI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-posture-policies.json",
+          "quotes": [
+            "Data Posture policies are queries or rules that DSPM define to protect your cloud resources from potential threats and improve your cloud security posture.",
+            "DSPM offers predefined policies that are aligned with industry standard cybersecurity and compliance benchmarks such as NIST, GDPR, PCI, etc."
+          ]
+        }
+      ]
+    },
+    "threat-categories": {
+      "statement": "DSPM defines these threat categories: Risky Credentials, Public Exposure, Data Loss, Data Governance, Malicious Access and External Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-understanding-threat-categories.json",
+          "quotes": [
+            "DSPM defines the following threat categories:",
+            "Risky Credentials | User credentials are not secure (e.g., users without MFA).",
+            "Public Exposure | Publicly exposed resources.",
+            "Data Loss | Loss of data when some security controls are disabled (e.g., delete protection feature disabled, no backup) on the resource.",
+            "Data Governance | Data breach due to misconfigurations or vulnerabilities (e.g., encryption or logging is disabled on the resource, backup feature disabled).",
+            "Malicious Access | Data accessed by malicious actors.",
+            "External Users | Data accessed by external users."
+          ]
+        }
+      ]
+    },
+    "primary-resource-types": {
+      "statement": "The Policies page's Primary Resource Type column (the type of resource on which the policy is applied) has a list of supported resource types: EC2 Instance, RDS Cluster, RDS Instance, S3 Bucket, SQL Server, Storage Account, Virtual Machine.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-posture-policies.json",
+          "quotes": [
+            "Primary Resource Type: The type of resource on which the policy is applied.",
+            "- EC2 Instance",
+            "- RDS Cluster",
+            "- RDS Instance",
+            "- S3 Bucket",
+            "- SQL Server",
+            "- Storage Account",
+            "- Virtual Machine"
+          ]
+        }
+      ]
+    },
+    "predefined-restrictions": {
+      "statement": "Predefined policies cannot be edited, deleted or have their severity changed; custom policies can be edited and deleted, and a policy can be cloned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-data-posture-policies.json",
+          "quotes": [
+            "You cannot edit, delete, or change the severity level for predefined policies.",
+            "Edit: Edit a custom policy.",
+            "Delete: Delete a custom policy.",
+            "Clone: Clone a policy."
+          ]
+        }
+      ]
+    },
+    "view-policy-query": {
+      "statement": "A policy's query can be viewed only for custom policies, and policies that are temporarily hidden cannot be viewed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-policy-details.json",
+          "quotes": [
+            "Policy Query: The details of the query used to create this policy. You can view the query only for custom policies.",
+            "You cannot view policies that are temporarily hidden."
+          ]
+        }
+      ]
+    },
+    "clone-policy": {
+      "statement": "A predefined or custom policy can be cloned by reusing its query structure; policies that are temporarily hidden cannot be cloned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-policies.json",
+          "quotes": [
+            "You can clone a predefined or an existing custom policy by reusing its query structure and modifying some parameters, as required, to create another custom policy.",
+            "You cannot clone policies that are temporarily hidden."
+          ]
+        }
+      ]
+    },
+    "disable-policy": {
+      "statement": "The Managing Policies page says disabled policies generate no new alerts, and existing alerts keep their status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-policies.json",
+          "quotes": [
+            "New alerts are not generated for disabled policies. However, the status of the existing alerts remains unchanged."
+          ]
+        }
+      ]
+    },
+    "delete-custom-policy": {
+      "statement": "Deleting a custom policy closes all alerts it generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-policies.json",
+          "quotes": [
+            "When you delete a custom policy, all alerts previously generated by the policy are closed."
+          ]
+        }
+      ]
+    },
+    "edit-custom-policy": {
+      "statement": "The Managing Policies page says editing a custom policy's title or remediation procedure updates the information shown on the Alerts page and dashboard, while editing its query logic closes all existing alerts and generates new ones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-policies.json",
+          "quotes": [
+            "If you edit any custom policy, such as the policy title or remediation procedure, the new information is displayed on the Alerts page and the dashboard.",
+            "If you edit the custom policy query logic, DSPM determines that the custom policy has changed and closes all existing alerts, and generates new alerts based on the updated custom policy query logic."
+          ]
+        }
+      ]
+    },
+    "change-severity": {
+      "statement": "Changing a policy's severity affects the risk level of alerts triggered by its findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-policies.json",
+          "quotes": [
+            "When you change the policy severity, it impacts the alert risk level that is triggered for any findings by this policy."
+          ]
+        }
+      ]
+    },
+    "custom-policy-purpose": {
+      "statement": "Custom security policies can be added for resources that already have predefined policies or for resources that have none.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "Add a new custom security policy to an existing protected cloud resource.",
+            "Add a new custom security policy to resources that currently do not have predefined security policies."
+          ]
+        }
+      ]
+    },
+    "custom-policy-fields": {
+      "statement": "A custom policy needs a name and a severity (Critical, High, Medium or Low, a static value); the description, threat category and MITRE ATT&CK technique are optional, and the remediation procedure is entered in Markdown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "Policy Name: The name of the security policy.",
+            "Policy Severity: Static value signaling the severity of policy failure. The value can be Critical, High, Medium, or Low.",
+            "Policy Description (Optional): The description of the policy.",
+            "Policy Category (Optional): Select the threat category from the drop-down menu.",
+            "MITRE ATT&CK (Optional): Select the MITRE technique ID that must be associated with this policy.",
+            "Enter the remediation procedure in Markdown format, then click Save."
+          ]
+        }
+      ]
+    },
+    "primary-resource-definition": {
+      "statement": "Primary resources are the main data stores DSPM scans for sensitive data; investigation queries and custom policies can identify the secondary resources and entities with access to them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "Primary resources are the main data stores that DSPM scans for sensitive data.",
+            "You can build investigation queries and custom policies to identify what type of secondary resources and entities (users, services, roles, databases, virtual machines, etc.) have access to the primary resource"
+          ]
+        }
+      ]
+    },
+    "predicate-categories": {
+      "statement": "The query builder offers predicates and operators in several categories, and the combination of predicates and operators is specific to each primary resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "DSPM offers predicates and operators in the following categories to build highly contextual queries:",
+            "The combination of predicates and operators is specific to each primary resource."
+          ]
+        }
+      ]
+    },
+    "multi-value-operators": {
+      "statement": "Multiple values can be selected with the Like (%), Not Like !(%), iLike (i%) and Not iLike !(i%) operators.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "You can select multiple values when using the Like (%), Not Like !(%), iLike (i%), and Not iLike !(i%) operators."
+          ]
+        }
+      ]
+    },
+    "has-data-predicate": {
+      "statement": "The Has Data predicate checks whether a resource contains sensitive data, document types and categories, matching DLP engines and dictionaries, and the volume of sensitive data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "The Has Data predicate can be used to check if the resource contains sensitive data, document types, document categories, and identify the DLP engines and dictionaries that match the content in the resource, check for the volume of sensitive data, and more.",
+            "Sensitive Data Volume | The volume of sensitive data found in the data store and the size (in KB) of the file containing sensitive data."
+          ]
+        }
+      ]
+    },
+    "has-vulnerability-predicate": {
+      "statement": "The Has Vulnerability predicate takes a CVE ID as defined in the National Vulnerability Database (NVD) and a Fix Available flag that is true when a fix is available per the NVD.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "CVE ID: Returns the CVE ID as defined in the National Vulnerability Database (NVD).",
+            "Fix Available: Returns \"true\" if a fix is available as defined in the NVD."
+          ]
+        }
+      ]
+    },
+    "malware-detection-scope": {
+      "statement": "The Has Malware predicate states that malware is detected in AWS S3 buckets, Azure virtual machines and storage accounts, and GCP storage buckets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "Malware is detected in AWS S3 buckets, Azure virtual machines and storage accounts, and GCP storage buckets."
+          ]
+        }
+      ]
+    },
+    "ai-predicates": {
+      "statement": "The Has Models predicate is available only for AI-related resource types such as AWS Bedrock, Azure AI Foundry and Vertex AI resources, and its LLM Safety Risk takes CRITICAL, HIGH, MEDIUM or LOW.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "This predicate is available only for AI-related resource types, such as AWS Bedrock, Azure AI Foundry, and vertex AI resources.",
+            "LLM Safety Risk: Check the severity of the risk (i.e., CRITICAL, HIGH, MEDIUM, LOW) assigned to the AI model."
+          ]
+        }
+      ]
+    },
+    "posture-predicates-notable": {
+      "statement": "Posture predicates include Guardrails (checked for an AWS Bedrock Agent), Exposed to AI service (true when exposed to an AI service such as Azure AI Foundry) and, with no cloud named in their rows, Is Dormant (checks whether the user has logged in over the last 90 days) and Stale Access Keys (checks whether the access keys were rotated in the last 90 days).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-creating-custom-policies.json",
+          "quotes": [
+            "Guardrails | Check if Guardrails is enabled or not for an AWS Bedrock Agent.",
+            "Exposed to AI service | Returns \"true\" if the resource is exposed to an AI service, such as Azure AI Foundry.",
+            "Is Dormant | Check if the user has logged in over the last 90 days.",
+            "Stale Access Keys | Check if the access keys have been rotated in the last 90 days."
+          ]
+        }
+      ]
+    },
+    "supported-frameworks-categories": {
+      "statement": "DSPM supports many compliance frameworks across categories such as cybersecurity health, finance, data protection, CIS and AI benchmarks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-supported-frameworks.json",
+          "quotes": [
+            "DSPM supports many compliance frameworks across different categories, such as cybersecurity health, finance, data protection, CIS, AI benchmarks, etc."
+          ]
+        }
+      ]
+    },
+    "supported-frameworks-list": {
+      "statement": "The supported compliance frameworks table lists these frameworks: CIS Controls v8.1; GDPR; HIPAA; NIST SP 800-53 Rev. 5; PCI DSS 4.0.1; AICPA SOC 2; CCPA; DPDP Act, 2023; CSA CCM v4; CJIS Security Policy v6; CRI Profile v2.0; CMMC v2.0; FFIEC-CAT May 2017; ISACA - COBIT 19; ISO/IEC 27001:2022; NYDFS - 23 NYCRR Part 500; NZISM v3.8; NIST CSF 2.0; NERC-CIP Standards; UK NCSC - CAF v.3.2; UK NCSC Cyber Essentials v3.2; NIST SP 800-171 Rev. 3; CISA CPG v1.0.1; NIST AI 600-1; ASD Essential Eight; TSA Security Directive Pipeline 2021-02; HPH CPGs; DORA; HITRUST CSF v11.5.0; RBI CSF; SEBI CSCRF; NIS2 Directive; EU AI ACT.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-supported-frameworks.json",
+          "quotes": [
+            "CIS Controls v8.1 | Center for Internet Security Critical Security Controls v8.1",
+            "GDPR | General Data Protection Regulation",
+            "HIPAA | Health Insurance Portability and Accountability Act",
+            "NIST SP 800-53 Rev. 5 | National Institute of Standards and Technology (NIST) Special Publication 800-53 Rev. 5",
+            "PCI DSS 4.0.1 | Payment Card Industry Data Security Standard v4.0.1",
+            "AICPA SOC 2 | AICPA System and Organization Controls 2",
+            "CCPA | California Consumer Privacy Act",
+            "DPDP Act, 2023 | Digital Personal Data Protection Act, 2023",
+            "CSA CCM v4 | Cloud Security Alliance Cloud Controls Matrix v4",
+            "CJIS Security Policy v6 | Criminal Justice Information Services Security Policy v6",
+            "CRI Profile v2.0 | Cyber Risk Institute Profile v2.0",
+            "CMMC v2.0 | Cybersecurity Maturity Model Certification v2.0",
+            "FFIEC-CAT May 2017 | Federal Financial Institutions Examination Council Cybersecurity Assessment Tool May 2017",
+            "ISACA - COBIT 19 | Information Systems Audit and Control Association Control Objectives for Information and Related Technologies 19",
+            "ISO/IEC 27001:2022 | International Organization for Standardization/International Electrotechnical Commission 27001:2022",
+            "NYDFS - 23 NYCRR Part 500 | New York State Department of Financial Services 23 NYCRR Part 500",
+            "NZISM v3.8 | New Zealand Information Security Manual v3.8",
+            "NIST CSF 2.0 | National Institute of Standards and Technology (NIST) Cybersecurity Framework 2.0",
+            "NERC-CIP Standards | North American Electric Reliability Corporation - Critical Infrastructure Protection Standards",
+            "UK NCSC - CAF v.3.2 | UK National Cyber Security Centre (NCSC) Cyber Assessment Framework v3.2",
+            "UK NCSC Cyber Essentials v3.2 | UK National Cyber Security Centre (NCSC) Cyber Essentials v3.2",
+            "NIST SP 800-171 Rev. 3 | National Institute of Standards and Technology Special Publication 800-171 Rev. 3",
+            "CISA CPG v1.0.1 | Cybersecurity and Infrastructure Security Agency (CISA) Cybersecurity Performance Goals v1.0.1",
+            "NIST AI 600-1 | National Institute of Standards and Technology (NIST) Artificial Intelligence 600-1",
+            "ASD Essential Eight | Australian Signals Directorate Essential Eight",
+            "TSA Security Directive Pipeline 2021-02 | Transportation Security Administration Security Directive Pipeline 2021-02",
+            "HPH CPGs | Healthcare and Public Health Sector's Cybersecurity Performance Goals",
+            "DORA | Digital Operational Resilience Act",
+            "HITRUST CSF v11.5.0 | Health Information Trust Alliance Common Security Framework v11.5.0",
+            "RBI CSF | Reserve Bank of India (RBI) Cyber Security Framework",
+            "SEBI CSCRF | Securities and Exchange Board of India (SEBI) Cybersecurity and Cyber Resilience Framework",
+            "NIS2 Directive | Network and Information Security 2 Directive",
+            "EU AI ACT | EU Artificial Intelligence Act"
+          ]
+        }
+      ]
+    },
+    "compliance-counts": {
+      "statement": "A mapped policy that is disabled is excluded from compliance calculations but still counted in a framework's total policies; a deleted mapped policy is removed from the framework, and in the page's example deleting 2 of 100 policies leaves a total of 98.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-about-compliance.json",
+          "quotes": [
+            "If a mapped policy is disabled on the Policies page, it is excluded from compliance calculations but is still included in the total policies.",
+            "If a mapped policy is deleted, it is removed from the framework and is not shown in the policy list.",
+            "if the total policies for a framework is 100, and 2 policies are deleted from the Policies page, then the total policy count is 98."
+          ]
+        }
+      ]
+    },
+    "disabled-framework": {
+      "statement": "Failed policies are not calculated for a disabled framework, and clicking one opens its Configuration tab with the Summary, Policies and Resources tabs disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-compliance-frameworks.json",
+          "quotes": [
+            "Failed policies are not calculated for disabled frameworks.",
+            "When you click a disabled framework, you are directed to the Configuration tab and the Summary, Policies, and Resources tabs are disabled."
+          ]
+        }
+      ]
+    },
+    "summary-tab": {
+      "statement": "On a framework's detail page, the Summary shows the mapped DLP engines, the number of noncompliant data stores and a failed-compliance trend selectable over the last 7, 15, 30, 60 or 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-compliance-details.json",
+          "quotes": [
+            "The failed compliance trend for policies and resources.",
+            "DLP Engines: The DLP engines mapped to the compliance framework.",
+            "Data Stores: The total number of noncompliant data stores.",
+            "You can view the data for the last 7, 15, 30, 60, or 90 days."
+          ]
+        }
+      ]
+    },
+    "detail-search-export": {
+      "statement": "On the compliance detail tabs, search and Excel export do not apply to the Summary tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-viewing-compliance-details.json",
+          "quotes": [
+            "Search for a specific policy (not applicable for the Summary tab).",
+            "Export the data and download the report as an Excel file (not applicable for the Summary tab)."
+          ]
+        }
+      ]
+    },
+    "custom-framework-build": {
+      "statement": "A custom framework is created either by cloning a predefined framework (only its policies are copied) or from scratch; it has categories with control numbers, maps each policy to a category and control number, needs at least one DLP engine, and is enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-adding-custom-compliance-framework.json",
+          "quotes": [
+            "You can add custom compliance frameworks either by cloning the predefined ones or by creating new ones from scratch.",
+            "When you clone an existing framework, only the policies from that framework are added to the new one.",
+            "Category Name: Enter a name for the compliance category.",
+            "Control Numbers: Enter control numbers to assign to the category.",
+            "On the Assign Categories page, map each policy to a specific category and control number.",
+            "You need to select at least one DLP engine, or click Select All to select all the listed DLP engines.",
+            "The custom compliance framework is added and displayed on the Compliance page and enabled by default."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "posture-tables": {
+      "kind": "semantic",
+      "title": "Which posture predicate table belongs to which cloud",
+      "status": "open",
+      "detail": "The custom policy page has four posture predicate tables under the headings AWS, Azure, GCP and Snowflake, but the captured text does not label a table with its cloud, so the mapping is only by order. The GCP Logging row is described as the date the resource was created, which does not describe logging. Predicates are claimed with the cloud the text names (Guardrails for an AWS Bedrock Agent, Azure AI Foundry); Is Dormant and Stale Access Keys are claimed without a cloud, though by order they sit in the fourth table (Snowflake).",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "resource-type-lists": {
+      "kind": "semantic",
+      "title": "Which list of policy resource types is complete",
+      "status": "open",
+      "detail": "The Policies page lists seven primary resource types, while the custom-policy builder names others (AWS Bedrock, Azure AI Foundry, Vertex AI, Lambda Function, Azure App Service, GCP App Engine), and the About page says policies cover AWS accounts, Azure subscriptions and Google Cloud Storage while alert pages list Snowflake and On-Premises. No source says which list is complete.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "compliance-limits": {
+      "kind": "semantic",
+      "title": "Limits and mapping of compliance frameworks",
+      "status": "open",
+      "detail": "No source states a limit on custom frameworks, categories or control numbers; a control category is defined only as grouping security controls that address similar risks or compliance requirements. How the policy-to-control mapping of predefined frameworks is maintained is not stated.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

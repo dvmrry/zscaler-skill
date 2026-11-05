@@ -1,0 +1,585 @@
+{
+  "schema_version": 1,
+  "id": "dspm.network-configuration",
+  "title": "How to set up a custom DSPM network on AWS, Azure and GCP (control plane and worker plane) and change the orchestrator network (AWS and Azure)",
+  "aliases": [
+    "custom network configuration",
+    "control plane VPC",
+    "worker plane VPC",
+    "orchestrator network",
+    "Managing Orchestrator Network"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "dspm.overview" },
+    { "rel": "see-also", "to": "dspm.scanning" },
+    { "rel": "see-also", "to": "dspm.orchestrator" },
+    { "rel": "see-also", "to": "dspm.cloud-accounts" }
+  ],
+  "prose": [
+    { "text": "{{aws-planes}} {{azure-planes}} {{gcp-planes}} [[dspm.overview]] [[dspm.scanning]] [[dspm.orchestrator]]" },
+    {
+      "label": "AWS.",
+      "text": "{{aws-control-vpc}} {{aws-worker-vpc}} {{aws-control-sg}} {{aws-worker-sg}} The /24 destinations are open {{gap:aws-worker-cidr-24}}. {{aws-db-subnet-group}} {{aws-peering}}"
+    },
+    {
+      "label": "AWS templates.",
+      "text": "{{aws-cloudformation}} {{aws-terraform}} The templates themselves are not captured {{gap:network-templates-not-captured}}."
+    },
+    {
+      "label": "Azure.",
+      "text": "{{azure-vnet-sizing}} {{azure-service-endpoints}} {{azure-postgres-subnet}} {{azure-control-nsg}} Which Azure destination IPs cover India is open {{gap:azure-india-ip}}. {{azure-mip-rules}} {{azure-worker-db-ports}} The MS SQL port on the page is open {{gap:azure-mssql-port}}. {{azure-template-vars}} {{azure-peering}}"
+    },
+    {
+      "label": "GCP.",
+      "text": "{{gcp-subnets}} {{gcp-control-firewall}} {{gcp-worker-firewall}} Which VPC each worker rule belongs to is open {{gap:gcp-rule-vpc}}. {{gcp-private-service-access}} {{gcp-peering}} {{gcp-cloud-nat}}"
+    },
+    {
+      "label": "Changing the orchestrator network.",
+      "text": "{{orch-network-change}} [[dspm.cloud-accounts:connection-status]] {{orch-network-prereq}} {{orch-network-fields}} What it takes on GCP is open {{gap:orch-network-gcp}}. {{orch-network-azure-storage}}"
+    },
+    { "text": "[[dspm.cloud-accounts]]" }
+  ],
+  "checks": [
+    {
+      "do": "Whether the DSPM Connection Status is failed and the network configuration type is custom before pointing to the orchestrator network change.",
+      "uses": ["orch-network-change"]
+    },
+    {
+      "do": "Which role or permission the orchestrator network change needs.",
+      "uses": ["orch-network-prereq"]
+    }
+  ],
+  "claims": {
+    "aws-planes": {
+      "statement": "For a custom AWS network, a control plane VPC is created only in the orchestrator's primary region and a worker plane VPC in every region where resources exist, both in the orchestrator account, with non-overlapping CIDRs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "You must configure a custom network in your organization by creating the following control plane and worker plane virtual private clouds (VPCs) in the orchestrator account:",
+            "Control Plane VPC: Create this VPC only in the primary region where the orchestrator is going to run.",
+            "Worker Plane VPC: Create this VPC in all the regions where the resources exist.",
+            "Ensure that both control and worker planes do not have overlapping Classless Inter-Domain Routing (CIDR)."
+          ]
+        }
+      ]
+    },
+    "azure-planes": {
+      "statement": "For a custom Azure network, a control plane VNet is created only in the orchestrator's primary region and a worker plane VNet in every region where resources exist, both in the orchestrator subscription, with non-overlapping CIDRs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "You must configure a custom network in your organization by creating the following virtual networks (VNets) in the orchestrator subscription:",
+            "Control Plane VNet: Create this VNet only in the primary region where the orchestrator is going to run.",
+            "Worker Plane VNet: Create this VNet in all the regions where the resources exist.",
+            "Ensure that both control and worker plane VNets do not have overlapping Classless Inter-Domain Routing (CIDR)."
+          ]
+        }
+      ]
+    },
+    "gcp-planes": {
+      "statement": "For a custom GCP network, a control plane VPC is created only in the orchestrator's primary region and a worker plane VPC in every region where resources exist, both in the orchestrator project, with non-overlapping CIDRs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "You must configure a custom network in your organization by creating the following virtual private cloud (VPC) in the orchestrator project:",
+            "Control Plane VPC: Create this VPC only in the primary region where the orchestrator is going to run.",
+            "Worker Plane VPC: Create this VPC in all the regions where the resources exist.",
+            "Ensure that both control and worker plane VPC do not have overlapping Classless Inter-Domain Routing (CIDR)."
+          ]
+        }
+      ]
+    },
+    "aws-control-vpc": {
+      "statement": "Manual AWS control plane VPC settings: at least 1 AZ, 1 public subnet, 1 private subnet and a NAT gateway in 1 AZ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "Number of Availability Zones (AZs): Select at least 1 AZ.",
+            "Number of public subnets: Select 1.",
+            "Number of private subnets: Select 1.",
+            "NAT ateways: Select In 1AZ."
+          ]
+        }
+      ]
+    },
+    "aws-worker-vpc": {
+      "statement": "Manual AWS worker plane VPC settings: at least 2 AZs, 2 public and 2 private subnets, at least 50 IPs available in the private subnet, and a NAT gateway in 1 AZ.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "Number of Availability Zones (AZs): Select at least 2 AZs.",
+            "Number of public subnets: Select 2.",
+            "Number of private subnets: Select 2.",
+            "Private subnet: Ensure that at least 50 IPs are available.",
+            "NAT gateways: Select In 1 AZ."
+          ]
+        }
+      ]
+    },
+    "aws-control-sg": {
+      "statement": "The AWS control plane security group has no inbound rules and an outbound rule of type HTTPS to 0.0.0.0/0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "Do not add any inbound rules.",
+            "Type: Select HTTPS",
+            "CIDR: Select 0.0.0.0/0."
+          ]
+        }
+      ]
+    },
+    "aws-worker-sg": {
+      "statement": "The AWS worker plane security group allows inbound HTTPS from the control plane VPC and PostgreSQL and MYSQL/Aurora from the worker plane VPC; outbound it lists HTTPS 0.0.0.0/0, PostgreSQL 0.0.0.0/24, MYSQL/Aurora 0.0.0.0/24 and Custom TCP 0.0.0.0/0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "HTTPS, Control plane VPC",
+            "PostgreSQL, Worker plane VPC",
+            "MYSQL/Aurora, Worker plane VPC",
+            "HTTPS, 0.0.0.0/0",
+            "PostgreSQL, 0.0.0.0/24",
+            "MYSQL/Aurora, 0.0.0.0/24",
+            "Custom TCP, 0.0.0.0/0"
+          ]
+        }
+      ]
+    },
+    "aws-db-subnet-group": {
+      "statement": "A DB subnet group, built from the worker plane VPC with at least two AZs and their private subnets, is required for DSPM to scan RDS databases.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "The DB subnet group is required for DSPM to be able to scan the RDS databases.",
+            "Select at least two AZs and their corresponding private subnet in those zones.",
+            "Select the worker plane VPC from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "aws-cloudformation": {
+      "statement": "The AWS CloudFormation option is a ZIP with two YAML files, deployed as a control plane stack (aws_control_plane_network_components_cft.yml) and a worker plane stack (aws_worker_plane_network_components_cft.yml) (repeated for all other worker regions); the old control plane infrastructure must be deleted before a new control plane stack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "The ZIP file includes two YAML files that contains policies and permissions required for DSPM to create required network configurations in the AWS organization.",
+            "Before creating a new Stack for the new control plane, delete the old control plane's existing infrastructure to avoid conflicts.",
+            "select the aws_control_plane_network_components_cft.yml file, and then click Open.",
+            "select the aws_worker_plane_network_components_cft.yml file, and then click Open.",
+            "Repeat steps for all other worker regions."
+          ]
+        }
+      ]
+    },
+    "aws-terraform": {
+      "statement": "The AWS Terraform option is a ZIP with a control plane and a worker plane folder; the state file keys are dspm-control-plane-network-configuration.tfstate and dspm-worker-plane-network-configuration-<region>.tfstate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "The ZIP file includes two folders, one for worker plane and another for control plane that contain policies and permissions required for DSPM to create required network configurations in the AWS organization.",
+            "key: \"dspm-control-plane-network-configuration.tfstate\"",
+            "key: \"dspm-worker-plane-network-configuration-<region>.tfstate\""
+          ]
+        }
+      ]
+    },
+    "aws-peering": {
+      "statement": "The AWS control plane and worker plane VPCs are peered so they can communicate (a step common to manual and template-based setups); the request starts in Pending acceptance, is accepted (Accept request), and route tables on both VPCs are updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-aws-network.json",
+          "quotes": [
+            "After creating the control and worker plane VPC, you need to peer these VPCs, so they can communicate with each other. This step is common for both manual and template-based configurations.",
+            "The peering connection is displayed on the Peering connections page, and it is in the Pending acceptance state.",
+            "Update the route tables for both control plane and worker plane VPCs to enable traffic flow between the VPCs.",
+            "From the Actions drop-down menu, select Accept request."
+          ]
+        }
+      ]
+    },
+    "azure-vnet-sizing": {
+      "statement": "Manual Azure VNets: control plane subnet address space preferably /24, worker plane preferably /20; virtual network encryption is selected if the scanning VMs have network acceleration enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "On the IP addresses tab, enter the subnet address space, preferably /24.",
+            "On the IP addresses tab, enter the subnet address space, preferably /20.",
+            "On the Security tab, select Virtual network encryption if the virtual machines used for scanning have network acceleration enabled."
+          ]
+        }
+      ]
+    },
+    "azure-service-endpoints": {
+      "statement": "In both manual Azure VNets (control plane and worker plane), the subnet gets a NAT gateway and a network security group, service endpoints Microsoft.KeyVault, Microsoft.Sql and Microsoft.Storage.Global, and Network Policy for Private Endpoints set to Disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "Click Create new to add a new NAT Gateway.",
+            "Click Create new to add a new Network security group.",
+            "Microsoft.KeyVault",
+            "Microsoft.Sql",
+            "Microsoft.Storage.Global",
+            "In the Network Policy for Private Endpoints section, select Disabled, then click Save."
+          ],
+          "after": "1. Create the control plane VNet."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "Microsoft.KeyVault",
+            "Microsoft.Sql",
+            "Microsoft.Storage.Global",
+            "In the Network Policy for Private Endpoints section, select Disabled, then click Save.",
+            "Click Create new to add a new NAT Gateway.",
+            "Click Create new to add a new Network security group."
+          ],
+          "after": "2. Create the worker plane VNet."
+        }
+      ]
+    },
+    "azure-postgres-subnet": {
+      "statement": "Scanning Azure PostgreSQL Server requires a network security group for it and a delegated subnet, delegated to Microsoft.DBforPostgreSQL/flexibleServers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "To enable the scanning for Azure PostgreSQL Server, you must configure a network security group for Azure PostgreSQL Server, and then create a delegated subnet:",
+            "select Microsoft.DBforPostgreSQL/flexibleServers, then click Add."
+          ]
+        }
+      ]
+    },
+    "azure-control-nsg": {
+      "statement": "The Azure control plane network security group is configured with rules named for denying all inbound communication to the orchestrator, allowing inbound from the control plane to the worker plane, denying all outbound communication from the orchestrator at lesser priority, and allowing outbound from the orchestrator to the scanner, to DSPM and to Azure cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "Deny all inbound communication to the orchestrator",
+            "Allow inbound communication from the control plane to the worker plane",
+            "Deny all outbound communication from the orchestrator with lesser priority",
+            "Allow outbound communication from the orchestrator to the scanner",
+            "Allow outbound communication from the orchestrator to DSPM",
+            "Allow outbound communication from the orchestrator to Azure cloud"
+          ]
+        }
+      ]
+    },
+    "azure-mip-rules": {
+      "statement": "If Microsoft Information Protection labeling is enabled, the Azure control plane NSG needs further outbound allow rules to the AzureInformationProtection, AzureActiveDirectory, AzureFrontDoor.Frontend and AzureFrontDoor.FirstParty service tags and to an Outlook MIP IP range list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "The following outbound rules are required if Microsoft Information Protection labeling is enabled:",
+            "Destination service tag: Select AzureInformationProtection from the drop-down menu.",
+            "Destination service tag: Select AzureActiveDirectory from the drop-down menu.",
+            "Destination service tag: Select AzureFrontDoor.Frontend from the drop-down menu.",
+            "Destination service tag: Select AzureFrontDoor.FirstParty from the drop-down menu.",
+            "Enter 131.253.33.215/32,13.107.18.10/31,13.107.128.0/22,150.171.32.0/22,40.96.0.0/13,132.245.0.0/16,40.107.0.0/16,104.47.0.0/17,23.103.160.0/20,204.79.197.215/32,52.238.78.88/32,52.100.0.0/14,52.96.0.0/14,40.104.0.0/15,40.92.0.0/15,13.107.6.152/31."
+          ]
+        }
+      ]
+    },
+    "azure-worker-db-ports": {
+      "statement": "The Azure worker plane NSG has outbound allow rules for database ports: SQL 11000-11999, MongoDB 27017, PostgreSQL 5432, MySQL 3306 and Oracle 1521.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "Destination service tag: Select SQL from the drop-down menu.",
+            "Destination port ranges: Enter the value as 11000-11999.",
+            "Destination port ranges: Enter 27017.",
+            "Destination port ranges: Enter the value as 5432.",
+            "Destination port ranges: Enter the value as 3306.",
+            "Destination port ranges: Enter the value as 1521."
+          ],
+          "after": "4. Configure the worker plane network security group."
+        }
+      ]
+    },
+    "azure-peering": {
+      "statement": "After peering the Azure control and worker VNets (common to manual and template-based setups) the Peering state shows Connected and the Sync status Fully Synchronized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "After creating the control and worker plane VNets, you need to peer these VNets so they can communicate with each other. This step is common for both manual and template-based configurations.",
+            "After the peering is successfully configured, the Peering state is updated to Connected and the Sync status to Fully Synchronized."
+          ]
+        }
+      ]
+    },
+    "azure-template-vars": {
+      "statement": "The Azure control plane region is given in a format supported by the cloud provider, such as centralus or eastus, and the worker plane has a separate Postgres subnet address range.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-azure-network.json",
+          "quotes": [
+            "<CONTROL_PLANE_REGION>: The region where the control plane needs to be deployed in a format supported by the cloud provider, such as centralus or eastus.",
+            "<WORKER_PLANE_VNET_SUBNET_POSTGRES_ADDRESS_RANGE>: The address range for the worker plane VNet subnet for Postgres.",
+            "<WORKER_PLANE_REGION>: The region for the worker plane (e.g. centralus)."
+          ]
+        }
+      ]
+    },
+    "gcp-subnets": {
+      "statement": "The GCP control plane VPC and worker plane VPC use Custom subnet creation mode, and Cloud NAT gateway resources are created for new worker plane subnets and regions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "Subnet creation mode: Select Custom",
+            "After creating the worker plane VPC, create and configure the Cloud NAT gateway resources for the new subnet and region in the worker plane."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "Subnet creation mode. Select Custom."
+          ],
+          "after": "3. Create the worker plane VPC and associated resources."
+        }
+      ]
+    },
+    "gcp-control-firewall": {
+      "statement": "The GCP control plane firewall includes a rule to allow outbound communication from the orchestrator to DSPM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "To add a rule to allow outbound communication from the orchestrator to DSPM:"
+          ]
+        }
+      ]
+    },
+    "gcp-worker-firewall": {
+      "statement": "GCP worker plane firewall rules cover inbound from the orchestrator to the scanner VPC, outbound from the scanner to DSPM and outbound from the scanner to Cloud SQL (named allow-db-outbound-rule, ports 3306, 5432 and 1433).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "To add a rule to allow inbound communication from the orchestrator to the scanner VPC:",
+            "To add a rule to allow outbound communication from the scanner to DSPM:",
+            "To add a rule to allow outbound communication from the scanner to GCP Cloud SQL instances:",
+            "Name: Enter allow-db-outbound-rule.",
+            "Ports: Enter 3306, 5432, 1433."
+          ]
+        }
+      ]
+    },
+    "gcp-private-service-access": {
+      "statement": "Private service access in the GCP worker plane VPC is used for scanning Cloud SQL instances: an automatic IP range with prefix length 16 named private-service-access-ip-range, after which Google adds peering to servicenetworking.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "After the worker plane VPC is created, set up private service access in the worker plane VPC. This is used for scanning GCP Cloud SQL instances.",
+            "Name: Enter private-service-access-ip-range.",
+            "Prefix length: Enter 16.",
+            "After the private service access is configured, Google adds peering from the worker plane VPC to servicenetworking.",
+            "IP range: Select Automatic."
+          ]
+        }
+      ]
+    },
+    "gcp-peering": {
+      "statement": "GCP control and worker plane VPCs are peered from each VPC side: the peering status in the control plane VPC is Inactive after it is created, and after successful configuration it is Active for both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "After the control and worker plane VPCs are created, they need to be peered so that the control and worker planes can communicate.",
+            "The peering status in the control plane VPC is Inactive.",
+            "After successful configuration of the peering, the peering status is updated to Active for both the control plane VPC and worker plane VPC.",
+            "Repeat the steps for the worker plane VPC, selecting the control plane VPC in the Peered VPC network drop-down menu."
+          ]
+        }
+      ]
+    },
+    "gcp-cloud-nat": {
+      "statement": "A Cloud NAT gateway is region-specific and network-specific and is created for each combination; in the primary region one gateway is created for the control plane VPC and one for the worker plane VPC, with NAT type Public.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-configuring-gcp-network.json",
+          "quotes": [
+            "The Cloud NAT Gateway is a region-specific and network-specific resource that must be created for each combination.",
+            "For the primary region where data stores are to be scanned, two Cloud NAT gateways need to be created, one for the control plane VPC and one for the worker plane VPC.",
+            "NAT type: Set the NAT type to Public."
+          ]
+        }
+      ]
+    },
+    "orch-network-change": {
+      "statement": "The orchestrator network can be modified when the existing network is being decommissioned or deleted or an incorrect network was selected, only when the DSPM Connection Status is failed for the custom network configuration type; the orchestrator template must be rerun afterwards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-orchestrator-network.json",
+          "quotes": [
+            "You can modify the orchestrator network details when an existing orchestrator network is being decommissioned, deleted, or if an incorrect network was selected during onboarding.",
+            "After changing the orchestrator network, you must rerun the orchestrator template to update the deployment.",
+            "This option is available only when the DSPM Connection Status is failed for the custom network configuration type."
+          ]
+        }
+      ]
+    },
+    "orch-network-prereq": {
+      "statement": "Modifying the orchestrator network requires an Administrator role or a custom role with the Configure Monitoring Scope permission.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-orchestrator-network.json",
+          "quotes": [
+            "You must be assigned either an Administrator role or a custom role with the Configure Monitoring Scope permission in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "orch-network-fields": {
+      "statement": "On the Managing Orchestrator Network page, which gives fields for AWS and Azure only, modifying the orchestrator network takes an orchestrator region plus, for AWS, Subnet ARN and Security Group ID, and for Azure Subnet ID, Network Security Group ID and a Storage Account Name of at most 16 characters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-orchestrator-network.json",
+          "quotes": [
+            "Subnet ARN: Enter the subnet where the scanner instances must be launched.",
+            "3. Security Group ID: Enter the identifier (ID) of the security group that controls network traffic to and from the instances.",
+            "Subnet ID: Enter the subnet where the scanner instances must be launched.",
+            "Network Security Group ID: Enter the identifier (ID) of the security group that controls network traffic to and from the instances.",
+            "The storage account name must not exceed 16 characters.",
+            "Select the Orchestrator Region: Select a region where you want to deploy the orchestrator template.",
+            "Select Orchestrator Region: Select a region where you want to deploy the orchestrator template."
+          ]
+        }
+      ],
+      "conditions": "The 'AWS and Azure only' scope rests on reading the whole capture: its only provider sections under step 4 are the items AWS and Azure; no GCP or Google section appears."
+    },
+    "orch-network-azure-storage": {
+      "statement": "In the Azure orchestrator network change, the storage account stores activity logs of the target subscriptions and DSPM displays an error message if its name is already registered with Microsoft.Storage; a new subnet from a different VNet needs a terraform destroy on the scale set first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "dspm-managing-orchestrator-network.json",
+          "quotes": [
+            "This storage account is used to store the activity logs of the target subscriptions and is created while deploying the onboarding template.",
+            "If the name is already registered with Microsoft.Storage, DSPM displays an error message.",
+            "If you are using a new subnet from a different VNet, run the following command before deploying the new template:",
+            "terraform destroy -target module.scale_set.azurerm_linux_virtual_machine_scale_set.orchestrator_scale_set"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "azure-india-ip": {
+      "kind": "semantic",
+      "title": "What to enter for the India cluster in the Azure NSG rules for DSPM destinations",
+      "status": "open",
+      "detail": "The Azure network page's NSG rules list only a US cloud and an EU cloud IP set, while the orchestrator page also lists an India Cluster (dspm.orchestrator:ips-india). The Azure page does not say what to enter for India. The EU addresses are the same six in both pages, in a different order.",
+      "resolves_with": ["source-read"]
+    },
+    "azure-mssql-port": {
+      "kind": "semantic",
+      "title": "Which port the Azure worker NSG rule for MS SQL uses",
+      "status": "open",
+      "detail": "The Azure worker NSG rule for MS SQL says Enter 1443; the page does not say whether 1433 is meant.",
+      "resolves_with": ["source-read"]
+    },
+    "gcp-rule-vpc": {
+      "kind": "semantic",
+      "title": "Which VPC each GCP worker plane firewall rule belongs to",
+      "status": "open",
+      "detail": "Steps for GCP worker plane rules say to select the created control plane VPC network and to deny all outbound communication to the orchestrator, in steps for other rules; the text appears copied between steps, so which VPC each rule belongs to is unclear.",
+      "resolves_with": ["source-read"]
+    },
+    "aws-worker-cidr-24": {
+      "kind": "semantic",
+      "title": "Why the AWS worker security group outbound PostgreSQL and MYSQL/Aurora destinations are 0.0.0.0/24",
+      "status": "open",
+      "detail": "The outbound rules list PostgreSQL and MYSQL/Aurora with destination 0.0.0.0/24, a /24 on 0.0.0.0; the page does not explain it.",
+      "resolves_with": ["source-read"]
+    },
+    "orch-network-gcp": {
+      "kind": "semantic",
+      "title": "What the orchestrator network change takes for a GCP account",
+      "status": "open",
+      "detail": "The Managing Orchestrator Network page has an AWS section and an Azure section (list items AWS and Azure) and no GCP section; the other GCP pages were not searched for a GCP orchestrator network change.",
+      "resolves_with": ["source-read"]
+    },
+    "network-templates-not-captured": {
+      "kind": "semantic",
+      "title": "What the CloudFormation and Terraform network templates contain",
+      "status": "open",
+      "detail": "The CloudFormation and Terraform network templates are downloads and are not captured; the DSPM API, SDK and Terraform provider sources were not checked.",
+      "resolves_with": ["source-read"]
+    }
+  }
+}
