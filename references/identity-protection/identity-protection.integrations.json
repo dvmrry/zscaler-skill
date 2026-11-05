@@ -1,0 +1,265 @@
+{
+  "schema_version": 1,
+  "id": "identity-protection.integrations",
+  "title": "What the ITDR Admin Portal help describes for integrations: Okta setup and retention, ServiceNow ITSM configuration, webhook, tickets and incident view",
+  "aliases": [
+    "itdr okta integration",
+    "itdr servicenow",
+    "itsm integration",
+    "servicenow webhook",
+    "itdr configurations page"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "identity-protection.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.admin-portal"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Okta"
+    },
+    {
+      "text": "{{okta-config-fields}} {{okta-test}} {{okta-log-retention}} [[identity-protection.overview]]"
+    },
+    {
+      "heading": "ServiceNow"
+    },
+    {
+      "text": "{{itsm-configurations-page}} {{servicenow-scope}} {{servicenow-config}}"
+    },
+    {
+      "text": "{{webhook-business-rule}} {{webhook-script-trigger}} The page's line numbers for the script edits do not match the printed script {{gap:webhook-script-lines}}. {{webhook-script-payload}}"
+    },
+    {
+      "text": "{{ticket-sources-fields}} {{incident-view-columns}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "For which API token permissions the Okta integration needs, the four named before the token is generated.",
+      "uses": [
+        "okta-config-fields"
+      ]
+    },
+    {
+      "do": "For which events a ServiceNow incident change sends to ITDR, the properties the supplied script tests as printed.",
+      "uses": [
+        "webhook-script-trigger",
+        "webhook-script-lines"
+      ]
+    }
+  ],
+  "claims": {
+    "okta-log-retention": {
+      "statement": "The Okta integration page states that Okta system logs for threat detection are retained for only 14 days, after which they are permanently deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-integrating-itdr-okta.json",
+          "quotes": [
+            "The Okta system logs for threat detection are only retained for 14 days, after which they are permanently deleted."
+          ]
+        }
+      ]
+    },
+    "okta-config-fields": {
+      "statement": "The Okta integration (ITDR > Manage > Okta) takes Enabled, the tenant Base URL and an API Token, and the Okta permissions okta.roles.read, okta.users.read, okta.logs.read and okta.users.manage must be enabled before the API token is generated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-integrating-itdr-okta.json",
+          "quotes": [
+            "Go to ITDR > Manage > Okta.",
+            "Base URL: Enter the base URL of the Okta tenant",
+            "API Token: Before you can generate an API token, ensure the following permissions are enabled in Okta:",
+            "okta.roles.read",
+            "okta.users.read",
+            "okta.logs.read",
+            "okta.users.manage",
+            "Enabled: Select to enable the integration with ITDR."
+          ]
+        }
+      ]
+    },
+    "okta-test": {
+      "statement": "Click Test confirms the connection when the credentials are valid and Okta can communicate with ITDR; if the credentials do not match or Okta cannot connect, regenerate the API token on the Okta tenant, enter it and test again.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-integrating-itdr-okta.json",
+          "quotes": [
+            "If the credentials are valid and Okta can communicate with ITDR, a confirmation message appears indicating that the test is successful.",
+            "If the credentials do not match or Okta is unable to connect with ITDR, regenerate the API token on the Okta tenant, enter the new API token in the API token field, and test again.",
+            "Click Test to test the connection."
+          ]
+        }
+      ]
+    },
+    "itsm-configurations-page": {
+      "statement": "The Configurations page (ITDR > Integrations > Configurations) lists the available ITSM integrations with an Enabled status and the configured ITSM tool, and ServiceNow is the example ITSM tool named.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-about-configurations.json",
+          "quotes": [
+            "On the Configurations page (ITDR > Integrations > Configurations), you can do the following:",
+            "Enabled: If the integration is enabled or disabled.",
+            "Settings: The ITSM tool configured.",
+            "such as ServiceNow, to track and assess posture and change issues"
+          ]
+        }
+      ]
+    },
+    "servicenow-config": {
+      "statement": "Configuring ServiceNow in ITDR takes Enabled, the Base URL of the ServiceNow instance, a Username and a Password, with an optional Test; only one ticket can be created for an issue, and a ServiceNow webhook must be configured afterwards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-itdr-servicenow.json",
+          "quotes": [
+            "Locate ServiceNow and click the Edit icon under the Actions column.",
+            "Base URL: Enter the base URL of the ServiceNow instance.",
+            "Username: Enter the username for ServiceNow.",
+            "Password: Enter the password for ServiceNow.",
+            "(Optional) Click Test to validate the ServiceNow connection.",
+            "You can create only one ticket for an issue.",
+            "After configuring ITDR with ServiceNow, you must configure a ServiceNow webhook.",
+            "Enabled: Select to configure ServiceNow."
+          ]
+        }
+      ]
+    },
+    "servicenow-scope": {
+      "statement": "ServiceNow tickets track issues across the ITDR Admin Portal (AD domain, Entra ID, credential issues) and bad changes detected in the AD domain and Entra ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-itdr-servicenow.json",
+          "quotes": [
+            "to track and assess issues across the Zscaler ITDR Admin Portal (AD domain, Entra ID, credential issues) and bad changes detected in the AD domain and Entra ID.",
+            "Create ServiceNow tickets and assign the ticket to the appropriate user."
+          ]
+        }
+      ]
+    },
+    "webhook-business-rule": {
+      "statement": "The ServiceNow webhook is a business rule on the Incident [incident] table with the Advanced checkbox selected; the script's endpoint URL and API key are replaced with the Webhook URL and Webhook API Key copied from the ITDR Configurations page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-servicenow-webhook.json",
+          "quotes": [
+            "Table: Select Incident [incident] from the drop-down menu.",
+            "Select the Advanced checkbox.",
+            "Copy and paste the Webhook URL from the Configurations page.",
+            "Copy and paste the Webhook API Key from the Configurations page."
+          ]
+        }
+      ]
+    },
+    "webhook-script-trigger": {
+      "statement": "The supplied script only triggers the webhook when short_description, description, work_notes, state, impact or urgency change; as printed, the condition joins impact and urgency with a single | rather than ||.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-servicenow-webhook.json",
+          "quotes": [
+            "Only trigger webhook if these incident properties are updated",
+            "current.impact.changes() | current.urgency.changes()",
+            "if (current.short_description.changes() || current.description.changes() || current.work_notes.changes() || current.state.changes() || current.impact.changes()"
+          ]
+        }
+      ]
+    },
+    "webhook-script-payload": {
+      "statement": "The script's POST payload carries incident_number, short_description, description, work_notes, state, impact, urgency, updated_by and updated_on, with a Content-Type of application/json and an x-service-now-auth header carrying the API key.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-configuring-servicenow-webhook.json",
+          "quotes": [
+            "restMessage.setHttpMethod('POST');",
+            "restMessage.setRequestHeader('Content-Type', 'application/json');",
+            "restMessage.setRequestHeader('x-service-now-auth', 'API Key');",
+            "incident_number: current.number.getValue(), short_description: current.short_description.getValue(), description: current.description.getValue(), work_notes: current.work_notes.getValue(),",
+            "state: current.state.getValue(), impact: current.impact.getValue(), urgency: current.urgency.getValue(), updated_by: current.sys_updated_by.getValue(), updated_on: current.sys_updated_on.getValue(),"
+          ]
+        }
+      ]
+    },
+    "ticket-sources-fields": {
+      "statement": "A ServiceNow ticket can be created from the Active Directory Posture, Active Directory Change Detection, Endpoint Credential Exposure, Entra ID Posture and Entra ID Change Detection dashboards, with Short Description, Description, Impact and Urgency auto-populated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-creating-servicenow-ticket.json",
+          "quotes": [
+            "On the Active Directory Posture dashboard:",
+            "Go to ITDR > Dashboard > Active Directory Change Detection > Default.",
+            "Go to ITDR > Dashboard > Endpoint Credential Exposure.",
+            "On the Entra ID Posture dashboard:",
+            "Go to ITDR > Dashboard > Entra ID Change Detection > Default.",
+            "the following fields are auto-populated. You can update them as required.",
+            "Short Description: The issue name.",
+            "Impact: The impact (High, Medium, or Low) of the issue in the ITDR Admin Portal.",
+            "Urgency: The urgency (High, Medium, or Low) of the issue in the ServiceNow portal.",
+            "Description: The description of the issue and the link to the issue."
+          ]
+        }
+      ]
+    },
+    "incident-view-columns": {
+      "statement": "The ServiceNow page (ITDR > ServiceNow) lists incidents with Incident Number, Short Description, Impact, Urgency, Status (Open or Resolved in the ITDR Admin Portal), Incident State (New, In Progress, On Hold, Resolved, Closed or Cancelled in ServiceNow), Incident Type (AD, Entra or Credential Exposure), Domain, Issue Name, Description, Last Work Note, Created At and Last Updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-viewing-incident-details.json",
+          "quotes": [
+            "You must configure ServiceNow with ITDR to view the incidents.",
+            "Status: The status (Open or Resolved) of the issue in the ITDR Admin Portal.",
+            "Incident State: The state (New, In Progress, On Hold, Resolved, Closed, or Cancelled) of the incident in the ServiceNow portal.",
+            "Incident Type: The incident type (AD, Entra, or Credential Exposure).",
+            "Last Work Note: The last note that was updated in the ServiceNow portal.",
+            "Created At: The date and timestamp for when the incident was created.",
+            "Last Updated: The date and timestamp for when the incident was last updated.",
+            "Incident Number: The incident ID in the ServiceNow portal.",
+            "Short Description: A short description of the issue.",
+            "Impact: The impact (High, Medium, or Low) of the issue in the ITDR Admin Portal.",
+            "Urgency: The urgency (High, Medium, or Low) of the issue in the ServiceNow portal.",
+            "Domain: The domain on which the incident is created.",
+            "Issue Name: The name of the issue.",
+            "Description: The description of the issue."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "webhook-script-lines": {
+      "kind": "semantic",
+      "title": "Which lines of the printed ServiceNow webhook script the page's edit instructions refer to",
+      "status": "open",
+      "detail": "The webhook page tells the reader to update specific line numbers in the script, which is printed as one line, and its condition joins impact and urgency with a single |; which lines and whether the single | is intended are not stated.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

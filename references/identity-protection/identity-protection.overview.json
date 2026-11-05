@@ -75,6 +75,26 @@
     },
     {
       "rel": "see-also",
+      "to": "identity-protection.release-notes"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.server-agents"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.endpoint-agents"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.admin-portal"
+    },
+    {
+      "rel": "see-also",
+      "to": "identity-protection.integrations"
+    },
+    {
+      "rel": "see-also",
       "to": "deception.sso"
     },
     {
@@ -116,7 +136,7 @@
       "items": [
         {
           "label": "Active Directory.",
-          "text": "{{ad-posture}} [[identity-protection.ad-posture]] [[identity-protection.posture-scans]]"
+          "text": "{{ad-posture}} {{scan-assignee-and-results}} [[identity-protection.release-notes:2025-06-23-dashboard-renames]] [[identity-protection.ad-posture]] [[identity-protection.posture-scans]]"
         },
         {
           "label": "Entra ID.",
@@ -128,17 +148,26 @@
         },
         {
           "label": "Change detection.",
-          "text": "{{change-detection}} How fast changes are detected differs between the pages {{divergence:change-detection-timing}}. [[identity-protection.change-detection]] [[identity-protection.detection-policies]] [[identity-protection.safelists]]"
+          "text": "{{change-detection}} How fast changes are detected differs between the pages {{divergence:change-detection-timing}}. {{change-check-cycle}} [[identity-protection.change-detection]] [[identity-protection.detection-policies]] [[identity-protection.safelists]]"
         },
         {
           "label": "Endpoints.",
-          "text": "{{credential-exposure}} Whether this scan needs Client Connector is not stated on the current page {{gap:credential-scan-agent}}. {{threat-detection}} [[identity-protection.credential-exposure]] [[identity-protection.posture-scans]]"
+          "text": "{{credential-exposure}} Whether this scan needs Client Connector is not stated on the current page {{gap:credential-scan-agent}}. {{threat-detection}} {{detector-examples}} [[identity-protection.credential-exposure]] [[identity-protection.posture-scans]]"
         },
         {
           "label": "Identity details.",
           "text": "[[identity-protection.identity-details]]"
         }
       ]
+    },
+    {
+      "heading": "Setup, agents and the admin portal"
+    },
+    {
+      "text": "{{setup-step-order}} {{remediation-scope}} {{legacy-redirect|ref}} {{no-extra-agents-claim}} [[identity-protection.server-agents:additional-agents]]"
+    },
+    {
+      "text": "[[identity-protection.endpoint-agents]] [[identity-protection.admin-portal]] [[identity-protection.integrations]] [[identity-protection.release-notes]]"
     },
     {
       "heading": "Dashboards and investigation"
@@ -158,6 +187,10 @@
     {
       "label": "Current and legacy consoles.",
       "text": "{{legacy-redirect}}"
+    },
+    {
+      "label": "Release history.",
+      "text": "[[identity-protection.release-notes]]"
     },
     {
       "heading": "Automation"
@@ -455,6 +488,98 @@
         }
       ]
     },
+    "change-check-cycle": {
+      "statement": "The what-is page says identity change detection checks run every 15 minutes from Zscaler Client Connector installed on the endpoints or landmine agents for the AD domain, and that detected changes are marked as having a good or bad impact.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-zscaler-itdr.json",
+          "quotes": [
+            "These checks run every 15 minutes from Zscaler Client Connector installed on the endpoints or landmine agents for the given AD domain.",
+            "The changes detected are marked as having a good or bad impact."
+          ]
+        }
+      ]
+    },
+    "scan-assignee-and-results": {
+      "statement": "The what-is page says an AD domain scan can be assigned to a Zscaler Client Connector or an endpoint agent, and after the scan the result is viewed on the Identity Posture dashboard, where the assessment results include a domain risk score, focus areas, a list of the riskiest users and computers, and MITRE ATT&CK kill chain mapping.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-zscaler-itdr.json",
+          "quotes": [
+            "You can assign a Zscaler Client Connector or an endpoint agent to scan an AD domain for identity misconfigurations and vulnerabilities.",
+            "After the scan is complete, you can view the result on the Identity Posture dashboard.",
+            "The assessment results include a domain risk score for identity posture quantification and tracking, focus areas to prioritize remediation, a list of the riskiest users and computers",
+            "MITRE ATT&CK kill chain mapping for visibility into security blind spots"
+          ]
+        }
+      ]
+    },
+    "detector-examples": {
+      "statement": "The what-is page names DCSync, DCShadow, Kerberoasting, session enumeration, privileged account access and LDAP enumeration as examples of available threat detectors, and says the security team can use them to identify a threat on the designated endpoint.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-zscaler-itdr.json",
+          "quotes": [
+            "Some of the available threat detectors include DCSync, DCShadow, Kerberoasting, session enumeration, privileged account access, LDAP enumeration, and more. The security team can use these threat detectors to identify a threat on the designated endpoint."
+          ]
+        }
+      ]
+    },
+    "no-extra-agents-claim": {
+      "statement": "The what-is page lists as a benefit that ITDR integrates with Zscaler Client Connector to unlock new capabilities without the need for additional agents or virtual machines.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-what-zscaler-itdr.json",
+          "quotes": [
+            "Integrates with Zscaler Client Connector to unlock new capabilities and protection without the need for additional agents or virtual machines (VMs)."
+          ]
+        }
+      ]
+    },
+    "setup-step-order": {
+      "statement": "The step-by-step configuration guide runs in this order: log in to the Admin Portal, configure users and roles, configure single sign-on, configure threat detection policies, integrate with Okta, assess AD posture, assess Entra ID posture, set up the endpoint credential exposure scan, analyze the assessment report, enable change detection, and remediate risky identities and changes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-step-step-configuration-guide-zscaler-itdr.json",
+          "quotes": [
+            "Step 1: Log In to the Zscaler ITDR Admin Portal",
+            "Step 2: Configure Users and Roles",
+            "Step 3: Configure Single Sign-On Authentication",
+            "Step 4: Configure Threat Detection Policies",
+            "Step 5: Integrate ITDR with Okta",
+            "Step 6: Assess Your Active Directory Posture",
+            "Step 7: Assess Your Entra ID Posture",
+            "Step 8: Set Up Endpoint Credential Exposure Scan",
+            "Step 9: Analyze the Assessment Report",
+            "Step 10: Enable Change Detection",
+            "Step 11: Remediate Risky Identities and Changes"
+          ]
+        }
+      ]
+    },
+    "remediation-scope": {
+      "statement": "The guide says risky AD and Entra ID identities and bad changes can be remediated directly from the ITDR Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "itdr-step-step-configuration-guide-zscaler-itdr.json",
+          "quotes": [
+            "You can remediate risky AD and Entra ID identities and bad changes directly from the ITDR Admin Portal."
+          ]
+        }
+      ]
+    },
     "no-client-surface": {
       "statement": "No vendored client covers Identity Protection or ITDR: the Go and Python SDKs, the Terraform providers, the Ansible collections, the MCP server, the OneAPI Postman collection and the captured Automate contract have no such service; the MCP server's ZIdentity tools manage users and groups, not identity risk.",
       "tier": "B",
@@ -494,6 +619,16 @@
             ]
           },
           "says": "AD Change Detection gives near real-time visibility, from an AD scan that runs every 15 minutes."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "itdr-understand-zscaler-itdr-architecture.json",
+            "quotes": [
+              "ITDR provides real-time monitoring of critical changes in your AD domains and Entra ID tenants that introduce new risks"
+            ]
+          },
+          "says": "The page itdr-understand-zscaler-itdr-architecture (Understand the Zscaler ITDR Architecture) says ITDR provides real-time monitoring of critical changes in AD domains and Entra ID tenants."
         }
       ],
       "impact": "The pages give different descriptions of how quickly a change is detected (real-time against near real-time on a 15-minute cycle) and do not say how they reconcile."
