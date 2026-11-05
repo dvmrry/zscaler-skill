@@ -204,6 +204,9 @@ verifier and the claim audit found in writer output:
 - **Prose and checks add nothing.** A prose sentence is markers and `[[links]]`; it does not relate subjects or
   claims in its own words ("rules produce incidents", "scores come from alerts"). A check names what its claims
   say, not a procedure they imply ("Save alone does not").
+- **A statement stands on its own quotes.** It never points at another claim, a divergence or "the page above"
+  ("see the divergence", "unlike the other listed permissions"); cross-references belong in prose links and
+  `related`, and a disagreement belongs in the divergence.
 - **A fix keeps the label.** When a quote does not reach a label the statement names (the stream a filter belongs
   to, a tab, a menu), quote the label, with an `after` anchor if it is short, rather than cutting it.
 - **A divergence is not settled in passing.** A `checks` entry, prose sentence
