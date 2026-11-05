@@ -1,0 +1,627 @@
+{
+  "schema_version": 1,
+  "id": "uvm.outegrations",
+  "title": "UVM outegrations: setup procedure, storage and streaming, Splunk, Teams and Email, and Tenable scan outegrations",
+  "aliases": [
+    "outegration",
+    "outegrations",
+    "outegration wizard"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.outegrations.ticketing"
+    },
+    {
+      "rel": "see-also",
+      "to": "portfolio.secops-platform"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Freshservice setup.",
+      "text": "{{wizard-start}} {{connect-step}} Ticketing outegrations are in [[uvm.outegrations.ticketing]]; sources are in [[uvm.data-sources]]; the product is in [[uvm.overview]]."
+    },
+    {
+      "label": "AWS S3.",
+      "text": "{{s3-bucket}} {{s3-steps}} {{s3-perms}} {{s3-trust}}"
+    },
+    {
+      "label": "Google Cloud Storage.",
+      "text": "{{gcs-purpose}} {{gcs-perms}} {{gcs-fields}}"
+    },
+    {
+      "label": "Apache Kafka.",
+      "text": "{{kafka-purpose}} {{kafka-entity}} {{kafka-mtls}} {{kafka-isolation}} {{kafka-acl}} {{kafka-port}} {{kafka-bootstrap}} Port {{divergence:kafka-port-example}}. The record value schema, message key and topic partitioning are open {{gap:kafka-record-shape}}."
+    },
+    {
+      "label": "Splunk.",
+      "text": "{{splunk}} {{splunk-activity}}"
+    },
+    {
+      "label": "Microsoft Teams.",
+      "text": "{{teams-purpose}} {{teams-app}} {{teams-ids}} {{teams-fields}}"
+    },
+    {
+      "label": "Email.",
+      "text": "{{email}} {{email-mapping}} Recipient limits, sender address and delivery format are open {{gap:email-limits}}."
+    },
+    {
+      "label": "Tenable scans.",
+      "text": "{{tenable-purpose}} {{tenable-role}} {{tenable-datasource}} {{tenable-creds}} {{tenable-sc-params}} {{tenable-settings-tvm}} {{tenable-settings-sc}} {{tenable-mapping}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which Kafka port the outegration uses, since the page's authorized port and its bootstrap example differ.",
+      "uses": [
+        "kafka-port",
+        "kafka-bootstrap",
+        "kafka-port-example"
+      ]
+    },
+    {
+      "do": "Whether the Kafka consumer sets isolation.level=read_committed.",
+      "uses": [
+        "kafka-isolation"
+      ]
+    },
+    {
+      "do": "Whether the Tenable credentials carry Scan permissions, not only the View permissions of the source connector.",
+      "uses": [
+        "tenable-creds"
+      ]
+    }
+  ],
+  "claims": {
+    "wizard-start": {
+      "statement": "On the Freshservice outegration page, setup starts at Configure > Outegrations, then Create and the vendor tile, which opens the Connect step.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "In the SecOps platform, go to Configure > Outegrations.",
+            "Click Create, then select Freshservice.",
+            "The Connect step appears."
+          ]
+        }
+      ]
+    },
+    "connect-step": {
+      "statement": "On the Freshservice outegration page, the Connect step takes, among its fields, a Display Name, Active, Domain and an Authentication that is an existing authentication or Create New; Test verifies the connection and Next advances to the Settings step once the test passes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-outegration.json",
+          "quotes": [
+            "Display Name: Enter a name for the outegration.",
+            "Active: Enable to activate the Freshservice outegration.",
+            "Domain: Enter the domain of your Freshservice tenant.",
+            "Authentication: Select an existing authentication, or click Create New to set up a new authentication",
+            "Click Test in the bottom-right corner of the screen to verify the connection.",
+            "After the test passes, click Next to advance to the Settings step."
+          ]
+        }
+      ]
+    },
+    "s3-bucket": {
+      "statement": "The AWS S3 outegration sends data from Agentic SecOps Platform applications (e.g., UVM) to an S3 bucket, and each bucket needs a separate outegration configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-s3-outegration.json",
+          "quotes": [
+            "is used to send data from Agentic Security Operations Platform (Agentic SecOps Platform) applications (e.g., Unified Vulnerability Management (UVM)) to your AWS S3 bucket.",
+            "Each AWS S3 bucket requires a separate outegration configuration."
+          ]
+        }
+      ]
+    },
+    "s3-perms": {
+      "statement": "The AWS S3 outegration role needs s3:PutObject, s3:AbortMultipartUpload and s3:ListMultipartUploadParts, and the example policy also grants s3:ListBucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-s3-outegration.json",
+          "quotes": [
+            "- s3:PutObject",
+            "- s3:AbortMultipartUpload",
+            "- s3:ListMultipartUploadParts",
+            "\"Action\": [ \"s3:ListBucket\" ]"
+          ]
+        }
+      ]
+    },
+    "s3-trust": {
+      "statement": "The AWS role trust policy must allow Zscaler's service principal to assume the role, with the ARN obtained from Zscaler Support and an sts:ExternalId condition; the details to retrieve include Role ARN, External ID, Region and Bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-s3-outegration.json",
+          "quotes": [
+            "Contact Zscaler Support to retrieve Zscaler's service principal ARN.",
+            "\"Action\": \"sts:AssumeRole\"",
+            "\"sts:ExternalId\": \"<EXTERNAL_ID>\"",
+            "- External ID",
+            "To authenticate the outegration, retrieve the following details:",
+            "- Role ARN",
+            "- Region",
+            "- Bucket"
+          ]
+        }
+      ]
+    },
+    "s3-steps": {
+      "statement": "The AWS S3 outegration exports scheduled reports or dispatches items to S3 when criteria are met, and its steps are Connect, Settings and Configure Reports or Define Dispatch Criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-s3-outegration.json",
+          "quotes": [
+            "- Step 3: Configure Reports or Define Dispatch Criteria",
+            "the Agentic SecOps Platform exports scheduled reports or dispatches items to AWS S3 when certain criteria are met.",
+            "- Step 1: Authenticate the AWS S3 Connection (Connect)",
+            "- Step 2: Configure the Outegration Visibility and Behavior (Settings)"
+          ]
+        }
+      ]
+    },
+    "gcs-purpose": {
+      "statement": "The GCP Storage outegration is a report delivery method that dispatches files from SecOps applications (e.g., UVM) to a Google Cloud Storage bucket, and its name then appears in each report's Delivery Method menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-storage-outegration.json",
+          "quotes": [
+            "is used as a report delivery method to dispatch files from the Zscaler Security Operations (SecOps) platform applications (e.g., UVM) to your Google Cloud Storage bucket.",
+            "the outegration name appears in each report's Delivery Method drop-down menu."
+          ]
+        }
+      ]
+    },
+    "gcs-perms": {
+      "statement": "The GCS service account needs the Storage Object Creator and Storage Legacy Bucket Reader roles for the bucket, or at project level for write access across buckets in one project.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-storage-outegration.json",
+          "quotes": [
+            "you need to assign it the Storage Object Creator role and Storage Legacy Bucket Reader role for that specific bucket.",
+            "If the service account requires write access across multiple buckets within a single project, assign the role at the project level."
+          ]
+        }
+      ]
+    },
+    "gcs-fields": {
+      "statement": "The GCP Storage outegration takes a bucket, a project ID, an optional path; a JSON key file is generated on the Service Accounts page in the Google Cloud console; Test verifies the connection and shows an error with remediation steps if credentials are invalid.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-storage-outegration.json",
+          "quotes": [
+            "Path: (Optional) Enter the folder path to organize and separate the reports within the Google Cloud Storage bucket.",
+            "To generate a JSON key file, go to the Service Accounts page in the Google Cloud console.",
+            "If the credentials are invalid, an error message is displayed along with the remediation steps to resolve the issue.",
+            "Bucket: Enter the name of the Google Cloud Storage bucket where report files are to be delivered.",
+            "Project ID: Enter the unique identifier of the GCP project associated with the Google Cloud Storage bucket.",
+            "Click Test in the bottom-right corner of the page to verify the connection."
+          ]
+        }
+      ]
+    },
+    "kafka-purpose": {
+      "statement": "The Kafka outegration publishes entity data from SecOps applications to an external Kafka topic, which must be created beforehand for each outegration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "is used to publish entity data from the Zscaler Security Operations (SecOps) platform applications (e.g., UVM) to an external Kafka topic",
+            "A Kafka topic must be previously created and configured for each outegration."
+          ]
+        }
+      ]
+    },
+    "kafka-mtls": {
+      "statement": "Kafka outegration authentication is mutual TLS: the client private key is RSA-2048 (exactly 2048 bits) or ECDSA (256, 384 or 521 bits) in PEM format, optionally encrypted; an item is required only if the generated client private key is encrypted; the client certificate chain and the broker CA certificate (needed for a private CA) are PEM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "Authentication is handled via Mutual TLS (mTLS), where the SecOps platform and Kafka broker verify each other's certificates.",
+            "Generate an RSA-2048 private key (size must be exactly 2048 bits) or ECDSA (size can be 256, 384, and 521 bits) in PEM format. This key can be optionally encrypted.",
+            "This is required only if the generated client private key is encrypted.",
+            "Create the complete certificate chain (client certificate followed by any intermediate Certificate Authorities) in PEM format.",
+            "This is necessary if your broker uses a private CA.",
+            "Obtain the Kafka broker's Certificate Authority (CA) certificate in PEM format."
+          ]
+        }
+      ]
+    },
+    "kafka-isolation": {
+      "statement": "The Kafka outegration publishes via transactions for exactly-once behavior, so the isolation level must be explicitly set to isolation.level=read_committed; otherwise consumers may read messages from rolled-back transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "Kafka outegration ensures exactly-once behavior by publishing via transactions.",
+            "the isolation level must be explicitly configured with isolation.level=read_committed.",
+            "Failure to set this property potentially results in consumers reading messages from rolled-back transactions, which can compromise data integrity."
+          ]
+        }
+      ]
+    },
+    "kafka-acl": {
+      "statement": "The Kafka cluster ACL rules must allow the transaction ID zscaler-producer-transactional, and the page's example ACL commands use WRITE and DESCRIBE operations and IDEMPOTENT_WRITE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "Ensure that the Kafka cluster allows the transaction ID zscaler-producer-transactional in the ACL rules.",
+            "--operation WRITE --operation DESCRIBE",
+            "--operation IDEMPOTENT_WRITE"
+          ]
+        }
+      ]
+    },
+    "kafka-port": {
+      "statement": "In Internet & SaaS network configuration, port 9094 is the only authorized port open to all IP addresses for Kafka traffic; other ports are requested from Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "To request the opening of any new or additional ports, contact Zscaler Support.",
+            "In Internet & SaaS network configuration, port 9094 is the only authorized port open to all IP addresses for Kafka traffic."
+          ]
+        }
+      ]
+    },
+    "kafka-bootstrap": {
+      "statement": "The Kafka outegration's Bootstrap Servers are entered in host:port format, with the page's example using port 9092 (e.g., kafka-broker1:9092).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "Enter the bootstrap endpoint in host:port format (e.g., kafka-broker1:9092, kafka-broker2:9092)."
+          ]
+        }
+      ]
+    },
+    "kafka-entity": {
+      "statement": "In the Kafka outegration setup, the SecOps entity that triggers the Kafka dispatch is set (e.g., ticket, policy violation).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-apache-kafka-outegration.json",
+          "quotes": [
+            "you'll set the SecOps entity that triggers the Kafka dispatch (e.g., ticket, policy violation)."
+          ]
+        }
+      ]
+    },
+    "splunk": {
+      "statement": "The Splunk outegration sends data from Agentic SOC to Splunk as a Splunk security incident, needs an HTTP Event Collector token and the port number if the HTTP Event Collector listens on a port, and has four steps ending in incident dispatch criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-splunk-outegration.json",
+          "quotes": [
+            "is used to send data from Agentic SOC to Splunk, creating a Splunk security incident",
+            "If you have configured the HTTP Event Collector to listen on a port, you must include the port number.",
+            "Create a new HTTP Event Collector token.",
+            "- Step 4: Define Incident Dispatch Criteria",
+            "- Step 1: Authenticate the Splunk Connection (Connect)",
+            "- Step 2: Review the Outegration Behavior (Settings)",
+            "- Step 3: Create Mappings for Outegration Fields (Mapping)"
+          ]
+        }
+      ]
+    },
+    "splunk-activity": {
+      "statement": "After the Splunk outegration is set up, Agentic SOC dispatches incidents to Splunk when certain criteria are met and dispatch runs can be viewed in the outegration's activity log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-splunk-outegration.json",
+          "quotes": [
+            "Agentic SOC dispatches incidents to Splunk when certain criteria are met. You can view dispatch runs in the outegration's activity log."
+          ]
+        }
+      ]
+    },
+    "teams-purpose": {
+      "statement": "The Microsoft Teams outegration sends exposure and remediation notifications into Teams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-teams-outegration.json",
+          "quotes": [
+            "is used to send exposure and remediation notifications into Teams"
+          ]
+        }
+      ]
+    },
+    "teams-app": {
+      "statement": "The Teams outegration uses a multitenant Entra ID app registration with redirect URI https://app.avalor.io/oauth and Microsoft Graph delegated permissions ChannelMessage.Send, offline_access and Channel.ReadBasic.All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-teams-outegration.json",
+          "quotes": [
+            "Supported account types: Select Accounts in any organizational directory (Any Microsoft Entra ID tenant - Multitenant).",
+            "Redirect URI (optional): Enter https://app.avalor.io/oauth.",
+            "Microsoft Graph → Delegated permissions → ChannelMessage → ChannelMessage.Send",
+            "Microsoft Graph → Delegated permissions → OpenId permissions → offline_access",
+            "Microsoft Graph → Delegated permissions → Channel → Channel.ReadBasic.All"
+          ]
+        }
+      ]
+    },
+    "teams-ids": {
+      "statement": "The Teams Get link to channel URL contains the group ID and channel ID; in the page's example the channel ID is 19%3A7mtmyDCaMAD1h1tFFlWACNkFhW_m3ga7_4GnTobaOVU1%40thread.tacv2 and the group ID is 02ce587c-6d8b-4e69-87bd-8dfe827cadeb.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-teams-outegration.json",
+          "quotes": [
+            "Select Get link to channel.",
+            "the channel ID is 19%3A7mtmyDCaMAD1h1tFFlWACNkFhW_m3ga7_4GnTobaOVU1%40thread.tacv2 and the group ID is 02ce587c-6d8b-4e69-87bd-8dfe827cadeb.",
+            "The channel link containing the group ID and channel ID is generated."
+          ]
+        }
+      ]
+    },
+    "teams-fields": {
+      "statement": "The Teams outegration details are Display Name, Active (use in automation workflows), Group ID, Channel ID and an Authentication that shows a unique Authentication ID when successful.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-teams-outegration.json",
+          "quotes": [
+            "Active: Enable or disable to use the outegration in automation workflows.",
+            "After the authentication is successful, the Authentication section shows a unique Authentication ID.",
+            "Display Name: Enter a name for the outegration.",
+            "Group ID: Enter the group ID you retrieved from the Prerequisites section.",
+            "Channel ID: Enter the channel ID you retrieved from the Prerequisites section."
+          ]
+        }
+      ]
+    },
+    "email": {
+      "statement": "The Email outegration sends email notifications from the Agentic SecOps Platform to specified recipients; Recipients take email addresses (Enter for multiple), and Active controls use in automation workflows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-email-outegration.json",
+          "quotes": [
+            "Email outegration is used to send email notifications from the Agentic Security Operations Platform (Agentic SecOps Platform) to specified recipients.",
+            "Recipients: Enter email addresses for recipients. Press Enter to add multiple email addresses.",
+            "Active: Enable or disable to use the outegration in automation workflows."
+          ]
+        }
+      ]
+    },
+    "email-mapping": {
+      "statement": "The Email outegration maps data to email fields (e.g., Subject, Body or Recipients), any of which can be set mandatory, and the primary entity to create the email for is selected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-email-outegration.json",
+          "quotes": [
+            "select an option (e.g., Subject, Body, or Recipients), then click Add Value to add a mapping value.",
+            "select the Set As Mandatory checkbox to make the field mandatory.",
+            "select the primary entity to create the email for."
+          ]
+        }
+      ]
+    },
+    "tenable-purpose": {
+      "statement": "The Tenable scanner outegration triggers on-demand scans for specific assets from the SecOps platform, supports Tenable Vulnerability Management and Tenable Security Center, and is currently supported only for UVM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "allows you to trigger on-demand scans for specific assets directly from the Zscaler Security Operations (SecOps) platform.",
+            "Both Tenable Vulnerability Management (formerly Tenable.io) for cloud-based scanning and Tenable Security Center for on-premises scanning are supported.",
+            "The Tenable scanner outegration is currently supported only for the Zscaler Unified Vulnerability Management (UVM) app."
+          ]
+        }
+      ]
+    },
+    "tenable-role": {
+      "statement": "Using the Tenable outegration requires a role with Create and Edit permissions under the Vulnerabilities App - Asset Outegrations resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "your assigned role must include the Create and Edit permissions under the Vulnerabilities App - Asset Outegrations resource."
+          ]
+        }
+      ]
+    },
+    "tenable-datasource": {
+      "statement": "The Tenable scanner outegration can trigger scans only on assets already managed in the platform, so the matching Tenable data source must be configured and actively ingesting assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "The scanner outegration can only trigger scans on assets that are already managed in the platform. You must have the corresponding data source configured and actively ingesting assets."
+          ]
+        }
+      ]
+    },
+    "tenable-creds": {
+      "statement": "Tenable source credentials can be reused for the Tenable outegration, but the source connector requires only View permissions while the scanner outegration requires Scan permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "You can reuse the authentication credentials from your Tenable source connector for this outegration. However, while the source connector requires only View permissions, the scanner outegration requires Scan permissions."
+          ]
+        }
+      ]
+    },
+    "tenable-sc-params": {
+      "statement": "The Tenable Security Center outegration needs the instance base URL and API keys of a user able to create and launch scans; a gateway connection is requested through a support ticket, and Skip SSL and Gateway are marked Tenable Security Center only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "The base URL of your Tenable Security Center instance (e.g., https://tenable.acme.com).",
+            "If you require a gateway connection for setting up the Tenable Security Center outegration, submit a support ticket to request the configuration of your gateway.",
+            "Skip SSL: (Tenable Security Center only) Select to skip SSL certificate validation. This is generally recommended only for testing environments.",
+            "The API keys associated with a Tenable Security Center user account. This user must have permissions to create and launch scans.",
+            "Gateway: (Tenable Security Center only) If you have a Zscaler gateway configured for this connection, select it from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "tenable-settings-tvm": {
+      "statement": "Tenable Vulnerability Management scan settings include a scan name (a system default is used if left blank), a maximum number of concurrent scans (default 1), a scan template populated from the connected instance and a folder (the main folder if left blank).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "If left blank, a system default name is used.",
+            "Select the maximum number of scans allowed to run concurrently (the default is set to 1).",
+            "Select the Tenable scan template to use (e.g., Basic Network Scan). This list is dynamically populated from your connected Tenable instance.",
+            "If left blank, the scan is placed in the main folder."
+          ],
+          "after": "For the Tenable Vulnerability Management settings, configure the following:"
+        }
+      ]
+    },
+    "tenable-settings-sc": {
+      "statement": "Tenable Security Center scan settings include a maximum number of concurrent scans (default 1), a Scan Policy populated from the connected instance, a Repository for results and an optional Proxy DNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "Select the maximum number of scans allowed to run concurrently (the default is set to 1).",
+            "Scan Policy: Select the scan policy to use. This list is dynamically populated from your connected Tenable instance.",
+            "Repository: Select the repository where scan results should be stored.",
+            "Proxy DNS: (Optional) Enable if a DNS proxy is required for the connection."
+          ],
+          "after": "For the Tenable Security Center settings, configure the following:"
+        }
+      ]
+    },
+    "tenable-mapping": {
+      "statement": "The default Tenable outegration mapping targets assets by IP address, passing the IP addresses of the selected assets to Tenable as targets, and can be customized to another field such as tags.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-tenable-outegration.json",
+          "quotes": [
+            "The default mapping assumes that IP addresses are the most reliable way to target assets for vulnerability scanning.",
+            "the platform extracts the IP addresses of those assets and passes them to Tenable as a list of targets.",
+            "you can configure the mapping to use tags for organizing and targeting assets instead of relying solely on IP addresses"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "kafka-port-example": {
+      "summary": "The Kafka outegration page names port 9094 as the only authorized port, while its Bootstrap Servers example uses port 9092.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-apache-kafka-outegration.json",
+            "quotes": [
+              "In Internet & SaaS network configuration, port 9094 is the only authorized port open to all IP addresses for Kafka traffic."
+            ]
+          },
+          "says": "Port 9094 is the only authorized port open to all IP addresses for Kafka traffic."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-apache-kafka-outegration.json",
+            "quotes": [
+              "Enter the bootstrap endpoint in host:port format (e.g., kafka-broker1:9092, kafka-broker2:9092)."
+            ]
+          },
+          "says": "The bootstrap endpoint example uses port 9092."
+        }
+      ],
+      "impact": "The example may be a format illustration; the page does not say whether 9092 is usable."
+    }
+  },
+  "gaps": {
+    "kafka-record-shape": {
+      "kind": "semantic",
+      "title": "Kafka record value schema, message key and topic partitioning",
+      "status": "open",
+      "detail": "The Kafka page does not state the record value schema, the message key or the topic partitioning, and does not explain the example ACL principal User:provider-test-client.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    },
+    "email-limits": {
+      "kind": "semantic",
+      "title": "Email outegration recipient limits, sender address and delivery format",
+      "status": "open",
+      "detail": "The Email page does not state recipient limits, the sender address or the delivery format.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

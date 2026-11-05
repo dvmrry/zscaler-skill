@@ -1,0 +1,713 @@
+{
+  "schema_version": 1,
+  "id": "uvm.data-sources.cloud",
+  "title": "UVM cloud data sources: the AWS, Azure, Google Cloud Platform and Google Sheets connectors, and the Aqua Security, Lacework and Cyera cloud-security connectors",
+  "aliases": [
+    "uvm aws connector",
+    "uvm azure connector",
+    "uvm gcp connector",
+    "uvm cloud security connectors"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "portfolio.secops-platform"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{aws-streams}} Shared connector facts are in [[uvm.data-sources]]; the generic procedure is in [[portfolio.secops-platform:data-sources]]."
+    },
+    {
+      "label": "AWS authentication.",
+      "text": "{{aws-auth-secret-key}} {{aws-access-key-limit}} {{aws-auth-role-single}} {{aws-auth-role-multi}} {{aws-stackset-commands}}"
+    },
+    {
+      "label": "AWS Network.",
+      "text": "{{aws-network-permissions}} {{aws-network-filter}} {{gap:aws-deployment-guide}}"
+    },
+    {
+      "label": "Azure Blob.",
+      "text": "{{blob-scope}} {{blob-auth}} {{blob-rbac}} {{blob-network}} {{blob-filters}}"
+    },
+    {
+      "label": "Azure Cloud Assets and Microsoft Defender for Cloud Findings.",
+      "text": "{{cloud-assets-scope}} {{app-registration}} {{graph-permission}} {{subscription-scope}} {{mgmt-group-id}} {{defender-findings}} {{cloud-assets-auth-window-name}}"
+    },
+    {
+      "label": "Google Cloud Platform.",
+      "text": "{{gcp-streams}} {{gcp-apis}} {{gcp-roles}} {{gcp-roles-recommendation}} {{gcp-auth}} {{gcp-project-filters}} {{gcp-admin-email}}"
+    },
+    {
+      "label": "Google Sheets.",
+      "text": "{{sheets-scope}} {{sheets-auth}} {{sheets-id}}"
+    },
+    {
+      "label": "Aqua Security.",
+      "text": "{{aqua-streams}} {{aqua-auth}} {{aqua-key}} {{aqua-fields}}"
+    },
+    {
+      "label": "Lacework.",
+      "text": "{{lacework-scope}} {{lacework-auth}}"
+    },
+    {
+      "label": "Cyera.",
+      "text": "{{cyera-scope}} {{cyera-token}}"
+    }
+  ],
+  "claims": {
+    "aws-streams": {
+      "statement": "The AWS connector's streams are AWS Accounts, EC2, ECR, ECR Findings, EKS Clusters API, Inspector Findings, Network, RDS, S3 Buckets and Security Hub API; AWS resources, including accounts, are mapped as assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "- AWS Accounts: Retrieves metadata about AWS accounts",
+            "- AWS EC2: Retrieves metadata about EC2 instances",
+            "- AWS ECR: Retrieves metadata about Elastic Container Registries (ECR)",
+            "- AWS ECR Findings: Retrieves metadata about security vulnerabilities and findings related to container images stored in ECR.",
+            "- AWS EKS Clusters API: Retrieves metadata about Elastic Kubernetes Service (EKS) clusters",
+            "- AWS Inspector Findings: Retrieves metadata about security vulnerabilities and findings identified by AWS Inspector",
+            "- AWS Network: Retrieves metadata about AWS networking components",
+            "- AWS RDS: Retrieves metadata about Relational Database Service (RDS) database clusters",
+            "- AWS S3 Buckets: Retrieves metadata about S3 buckets",
+            "- AWS Security Hub API: Retrieves metadata about security findings and insights from AWS Security Hub",
+            "AWS resources are mapped as assets, including accounts."
+          ]
+        }
+      ]
+    },
+    "aws-auth-secret-key": {
+      "statement": "Secret Key authentication uses an AWS access key and secret key to fetch data from a single AWS account, cannot be used for the AWS Accounts stream; AWS shows the secret access key only on the creation page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "This authentication method uses an AWS access key and secret key to fetch data from a single AWS account. This method cannot be used for the AWS Accounts stream.",
+            "Save the secret access key. It is not displayed again after you leave this page."
+          ]
+        }
+      ]
+    },
+    "aws-access-key-limit": {
+      "statement": "If you already have two access keys, Create access key is deactivated and one must be deleted before a new one can be created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "If you already have two access keys, Create access key is deactivated. You must delete an access key before you can create a new one."
+          ]
+        }
+      ]
+    },
+    "aws-auth-role-single": {
+      "statement": "Role ARN - Single Account fetches data from a single account or, for an admin with the appropriate access, from all organizational accounts; role ARN permissions are required for each AWS stream, and the External ID is optional.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "This authentication method uses a single role ARN that allows you to fetch data from a single account or, if you are an admin with the appropriate access, from all organizational accounts.",
+            "The role ARN permissions are required for each AWS stream when using a single role ARN account.",
+            "The external ID is the optional unique identifier generated when creating a role ARN."
+          ]
+        }
+      ]
+    },
+    "aws-auth-role-multi": {
+      "statement": "Role ARN - Multiple Accounts uses Role ARNs, with an optional External ID; the page says to create an AWS StackSet, which deploys and manages CloudFormation stacks across multiple accounts and regions, signed in to an organization or management account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "This authentication method uses Role ARNs to allow you to fetch data from multiple accounts.",
+            "Optionally, you can add the External ID parameter.",
+            "create an AWS StackSet. This allows you to deploy and manage AWS CloudFormation stacks across multiple AWS accounts and regions from a single account.",
+            "Ensure that you are signed in to an organization or management account."
+          ]
+        }
+      ]
+    },
+    "aws-stackset-commands": {
+      "statement": "The StackSet is created with create-stack-set (stack set name ZscalerStackIntegration, SERVICE_MANAGED permission model, auto-deployment enabled) and deployed with create-stack-instances, where the organization root ID deploys to all accounts and a region must be specified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "create-stack-set \\ --stack-set-name ZscalerStackIntegration",
+            "--permission-model SERVICE_MANAGED",
+            "--auto-deployment Enabled=true,RetainStacksOnAccountRemoval=false",
+            "aws cloudformation create-stack-instances",
+            "Replace <organization-root-ID> with your organization root ID to deploy to all accounts in your organization.",
+            "Specifying a region is required as CloudFormation operates within a regional context."
+          ]
+        }
+      ]
+    },
+    "aws-network-permissions": {
+      "statement": "For the AWS Network stream, network data types need these permissions in the CloudFormation file: Internet Gateway ec2:DescribeInternetGateways, Nat Gateway ec2:DescribeNatGateways, Load Balancer elasticloadbalancing:DescribeLoadBalancers, VPC CIDR ec2:DescribeVpcs, VPC Subnets ec2:DescribeSubnets, Addresses ec2:DescribeAddresses and Network Interfaces ec2:DescribeNetworkInterfaces; to retrieve network data from all accounts the permissions go on the root/organization account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "| Internet Gateway | ec2:DescribeInternetGateways |",
+            "| Nat Gateway | ec2:DescribeNatGateways |",
+            "| Load Balancer | elasticloadbalancing:DescribeLoadBalancers |",
+            "| VPC CIDR | ec2:DescribeVpcs |",
+            "| VPC Subnets | ec2:DescribeSubnets |",
+            "| Addresses | ec2:DescribeAddresses |",
+            "| Network Interfaces | ec2:DescribeNetworkInterfaces |",
+            "When connecting the AWS Network stream, you can retrieve any of the data types from the table by adding the relevant permissions to your permissions list in the CloudFormation file."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "To retrieve network data from all accounts, ensure that you attach the permissions to the root/organization account."
+          ],
+          "after": "Set the Include the Following Network Data drop-down menu filters and specifications."
+        }
+      ]
+    },
+    "aws-network-filter": {
+      "statement": "A drop-down menu available in the AWS Network stream selects the data types to include in the ingestion scope.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aws-connector.json",
+          "quotes": [
+            "Select the data types to include in the ingestion scope.",
+            "This menu is available in the AWS Network stream."
+          ]
+        }
+      ]
+    },
+    "blob-scope": {
+      "statement": "The Azure Blob connector uploads files from Azure storage to the SecOps platform, and files in unsupported formats are not processed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-blob-connector.json",
+          "quotes": [
+            "The Azure Blob connector is used for uploading files from your Azure storage to the Zscaler Security Operations (SecOps) platform",
+            "Files in unsupported formats are not processed by the Azure Blob connector."
+          ]
+        }
+      ]
+    },
+    "blob-auth": {
+      "statement": "Azure Blob authentication is the storage account connection string, and a role with the required permissions is selected, such as the built-in Storage Blob Data Reader role.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-blob-connector.json",
+          "quotes": [
+            "which is your storage account connection string.",
+            "select a role with the required permissions (i.e., the built-in Storage Blob Data Reader role)."
+          ]
+        }
+      ]
+    },
+    "blob-rbac": {
+      "statement": "The user or service principal associated with the connection string needs two Azure RBAC permissions: List Containers (Microsoft.Storage/storageAccounts/blobServices/containers/read, role scoped to the storage account or above) and List Blobs (Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-blob-connector.json",
+          "quotes": [
+            "Blob service operation - List Containers: Microsoft.Storage/storageAccounts/blobServices/containers/read. Ensure that the role is scoped to the storage account or above.",
+            "Blob service operation - List Blobs: Microsoft.Storage/storageAccounts/blobServices/containers/blobs/read."
+          ]
+        }
+      ]
+    },
+    "blob-network": {
+      "statement": "The storage account must allow network access from all networks or from selected IP addresses; for the US the page lists 3.137.47.190/32, 3.15.110.62/32 and 3.129.232.141/32, and for the EU it refers to the Zscaler Config.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-blob-connector.json",
+          "quotes": [
+            "You can allow access from all networks or restrict it to specific IP addresses.",
+            "| US | 3.137.47.190/32 3.15.110.62/32 3.129.232.141/32 |",
+            "| EU | Refer to the Zscaler Config. |"
+          ]
+        }
+      ]
+    },
+    "blob-filters": {
+      "statement": "On the Azure Blob page, if no containers are specified data is retrieved from all containers in the storage account; tags are added in the format key : value, where the value can be empty, and if tags are specified only blobs that include at least one of the listed tags are retrieved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-blob-connector.json",
+          "quotes": [
+            "If no containers are specified, data is retrieved from all containers in the storage account.",
+            "add tags in the format key : value, where the value can be empty.",
+            "If the tags are specified, only blobs that include at least one of the listed tags are retrieved."
+          ]
+        }
+      ]
+    },
+    "cloud-assets-scope": {
+      "statement": "The Azure Cloud Assets connector retrieves asset information across Azure subscriptions and cloud data only; Defender for Cloud findings and Defender for Endpoint are separate connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "The Azure Cloud Assets connector retrieves comprehensive asset information across Azure subscriptions",
+            "This connector retrieves cloud data only.",
+            "For Microsoft Defender for Cloud Findings, see Configuring the Microsoft Defender for Cloud Findings Connector.",
+            "For Microsoft Defender for Endpoints, see Configuring the Microsoft Defender for Endpoints Connector."
+          ]
+        }
+      ]
+    },
+    "app-registration": {
+      "statement": "The Azure Cloud Assets and Microsoft Defender for Cloud Findings connectors authenticate with an Azure app registration (Accounts in this organizational directory only) giving the Application (client) ID, Directory (tenant) ID and a client secret; both pages say the client secret is not displayed again after you leave the page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "Support account types: Select Accounts in this organizational directory only.",
+            "In the Overview section, copy the generated Application (client) ID and the Directory (tenant) ID.",
+            "The client secret is not displayed again after you leave this page."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-cloud-findings-connector.json",
+          "quotes": [
+            "Support account types: Select Accounts in this organizational directory only.",
+            "In the Overview section, copy the generated Application (client) ID and the Directory (tenant) ID.",
+            "The client secret is not displayed again after you leave this page."
+          ]
+        }
+      ]
+    },
+    "graph-permission": {
+      "statement": "Both the Azure Cloud Assets and Microsoft Defender for Cloud Findings pages have the application assigned the Microsoft Graph application permission PrivilegedAccess.Read.AzureResources, with admin consent if required.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "Select Microsoft Graph.",
+            "Select Application permissions.",
+            "Add the PrivilegedAccess.Read.AzureResources permission.",
+            "If admin consent is required for these permissions, select Grant admin consent."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-cloud-findings-connector.json",
+          "quotes": [
+            "Select Microsoft Graph.",
+            "Select Application permissions.",
+            "Add the PrivilegedAccess.Read.AzureResources permission.",
+            "If admin consent is required for these permissions, select Grant admin consent."
+          ]
+        }
+      ]
+    },
+    "subscription-scope": {
+      "statement": "The Azure Cloud Assets and Defender for Cloud Findings pages say multiple subscription IDs can be entered in the platform, give steps to assign the Reader role to a single subscription, and say data is retrieved from all subscriptions in the organization, where multiple subscriptions can be organized into a single management group to set access control in bulk.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "You can enter multiple subscription IDs in the platform.",
+            "To assign the Reader role to a single subscription:",
+            "Data is retrieved from all subscriptions in your organization.",
+            "If you have multiple subscriptions, you can organize them into a single management group to set access control in bulk."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-cloud-findings-connector.json",
+          "quotes": [
+            "You can enter multiple subscription IDs in the platform.",
+            "To assign the Reader role to a single subscription:",
+            "Data is retrieved from all subscriptions in your organization.",
+            "If you have multiple subscriptions, you can organize them into a single management group to set access control in bulk."
+          ]
+        }
+      ]
+    },
+    "mgmt-group-id": {
+      "statement": "An Azure management group ID is the directory unique identifier used to submit commands on the group and cannot be edited after creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "The directory unique identifier that is used to submit commands on this management group. You cannot edit this ID after creation."
+          ]
+        }
+      ]
+    },
+    "defender-findings": {
+      "statement": "The Microsoft Defender for Cloud Findings connector retrieves security findings for cloud assets (vulnerabilities, compliance issues and recommended remediations) and its Findings Types drop-down selects CVEs, Misconfigurations or both.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-microsoft-defender-cloud-findings-connector.json",
+          "quotes": [
+            "The Microsoft Defender for Cloud Findings connector retrieves security findings for cloud assets, providing details on vulnerabilities, compliance issues, and recommended remediations.",
+            "Findings Types drop-down menu",
+            "(i.e., CVEs, Misconfigurations, or both)."
+          ]
+        }
+      ]
+    },
+    "cloud-assets-auth-window-name": {
+      "statement": "The Azure Cloud Assets page's authentication steps say \"The Microsoft Defender for Cloud Authentication window appears.\"",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-azure-cloud-assets-connector.json",
+          "quotes": [
+            "The Microsoft Defender for Cloud Authentication window appears."
+          ]
+        }
+      ]
+    },
+    "gcp-streams": {
+      "statement": "The GCP connector has three streams: Assets, Misconfigurations and Vulnerabilities; supported asset types are storage buckets, Artifact Registry repositories and Docker images, Compute instances and Kubernetes clusters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "- Google Cloud Platform Assets: Retrieves an inventory of GCP assets",
+            "- Google Cloud Platform Misconfigurations: Retrieves findings related to misconfigurations",
+            "- Google Cloud Platform Vulnerabilities: Retrieves vulnerability occurrences for resources",
+            "- storage.googleapis.com/Bucket",
+            "- artifactregistry.googleapis.com/Repository",
+            "- artifactregistry.googleapis.com/DockerImage",
+            "- compute.googleapis.com/Instance",
+            "- container.googleapis.com/Cluster"
+          ]
+        }
+      ]
+    },
+    "gcp-apis": {
+      "statement": "Each GCP stream needs its API enabled in the project: Cloud Asset API for Assets, Security Command Center API for Misconfigurations and Container Analysis API for Vulnerabilities.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "For Google Cloud Platform Assets: Enable Cloud Asset API.",
+            "For Google Cloud Platform Misconfigurations: Enable Security Command Center API.",
+            "For Google Cloud Platform Vulnerabilities: Enable Container Analysis API."
+          ]
+        }
+      ]
+    },
+    "gcp-roles": {
+      "statement": "The GCP page assigns the service account the Viewer role from the Basic category, or the Cloud Asset Viewer role (or a custom role that includes cloudasset.assets.listResource), a role that includes securitycenter.findings.list, and the Container Analysis Occurrences Viewer role (or a custom role that includes containeranalysis.occurrences.list).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "Assign the service account the Viewer role from the Basic category.",
+            "Assign the Cloud Asset Viewer role, or a custom role that includes cloudasset.assets.listResource.",
+            "Assign a role that includes securitycenter.findings.list (e.g., Security Center Admin Viewer or Security Center Findings Viewer).",
+            "Assign the Container Analysis Occurrences Viewer role, or a custom role that includes containeranalysis.occurrences.list."
+          ]
+        }
+      ]
+    },
+    "gcp-roles-recommendation": {
+      "statement": "Zscaler recommends the Viewer role or all three stream-specific roles so the connector's internal health checks and connection validation succeed even if only some streams are enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "Zscaler recommends assigning either the Viewer role, or all three stream-specific roles. This ensures that the connector's internal health checks and connection validation succeed, even if you only plan to enable a subset of the available data streams."
+          ]
+        }
+      ]
+    },
+    "gcp-auth": {
+      "statement": "GCP authentication uses a service account JSON key created with the JSON key type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "Retrieve the service account JSON key.",
+            "Select JSON and click Create."
+          ]
+        }
+      ]
+    },
+    "gcp-project-filters": {
+      "statement": "On the GCP page, one checkbox restricts the connector's scope to the Google Cloud project where the service account resides and, left unselected, allows ingest from all projects the service account has access to; another checkbox excludes Google-managed system projects, which typically have IDs starting with sys-.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "Select this checkbox to restrict the connector's scope to the specific Google Cloud project where the service account resides.",
+            "Leaving this unselected allows the connector to discover and ingest data from all projects across your GCP hierarchy that the service account has access to.",
+            "Select this checkbox to exclude Google-managed system projects, which are automatically created for services like cloud functions and typically have IDs starting with sys-."
+          ]
+        }
+      ]
+    },
+    "gcp-admin-email": {
+      "statement": "The GCP source's Admin Email to Impersonate field is left empty because the connector does not require an admin email to impersonate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-cloud-platform-connector.json",
+          "quotes": [
+            "Leave this field empty, as the GCP connector does not require an admin email to impersonate for authentication."
+          ]
+        }
+      ]
+    },
+    "sheets-scope": {
+      "statement": "The Google Sheets connector retrieves data from a specified spreadsheet (Spreadsheet ID) and optionally filters by sheets, a comma-separated list of names, retrieving all sheets if empty.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-sheets-connector.json",
+          "quotes": [
+            "The Google Sheets connector retrieves data from a specified Google Sheets spreadsheet (Spreadsheet ID) and can optionally filter by specific sheets within the spreadsheet.",
+            "enter a comma-separated list of sheet names in the field. If the field is left empty, data is retrieved from all sheets in the spreadsheet."
+          ]
+        }
+      ]
+    },
+    "sheets-auth": {
+      "statement": "Google Sheets authentication needs the Google Sheets API enabled, an OAuth client ID of application type Web application with https://developers.google.com/oauthplayground entered, and a refresh token obtained after selecting Google Sheets API v4 with all scopes and authorizing the APIs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-sheets-connector.json",
+          "quotes": [
+            "Search for and select Google Sheets API.",
+            "Application type: Select Web application.",
+            "enter https://developers.google.com/oauthplayground.",
+            "select Google Sheets API v4, select all the scopes, and click Authorize APIs.",
+            "Copy and save the refresh token."
+          ]
+        }
+      ]
+    },
+    "sheets-id": {
+      "statement": "The Google Sheets spreadsheet ID is the part of the spreadsheet URL between d/ and /edit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-google-sheets-connector.json",
+          "quotes": [
+            "The spreadsheet ID can be found in the URL of the Google Sheets spreadsheet you want to ingest, between d/ and /edit."
+          ]
+        }
+      ]
+    },
+    "aqua-streams": {
+      "statement": "The Aqua Security connector has 7 streams: CWPP Functions, Hosts and Images Vulnerabilities, Containers, CSPM, Hosts and Images.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aqua-security-connector.json",
+          "quotes": [
+            "- Aqua Security - CWPP Functions Vulnerabilities: Retrieves vulnerability data for functions",
+            "- Aqua Security - CWPP Hosts Vulnerabilities: Retrieves vulnerability data for host entities",
+            "- Aqua Security - CWPP Images Vulnerabilities: Retrieves vulnerability data for container images",
+            "- Aqua Security Containers: Retrieves information about running containers",
+            "- Aqua Security CSPM: Retrieves cloud misconfigurations",
+            "- Aqua Security Hosts: Retrieves metadata and relevant details about hosts",
+            "- Aqua Security Images: Retrieves metadata and security insights for container images"
+          ]
+        }
+      ]
+    },
+    "aqua-auth": {
+      "statement": "The Aqua Security page has one authentication type that connects using an API key and one that connects using an Aqua Security username and password, the latter for a user carrying the OOTB Application Scope Viewer role or higher (or a custom role with equivalent access).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aqua-security-connector.json",
+          "quotes": [
+            "Use this authentication type to connect using an API key.",
+            "Use this authentication type to connect using an Aqua Security username and password.",
+            "The username and password associated with an Aqua Security user carrying the OOTB Application Scope Viewer role or higher, or a custom role with equivalent access."
+          ]
+        }
+      ]
+    },
+    "aqua-key": {
+      "statement": "An Aqua Security API key takes roles OOTB API Keys Viewer and OOTB Application Scope Viewer or higher (or equivalent custom roles), an optional IP allowlist and optional expiration; without an expiration date it defaults to one year from creation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aqua-security-connector.json",
+          "quotes": [
+            "Select OOTB API Keys Viewer and OOTB Application Scope Viewer or higher, or custom roles with equivalent access.",
+            "(Optional) Enter the list of the Zscaler SecOps allowed IP addresses to restrict the use of this key to API requests originating from the specified IP addresses.",
+            "If you do not set an expiration date for the key, the expiration date defaults to one year from the created date."
+          ]
+        }
+      ]
+    },
+    "aqua-fields": {
+      "statement": "On the Aqua Security page, custom field names use the system names provided by Aqua Security (e.g., aqua_id, aqua_severity) in the CWPP Functions, Hosts and Images Vulnerabilities streams, and the Gateway drop-down lists only previously configured gateways, requested through a support ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aqua-security-connector.json",
+          "quotes": [
+            "Use the field system names provided by Aqua Security (e.g., aqua_id, aqua_severity).",
+            "The Gateway drop-down menu only displays gateways that have been previously configured.",
+            "If you require a gateway connection for setting up the Aqua Security connector, submit a support ticket to request the configuration of your gateway."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-aqua-security-connector.json",
+          "quotes": [
+            "- Aqua Security - CWPP Functions Vulnerabilities",
+            "- Aqua Security - CWPP Hosts Vulnerabilities",
+            "- Aqua Security - CWPP Images Vulnerabilities"
+          ],
+          "after": "Press Enter after each field name entry"
+        }
+      ]
+    },
+    "lacework-scope": {
+      "statement": "The Lacework connector retrieves vulnerability findings (CVE details, affected assets, risk scores and fix information); the Number of days to fetch field sets days retrieved per run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-lacework-connector.json",
+          "quotes": [
+            "The Lacework connector retrieves vulnerability findings, including CVE details (e.g., severity, CVSS scores, and reference links), affected assets (e.g., images, hosts, and packages), risk scores, and fix information.",
+            "enter the number of days of data you want the connector to retrieve during each run."
+          ]
+        }
+      ]
+    },
+    "lacework-auth": {
+      "statement": "Lacework API keys can be generated by an admin user or a user with write permission for API keys, and creating a service user needs organization administrative privileges; the Account ID is the Lacework account name (subaccount) from the console URL https://<Account ID>.lacework.net or the downloaded API key JSON.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-lacework-connector.json",
+          "quotes": [
+            "You can generate an API key and secret from either a user with an admin role or a user with write permission for API keys.",
+            "To create a service user, you need organization administrative privileges.",
+            "In the Account ID field, enter your Lacework account name (subaccount).",
+            "In your Lacework console URL https://<Account ID>.lacework.net, enter only <Account ID>.",
+            "In the downloaded API key JSON, copy the value for account."
+          ]
+        }
+      ]
+    },
+    "cyera-scope": {
+      "statement": "The Cyera connector has two streams, Assets and Issues, and requires a Cyera Admin role and an active Cyera DSPM license.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-cyera-connector.json",
+          "quotes": [
+            "- Cyera Assets: Retrieves metadata and security details for assets and data stores",
+            "- Cyera Issues: Retrieves security and compliance issues related to data misconfigurations and vulnerabilities across assets.",
+            "A Cyera Admin role.",
+            "An active Cyera DSPM license."
+          ]
+        }
+      ]
+    },
+    "cyera-token": {
+      "statement": "Cyera credentials are generated by logging in to the Cyera portal, clicking Integrations in the left-side navigation and selecting Zscaler, with Token Expiration durations such as 1, 7, 30, 90 or 365 days, and the token must be refreshed on expiry for continuous connectivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-cyera-connector.json",
+          "quotes": [
+            "Log in to the Cyera portal.",
+            "In the left-side navigation, click Integrations.",
+            "Select Zscaler to view the integration details.",
+            "From the Token Expiration drop-down menu, select a duration (e.g., 1 day, 7 days, 30 days, 90 days, or 365 days).",
+            "Make sure to refresh the token when it expires to ensure continuous connectivity."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "aws-deployment-guide": {
+      "kind": "semantic",
+      "title": "The per-stream fields and permissions in the Zscaler and AWS Deployment Guide",
+      "status": "open",
+      "detail": "The AWS connector page refers to a Zscaler and AWS Deployment Guide that is not captured, and the per-stream fields mapped into the platform are not described on the connector page.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

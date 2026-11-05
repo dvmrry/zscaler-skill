@@ -35,6 +35,10 @@
       "text": "{{consistent-structure}} {{no-preprocessing}}"
     },
     {
+      "label": "AWS S3.",
+      "text": "{{s3-mechanism}} {{s3-role-stack}} {{s3-stack-permissions}} {{s3-sqs-queue}} {{s3-kms}} {{s3-bucket-notification}} {{s3-source-details}} {{s3-external-id}} {{s3-path-pattern}}"
+    },
+    {
       "label": "Fields.",
       "text": "{{explicit-fields}} {{asset-fields}} {{finding-fields}}"
     },
@@ -170,6 +174,141 @@
             "| Timestamps | The First Seen and Last Seen fields",
             "| Recommendations/Fix | Recommended actions for vulnerability remediation |",
             "| Affected Component | Information about the affected component"
+          ]
+        }
+      ]
+    },
+    "s3-mechanism": {
+      "statement": "When a new file is added to the bucket, an alert is triggered and the file is retrieved; configuring an integration with S3 data is a three-step process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "When a new file is added to the bucket, an alert is triggered and the file is retrieved.",
+            "Configuring an integration with your S3 data is a three-step process."
+          ]
+        }
+      ]
+    },
+    "s3-role-stack": {
+      "statement": "Step one creates a role Zscaler can use: generate a unique identifier that Zscaler's service uses to assume the role, then run the Cloud Formation Role Stack; the RoleARNID value appears under the stack's Output tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "Generate a unique identifier that will be used by Zscaler's service to assume the role.",
+            "Run the SecOps platform's Cloud Formation Role Stack.",
+            "the RoleARNID value appears under the stack's Output tab."
+          ]
+        }
+      ]
+    },
+    "s3-stack-permissions": {
+      "statement": "The CloudFormation template provides permissions for AWS, and a deployment connecting to AnySource only can edit the script to modify or remove unnecessary permissions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The template-url script provides permissions for AWS. If you're connecting to AnySource only, you can edit the script to modify or remove unnecessary permissions."
+          ]
+        }
+      ]
+    },
+    "s3-sqs-queue": {
+      "statement": "Step two creates an SQS queue named avalor-s3-event-forwarder, whose Queue ARN is saved for the next step and whose Queue URL is sent to the Zscaler Account team to complete configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "Name the queue avalor-s3-event-forwarder.",
+            "Copy and save the Queue ARN, to be used in the next step.",
+            "Make sure to send the Queue URL to your Zscaler Account team representative to complete the configuration process."
+          ]
+        }
+      ]
+    },
+    "s3-kms": {
+      "statement": "If the organization uses KMS encryption, the key policy must allow the role to use the key with kms:Decrypt and kms:GenerateDataKey* actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "If your organization uses KMS encryption, add the following to the key policy:",
+            "Allow Role to use the key Effect: Allow Principal: AWS: !GetAtt AvalorRole.Arn Action: - \"kms:Decrypt\" - \"kms:GenerateDataKey*\" Resource: \"*\""
+          ]
+        }
+      ]
+    },
+    "s3-bucket-notification": {
+      "statement": "In the bucket notification steps, All object create events is selected under Event Type and SQS Queue as the Destination with the SQS queue ARN; the steps are repeated for every bucket to ingest data from.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "In step 6, select All object create events under Event Type.",
+            "In step 7, select SQS Queue as the Destination, then enter SQS queue ARN.",
+            "Repeat these steps for every bucket that you want to ingest data from."
+          ]
+        }
+      ]
+    },
+    "s3-source-details": {
+      "statement": "To create the data source, the customer sends the Zscaler Account team the AWS account ID, Region, Bucket and Role ARN, plus optional Path, External ID and File pattern (regex).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "- AWS account ID",
+            "- Region",
+            "- Bucket",
+            "- Role ARN",
+            "send the following details to your Zscaler Account team representative to use in setting up the data source.",
+            "- (Optional) Path",
+            "- (Optional) External ID: The external ID is the unique identifier you create",
+            "- (Optional) File pattern (regex)"
+          ]
+        }
+      ]
+    },
+    "s3-external-id": {
+      "statement": "The External ID is optional: it is the unique identifier created when creating the role for Zscaler, an additional security measure; using one is considered best practice but is not mandatory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The external ID is the unique identifier you create when creating a role for Zscaler. It is an additional security measure that can be used when accessing your account.",
+            "While using an External ID is considered best practice, it is not mandatory."
+          ]
+        }
+      ]
+    },
+    "s3-path-pattern": {
+      "statement": "The Path and File pattern fields can be used separately or together, and the file pattern is entered in regex format (for example, a *.jsonl pattern retrieves only files with a .jsonl extension in that source).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-connecting-anysource-using-aws-s3.json",
+          "quotes": [
+            "The Path and File pattern fields can be used separately or together to fit your use case.",
+            "by entering a *.jsonl pattern, the platform will only retrieve files with a .jsonl extension in that particular source.",
+            "The file pattern should be entered in a regex format."
           ]
         }
       ]

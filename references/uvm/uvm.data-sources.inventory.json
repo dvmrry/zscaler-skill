@@ -1,0 +1,771 @@
+{
+  "schema_version": 1,
+  "id": "uvm.data-sources.inventory",
+  "title": "UVM asset-inventory, attack-surface and ServiceNow data sources: Axonius, Armis, Flexera, Halo, HCL BigFix, Datto, Freshservice, Claroty xDome, Dragos, Bitsight, CyCognito, Ionix, Mandiant ASM, Horizon3.ai, Digital Shadows and ServiceNow connectors",
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "See [[uvm.data-sources]] and [[uvm.overview]]."
+    },
+    {
+      "label": "Axonius.",
+      "text": "{{axonius}}"
+    },
+    {
+      "label": "Armis.",
+      "text": "{{armis-streams}} {{armis-permissions}}"
+    },
+    {
+      "label": "Flexera Assets.",
+      "text": "{{flexera}}"
+    },
+    {
+      "label": "Halo Assets.",
+      "text": "{{halo-permissions}} {{halo-options}}"
+    },
+    {
+      "label": "HCL BigFix Computers.",
+      "text": "{{bigfix-permissions}} {{bigfix-port}}"
+    },
+    {
+      "label": "Datto.",
+      "text": "{{datto}} {{datto-muted}} {{divergence:datto-muted-stream}}"
+    },
+    {
+      "label": "Freshservice.",
+      "text": "{{freshservice}} {{freshservice-query}}"
+    },
+    {
+      "label": "Claroty xDome for Healthcare.",
+      "text": "{{claroty}}"
+    },
+    {
+      "label": "Dragos.",
+      "text": "{{dragos-auth}} {{dragos-severity}}"
+    },
+    {
+      "label": "Bitsight.",
+      "text": "{{bitsight-streams}} {{bitsight-filters}}"
+    },
+    {
+      "label": "CyCognito.",
+      "text": "{{cycognito-streams}} {{cycognito-status}} {{cycognito-asset-types}}"
+    },
+    {
+      "label": "Ionix.",
+      "text": "{{ionix}}"
+    },
+    {
+      "label": "Mandiant ASM.",
+      "text": "{{mandiant-retrieval}} {{mandiant-severity}} {{mandiant-lists}}"
+    },
+    {
+      "label": "Horizon3.ai.",
+      "text": "{{horizon3}} {{horizon3-pentest}}"
+    },
+    {
+      "label": "Digital Shadows.",
+      "text": "{{digital-shadows}} {{digital-shadows-account}}"
+    },
+    {
+      "label": "ServiceNow streams and authentication.",
+      "text": "{{sn-streams}} {{sn-auth-methods}} {{sn-users}} {{sn-jwt}} {{sn-verify-ssl}} {{sn-oauth-assets}} {{sng-oauth}} {{sn-instance}}"
+    },
+    {
+      "label": "ServiceNow Assets and Users.",
+      "text": "{{sn-app-data}} The related-data checkbox named for Application Services and the one named in the troubleshooting steps differ {{divergence:sn-service-data-checkbox}}. {{sn-users-group}}"
+    },
+    {
+      "label": "ServiceNow Generic.",
+      "text": "{{sng-fields}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which ServiceNow related-data checkbox the Service Mapping troubleshooting step refers to, since the checkbox list and the troubleshooting steps name different checkboxes.",
+      "uses": [
+        "sn-app-data",
+        "sn-service-data-checkbox"
+      ]
+    },
+    {
+      "do": "Which Datto stream the Include Muted Alerts option belongs to.",
+      "uses": [
+        "datto-muted-stream"
+      ]
+    }
+  ],
+  "claims": {
+    "axonius": {
+      "statement": "The Axonius connector retrieves asset inventory data; API credentials can come from a user or a service account, the user's role must have API access enabled, and in the URL https://10.20.0.111/api/ the expected input for the URL is 10.20.0.111.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-axonius-connector.json",
+          "quotes": [
+            "The Axonius connector retrieves asset inventory data",
+            "You can retrieve API credentials using a user account or a service account.",
+            "the user's assigned role must have API access enabled.",
+            "in the URL https://10.20.0.111/api/, the expected input for the URL is 10.20.0.111."
+          ]
+        }
+      ]
+    },
+    "armis-streams": {
+      "statement": "Armis has three streams (CVE, Devices, Reports); the Reports stream is an additional way to retrieve device and vulnerability data using preconfigured reports and takes a Report ID, and Days to Fetch applies to Devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-armis-connector.json",
+          "quotes": [
+            "| Armis CVE | Vulnerability > Read |",
+            "| Armis Devices | Device > Read |",
+            "| Armis Reports | Report > Read |",
+            "The Reports stream serves as an additional method for retrieving device and vulnerability data, using preconfigured reports within Armis.",
+            "In the Report ID field, enter the ID of the report you want to include in the scope of the ingested data.",
+            "This field is applicable in the Armis Reports stream.",
+            "In the Days to Fetch field, enter the number of days to retrieve devices seen during that time frame.",
+            "This field is applicable in the Armis Devices stream."
+          ]
+        }
+      ]
+    },
+    "armis-permissions": {
+      "statement": "The Armis API token's user needs Vulnerability > Read for the CVE stream, Device > Read for Devices and Report > Read for Reports; the Tenant is the host in https://<Tenant>.armis.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-armis-connector.json",
+          "quotes": [
+            "| Armis CVE | Vulnerability > Read |",
+            "| Armis Devices | Device > Read |",
+            "| Armis Reports | Report > Read |",
+            "format https://<Tenant>.armis.com"
+          ]
+        }
+      ]
+    },
+    "flexera": {
+      "statement": "Flexera Assets authentication needs a refresh token created from a regional site (app.flexera.com, app.flexera.eu or app.flexera.au), a Zone of US, EU or APAC, and the numeric Organization ID at the end of the org URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-flexera-assets-connector.json",
+          "quotes": [
+            "- North American: Log in to app.flexera.com.",
+            "- Europe (EU): Log in to app.flexera.eu.",
+            "- APAC: Log in to app.flexera.au.",
+            "then click Create API Refresh Token",
+            "Select one of the three available zones (i.e., US, EU, or APAC)",
+            "Identify and copy the numeric identifier found at the end of the URL."
+          ]
+        }
+      ]
+    },
+    "halo-permissions": {
+      "statement": "Halo Assets needs a HaloITSM application (Client ID and Secret, Login Type Agent) created by a HaloITSM administrator with the read:assets permission, and the associated user must have access to all asset fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-halo-assets-connector.json",
+          "quotes": [
+            "This process requires HaloITSM administrator privileges.",
+            "Login Type: Select Agent.",
+            "Authentication Method: Select Client ID and Secret (Services).",
+            "The selected user, whether it is yours or a dedicated user created for this purpose, must have access to all asset fields within their permissions.",
+            "On the Permissions tab, select the read:assets checkbox."
+          ]
+        }
+      ]
+    },
+    "halo-options": {
+      "statement": "Halo Assets has checkboxes that include site-specific metadata and asset group metadata for each asset; the tenant is the unique subdomain found in the HaloITSM Console URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-halo-assets-connector.json",
+          "quotes": [
+            "Select this checkbox to include site-specific metadata for each asset",
+            "Select this checkbox to include asset group metadata for each asset",
+            "Your tenant is the unique subdomain which can be found in your HaloITSM Console URL"
+          ]
+        }
+      ]
+    },
+    "bigfix-permissions": {
+      "statement": "The HCL BigFix - Computers connector uses basic credentials of a Console Operator account with Web Reports/REST API access, Can Submit Queries Yes, Custom Content Yes, View All Computers and Can Read permissions across relevant sites and computer properties.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-hcl-bigfix-computers-connector.json",
+          "quotes": [
+            "Console Operator status with Web Reports/REST API access enabled.",
+            "Can Submit Queries permission set to Yes to allow API access to retrieve data from the HCL BigFix server.",
+            "Custom Content permission set to Yes for creating and managing custom content where necessary.",
+            "View All Computers permission to enable visibility and access to all endpoints required for data retrieval.",
+            "Can Read permissions across all relevant HCL BigFix sites and computer properties necessary for the scope of the integration."
+          ]
+        }
+      ]
+    },
+    "bigfix-port": {
+      "statement": "The HCL BigFix Port field defaults to the REST API port 52311 unless the deployment uses a custom port.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-hcl-bigfix-computers-connector.json",
+          "quotes": [
+            "The default port for REST API communication is 52311. If your deployment uses a custom port, enter the custom port."
+          ]
+        }
+      ]
+    },
+    "datto": {
+      "statement": "The Datto connector has two streams (Alerts and Devices); API access must be enabled in Setup > Global Settings > Access Control, and the user needs to be an administrator or have permissions to access Setup and manage Global Settings and Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-datto-connector.json",
+          "quotes": [
+            "- Datto Alerts: Retrieves a list of open alerts",
+            "- Datto Devices: Retrieves an inventory of devices",
+            "In the Datto platform, go to Setup > Global Settings > Access Control.",
+            "You are an administrator, or you have permissions to access Setup and manage Global Settings and Users.",
+            "API access is enabled for the Datto RMM account.",
+            "Select Enable API Access."
+          ]
+        }
+      ]
+    },
+    "datto-muted": {
+      "statement": "The Datto Include Muted Alerts option retrieves muted open alerts in addition to the default unmuted open alerts, but the page says this filter is available in the Datto Devices stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-datto-connector.json",
+          "quotes": [
+            "By default, only unmuted open alerts are retrieved. Select this checkbox to include muted open alerts in the data retrieved.",
+            "This filter is available in the Datto Devices stream.",
+            "- Datto Alerts: Retrieves a list of open alerts in your Datto account"
+          ]
+        }
+      ]
+    },
+    "freshservice": {
+      "statement": "The Freshservice page says to log in to the Freshservice Support Portal as an administrator, to include the .freshservice.com suffix but exclude the https:// prefix and any trailing slashes, and to enter a timestamp in YYYY-MM-DDTHH:MM:SSZ format; any data created or updated before that timestamp is not ingested.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-connector.json",
+          "quotes": [
+            "Log in to your Freshservice Support Portal as an administrator.",
+            "Ensure that you include the .freshservice.com suffix, but exclude the https:// prefix and any trailing slashes.",
+            "Enter the timestamp in YYYY-MM-DDTHH:MM:SSZ format for when the connector should begin ingesting data. Any data created or updated before this timestamp is not ingested."
+          ]
+        }
+      ]
+    },
+    "freshservice-query": {
+      "statement": "The Freshservice page says to enter a comma-separated list of key-value pairs in the format param1=val1,param2=val2 (e.g., type=Service Request,include=stats).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-freshservice-connector.json",
+          "quotes": [
+            "Enter a comma-separated list of key-value pairs in the format param1=val1,param2=val2 (e.g., type=Service Request,include=stats)"
+          ]
+        }
+      ]
+    },
+    "claroty": {
+      "statement": "Claroty xDome for Healthcare (formerly Medigate) has two streams (Assets and Vulnerabilities); the API user must be created by an admin with at least read permissions for the sites the API accesses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-claroty-xdome-healthcare-connector.json",
+          "quotes": [
+            "Claroty xDome for Healthcare (formerly Medigate)",
+            "- Claroty xDome Healthcare - Assets: Retrieves device information",
+            "- Claroty xDome Healthcare - Vulnerabilities: Retrieves vulnerability data",
+            "Creating an API user requires admin privileges. The API user must carry at least read permissions for the sites that you want the API to access.",
+            "(e.g., US, Europe, Canada, or Australia)"
+          ]
+        }
+      ]
+    },
+    "dragos-auth": {
+      "statement": "The Dragos page describes connecting using an API key and connecting using a Dragos username and password; the Dragos user needs the asset:read and vulnerability:read permissions, and generating an API key requires an admin user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-dragos-connector.json",
+          "quotes": [
+            "Use this authentication type to connect using an API key.",
+            "Use this authentication type to connect using a Dragos username and password.",
+            "The selected user must have the asset:read and vulnerability:read permissions",
+            "You must be an admin user to generate API keys in the Dragos portal."
+          ]
+        }
+      ]
+    },
+    "dragos-severity": {
+      "statement": "The Dragos Severity filter (Vulnerabilities stream) retrieves all severity levels by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-dragos-connector.json",
+          "quotes": [
+            "By default, the connector retrieves vulnerabilities of all severity levels.",
+            "This drop-down menu is available in the Vulnerabilities stream."
+          ]
+        }
+      ]
+    },
+    "bitsight-streams": {
+      "statement": "One Bitsight stream retrieves enriched observation data related to risk types that impact a company's rating and Bitsight Observations retrieves granular observation-level data; its token must belong to a user with read access, a Company API token needs an admin or VRM admin user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-bitsight-connector.json",
+          "quotes": [
+            "Retrieves enriched observation data related to risk types that impact a company's rating",
+            "- Bitsight Observations: Retrieves granular observation-level data",
+            "You must be an admin or VRM admin user to generate Company API tokens.",
+            "The token must be associated with a user account that has read access to the relevant Bitsight data you want to ingest."
+          ]
+        }
+      ]
+    },
+    "bitsight-filters": {
+      "statement": "On the Bitsight page, grade values include good, fair, warn, bad and neutral and by default all grades are retrieved if none are specified; leaving a field empty retrieves data from the parent company; a field is available in the Bitsight Observations stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-bitsight-connector.json",
+          "quotes": [
+            "(e.g., good, fair, warn, bad, neutral)",
+            "By default, all grades are retrieved if none are specified.",
+            "Leave this field empty to retrieve data from the parent company.",
+            "This field is available in the Bitsight Observations stream."
+          ]
+        }
+      ]
+    },
+    "cycognito-streams": {
+      "statement": "CyCognito has two streams, Issues and Assets; creating the API key requires an admin or IT user with Read only key access, and the URL is the instance base URL prefixed with api.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-cycognito-connector.json",
+          "quotes": [
+            "- CyCognito Issues: Retrieves a detailed and actionable overview",
+            "- CyCognito Assets: Retrieves a comprehensive view",
+            "You must be an admin or an IT user to create a CyCognito API key.",
+            "Key access: Select Read only.",
+            "The base URL of your CyCognito instance prefixed with api."
+          ]
+        }
+      ]
+    },
+    "cycognito-status": {
+      "statement": "If left empty, the CyCognito Asset Status (Assets stream) defaults to retrieving only assets with a new status, and the Issues Status (Issues stream) defaults to retrieving only issues with a new status. The Asset Status values listed are New, Changed, Normal and Removed; the available Issues Status values are New, Normal, Issue-Removed, Asset-Removed and Asset-Not-Alive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-cycognito-connector.json",
+          "quotes": [
+            "If left empty, the connector defaults to retrieving only assets with a new status.",
+            "- New: Recently discovered by CyCognito",
+            "- Changed: The asset has been modified",
+            "- Normal: The asset is known, active, and unchanged since the last scan.",
+            "- Removed: The asset is no longer detected on your attack surface (inactive or decommissioned).",
+            "If left empty, the connector defaults to retrieving only issues with a new status.",
+            "Available statuses are New, Normal, Issue-Removed, Asset-Removed, and Asset-Not-Alive."
+          ]
+        }
+      ]
+    },
+    "cycognito-asset-types": {
+      "statement": "CyCognito Assets Type covers IP addresses, domains, certificates, web applications and IP address ranges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-cycognito-connector.json",
+          "quotes": [
+            "Asset types include IP addresses, domains, certificates, web applications, and IP address ranges."
+          ]
+        }
+      ]
+    },
+    "ionix": {
+      "statement": "On the Ionix page, each record can be exploded to multiple CVE entries, by default only vulnerabilities marked as Open are retrieved, and a checkbox is available in the Findings stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-ionix-connector.json",
+          "quotes": [
+            "Each record can be exploded to multiple CVE entries for granular tracking.",
+            "By default, only vulnerabilities marked as Open are retrieved.",
+            "This checkbox is available in the Findings stream."
+          ]
+        }
+      ]
+    },
+    "mandiant-retrieval": {
+      "statement": "The Mandiant ASM Select Retrieval Option either lists selected project IDs (comma-separated) or pulls from all projects.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-mandiant-asm-connector.json",
+          "quotes": [
+            "Enter the comma-separated list of project IDs (e.g., id1, id2, id3) to pull data from.",
+            "Pull Data from All Projects: Retrieve data across all available projects in the Mandiant ASM platform."
+          ]
+        }
+      ]
+    },
+    "mandiant-severity": {
+      "statement": "On the Mandiant ASM page, available severity levels include Critical, High, Medium, Low and Informational, and selecting Medium retrieves issues classified as Medium, High, and Critical.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-mandiant-asm-connector.json",
+          "quotes": [
+            "Available severity levels to select include Critical, High, Medium, Low, and Informational.",
+            "selecting Medium retrieves issues classified as Medium, High, and Critical."
+          ]
+        }
+      ]
+    },
+    "mandiant-lists": {
+      "statement": "The Mandiant ASM Issues Status and Entity Types lists are retrieved via the API and reflect the statuses and types in the customer's Mandiant ASM environment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-mandiant-asm-connector.json",
+          "quotes": [
+            "The complete list of issue statuses is retrieved via the API and reflects the issue statuses in your Mandiant ASM environment.",
+            "The complete list of entity types is retrieved via the API and reflects all the supported types in your Mandiant ASM environment."
+          ]
+        }
+      ]
+    },
+    "horizon3": {
+      "statement": "Horizon3.ai has three streams (Assets, Flat Impacts, Weaknesses Evidence), the API key is created with Read-Only permission level, and by default all pentest types are selected (Internal pentest, External asset discovery, External pentest, Network Enumeration, AD Password Audit, Phishing, AWS pentest, K8s pentest).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-horizon3-ai-connector.json",
+          "quotes": [
+            "- Horizon3 Assets: Retrieves discovered asset (host) details",
+            "- Horizon3 Flat Impacts: Retrieves flat impact results",
+            "- Horizon3 Weaknesses Evidence: Retrieves weaknesses and their supporting evidence",
+            "From the Permission Level drop-down menu, select Read-Only.",
+            "By default, all types are selected. Available options include Internal pentest, External asset discovery, External pentest, Network Enumeration, AD Password Audit, Phishing, AWS pentest, and K8s pentest."
+          ]
+        }
+      ]
+    },
+    "horizon3-pentest": {
+      "statement": "The Horizon3.ai page lets the connector retrieve data from only the latest completed penetration test, or from all available penetration tests in the Horizon3 account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-horizon3-ai-connector.json",
+          "quotes": [
+            "Select whether the connector should retrieve data from only the latest completed penetration test, or from all available penetration tests in your Horizon3 account."
+          ]
+        }
+      ]
+    },
+    "digital-shadows": {
+      "statement": "Digital Shadows has two streams (Digital Shadows and Digital Shadows Assets); an API key requires a user with the Managing of API Accounts permission, and a field offering Alerts, Incidents, or both retrieves Alerts by default and is available in the Digital Shadows stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-digital-shadows-connector.json",
+          "quotes": [
+            "- Digital Shadows Assets: Retrieves asset events and detailed asset records",
+            "You need a user with the Managing of API Accounts permission to be granted an API key.",
+            "(Alerts, Incidents, or both)",
+            "By default, the connector retrieves Alerts.",
+            "This field is available in the Digital Shadows stream."
+          ]
+        }
+      ]
+    },
+    "digital-shadows-account": {
+      "statement": "The Digital Shadows Account ID is found under Key words > Account > SearchLight Account ID on the API documentation page once API access is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-digital-shadows-connector.json",
+          "quotes": [
+            "When API access is enabled, go to Key words > Account > SearchLight Account ID to find your account ID on the API documentation page."
+          ]
+        }
+      ]
+    },
+    "sn-streams": {
+      "statement": "There are three ServiceNow connector streams; the ServiceNow Connector page covers Assets and Users and a separate Generic page covers the ServiceNow Generic stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "There are three ServiceNow connector streams.",
+            "This article covers the ServiceNow Assets and the ServiceNow Users streams.",
+            "For the ServiceNow Generic stream, see Configuring ServiceNow Generic Connectors."
+          ]
+        }
+      ]
+    },
+    "sn-auth-methods": {
+      "statement": "The ServiceNow connector authenticates by OAuth 2.0, Username Password Client Id Client Secret, Basic Authentication or Jwt OAuth2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "- OAuth 2.0",
+            "- User Name Password Client Id Client Secret",
+            "- Basic Authentication (Username and Password)",
+            "- Jwt OAuth2"
+          ]
+        }
+      ]
+    },
+    "sn-users": {
+      "statement": "The ServiceNow connector's Username Password Client Id Client Secret method needs a ServiceNow Security Admin user, while Basic Authentication needs a user with the ITIL role or higher, both with permissions to access the relevant table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "The email and password associated with a ServiceNow Security Admin user and permissions to access the relevant table.",
+            "The email and password associated with a ServiceNow user with the ITIL role or higher and permissions to access the relevant table."
+          ]
+        }
+      ]
+    },
+    "sn-jwt": {
+      "statement": "For Jwt OAuth2 the Subject identifies the user in the sys_user table and must match the user's email if the JWT profile's User field is the default (email), or the value in the changed field; the Key ID is generated when a new verifier map is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "This value is used to identify the user in the sys_user table.",
+            "If the User field in the JWT authentication profile is left as the default (i.e., email), the Subject must match the user's email address.",
+            "Provide a Key ID, or Kid, which is generated when you create a new verifier map.",
+            "If the User field was changed (e.g., to user_name), the Subject must instead match the value in that specified field."
+          ]
+        }
+      ]
+    },
+    "sn-verify-ssl": {
+      "statement": "The ServiceNow Basic Authentication method has a Verify SSL checkbox that allows configuring a root CA certificate to trust during SSL negotiation, in the CA certificate field.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "Select the Verify SSL checkbox to allow the configuration of a root certificate authority (CA) certificate to trust during the SSL negotiation in the CA certificate field."
+          ],
+          "after": "- Basic Authentication (Username and Password)"
+        }
+      ]
+    },
+    "sn-instance": {
+      "statement": "The ServiceNow Instance Name retrieval field is the hosted instance name from the URL; for https://acme.service-now.com/ it is acme.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "The Instance Name field is the name of the hosted ServiceNow instance.",
+            "https://[instance-name].service-now.com). For example, if your URL is https://acme.service-now.com/, then the instance name is acme."
+          ]
+        }
+      ]
+    },
+    "sn-app-data": {
+      "statement": "The ServiceNow Assets stream has four related-data checkboxes (Applications, Application Services (Discovered), Business Applications, IT Services); without Service Mapping any of the four can be selected, and with Service Mapping configured only one of Applications or Application Services, with Business Applications only together with Application Services.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "There are 4 checkboxes and fields for each selected asset, and they are prefixed with their corresponding table name (e.g., cmdb_ci_appl.sys_id).",
+            "If Service Mapping is not configured, you can select any of the 4 checkboxes to retrieve the available data types.",
+            "If Service Mapping is configured, you can only retrieve one of the following data types:",
+            "you can retrieve Related Business Applications data only in conjunction with Related Application Services data.",
+            "Include Related Applications Data",
+            "Include Related Application Services (Discovered) Data",
+            "Include Related Business Applications Data",
+            "Include Related IT Services Data",
+            "Related Applications data",
+            "- Related Application Services data"
+          ]
+        }
+      ]
+    },
+    "sn-users-group": {
+      "statement": "The ServiceNow Users stream has an Include User's Related Group checkbox that retrieves the related group for each retrieved user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "The Include User's Related Group checkbox retrieves the related group for each of the users retrieved.",
+            "This checkbox is available in the ServiceNow Users stream."
+          ]
+        }
+      ]
+    },
+    "sng-fields": {
+      "statement": "The ServiceNow Generic page takes the name of the table to retrieve from ServiceNow and the list of fields retrieved from the table, and a value of true includes a record in a domain that the ServiceNow user is not configured to access while false excludes it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-generic-connector.json",
+          "quotes": [
+            "The name of the table you want to retrieve from ServiceNow.",
+            "The list of fields retrieved from the table.",
+            "Enter true to include the record even if it is in a domain that the ServiceNow user is not configured to access. Enter false to exclude the record if it is in a domain that the ServiceNow user is not configured to access."
+          ]
+        }
+      ]
+    },
+    "sng-oauth": {
+      "statement": "On the ServiceNow Generic page, the OAuth 2.0 method lists Refresh Token and Access Token and a Tenant ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-generic-connector.json",
+          "quotes": [
+            "- OAuth 2.0",
+            "Refresh Token and Access Token",
+            "The ServiceNow tenant ID."
+          ]
+        }
+      ]
+    },
+    "sn-oauth-assets": {
+      "statement": "On the ServiceNow Assets and Users page, the OAuth 2.0 method lists a Refresh Access Token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "uvm-configuring-servicenow-connector.json",
+          "quotes": [
+            "- OAuth 2.0",
+            "Refresh Access Token"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "sn-service-data-checkbox": {
+      "summary": "The ServiceNow Assets related-data checkbox list names Include Related Application Services (Discovered) Data; the troubleshooting step for missing business applications names a Business Services (Discovered) Data checkbox.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-servicenow-connector.json",
+            "quotes": [
+              "Include Related Application Services (Discovered) Data"
+            ]
+          },
+          "says": "The Assets stream's checkboxes are Include Related Applications Data, Include Related Application Services (Discovered) Data, Include Related Business Applications Data and Include Related IT Services Data."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-servicenow-connector.json",
+            "quotes": [
+              "Check whether ServiceNow Service Mapping is enabled in your organization. If it is, you might need to select the Business Services (Discovered) Data checkbox in addition to the Business Application Data checkbox and rerun the source."
+            ]
+          },
+          "says": "If business applications do not show, check whether ServiceNow Service Mapping is enabled; if it is, you might need to select the Business Services (Discovered) Data checkbox in addition to the Business Application Data checkbox and rerun the source."
+        }
+      ],
+      "impact": "Business Services (Discovered) Data and Application Services (Discovered) Data are different data; the page lists no Business Services checkbox, so the troubleshooting step refers to a checkbox the list does not show."
+    },
+    "datto-muted-stream": {
+      "summary": "The Datto connector page ties the option to include muted open alerts to the Datto Alerts stream in its stream list, and says the Include Muted Alerts filter is available in the Datto Devices stream.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-datto-connector.json",
+            "quotes": [
+              "Datto Alerts: Retrieves a list of open alerts in your Datto account, including alert ID, alert type, severity, affected device and site, timestamp, and muted status, with an option to include muted open alerts."
+            ]
+          },
+          "says": "The stream list describes the Datto Alerts stream as having an option to include muted open alerts."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-datto-connector.json",
+            "quotes": [
+              "By default, only unmuted open alerts are retrieved. Select this checkbox to include muted open alerts in the data retrieved.",
+              "This filter is available in the Datto Devices stream."
+            ]
+          },
+          "says": "The Include Muted Alerts filter text says the filter is available in the Datto Devices stream."
+        }
+      ],
+      "impact": "The page does not say which of the two Datto streams the Include Muted Alerts checkbox applies to."
+    }
+  }
+}
