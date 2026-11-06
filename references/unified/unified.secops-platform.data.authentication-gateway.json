@@ -1,0 +1,343 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data.authentication-gateway",
+  "title": "Authentications and the on-premises Zscaler gateway for Agentic SecOps Platform data sources and outegrations",
+  "aliases": [
+    "authentications page",
+    "zscaler gateway",
+    "reverse ssh tunnel",
+    "zscaler-gateway.sh"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.outegrations"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Authentications"
+    },
+    {
+      "text": "{{auth-where-created}} {{auth-reuse-scopes}} {{auth-name}}"
+    },
+    {
+      "label": "Managing them.",
+      "text": "{{auth-list-columns}} {{auth-actions}} {{auth-role}}"
+    },
+    {
+      "heading": "The Zscaler gateway"
+    },
+    {
+      "text": "{{gw-purpose}} The gateway page names only Jira Data Center among outegrations, but other connector guides also offer a gateway {{divergence:gw-connector-list}} {{gap:gw-connector-scope}}."
+    },
+    {
+      "label": "The VM.",
+      "text": "{{gw-vm-os}} {{gw-vm-size}} {{divergence:gw-vm-network}} {{gw-vm-dedicated}}"
+    },
+    {
+      "label": "Setup.",
+      "text": "{{gw-flow}} {{gw-script}} The step bodies and the script are not in the capture {{gap:gw-steps-not-captured}}."
+    },
+    {
+      "label": "Troubleshooting.",
+      "text": "{{gw-hostkey}}"
+    }
+  ],
+  "claims": {
+    "auth-role": {
+      "statement": "Access to authentications requires a role with the Read, Create, Edit and Delete permissions under the Platform - Authentications resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Authentications resource"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Authentications resource"
+          ]
+        }
+      ]
+    },
+    "auth-where-created": {
+      "statement": "An authentication can be created during data source or outegration setup (in the Retrieval section, or the Details section of the Connect step) or directly from the Authentications page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "You can create a new authentication during the setup of a data source or outegration, or directly from the Authentications page.",
+            "When setting up a source, the Authentication drop-down menu appears in the Retrieval section.",
+            "the Authentication drop-down menu appears in the Details section of the Connect step"
+          ]
+        }
+      ]
+    },
+    "auth-reuse-scopes": {
+      "statement": "An authentication can be reused across multiple integrations as long as it has the required access permissions; missing or insufficient scopes can cause failed authentication or incomplete data ingestion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "You can reuse an authentication across multiple integrations, as long as it has the required access permissions.",
+            "Missing or insufficient scopes can result in failed authentication or incomplete data ingestion."
+          ]
+        }
+      ]
+    },
+    "auth-name": {
+      "statement": "The authentication Name is displayed on the integration setup page, so it should identify the specific authentication instance; the page's example is CrowdStrike Vulnerabilities for the Vulnerabilities stream.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "This is the name displayed on the integration setup page, so it should clearly identify the specific authentication instance for the selected vendor.",
+            "enter CrowdStrike Vulnerabilities when creating an authentication for CrowdStrike to be used in the Vulnerabilities stream"
+          ]
+        }
+      ]
+    },
+    "auth-list-columns": {
+      "statement": "The Authentications page shows each authentication's name, vendor, an In Use count of the data sources and outegrations using it, who created it, when it was last updated and who updated it last.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "Authentication Name: The name of the authentication.",
+            "Vendor: The name of the third-party vendor for which the authentication was created.",
+            "In Use: The number of data Sources or Outegrations using the authentication.",
+            "Created By: The user who created the authentication.",
+            "Last Update: The time and date when the authentication was last updated.",
+            "Updated By: The user who last updated the authentication."
+          ]
+        }
+      ]
+    },
+    "auth-actions": {
+      "statement": "The Authentications page offers Edit and Delete actions, and the help warns that careless management can cause service disruptions, failed data ingestion or access issues.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-authentication-data-sources-and-outegrations.json",
+          "quotes": [
+            "Manage authentications cautiously to avoid service disruptions, failed data ingestion, or unintended access issues.",
+            "Edit Authentications",
+            "Delete Authentications"
+          ]
+        }
+      ]
+    },
+    "gw-purpose": {
+      "statement": "The Zscaler gateway connects on-premises outegrations and data sources to the platform at the account level, and is selected in the Retrieval section when creating a data source or in the Details section of the Jira Data Center outegration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "supports connecting on-premises outegrations and data sources through the Zscaler gateway at the account level",
+            "When creating a data source, select the relevant gateway in the Retrieval section of the source setup page.",
+            "When configuring the Jira Data Center outegration, select the relevant gateway in the Details section."
+          ]
+        }
+      ]
+    },
+    "gw-vm-os": {
+      "statement": "The gateway VM should run Ubuntu, Red Hat Enterprise Linux, Centos or Amazon-Linux.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "Ubuntu\n  - Red Hat Enterprise Linux (RHEL)\n  - Centos\n  - Amazon-Linux",
+            "Your VM should be set up with one of the supported Linux distributions:"
+          ]
+        }
+      ]
+    },
+    "gw-vm-size": {
+      "statement": "The gateway VM needs at least 2 vCPUs and 4 GB of RAM, must listen on port 22 for incoming SSH connections, and should be deployed in a private subnet with a dedicated vNIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "Use small instance types with at least 2 vCPUs and 4 GB of RAM.",
+            "The VM must be configured to listen on port 22 for incoming SSH connections.",
+            "Deploy the instance in a private subnet with a dedicated virtual network interface (vNIC)"
+          ]
+        }
+      ]
+    },
+    "gw-vm-dedicated": {
+      "statement": "The gateway VM must be dedicated to running the reverse SSH tunnel rather than a local computer, and the on-premises service must be reachable from it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "you must create or use a VM dedicated to running a reverse SSH tunnel. Do not use your local computer.",
+            "Ensure that the on-premises service is accessible from the VM you intend to use."
+          ]
+        }
+      ]
+    },
+    "gw-flow": {
+      "statement": "Gateway setup: the customer shares the public SSH key, VM public IP and gateway IP addresses with Zscaler; Zscaler creates a representative instance; the customer reruns the script to establish the reverse SSH tunnel; Zscaler then sets up the gateway in the platform.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "You then share the public key along with the VM's public IP address and gateway IP addresses with Zscaler.",
+            "Zscaler creates a representative VM instance and notifies you when the setup is complete.",
+            "Step 4: Rerun the Script to Establish the Reverse SSH Tunnel",
+            "Step 5: Zscaler Sets Up the Gateway in the Agentic SecOps Platform"
+          ]
+        }
+      ]
+    },
+    "gw-script": {
+      "statement": "The zscaler-gateway.sh script checks for an existing SSH key pair and creates one if none exists, installs autossh if needed, and configures a service to establish the reverse SSH tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "The script first checks for an existing SSH key pair. If none are found, it creates one and displays the public key for you to send to Zscaler.",
+            "Next, it verifies whether autossh is installed and attempts to install it if necessary.",
+            "Finally, the script configures a service to establish the reverse SSH tunnel.",
+            "This article accompanies the zscaler-gateway.sh script."
+          ]
+        }
+      ]
+    },
+    "gw-hostkey": {
+      "statement": "A 'Host key verification failed' error during gateway setup typically means the Zscaler gateway has not yet been authorized for its initial SSH connection; the documented fix is to authorize the server with an ssh command using StrictHostKeyChecking=no, run as the user that created the service under /etc/systemd/system/.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+          "quotes": [
+            "Host key verification failed. This typically means that the remote server (Zscaler gateway) has not yet been authorized for its initial SSH connection.",
+            "Determine which user created the service under /etc/systemd/system/.",
+            "ssh -i $<Key Path> -o StrictHostKeyChecking=no $<Gateway User>@$<Gateway Public DNS Name> \"exit\"",
+            "Authorize the server from the appropriate user (e.g., root) by running the following command."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "gw-connector-list": {
+      "summary": "The gateway page lists only the Jira Data Center outegration among outegrations that select a gateway; the Tenable Security Center outegration guide and the Aqua Security connector guide also have a Gateway field.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+            "quotes": [
+              "When configuring the Jira Data Center outegration, select the relevant gateway in the Details section."
+            ]
+          },
+          "says": "Among outegrations, the gateway page names Jira Data Center as the one that selects a gateway."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-tenable-outegration.json",
+            "quotes": [
+              "Gateway: (Tenable Security Center only) If you have a Zscaler gateway configured for this connection, select it from the drop-down menu."
+            ]
+          },
+          "says": "The Tenable outegration guide has a Gateway field for Tenable Security Center."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-aqua-security-connector.json",
+            "quotes": [
+              "If a gateway is required for the connection, use the drop-down menu to select the gateway you configured."
+            ]
+          },
+          "says": "The Aqua Security connector guide has a Gateway field."
+        }
+      ],
+      "impact": "Do not give Jira Data Center as the only connector that accepts a gateway."
+    },
+    "gw-vm-network": {
+      "summary": "The gateway page says to deploy the VM in a private subnet and also has the customer share the VM's public IP address with Zscaler.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+            "quotes": [
+              "Deploy the instance in a private subnet with a dedicated virtual network interface (vNIC)"
+            ]
+          },
+          "says": "The instance is deployed in a private subnet."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-configuring-agentic-security-operations-platform-gateway.json",
+            "quotes": [
+              "You then share the public key along with the VM's public IP address and gateway IP addresses with Zscaler."
+            ]
+          },
+          "says": "The VM's public IP address is shared with Zscaler."
+        }
+      ],
+      "impact": "The page does not say how a VM in a private subnet has the public IP it shares; do not state the VM's network placement beyond the quoted lines."
+    }
+  },
+  "gaps": {
+    "gw-connector-scope": {
+      "kind": "semantic",
+      "title": "Which connectors can use the Zscaler gateway",
+      "status": "open",
+      "detail": "The gateway article names data sources in general and the Jira Data Center outegration only; the Tenable Security Center outegration and Aqua Security connector guides each describe a Gateway field, so the full list of connectors that accept a gateway is not stated in one place.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "gw-steps-not-captured": {
+      "kind": "semantic",
+      "title": "Gateway setup steps 1 to 5 and the zscaler-gateway.sh script body",
+      "status": "open",
+      "detail": "Steps 1-5 render as headings only in the capture and the zscaler-gateway.sh script is not in it, so what each step has the customer do is not established beyond the headings quoted.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

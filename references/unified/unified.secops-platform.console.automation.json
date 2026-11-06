@@ -1,0 +1,386 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.console.automation",
+  "title": "Admin portal automation: playbooks, automation rules, runs, manual triggering and their audit logs",
+  "aliases": [
+    "secops platform SOAR",
+    "playbooks",
+    "automation rules",
+    "Select Playbook"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.console"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incidents"
+    },
+    {
+      "rel": "see-also",
+      "to": "soc-workbench.incident-rules"
+    }
+  ],
+  "prose": [
+    {
+      "label": "How automation fits together.",
+      "text": "{{soar-components}} {{workflow-steps}} {{entity-type-match}}"
+    },
+    {
+      "label": "Playbooks.",
+      "text": "{{playbook-list-columns}} {{playbook-permissions}} {{playbook-creation-routes}} {{playbook-delete-import}} {{playbook-duplicate}}"
+    },
+    {
+      "label": "Runs.",
+      "text": "{{playbook-run-status}} {{playbook-run-triggered-by}} The button labels differ from the manual-trigger procedure {{gap:triggered-by-button-labels}}. {{playbook-action-detail}} {{manual-trigger-entities}}"
+    },
+    {
+      "label": "Automation rules.",
+      "text": "{{rule-triggers}} {{rule-conditions}} {{rules-page}}"
+    },
+    {
+      "label": "Audit logs.",
+      "text": "{{playbook-audit-logs}} {{rule-audit-logs}}"
+    },
+    {
+      "label": "Open items.",
+      "text": "The action catalog, templates and rule operators are not listed {{gap:action-catalog}}."
+    }
+  ],
+  "claims": {
+    "soar-components": {
+      "statement": "Automation is the platform's SOAR capability: playbooks are collections of actions that run as one workflow, automation rules trigger one or more playbooks when conditions are met, and it covers alerts, incidents, users and identity findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-automations.json",
+          "quotes": [
+            "Automation is a Security Orchestration, Automation, and Response (SOAR) capability",
+            "Playbooks: A collection of actions that run together as a single workflow.",
+            "Automation Rules: Rules trigger one or more playbooks when configured conditions are met.",
+            "supported entity types such as alerts, incidents, users, or identity findings"
+          ]
+        }
+      ]
+    },
+    "workflow-steps": {
+      "statement": "A typical automation runs in four steps: a security alert, evaluation of the automation rule against its conditions and filters, running the associated playbook when they are met, and the playbook performing its configured actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-automations.json",
+          "quotes": [
+            "Security Alert: A security event or incident occurs, and an alert is triggered.",
+            "Evaluation: The automation rule evaluates the alerts or incidents against the configured conditions and filters.",
+            "Run Playbook: If the configured conditions are met, the automation rule triggers the associated playbook.",
+            "Actions: The playbook performs the configured actions and responds to the alert."
+          ]
+        }
+      ]
+    },
+    "entity-type-match": {
+      "statement": "A playbook's entity type (Alert, Incident, User or Identity Finding) must match the entity type of the automation rule that runs it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-playbooks.json",
+          "quotes": [
+            "The entity type selected for the playbook and automation rule must be the same",
+            "Identity Finding: Select to run the playbook for an identity finding.",
+            "Alert: Select to run the playbook for an alert.",
+            "Incident: Select to run the playbook for an incident.",
+            "User: Select to run the playbook for a user."
+          ]
+        }
+      ]
+    },
+    "playbook-list-columns": {
+      "statement": "The Playbooks page (Agentic SOC or Identities > Automations > Playbooks) lists name, description, entity type, owner, last update, number of runs, successful and failed runs, and whether the playbook is active; playbooks can be duplicated, edited, deleted and exported, and the page links to a Template Gallery of preconfigured playbook templates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-playbooks.json",
+          "quotes": [
+            "On the Playbooks page (Agentic SOC or Identities > Automations > Playbooks)",
+            "Owner: The user who created the playbook.",
+            "Number of Runs: The number of times the playbook has been run.",
+            "Success/Failed: The number of successful and failed playbook runs.",
+            "Status: Whether the playbook is active or inactive.",
+            "Go to the Template Gallery page to view preconfigured playbook templates.",
+            "Name: The name of the playbook.",
+            "Description: The description of the playbook.",
+            "Entity Type: The type of entity that triggers the playbook (Alert, Incident, User, or Identity Finding).",
+            "Last Update: The date when the playbook was last updated.",
+            "Duplicate a playbook.",
+            "Edit a playbook.",
+            "Delete a playbook.",
+            "Export a playbook."
+          ]
+        }
+      ]
+    },
+    "playbook-permissions": {
+      "statement": "A playbook has a user list allowed to edit it, and an Allow Manual Triggering option with a list of users who may trigger it and the applications in which it is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-playbooks.json",
+          "quotes": [
+            "Allow to Edit Playbook: Select the users who can edit the playbook.",
+            "Allow Manual Triggering: Select this checkbox to allow users to manually trigger the playbook",
+            "Allow in Apps: Select the applications in which the playbook is enabled.",
+            "Allow to Trigger Playbook: Select the users who can manually trigger the playbook."
+          ]
+        }
+      ]
+    },
+    "playbook-creation-routes": {
+      "statement": "A playbook can be created from scratch, from a template-gallery template (Save as New), or from a JSON export, which carries name, description, entity type, actions, permissions and status; importing a name that already exists produces an error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-playbooks.json",
+          "quotes": [
+            "Click Save as New.",
+            "You can create a playbook by importing a JSON file exported from an existing playbook.",
+            "The JSON file contains the playbook name, description, entity type, actions, permissions, and status.",
+            "If the imported playbook name already exists, an error message appears. Enter a new name to continue.",
+            "Click New Playbook.",
+            "You can use a template from the template gallery to create a playbook."
+          ]
+        }
+      ]
+    },
+    "playbook-delete-import": {
+      "statement": "Deleting a playbook gives no warning and takes effect immediately, and importing a JSON file into an existing playbook overwrites it (creating a new playbook from the JSON preserves the existing one).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "Deleting a playbook doesn't trigger a warning message and deletes the playbook immediately.",
+            "Importing a playbook into an existing playbook will overwrite it.",
+            "If you want to preserve the existing playbook, you can create a new playbook from a JSON file."
+          ]
+        }
+      ]
+    },
+    "playbook-run-status": {
+      "statement": "A playbook run has the status Completed, Canceled (intentionally stopped by the user) or Failed (an error stopped it), and a triggering type of Manual (initiated by a user) or Automatic (initiated by an automation rule).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "Completed: The run successfully completed without issues.",
+            "Canceled: The run was intentionally stopped by the user.",
+            "Failed: The run encountered an error and did not complete successfully.",
+            "Manual: A run manually initiated by a user.",
+            "Automatic: A run initiated by an automation rule."
+          ]
+        }
+      ]
+    },
+    "playbook-run-triggered-by": {
+      "statement": "In a run, Triggered By is System when an automation rule fired on met conditions, or User when someone clicked Process or Process All.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "System: The run was triggered by an automation rule when the conditions for the playbook were met.",
+            "User: The run was triggered by a user clicking Process or Process All."
+          ]
+        }
+      ]
+    },
+    "playbook-action-detail": {
+      "statement": "Expanding a run shows per action its name, status (Completed or Failed), failure reason, start and end times, total time and the JSON payload.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "Action Name: The name of the action.",
+            "Completed: The action successfully completed without issues.",
+            "Failed: The action encountered an error and did not complete successfully.",
+            "Reason: The reason the action failed.",
+            "Payload: The JSON payload of the action.",
+            "Start Time and End Time: The timestamps when the action started and ended.",
+            "Total Time: The total amount of time the action took to complete."
+          ]
+        }
+      ]
+    },
+    "playbook-audit-logs": {
+      "statement": "A playbook's audit log (Edit Playbook > More > Audit Logs) shows time, operation, type and user name with the JSON differences of each change, and its Download icon downloads the logs of the last 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "Time: The time the action occurred.",
+            "User Name: The user who made the changes.",
+            "Click to expand a log, and view the playbook differences in JSON.",
+            "Operation: The type of operation made.",
+            "Type: The entity the playbook affects.",
+            "On the Edit Playbook page, click More > Audit Logs.",
+            "Click the Download icon to download all audit logs in the current list from the last 90 days."
+          ]
+        }
+      ]
+    },
+    "playbook-duplicate": {
+      "statement": "Duplicating a playbook makes a copy with the original name and Copy appended.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-playbooks.json",
+          "quotes": [
+            "A copy of the rule is created with the same name as the original and Copy appended to the end."
+          ]
+        }
+      ]
+    },
+    "manual-trigger-entities": {
+      "statement": "Playbooks can be triggered manually on incidents and alerts in Agentic SOC, and on users and identity findings from Identities, through Select Playbook and the Response Action drawer, which lists only playbooks of that entity type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-manually-triggering-playbook.json",
+          "after": "Triggering Playbooks on a User",
+          "quotes": [
+            "In the Agentic SecOps Platform Admin Portal, click Identities."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-manually-triggering-playbook.json",
+          "after": "Triggering Playbooks on an Identity Finding",
+          "quotes": [
+            "In the Agentic SecOps Platform Admin Portal, click Identities."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-manually-triggering-playbook.json",
+          "quotes": [
+            "In Agentic SOC, you can manually trigger playbooks on an incident or alert.",
+            "The Response Action drawer only lists playbooks applicable to the Incident entity type.",
+            "The Response Action drawer only lists playbooks applicable to the alert entity type.",
+            "The Response Action drawer only lists playbooks applicable to the user entity type.",
+            "The Response Action drawer only lists playbooks applicable to the identity finding entity type.",
+            "On the Incident Detail page, click Select Playbook at the top of the page or in the AI Response Actions section.",
+            "In the alert details drawer, click Select Playbook.",
+            "In the user details drawer, click Select Playbook.",
+            "In the identity finding details drawer, click Select Playbook.",
+            "In the left-side navigation, click Users.",
+            "In the left-side navigation, click Identity Findings."
+          ]
+        }
+      ]
+    },
+    "rule-triggers": {
+      "statement": "An automation rule's trigger is one of Create, Update or Delete of the entity, and the rule's Active setting is enabled by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-automation-rules.json",
+          "quotes": [
+            "Delete: Triggers the rule when an entity is deleted.",
+            "Update: Triggers the rule when an entity is updated.",
+            "Create: Triggers the rule when an entity is created.",
+            "Active: Enable to activate the automation rule. By default, this setting is enabled."
+          ]
+        }
+      ]
+    },
+    "rule-conditions": {
+      "statement": "Rule filters combine conditions on entity fields with AND (more than one condition must be met) or OR (either condition), and one or more playbooks are chosen from the Playbook Inventory.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-automation-rules.json",
+          "quotes": [
+            "AND: Requires more than one condition to be met.",
+            "OR: Requires either condition to be met.",
+            "Playbook Inventory: Select one or more playbooks to associate with the automation rule.",
+            "Select the entity field for which you want to define the condition (e.g., Alert Last Seen)."
+          ]
+        }
+      ]
+    },
+    "rules-page": {
+      "statement": "The Automation Rules page can filter rules by entity, status or trigger, show or hide linked playbooks, and unlink a playbook from a rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-about-automation-rules.json",
+          "quotes": [
+            "Filter automation rules by entity, status, or trigger.",
+            "Show or hide the playbooks associated with automation rules.",
+            "Unlink a playbook from an automation rule.",
+            "Combine multiple playbooks to create multi-step automated responses."
+          ]
+        }
+      ]
+    },
+    "rule-audit-logs": {
+      "statement": "An automation rule's audit log (Edit Automation Rule > More > Audit Logs) lists time, operation, type and user name, and its download covers the last 90 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-automation-rules.json",
+          "quotes": [
+            "Operation: The type of operation made.",
+            "User Name: The user who made the changes.",
+            "Time: The time the action occurred.",
+            "Type: The entity the playbook affects.",
+            "On the Edit Automation Rule page, click More > Audit Logs.",
+            "Click the Download icon to download all audit logs in the current list from the last 90 days."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "triggered-by-button-labels": {
+      "kind": "semantic",
+      "title": "Which button a User-triggered run comes from",
+      "status": "open",
+      "detail": "The Managing Playbooks page says a User run is triggered by clicking Process or Process All, but the manual-trigger procedure's button is Trigger Playbook. Process and Process All also appear on the entity and unification pages, so the run-status text may be a copy error; no captured page reconciles them.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    },
+    "action-catalog": {
+      "kind": "semantic",
+      "title": "Which playbook actions, templates and rule operators exist",
+      "status": "open",
+      "detail": "The pages name notifications, blocking an IP, isolating a host, resetting a password and suspending a user in Okta or Entra ID as examples, but do not list the playbook action catalog or the Template Gallery contents, and automation rule filter operators are only exemplified.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

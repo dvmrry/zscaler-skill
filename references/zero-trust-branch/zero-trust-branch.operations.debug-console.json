@@ -1,0 +1,295 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.debug-console",
+  "title": "What the Zero Trust Branch Debug Console documents: site scope, command limits, NTP, IPSec, enrollment files, DNS proxy and SNMP interfaces",
+  "aliases": [
+    "ztb debug console",
+    "ztb troubleshooting console",
+    "ztb docker logs strongswan",
+    "ztb zcc_config.json",
+    "ztb dns proxy 1053"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.troubleshooting"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.sd-wan"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{console-site-specific}} The pages name the console's location differently {{divergence:console-location}}. {{ping-bounded}} {{tcpdump-bounded}} The configuration and activation symptoms are in [[zero-trust-branch.operations.troubleshooting]], and the wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Time and tunnels.",
+      "text": "{{ntp-sync}} {{ipsec-auth-failed}}"
+    },
+    {
+      "label": "Private Access and DNS.",
+      "text": "{{zpa-enrollment-files}} {{dns-proxy-divert}} {{dns-policy-logs}} The DNS policies themselves are in [[zero-trust-branch.operations.sd-wan]]."
+    },
+    {
+      "label": "SNMP.",
+      "text": "{{snmp-interfaces}} The 8.1.2-P1 release note changes the SNMP defaults {{divergence:snmp-default-interfaces}}. {{snmp-over-private-access}} The release notes limit monitoring over Private Access {{divergence:snmp-standby-monitoring}}. The SNMP configuration is in [[zero-trust-branch.operations.monitoring]]. The DHCP debug level commands are not fully described {{gap:dhcp-debug-level}}."
+    }
+  ],
+  "claims": {
+    "console-site-specific": {
+      "statement": "The Debug Console is site specific, matching the appliance deployed at that location, and is opened from the site's Troubleshooting left tab > Console top tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "The Debug Console is intentionally site specific, matching the appliance deployed at that location.",
+            "click Troubleshooting left tab > Console top tab."
+          ]
+        }
+      ]
+    },
+    "ping-bounded": {
+      "statement": "In the Debug Console, ping must use an execution count (ping -c) because unbounded ping usage results in failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "When using the ping command, always use the execution count parameter. Unbounded ping command usage results in failure."
+          ]
+        }
+      ]
+    },
+    "tcpdump-bounded": {
+      "statement": "In the Debug Console, tcpdump must use an execution count (-c) because unbounded tcpdump usage results in failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "When using the tcpdump command, always use the execution count parameter. Unbounded tcpdump command usage results in failure."
+          ]
+        }
+      ]
+    },
+    "ntp-sync": {
+      "statement": "NTP must be configured and the appliance and device clocks synchronized, because inaccurate clocks can make a valid certificate show as expired or not valid and prevent a secure connection; the L3 device must allow UDP 123 traffic sourced from the appliance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "The Network Time Protocol (NTP) must be configured and the appliance and device clocks must be synchronized.",
+            "If the clocks are inaccurate, a valid certificate might be shown as expired or not valid, which could prevent a secure connection.",
+            "Make sure the L-3 device allows the User Datagram Protocol (UDP) 123 traffic that is sourced from the appliance to these destinations."
+          ]
+        }
+      ]
+    },
+    "ipsec-auth-failed": {
+      "statement": "If docker logs strongswan output shows 'auth failed', the check is that the location associated with the site in Internet & SaaS is not deleted and its IPSec credentials are not removed or changed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "If the command output displays 'auth failed', then check in Internet & SaaS that the location associated with the site is not deleted or the IPSec credentials are not removed or changed."
+          ]
+        }
+      ]
+    },
+    "zpa-enrollment-files": {
+      "statement": "On the appliance, /etc/airgap/zcc/zcc_config.json holds the Internet & SaaS and Private Access org IDs, clouds and Private Access broker, and fqdn.txt and ip.txt list the Private Access application segments downloaded in FQDN and IP address format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "Shows information such as Internet & SaaS Org ID, Private Access Org ID, Internet & SaaS cloud, Private Access cloud, and Private Access broker",
+            "Displays the Private Access application segments (in FQDN format) downloaded to the Zero Trust Branch appliance",
+            "Displays the Private Access application segments (in IP address format) downloaded to the Zero Trust Branch appliance"
+          ]
+        }
+      ]
+    },
+    "dns-proxy-divert": {
+      "statement": "Client DNS traffic is diverted to the DNS proxy with a DNAT rule in the PREROUTING chain of the NAT table, and the DNS proxy runs on 127.0.0.1:1053.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "Add a DNAT rule in the PREROUTING chain in the NAT table, to capture and divert all client-generated DNS traffic to the DNS proxy.",
+            "DNS proxy runs on 127.0.0.1:1053."
+          ]
+        }
+      ]
+    },
+    "dns-policy-logs": {
+      "statement": "Appliances log all DNS activities and send a copy to Zero Trust Branch Management for storage; the policy log is /etc/airgap/dns_proxy/policy_logs/dns_policy.log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "Zero Trust Branch appliances log all DNS activities and send a copy of the log to Zero Trust Branch Management for storage.",
+            "tail /etc/airgap/dns_proxy/policy_logs/dns_policy.log"
+          ]
+        }
+      ]
+    },
+    "snmp-interfaces": {
+      "statement": "The Debug Console page says SNMP monitoring can be performed on the management and WAN interfaces and is not supported on the LAN interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "Verify the management and WAN interfaces on which SNMP monitoring can be performed.",
+            "SNMP monitoring is not supported on the LAN interface."
+          ]
+        }
+      ]
+    },
+    "snmp-over-private-access": {
+      "statement": "When SNMP monitoring runs over Private Access on the management interface, the packet is received on the management interface and sent to the loopback interface, so the capture is taken on the loopback; a single App Connector runs on an active appliance and its packets are forwarded to the standby gateway over the management interface, and when packets are received from the active gateway on the management interface there are no packets on the loopback interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+          "quotes": [
+            "If SNMP monitoring is performed on the management interface over Private Access, the packet is received at the management interface and sent to the loopback interface. Perform the packet capture on the loop interface.",
+            "A single App Connector runs on an active appliance, so the packets are received from the active gateway and forwarded to the standby gateway using the management interface. If packets are received from the active gateway on the management interface, then there are no packets on the loopback interface."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "snmp-default-interfaces": {
+      "summary": "The Debug Console page says SNMP monitoring can be performed on the management and WAN interfaces, while the 8.1.2-P1 release note disables SNMP by default on both and leaves it on an in-band loopback interface.",
+      "positions": [
+        {
+          "says": "SNMP monitoring can be performed on the management and WAN interfaces.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+            "quotes": [
+              "Verify the management and WAN interfaces on which SNMP monitoring can be performed."
+            ]
+          }
+        },
+        {
+          "says": "From 8.1.2-P1 SNMP is disabled by default on WAN and management interfaces, is available on an in-band loopback interface, and is enabled for a server once its IP address is configured.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-release-upgrade-summary-2026.json",
+            "quotes": [
+              "Updated SNMP access to disable SNMP by default on WAN and management interfaces.",
+              "SNMP is available on an in-band loopback interface. When an SNMP server IP address is configured, SNMP is enabled to listen for that server."
+            ]
+          }
+        }
+      ],
+      "impact": "On 8.1.2-P1 or later an SNMP walk against the WAN or management address can fail until an SNMP server IP address is configured; the Debug Console page does not say which release it describes."
+    },
+    "snmp-standby-monitoring": {
+      "summary": "The Debug Console page describes SNMP over Private Access packets being forwarded to the standby gateway, while the 8.1.2 release note says only active appliances can be monitored that way.",
+      "positions": [
+        {
+          "says": "A single App Connector runs on an active appliance and the packets are forwarded to the standby gateway over the management interface.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+            "quotes": [
+              "A single App Connector runs on an active appliance, so the packets are received from the active gateway and forwarded to the standby gateway using the management interface."
+            ]
+          }
+        },
+        {
+          "says": "If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-release-upgrade-summary-2026.json",
+            "quotes": [
+              "If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin expecting to poll a standby appliance over Private Access may get no response; the active-only limit is recorded in the 8.1.2 notes, and the Debug Console page does not tie its description to a release."
+    },
+    "console-location": {
+      "summary": "The pages name three places for the site console: Troubleshooting > Console, the Console tab on the site details page, and the Appliance Admin Console tab.",
+      "positions": [
+        {
+          "says": "The Debug Console opens from the Troubleshooting left tab > Console top tab.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+            "quotes": [
+              "On the site details page, click Troubleshooting left tab > Console top tab."
+            ]
+          }
+        },
+        {
+          "says": "The Routed Tunnels page opens the console from the >_Console tab on the site details page.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+            "quotes": [
+              "To open the console, click the >_Console tab on the site details page."
+            ]
+          }
+        },
+        {
+          "says": "The SIEM integration page opens the Appliance Admin Console tab under Troubleshooting and clicks Connect.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "Click the Appliance Admin Console tab and click Connect."
+            ]
+          }
+        }
+      ],
+      "impact": "The label to look for differs by page and possibly by release; the pages do not say whether these are one console or different ones."
+    }
+  },
+  "gaps": {
+    "dhcp-debug-level": {
+      "kind": "semantic",
+      "title": "How the DHCP debug log level is set and what levels exist",
+      "status": "open",
+      "detail": "The captured Debug Console page describes the airgap-dhcp-cli -a get-debug-level row as changing the log level for DHCP messages from the default level (4) to another level, but names no command that sets the level and gives no level range.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

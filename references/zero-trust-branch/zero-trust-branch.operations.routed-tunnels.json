@@ -1,0 +1,412 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.routed-tunnels",
+  "title": "How Zero Trust Branch connects sites over Routed Tunnels: hubs, spokes, activation, sharing, policy-based routing and verification",
+  "aliases": [
+    "ztb routed tunnels",
+    "ztb hub and spoke",
+    "ztb site-to-site",
+    "ztb add hub",
+    "Share Over RT",
+    "User Reachable IP"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.sd-wan"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.upgrades"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{rt-purpose-topology}} {{rt-example-redundancy}} The wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Hubs.",
+      "text": "{{hub-requirements}} {{hub-user-reachable-ip}} {{hub-activation-code}}"
+    },
+    {
+      "label": "Activation.",
+      "text": "{{rt-activation-two-methods}} {{rt-activation-code-method}} {{rt-activation-url-method}} {{rt-activation-web-proxy}} {{rt-activation-subinterface}} The 8.1.2-P1 release note differs on tagged WAN activation {{divergence:tagged-wan-activation}}. The general deployment procedure is in [[zero-trust-branch.deployment]]."
+    },
+    {
+      "label": "Spokes.",
+      "text": "{{rt-spoke-config}} {{rt-sharing}} {{rt-pbr-rule}} DNS policies for the shared VLAN are in [[zero-trust-branch.operations.sd-wan]]."
+    },
+    {
+      "label": "Verification.",
+      "text": "{{rt-verify-console}} The pages name the console's location differently {{divergence:console-location}}. {{rt-table-500}} {{rt-bgp-vrf-bfd}} {{rt-flow-log-verify}}"
+    },
+    {
+      "label": "Example topology.",
+      "text": "{{rt-example-spoke-interfaces}} {{rt-example-hub-interfaces}} Capacity limits are not in the captured pages {{gap:capacity-limits}}."
+    }
+  ],
+  "claims": {
+    "rt-purpose-topology": {
+      "statement": "Routed Tunnels connect branches in a hub-and-spoke design, with a physical or virtual appliance in a data center as the hub and branch appliances as spokes, and preserve the source IP addresses that applications such as VoIP phones, TACACS+ and Active FTP need.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Some applications, like VoIP phones, TACACS+, and Active FTP running in branches require direct source IP address visibility.",
+            "where a physical or virtual Zero Trust Branch appliance in a data center (the hub) and Zero Trust Branch appliances in the branch offices (the spokes) connect via the RTs",
+            "supports remote site connectivity over Zero Trust Branch Routed Tunnels (RTs) and preserves the IP addresses required for these applications to function"
+          ]
+        }
+      ]
+    },
+    "rt-example-redundancy": {
+      "statement": "In the page's example topology both spokes connect to a pair of identical hubs (hubA and hubB) for redundancy, and the hub appliances do not communicate with each other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "For redundancy, both spokes are connected to a pair of identical hubs (hubA and hubB). The hub appliances do not communicate with each other."
+          ]
+        }
+      ]
+    },
+    "hub-requirements": {
+      "statement": "Hubs can be physical or virtual Zero Trust Branch appliances, typically in the customer's data center and launched from the same image as the appliance; routed tunnel hubs cannot be deployed in a public cloud.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-hub.json",
+          "quotes": [
+            "Hubs can be physical or virtual Zero Trust Branch appliances. They are typically deployed in your data center. Launch hubs using the same image as the Zero Trust Branch appliance.",
+            "Routed tunnel hubs cannot be deployed in a public cloud."
+          ]
+        }
+      ]
+    },
+    "hub-user-reachable-ip": {
+      "statement": "The hub's User Reachable IP is the address the spokes use to communicate with it; if the hub and spokes are separated by an external network such as the internet, the hub's post-NAT address is entered, and an incorrect value can cause unexpected results or an end-to-end connectivity failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-hub.json",
+          "quotes": [
+            "This is the address the spokes use to communicate with the hub. If the hub and spokes at the branch site are separated by an external network such as the internet, enter the post-NAT address of the hub seen on the internet.",
+            "An incorrect configuration can cause unexpected results or an end-to-end connectivity failure.",
+            "User Reachable IP: Enter the IP address for the gateway."
+          ]
+        }
+      ]
+    },
+    "hub-activation-code": {
+      "statement": "Adding an on-premises hub displays an activation code that is used when the gateway is activated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-hub.json",
+          "quotes": [
+            "Copy and save the activation code that displays. You use this code when you activate the gateway."
+          ]
+        }
+      ]
+    },
+    "rt-activation-subinterface": {
+      "statement": "Zscaler supports one subinterface per WAN interface, and appliance activation is supported over the WAN interface on the main interface (tagged), not on a subinterface (untagged).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Zscaler supports one subinterface per WAN interface. However, Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged)."
+          ]
+        }
+      ]
+    },
+    "rt-spoke-config": {
+      "statement": "A spoke's routed tunnel is configured under Connectivity > Routed Tunnel by selecting the primary and secondary hubs and the WAN interfaces used to reach them and enabling Connect To Hub.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Select the primary and secondary hubs and the WAN interfaces used to reach them.",
+            "Enable Connect To Hub.",
+            "Click Connectivity > Routed Tunnel."
+          ]
+        }
+      ]
+    },
+    "rt-sharing": {
+      "statement": "Spokes enable sharing over RTs at the VLAN level (Share on Routed Tunnel) and per static route (Share Over RT), and a VLAN can be set to Use for DNS Proxy so DNS queries sent over the RT use that VLAN's IP address as source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Spokes enable sharing over RTs at the virtual LAN (VLAN) level.",
+            "Enable Share Over RT.",
+            "This ensures that DNS queries sent over the RT use the IP address of this specific VLAN as the source.",
+            "Click the Gear icon of the desired VLAN at the end of the row, and select Use for DNS Proxy.",
+            "Click VLANs, click the Gear icon, then select Share on Routed Tunnel."
+          ]
+        }
+      ]
+    },
+    "rt-pbr-rule": {
+      "statement": "A policy-based routing rule with Share Over RT directs spoke traffic over the site-to-site VPN; only spokes that initiate traffic need a rule, and response traffic is handled automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Configure a policy-based routing (PBR) rule on each spoke to direct traffic over a site-to-site VPN.",
+            "Complete the Add Static Route or Edit Static Route drawer, being sure to select Share Over RT.",
+            "Only spokes that initiate traffic require rules.",
+            "Response traffic is handled automatically."
+          ]
+        }
+      ]
+    },
+    "rt-verify-console": {
+      "statement": "The routed tunnel verification commands are run from the Zscaler Admin Console using the Console tab on the site details page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "You run the CLI commands in these sections from the Zscaler Admin Console. To open the console, click the >_Console tab on the site details page."
+          ]
+        }
+      ]
+    },
+    "rt-table-500": {
+      "statement": "Routing table 500 manages the site-to-site tunnels (s2s overlays).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Table 500 manages site-to-site tunnels (s2s overlays)."
+          ],
+          "after": "To confirm that the policy-based rule is configured correctly, run the ip rule command from the Zscaler Admin Console."
+        }
+      ]
+    },
+    "rt-bgp-vrf-bfd": {
+      "statement": "To verify that the hubs' site-to-site BGP VRF is up the page runs show vrf, and to verify BGP peering with the spokes and the peer uptime it runs show ip bgp vrf vrf-s2s summary; BFD detects link failure.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "To verify that the site-to-site BGP Virtual Routing and Forwarding (VRF) on both hubs is up, run the show vrf command for each hub from the Zscaler Admin Console.",
+            "To verify that the hubs established BGP peering with the spokes and to view the peer uptime, run the show ip bgp vrf vrf-s2s summary command from the Zscaler Admin Console.",
+            "BFD detects link failure."
+          ]
+        }
+      ]
+    },
+    "rt-flow-log-verify": {
+      "statement": "Traffic sent over the routed tunnel is verified in the flow logs at Data Explorer > Zero Trust Branch > Flow Logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "To verify that traffic is sent over the routed tunnel:",
+            "Go to Data Explorer > Zero Trust Branch > Flow Logs."
+          ]
+        }
+      ]
+    },
+    "rt-example-spoke-interfaces": {
+      "statement": "In the example topology the spoke interfaces are s2s_overlay0 and s2s_overlay1 (GRE tunnels to hubA and hubB) and wg_vpn_client0 and wg_vpn_client1 (routed tunnels to hubA and hubB).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Spoke Interfaces",
+            "s2s_overlay0 | Generic Routing Encapsulation (GRE) tunnel to hubA",
+            "s2s_overlay1 | GRE tunnel to hubB",
+            "wg_vpn_client0 | RT to hubA",
+            "wg_vpn_client1 | RT to hubB"
+          ]
+        }
+      ]
+    },
+    "rt-example-hub-interfaces": {
+      "statement": "In the example topology the hub interfaces are s2s_overlay0 and s2s_overlay1 (GRE tunnels to the Pod30 and Pod50 spokes) and wg_client (a routed tunnel to the Pod50 spoke).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Hub Interfaces",
+            "s2s_overlay0 | GRE tunnel to Pod30 spoke",
+            "s2s_overlay1 | GRE tunnel to Pod50 spoke",
+            "wg_client | RT to Pod50 spoke"
+          ]
+        }
+      ]
+    },
+    "rt-activation-two-methods": {
+      "statement": "There are two ways to activate a Zero Trust Branch appliance: the Activation Code Method and the Activation URL Method.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "There are two ways to activate a Zero Trust Branch appliance.",
+            "Activation Code Method",
+            "Activation URL Method"
+          ]
+        }
+      ]
+    },
+    "rt-activation-code-method": {
+      "statement": "The activation code method uses the activation code saved when the site was added, and the appliance must first be configured with the same parameters configured when the site was created in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "This method uses the activation code that you saved during the Adding a Site procedure in the Zscaler Admin Console. Before you activate the appliance, you must configure it with the same parameters you configured when you created the site in the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
+    "rt-activation-url-method": {
+      "statement": "The activation URL method uses the URL saved when the site was added, and the URL contains the configuration data for the WAN interface and the activation code.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "This method uses the URL that you saved during the Adding a Site procedure in the Zscaler Admin Console. The URL contains the configuration data for the WAN interface and the activation code."
+          ]
+        }
+      ]
+    },
+    "rt-activation-web-proxy": {
+      "statement": "Configuring the web proxy during activation is required only if the Zero Trust Branch appliance is deployed behind a firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+          "quotes": [
+            "Configure the web proxy (Required only if the Zero Trust Branch appliance is deployed behind a firewall)"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "tagged-wan-activation": {
+      "summary": "The Routed Tunnels page says activation is supported over the WAN interface on the main interface, which is tagged, while the 8.1.2-P1 release note says WAN interfaces previously did not support tagged VLANs for activation and that tagged activation is added for a physical WAN interface with a static IP address.",
+      "positions": [
+        {
+          "says": "Activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+            "quotes": [
+              "Zero Trust Branch activation is supported over the WAN interface on the main interface (which is tagged), not on a subinterface (which is untagged)."
+            ]
+          }
+        },
+        {
+          "says": "From 8.1.2-P1 a VLAN tag can be configured on a physical WAN interface with a static IP address for appliance activation; previously WAN interfaces did not support tagged VLANs for activation.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-release-upgrade-summary-2026.json",
+            "quotes": [
+              "Added support for configuring a VLAN tag on a physical WAN interface with static IP address for appliance activation. Previously, WAN interfaces did not support tagged VLANs for appliance activation."
+            ]
+          }
+        }
+      ],
+      "impact": "Tagged WAN activation depends on the release and on a static IP address; the Routed Tunnels page states neither, so on an appliance older than 8.1.2-P1 or using DHCP do not assume a tagged WAN activates."
+    },
+    "console-location": {
+      "summary": "The pages name three places for the site console: the >_Console tab on the site details page, Troubleshooting > Console, and the Appliance Admin Console tab.",
+      "positions": [
+        {
+          "says": "The Routed Tunnels page opens the console from the >_Console tab on the site details page.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-zero-trust-branch-site-site-connectivity-over-routed-tunnels.json",
+            "quotes": [
+              "To open the console, click the >_Console tab on the site details page."
+            ]
+          }
+        },
+        {
+          "says": "The Debug Console opens from the Troubleshooting left tab > Console top tab.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+            "quotes": [
+              "On the site details page, click Troubleshooting left tab > Console top tab."
+            ]
+          }
+        },
+        {
+          "says": "The SIEM integration page opens the Appliance Admin Console tab and clicks Connect.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "Click the Appliance Admin Console tab and click Connect."
+            ]
+          }
+        }
+      ],
+      "impact": "The label to look for differs by page and possibly by release; the pages do not say whether these are one console or different ones."
+    }
+  },
+  "gaps": {
+    "capacity-limits": {
+      "kind": "semantic",
+      "title": "What capacity limits apply to Routed Tunnels",
+      "status": "open",
+      "detail": "The captured pages give no limits for spokes per hub, routes or throughput. The MTUs in the example command output (s2s_overlay 1256, wg_client 1420, wg_vpn_client 1280) are output samples, not documented defaults.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

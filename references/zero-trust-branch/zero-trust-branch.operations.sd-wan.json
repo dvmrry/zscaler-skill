@@ -1,0 +1,291 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.sd-wan",
+  "title": "How Zero Trust Branch forwards branch traffic: default and custom Internet & SaaS gateways, private application connectivity and site DNS policies",
+  "aliases": [
+    "ztb custom internet saas gateway",
+    "ztb dtls gateway",
+    "ztb private app connectivity",
+    "ztb site dns policies",
+    "ZIA-DTLS next hop"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.routed-tunnels"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{dtls-default-gateway}} {{default-gateway-fail-close}} {{gateway-version-8-1-2}} The wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Custom gateways.",
+      "text": "{{custom-gateway-support}} {{gateway-service-edge-options}} {{gateway-on-failure}} {{gateway-z-tunnel-pbr}}"
+    },
+    {
+      "label": "Private application connectivity.",
+      "text": "{{private-app-connector}} {{private-app-setup}}"
+    },
+    {
+      "label": "Site DNS policies.",
+      "text": "{{dns-policy-scope-defaults}} {{dns-policy-criteria-actions}} {{dns-policy-vlan-source}} {{dns-policy-actions}} The overview and the drawer give different action lists {{divergence:dns-policy-allow-action}}. {{dns-policy-first-match}} The routed tunnel side of DNS proxying is in [[zero-trust-branch.operations.routed-tunnels]]."
+    }
+  ],
+  "claims": {
+    "dtls-default-gateway": {
+      "statement": "When provisioning appliances, they automatically select the nearest primary and secondary data centers for a DTLS/TLS tunnel; the Internet & SaaS gateway fails back to TLS when DTLS is blocked and back to DTLS once it is restored, and switches to the secondary tunnel if the primary fails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "When provisioning Zero Trust Branch appliances, the appliances automatically select the nearest primary and secondary data centers to establish a DTLS/TLS tunnel",
+            "If DTLS is blocked, the appliance's Internet & SaaS (ZIA) gateway fails back to TLS. After DTLS is restored, the gateway switches back to DTLS.",
+            "If the primary tunnel fails, the appliance automatically switches to the secondary tunnel."
+          ]
+        }
+      ]
+    },
+    "default-gateway-fail-close": {
+      "statement": "The appliance's default Internet & SaaS gateway defaults to fail-close upon failure; for DTLS default gateways Fail-Close is the default if all DTLS tunnels are down, while a custom gateway's default is based on the user configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "the appliance's Internet & SaaS gateway defaults to fail-close upon failure.",
+            "For DTLS default Internet & SaaS gateways, Fail-Close is the default if all the DTLS tunnels are down. For custom Internet & SaaS gateways, the default is based on the user configuration."
+          ]
+        }
+      ]
+    },
+    "gateway-version-8-1-2": {
+      "statement": "Automatic Internet & SaaS DTLS connectivity and custom Internet & SaaS gateways are each supported for appliances running Zero Trust Branch version 8.1.2 and later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "Zscaler supports automatic Internet & SaaS DTLS connectivity for appliances with Zero Trust Branch version 8.1.2 and later.",
+            "Zscaler supports custom Internet & SaaS gateways for appliances with Zero Trust Branch version 8.1.2 and later."
+          ]
+        }
+      ]
+    },
+    "custom-gateway-support": {
+      "statement": "A custom Internet & SaaS gateway defines primary and secondary proxies and how traffic is handled when both are unreachable; custom gateways support DTLS, standard and enhanced high availability modes, FQDNs and IP addresses, with up to two Internet & SaaS gateway objects per site including default and custom gateways.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "A proxy gateway allows you to define primary and secondary proxies to which the traffic can be forwarded and define how traffic should be handled when both the proxies are unreachable.",
+            "Standard and enhanced high availability modes.",
+            "FQDNs and IP addresses.",
+            "Up to two Internet & SaaS gateway objects per site, including default and custom gateways.",
+            "Zero Trust Branch custom Internet & SaaS gateways support:",
+            "Internet & SaaS Datagram Transport Layer Security (DTLS)."
+          ]
+        }
+      ]
+    },
+    "gateway-service-edge-options": {
+      "statement": "In a custom gateway the Primary Service Edge is Automatic (an automatic proxy), Manual (the selected data centers, supported for Internet & SaaS subdomains only) or Override (a specified IP address or domain name); the Secondary Service Edge is used when the primary is unreachable and becomes the primary proxy upon confirmation of reachability.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "Automatic: Forwards traffic through an automatic proxy.",
+            "Manual: Forwards traffic through the selected data centers, but is supported for Internet & SaaS subdomains only.",
+            "Override: Forwards traffic through the specified IP address or domain name.",
+            "This is used when the primary proxy is unreachable. The secondary proxy becomes the primary proxy upon confirmation of reachability.",
+            "Secondary Service Edge: Select the secondary proxy for the gateway."
+          ],
+          "after": "Primary Service Edge: Select the primary proxy for the gateway."
+        }
+      ]
+    },
+    "gateway-on-failure": {
+      "statement": "On Failure sets the handling when both proxies of a custom gateway are unreachable: Fail-Close (Drop) drops the traffic, and Fail-Open (Allow) sends it directly to the server without the proxy service and should be used with caution.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "Fail-Close (Drop): Drops the traffic when both proxies are unreachable.",
+            "Fail-Open (Allow): Allows the traffic directly to the server without forwarding it to the proxy service when both proxies are unreachable, and should be used with caution."
+          ]
+        }
+      ]
+    },
+    "gateway-z-tunnel-pbr": {
+      "statement": "Using a custom gateway needs a site on a Z-tunnel and a PBR forwarding rule with Next Hop Interface Type ZIA-DTLS and the custom ZIA Gateway; the page says the Switch to Z-Tunnel change for a site using IPSec might take a few minutes to propagate, causing temporary downtime, and the forwarding method change is global for the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-custom-internet-saas-gateway-zero-trust-branch.json",
+          "quotes": [
+            "Use the following steps to ensure that your site is using a Z-tunnel and that the PBR forwarding rule is configured for ZIA-DTLS:",
+            "This change might take a few minutes to propagate through the system, causing temporary downtime.",
+            "Change the Next Hop Interface Type to ZIA-DTLS, change the ZIA Gateway to your custom gateway, and click Save. This forwarding method change is global for the tenant.",
+            "If your site's Tunnel Type is currently set to use IPSec, click Switch to Z-Tunnel."
+          ]
+        }
+      ]
+    },
+    "private-app-connector": {
+      "statement": "Private application connectivity for branches uses a Private Access App Connector, an outbound-only component, to reach private applications in other branches; the branch forwards traffic to the Zero Trust Exchange, which evaluates identity, device posture and policy context configured in Private Access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-private-app-connectivity-branches.json",
+          "quotes": [
+            "the App Connector, an outbound-only component deployed as part of Private Access",
+            "Zero Trust Branch securely forwards the traffic to the ZTE.",
+            "The ZTE evaluates the traffic based on identity, device posture, and policy context as configured in Private Access.",
+            "securely connect users and appliances in branch offices to private applications hosted in other branch environments"
+          ]
+        }
+      ]
+    },
+    "private-app-setup": {
+      "statement": "Configuring private application connectivity means adding an App Connector in Private Access for each branch site hosting private applications, deploying the connectors to the sites in the Admin Console, and defining application segments and access policies; the applications can use App Connector-based DNS resolution or a private DNS server in the branch behind its App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-private-app-connectivity-branches.json",
+          "quotes": [
+            "Add an App Connector in Private Access for each branch site that hosts private applications",
+            "Deploy the App Connectors to the respective sites in the Zscaler Admin Console.",
+            "Define application segments and access policies as required for the private applications in Private Access.",
+            "can use App Connector-based DNS resolutions or a private DNS server within the branch site behind its App Connector"
+          ]
+        }
+      ]
+    },
+    "dns-policy-scope-defaults": {
+      "statement": "Site DNS policies monitor and apply policies to DNS requests and responses over UDP and TCP; default system policies route Zscaler and Airgap destinations to the WAN DNS gateway, and a system default rule that allows and forwards all DNS traffic has the lowest precedence.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-site-dns-policies.json",
+          "quotes": [
+            "Monitor and apply policies to all DNS requests and responses, regardless of the protocol. This includes UDP and TCP.",
+            "Use default system policies to automatically route Zscaler and Airgap destinations to the WAN DNS gateway",
+            "Configure a system default rule that allows and forwards all DNS traffic. This rule maintains the lowest precedence"
+          ]
+        }
+      ]
+    },
+    "dns-policy-criteria-actions": {
+      "statement": "Site DNS rules can match on criteria such as source IP address or subnet, FQDN, wildcard domains or any domain, and can take actions such as allowing or rejecting queries, redirecting them to DNS gateways, or overriding responses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-site-dns-policies.json",
+          "quotes": [
+            "Define granular DNS filtering rules using a number of criteria, such as source IP address or subnet, FQDN, wildcard domains, or any domain.",
+            "Enforce condition-based actions on DNS traffic, such as allowing or rejecting DNS queries, redirecting queries to specific DNS gateways, or overriding DNS responses."
+          ]
+        }
+      ]
+    },
+    "dns-policy-vlan-source": {
+      "statement": "A VLAN IP address can be used as the source for DNS proxy requests so all outbound DNS queries use the same internal IP address, which is required for DNS servers accessed through a Routed Tunnel.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-what-site-dns-policies.json",
+          "quotes": [
+            "Use a VLAN IP address as the source for DNS proxy requests. This ensures all outbound DNS queries use the same internal IP address, which is required for DNS servers accessed through a Routed Tunnel."
+          ]
+        }
+      ]
+    },
+    "dns-policy-actions": {
+      "statement": "The Add Policy drawer's Action options are Reject (with a chosen error code), Redirect (forward to the selected DNS gateway, with a chosen cache level), Override (return the IP address entered in Override IP) and Skip (disable the policy).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-site-dns-policies.json",
+          "quotes": [
+            "Action: Select the routing action for this policy:",
+            "Reject: Reject queries that match this policy. When you select this action, in the Error Code field, choose the error you want to return.",
+            "Redirect: Redirect queries that match this policy.",
+            "are forwarded to the DNS gateway you select in the DNS Gateways field. When you select this action, choose the Cache Level you want.",
+            "the IP address that you enter in the Override IP field is returned as the response.",
+            "Skip: Disable this policy."
+          ]
+        }
+      ]
+    },
+    "dns-policy-first-match": {
+      "statement": "Site DNS policies are processed on first match and can be reordered; once a query matches, later policies are not evaluated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-site-dns-policies.json",
+          "quotes": [
+            "DNS policies are processed based on first match. When a DNS query is matched to a query, subsequent policies are not evaluated.",
+            "You can reorder the policies by clicking Reorder"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "dns-policy-allow-action": {
+      "summary": "The site DNS policies overview lists allowing among the actions a rule can take, while the Add Policy drawer's Action options are Reject, Redirect, Override and Skip, with no Allow.",
+      "positions": [
+        {
+          "says": "Rules can take actions such as allowing or rejecting DNS queries, redirecting them to DNS gateways, or overriding responses.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-what-site-dns-policies.json",
+            "quotes": [
+              "Enforce condition-based actions on DNS traffic, such as allowing or rejecting DNS queries, redirecting queries to specific DNS gateways, or overriding DNS responses."
+            ]
+          }
+        },
+        {
+          "says": "The Action field offers Reject, Redirect, Override and Skip.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-site-dns-policies.json",
+            "quotes": [
+              "Action: Select the routing action for this policy:",
+              "Reject: Reject queries that match this policy. When you select this action, in the Error Code field, choose the error you want to return.",
+              "Skip: Disable this policy."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin looking for an Allow action in the drawer will not find one in the captured list; the overview's wording is a general description and the page does not say how a query is allowed other than by the system default rule."
+    }
+  },
+  "gaps": {}
+}

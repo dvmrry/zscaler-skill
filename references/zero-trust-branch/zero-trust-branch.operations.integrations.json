@@ -1,0 +1,447 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.integrations",
+  "title": "How Zero Trust Branch integrates with other systems: API keys, SIEM syslog, CrowdStrike, Armis and SentinelOne",
+  "aliases": [
+    "ztb integrations page",
+    "ztb api key",
+    "ztb siem syslog",
+    "ztb crowdstrike zta",
+    "ztb armis",
+    "ztb sentinelone"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.api"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.logging"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.segmentation"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{integrations-page}} The Python SDK side of automation is in [[zero-trust-branch.api]], and the wider operations area is in [[zero-trust-branch.operations]]. The integrations without a captured setup page are open {{gap:uncaptured-integrations}}."
+    },
+    {
+      "label": "API keys.",
+      "text": "{{api-key-view-once}} {{api-key-revoke}}"
+    },
+    {
+      "label": "SIEM.",
+      "text": "{{siem-syslog}} The overview page differs on how logs reach a SIEM {{divergence:siem-export-path}}. {{siem-session-init}} The log types page gives a different count {{divergence:traffic-log-type-count}}. {{siem-prereq-verify}} The page names the console tab differently from the Debug Console page {{divergence:siem-console-tab}}. The log types themselves are in [[zero-trust-branch.operations.logging]]."
+    },
+    {
+      "label": "CrowdStrike.",
+      "text": "{{crowdstrike-secret-scope}} {{crowdstrike-zta-score}} {{crowdstrike-risk-bands}} {{crowdstrike-posture-attribute}} {{crowdstrike-secure-posture-score}} {{crowdstrike-polling}} {{crowdstrike-api-scope}} {{crowdstrike-fqdn-identity}} {{crowdstrike-ssl-bypass}}"
+    },
+    {
+      "label": "Armis.",
+      "text": "{{armis-bidirectional}} {{armis-host-format}} {{armis-sync-scope}} Asset discovery and tags are in [[zero-trust-branch.operations.segmentation]]."
+    },
+    {
+      "label": "SentinelOne.",
+      "text": "{{sentinelone-token}} {{sentinelone-enforcement}}"
+    }
+  ],
+  "claims": {
+    "integrations-page": {
+      "statement": "The Integrations page (Zero Trust Branch > Resources > Integrations) manages Kibana Credentials, CrowdStrike, SentinelOne, SIEM, Armis, Ordr, ServiceNow and Zscaler Services integrations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-integrations.json",
+          "quotes": [
+            "On the Integrations page (Zero Trust Branch > Resources > Integrations), you can view and manage the following integrations:",
+            "Kibana Credentials: Visualize Zero Trust Branch data on Kibana dashboards.",
+            "CrowdStrike Integration: For devices connected to Zero Trust Branch, provide device telemetry to CrowdStrike for correlation.",
+            "SentinelOne Integration: Enhance visibility of endpoints connected to Zero Trust Branch.",
+            "SIEM Integration: Forward Zero Trust Branch events to your SIEM platform for centralized security analytics.",
+            "Armis Integration: Enhance the accuracy of device discovery by integrating with Armis.",
+            "Ordr Integration: Enhance the accuracy of device discovery by integrating with Ordr.",
+            "ServiceNow Integration: Enrich discovered asset details with additional context by integrating with ServiceNow.",
+            "Zscaler Services Integration: Manage connectivity with your other Zscaler services."
+          ]
+        }
+      ]
+    },
+    "api-key-view-once": {
+      "statement": "Integrating with other applications through the Zero Trust Branch APIs needs a unique API key; the key can be viewed and copied only once, at creation, and the key list shows the creation dates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-api-keys-zero-trust-branch.json",
+          "quotes": [
+            "you must create a unique API key and then copy it into the other applications",
+            "you can only view and copy the key itself once",
+            "After you close the Add API Key drawer, you are no longer able to view or copy the key.",
+            "you can view API keys you have created along with their creation dates"
+          ]
+        }
+      ]
+    },
+    "api-key-revoke": {
+      "statement": "Revoking an API key deletes it, and any integration using that key for authentication stops working.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-api-keys-zero-trust-branch.json",
+          "quotes": [
+            "The key is deleted and any integrations using that key for authentication will no longer work."
+          ]
+        }
+      ]
+    },
+    "siem-syslog": {
+      "statement": "SIEM integration streams events in real time over syslog, sent by the appliance directly to the configured server, and Zero Trust Branch supports TCP and UDP only; it works over both WAN and Private Access, and only session logs are forwarded.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-siem-integration.json",
+          "quotes": [
+            "The integration supports real-time event streaming over syslog to platforms such as Splunk or other compatible SIEM engines.",
+            "The Zero Trust Branch appliance sends syslog messages directly to the configured syslog server.",
+            "Zero Trust Branch supports TCP and UDP protocols only.",
+            "SIEM integration is supported over both WAN and Private Access (ZPA).",
+            "Only the session logs are forwarded to the SIEM server."
+          ]
+        }
+      ]
+    },
+    "siem-session-init": {
+      "statement": "The SIEM integration page says Zero Trust Branch currently generates only one type of traffic log, the session-init log, which captures Layer 2, 3 and 4 header information when a new session is created.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-siem-integration.json",
+          "quotes": [
+            "Currently, Zero Trust Branch generates only one type of traffic log: the session-init logs. These session-init logs capture Layer 2, Layer 3, and Layer 4 header information when a new session is created."
+          ]
+        }
+      ]
+    },
+    "siem-prereq-verify": {
+      "statement": "SIEM setup needs the SIEM host IP address, protocol and port and connectivity between the SIEM server and the appliance's WAN interface, and the applied configuration can be checked on the appliance in /etc/airgap/policy_container/rsyslog.d/20-siem.conf.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-siem-integration.json",
+          "quotes": [
+            "Obtain the SIEM server details, such as SIEM host (IP address), SIEM protocol, and SIEM port number.",
+            "Ensure that there is connectivity between the SIEM server and Zero Trust Branch's WAN interface.",
+            "cat /etc/airgap/policy_container/rsyslog.d/20-siem.conf",
+            "Click the Appliance Admin Console tab and click Connect."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-secret-scope": {
+      "statement": "The CrowdStrike API client secret is only available once at creation, and CrowdStrike recommends giving Zscaler read-only access for hosts, devices, zero trust appliances, user management, sensor download and event streams.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "Note that the secret is only available once at creation.",
+            "CrowdStrike recommends that you only give Zscaler read-only access (no write or admin functions) for hosts, devices, zero trust appliances, user management, sensor download, and event streams."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-zta-score": {
+      "statement": "The CrowdStrike Zero Trust Assessment score is a real-time risk score from 0 to 100 for each device, and higher scores signify better security.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "is a real-time risk score from 0 to 100 for each device",
+            "Higher scores signify better security",
+            "The CrowdStrike Zero Trust Assessment (ZTA) score is a real-time risk score from 0 to 100 for each device"
+          ]
+        }
+      ]
+    },
+    "crowdstrike-risk-bands": {
+      "statement": "As an example, Zero Trust Branch objects can treat endpoints with a risk score above 70 as low risk with full access, 30 to 70 as medium risk with limited access, and below 30 as high risk with no access to applications and networks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "Endpoints with risk score > 70: Low risk with full application and network access",
+            "Endpoints with risk score 30–70: Medium risk with limited access to applications and networks",
+            "Endpoints with risk score < 30: High risk with no access to applications and networks"
+          ]
+        }
+      ]
+    },
+    "crowdstrike-posture-attribute": {
+      "statement": "Device groups for high-, medium- and low-risk devices are created with the Device Security Posture attribute, which is synced from CrowdStrike during the integration process.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "create device groups for each of the high-, medium-, and low-risk devices using the Device Security Posture attribute, which is synced from CrowdStrike during the integration process"
+          ]
+        }
+      ]
+    },
+    "crowdstrike-polling": {
+      "statement": "Zero Trust Branch periodically polls CrowdStrike for posture information, score availability depends on the Falcon check-in interval, and real-time enforcement is not guaranteed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "Zero Trust Branch periodically polls CrowdStrike for posture information. Score availability depends on Falcon check-in interval, which can introduce additional delays. Real-time enforcement is not guaranteed."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-api-scope": {
+      "statement": "The API credential Test or Validate function confirms authentication but not permissions, so a key without the Zero Trust Assessment - Read scope can pass validation and fail at runtime with a 403 – Access denied error.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "The API Credential Test or Validate function confirms successful authentication but does not verify whether the API key has the required permissions to retrieve ZTA posture scores.",
+            "An API key without the Zero Trust Assessment - Read scope permission can pass validation but fail at runtime with a 403 – Access denied error."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-fqdn-identity": {
+      "statement": "On the CrowdStrike integration page, the caveats are that FQDN and wildcard domain rules in security policies require DNS Proxy to be enabled, with IP address-based rules as a fallback, and that assets are identified by MAC address, so a changed network interface can create duplicate devices needing a new score per MAC address.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "FQDN and wildcard domain rules in security policies require DNS Proxy to be enabled. Use IP address-based rules as a fallback.",
+            "Assets are identified by MAC addresses.",
+            "Changes to the network interface, such as switching Wi-Fi adapters or using a dock, can create duplicate devices and require a new score per MAC address."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-ssl-bypass": {
+      "statement": "CrowdStrike sensor communication can fail silently when SSL inspection is enabled, so SSL inspection bypass is configured for *.cloudsink.net, *.csa.cloudsink.net and *.falcon.crowdstrike.com; without it the sensor might detect tampering or certificate mismatches, causing registration failures or blocked communication.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "CrowdStrike sensor communication can fail silently when SSL inspection is enabled.",
+            "Configure SSL inspection bypass for the following domains: *.cloudsink.net, *.csa.cloudsink.net, *.falcon.crowdstrike.com.",
+            "If the domains are not bypassed, the Falcon sensor might detect tampering or certificate mismatches, causing registration failures or blocking sensor communication to the cloud."
+          ]
+        }
+      ]
+    },
+    "crowdstrike-secure-posture-score": {
+      "statement": "A host's Secure Posture Score is viewed in the Zscaler Admin Console under Dashboard > Asset Intelligence by selecting the host.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-crowdstrike-zero-trust-branch.json",
+          "quotes": [
+            "Go to Zero Trust Branch > Dashboard > Asset Intelligence.",
+            "Select a host to view its Secure Posture Score."
+          ]
+        }
+      ]
+    },
+    "armis-bidirectional": {
+      "statement": "The Armis integration is bidirectional: Armis ingests Zero Trust Branch device posture and policy data, and Zero Trust Branch ingests Armis device intelligence such as classification, tags and risk insights.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-armis-zero-trust-branch.json",
+          "quotes": [
+            "Armis ingests Zero Trust Branch device posture and policy data to enhance visibility of connected assets.",
+            "Zero Trust Branch ingests Armis device intelligence (e.g., classification, tags, and risk insights)"
+          ]
+        }
+      ]
+    },
+    "armis-host-format": {
+      "statement": "In Armis, the Airgap connection Host is the tenant's API host in the form https://<ztbtenant>-api.goairgap.com.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-armis-zero-trust-branch.json",
+          "quotes": [
+            "Enter the host name of your Zero Trust Branch tenant in the form https://<ztbtenant>-api.goairgap.com"
+          ]
+        }
+      ]
+    },
+    "armis-sync-scope": {
+      "statement": "Data from Armis is synced only for assets that have already been discovered; verification, in the Armis management console under Assets, checks that the asset has the airgap:protected tag on its Overview tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-armis-zero-trust-branch.json",
+          "quotes": [
+            "Data from Armis is only synced for assets that have already been discovered.",
+            "In the Armis management console, go to Assets. Click any asset to view its details.",
+            "On the Overview tab for the asset, verify that it has the airgap:protected tag."
+          ]
+        }
+      ]
+    },
+    "sentinelone-token": {
+      "statement": "The SentinelOne API token is generated for a new user with the Viewer role, and the SentinelOne Integration drawer takes the API Token and Base URL.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-sentinelone-zero-trust-branch.json",
+          "quotes": [
+            "For Role, select Viewer from the drop-down menu.",
+            "Enter the API Token that you previously copied, and the Base URL."
+          ]
+        }
+      ]
+    },
+    "sentinelone-enforcement": {
+      "statement": "Zero Trust Branch enforces segmentation, quarantine or policy adjustments at the network level based on SentinelOne risk scores and incident detections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-integrating-sentinelone-zero-trust-branch.json",
+          "quotes": [
+            "Zero Trust Branch enforces segmentation, quarantine, or policy adjustments at the network level based on SentinelOne",
+            "risk scores and incident detections"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "siem-export-path": {
+      "summary": "The logging and monitoring overview says logs are exported to external SIEM platforms via the API, while the SIEM integration page says the appliance sends syslog messages directly to the configured syslog server.",
+      "positions": [
+        {
+          "says": "Logs can be exported to external SIEM platforms via the API.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-logging-and-monitoring.json",
+            "quotes": [
+              "Third-party integrations: Logs can be exported to external SIEM platforms, such as Splunk or QRadar, via the API for broader visibility, longer retention, and centralized analysis."
+            ]
+          }
+        },
+        {
+          "says": "The appliance sends syslog messages directly to the configured syslog server.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "The Zero Trust Branch appliance sends syslog messages directly to the configured syslog server."
+            ]
+          }
+        }
+      ],
+      "impact": "Which path carries SIEM logs, and so where to open firewall access, is not settled by the pages."
+    },
+    "traffic-log-type-count": {
+      "summary": "The SIEM integration page says Zero Trust Branch generates only one type of traffic log, the session-init logs, while the log types page says appliances capture two primary types, packet logs and flow logs.",
+      "positions": [
+        {
+          "says": "Zero Trust Branch generates only one type of traffic log, the session-init logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "Currently, Zero Trust Branch generates only one type of traffic log: the session-init logs."
+            ]
+          }
+        },
+        {
+          "says": "Appliances capture two primary types of traffic logs: packet logs and flow logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-log-types-levels-and-formats.json",
+            "quotes": [
+              "Zero Trust Branch appliances capture two primary types of traffic logs: packet logs and flow logs."
+            ]
+          }
+        }
+      ],
+      "impact": "What reaches a SIEM is session-init logs; whether they correspond to the packet logs, the flow logs or both is not stated, so do not assume the SIEM receives both log types shown in Data Explorer."
+    },
+    "siem-console-tab": {
+      "summary": "The SIEM integration page opens the Appliance Admin Console tab under Troubleshooting, while the Debug Console page opens Troubleshooting left tab > Console top tab.",
+      "positions": [
+        {
+          "says": "Under Troubleshooting, click the Appliance Admin Console tab and click Connect.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "Click the Appliance Admin Console tab and click Connect."
+            ]
+          }
+        },
+        {
+          "says": "Click Troubleshooting left tab > Console top tab.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-using-zero-trust-branch-debug-console-for-troubleshooting.json",
+            "quotes": [
+              "On the site details page, click Troubleshooting left tab > Console top tab."
+            ]
+          }
+        }
+      ],
+      "impact": "The tab label to look for may differ by release; the pages do not say whether these are the same console."
+    }
+  },
+  "gaps": {
+    "uncaptured-integrations": {
+      "kind": "semantic",
+      "title": "How the Kibana Credentials, Ordr, ServiceNow and Zscaler Services integrations are set up and what limits apply",
+      "status": "open",
+      "detail": "The Integrations page lists these four integrations with a one-line purpose each, but no captured page in this area gives their setup, fields or limits.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

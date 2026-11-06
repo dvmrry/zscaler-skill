@@ -1,0 +1,277 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.objects",
+  "title": "What Zero Trust Branch objects are and how each type is defined",
+  "aliases": [
+    "ztb objects",
+    "ztb user defined groups"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.policies"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{object-categories}} {{object-ad-readonly}} The deployment hub is [[zero-trust-branch.deployment]] and the policies that use objects are in [[zero-trust-branch.deployment.policies]]."
+    },
+    {
+      "label": "Objects page.",
+      "text": "{{object-types-policy-fields}} {{object-page-paging}}"
+    },
+    {
+      "label": "Object types.",
+      "text": "{{object-device}} {{object-domain}} {{object-network}} {{object-port-zone}} The pages disagree on which zones a policy takes {{divergence:policy-zone-types}}. {{object-time-saas}} The pages disagree on whether a SaaS Apps object applies to forwarding policies, see [[zero-trust-branch.deployment.policies]]."
+    },
+    {
+      "label": "Gateway objects.",
+      "text": "{{object-dns-gateway}} {{object-ziagw-failure}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the object is a Microsoft Active Directory object, which is read-only, before trying to edit or delete it.",
+      "uses": [
+        "object-ad-readonly"
+      ]
+    },
+    {
+      "do": "Whether the appliance runs 8.3.0 or later before relying on manual data-center selection in an Internet & SaaS Gateway object.",
+      "uses": [
+        "object-ziagw-failure"
+      ]
+    }
+  ],
+  "claims": {
+    "object-categories": {
+      "statement": "Objects are managed in three categories: user-defined, system default, and Microsoft Active Directory objects, which are synced automatically if an AD server is integrated with a site.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-objects.json",
+          "quotes": [
+            "User-defined objects for custom internal assets and network definitions, system default objects for default internal assets and network definitions, and Microsoft Active Directory (AD) objects for directory-based identities and groups for AD integration.",
+            "The Microsoft AD objects are synced automatically if an AD server is integrated with a site."
+          ]
+        }
+      ]
+    },
+    "object-ad-readonly": {
+      "statement": "The Managing Objects page says user-defined, system default objects can be viewed, edited, cloned or deleted and Microsoft AD objects are read-only, and that deleting an object requires entering DELETE in the confirmation window; the About Objects page lists 'Access details of the object.' among the steps for managing custom objects on its System Default Groups tab.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-objects.json",
+          "quotes": [
+            "You can view, edit, clone, or delete user-defined, system default objects. Microsoft Active Directory (AD) objects are read-only objects.",
+            "In the confirmation window, enter DELETE and click Confirm."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-objects.json",
+          "after": "Manage custom objects on the Sytem Default Groups tab:",
+          "quotes": [
+            "Access details of the object."
+          ]
+        }
+      ]
+    },
+    "object-types-policy-fields": {
+      "statement": "In the objects type table (columns Firewall Policies, Routing Policies, DNS Policies), MAC Address is listed as Source for firewall and routing policies and Not applicable for DNS policies, Time Schedule as Time Schedule Groups for firewall policies only, and DNS Gateway as DNS Gateways for DNS policies only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-objects.json",
+          "quotes": [
+            "| MAC Address | Source | Source | Not applicable |",
+            "| Time Schedule | Time Schedule Groups | Not applicable | Not applicable |",
+            "| DNS Gateway | Not applicable | Not applicable | DNS Gateways |",
+            "| Firewall Policies | Routing Policies | DNS Policies |  |"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-objects.json",
+          "quotes": [
+            "Type: The category of the object, such as device, domain, DNS gateway, network, MAC address, port, time schedule, zone, or SaaS app."
+          ],
+          "after": "Manage custom objects on the User Defined Groups tab:"
+        }
+      ]
+    },
+    "object-page-paging": {
+      "statement": "The Objects page lists objects 5, 10, 25 or 100 per page, shows a Policies count of security, forwarding and DNS policies that use each object, and Dynamic applies only to device objects (quoted from the User Defined Groups list).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-about-objects.json",
+          "quotes": [
+            "You can choose to display 5, 10, 25, or 100 objects per page.",
+            "The number of security, forwarding, and DNS policies that use this object.",
+            "Whether the devices in the object are dynamic or not. This field applies only to the device type objects."
+          ],
+          "after": "Manage custom objects on the User Defined Groups tab:"
+        }
+      ]
+    },
+    "object-device": {
+      "statement": "A device object groups devices by attribute (manufacturer, operating system, services, network or tags); Dynamic automatically adds newly discovered assets matching the attributes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "Dynamic: Enable this to automatically add newly discovered assets matching the defined attributes to this group.",
+            "Manufacturers: Select the device manufacturer from the Attribute Value drop-down menu.",
+            "Tags: Select or enter one or more tags to identify groups of devices and click Add.",
+            "Operating System: Select the OS that runs on the device from the Attribute Value drop-down menu.",
+            "Services: Select the services running on the device from the Attribute Value drop-down menu.",
+            "Network: Enter the network address to which the device belongs in the Attribute Value field and click Add."
+          ]
+        }
+      ]
+    },
+    "object-domain": {
+      "statement": "A domain object takes wildcard domains or FQDNs; top-level domains (e.g., example.com) are not supported, and Any Domain matches *.*; predefined domain objects include All Zscaler App Segments and All Zscaler Domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "Enter one or more wildcard domains (e.g., *.example.com) or FQDNs (e.g., host.example.com). Top-level domains (e.g., example.com) are not supported.",
+            "Any Domain: Select this checkbox to make this object match any domain (i.e., *.*).",
+            "predefined domain objects, such as All Zscaler App Segments and All Zscaler Domains"
+          ]
+        }
+      ]
+    },
+    "object-dns-gateway": {
+      "statement": "A DNS gateway object holds DNS servers used as redirect targets in a DNS policy rule, with On Failure either forwarding to the original DNS server or returning an error response.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "A DNS object supports the addition of one or more DNS servers that can be used as redirect (forwarding) targets in a DNS policy rule.",
+            "Forward to original DNS server",
+            "Return error response"
+          ]
+        }
+      ]
+    },
+    "object-ziagw-failure": {
+      "statement": "An Internet & SaaS Gateway object sets primary and secondary Service Edge choices and On Failure Fail-Close (Drop) or Fail-Open (Allow), where Fail-Open allows outbound traffic when both Service Edges are unreachable without inspection; Manual data-center selection requires appliance version 8.3.0 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "Fail-Close (Drop): Drop outbound traffic when both Service Edges are unreachable to prevent uninspected traffic.",
+            "Fail-Open (Allow): Allow outbound traffic when both Service Edges are unreachable, even though the traffic is not going to be inspected.",
+            "Automatic: Select this to automatically select an Internet & SaaS Service Edge.",
+            "Override: Select this to choose a specific Internet & SaaS Service Edge and enter its IP address or FQDN.",
+            "Manual: Select this to manually choose an Internet & SaaS Service Edge from the available data centers and select the data center from the drop-down menu. The option to select data centers is available only for Zero Trust Branch appliances running version 8.3.0 or later.",
+            "Secondary Service Edge: Select one of the following options:"
+          ],
+          "after": "Primary Service Edge: Select one of the following options:"
+        }
+      ]
+    },
+    "object-network": {
+      "statement": "A network object holds CIDR blocks or FQDNs; non-CIDR IP ranges are converted to CIDR, and an FQDN is resolved locally by the appliance and refreshed when the DNS record TTL expires. Member Groups make a super object.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "Non-CIDR block IP address ranges (e.g., 192.168.0.2–192.168.0.10) are converted to CIDR notation.",
+            "When an FQDN is added to a network group, the branch appliance resolves the FQDN locally and adds the IP addresses to the group. The branch appliance also honors the Time to Live (TTL) value of the DNS records, and it refreshes when the TTL value expires.",
+            "Member Groups: Select other network objects as members to make this a super object comprising multiple objects."
+          ]
+        }
+      ]
+    },
+    "object-port-zone": {
+      "statement": "A port object accepts protocol:port-number pairs (e.g., udp:8080), protocol:port-range pairs (e.g., TCP:1024-1030) and well-known protocols (e.g., bgp); the Adding Objects page lists zone object types LAN, WAN, Management and HA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "protocol:port-number pairs (e.g., udp:8080)",
+            "protocol:port-range pairs (e.g., TCP:1024-1030)",
+            "Well-known protocols or ports (e.g., bgp)",
+            "HA Zone: High availability (HA) network zone",
+            "Zone type: Select the network type for this zone:",
+            "LAN Zone: Local area network zone",
+            "WAN Zone: Wide area network zone",
+            "Management Zone: Management entities zone"
+          ]
+        }
+      ]
+    },
+    "object-time-saas": {
+      "statement": "A time schedule object combines absolute and periodic time ranges within a time zone and is referenced as time schedule group criteria in security policies; the Adding Objects page says a SaaS Apps object is a list of predefined SaaS apps usable as a destination in security policies or an application-based forwarding policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-adding-objects.json",
+          "quotes": [
+            "A time schedule object allows you to specify a group of absolute and periodic time ranges.",
+            "You can reference time schedule objects as time schedule group criteria when creating security policies.",
+            "You can use this object as a destination in security policies or an application-based forwarding policy.",
+            "Time Zone: Select the time zone where the time values are configured in this object.",
+            "A SaaS Apps object is a list of predefined Software as a Service (SaaS) apps."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "policy-zone-types": {
+      "summary": "The Adding Objects page lists Management and HA zone object types, while the security policy page offers only LAN or WAN zones for the source and destination zone.",
+      "positions": [
+        {
+          "says": "Zone objects can be LAN, WAN, Management or HA zones.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-adding-objects.json",
+            "quotes": [
+              "HA Zone: High availability (HA) network zone",
+              "Management Zone: Management entities zone"
+            ]
+          }
+        },
+        {
+          "says": "A security policy's source and destination zone is a LAN or WAN zone.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-security-policies.json",
+            "quotes": [
+              "Source Zone: (Optional) Select the LAN or WAN zone to which this policy must apply from the drop-down menu."
+            ]
+          }
+        }
+      ],
+      "impact": "A Management or HA zone object may not be usable as a security policy zone."
+    }
+  },
+  "gaps": {}
+}

@@ -1,0 +1,319 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.policies",
+  "title": "How Zero Trust Branch forwarding (routing) policies and firewall (security) policies are defined and evaluated",
+  "aliases": [
+    "ztb forwarding policy",
+    "ztb routing policy",
+    "ztb security policy",
+    "ztb firewall policy"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.objects"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{default-forwarding-policies}} The deployment hub is [[zero-trust-branch.deployment]] and the objects the policies match on are in [[zero-trust-branch.deployment.objects]]."
+    },
+    {
+      "label": "Forwarding policies.",
+      "text": "{{forwarding-methods}} {{forwarding-traffic-distribution}} The Enhanced HA page defines the same values differently {{divergence:traffic-distribution-modes}}. {{forwarding-advanced-options}} {{app-based-forwarding}} The pages disagree on whether a SaaS App object applies to forwarding {{divergence:saas-app-forwarding-destination}}."
+    },
+    {
+      "label": "Managing and testing forwarding.",
+      "text": "{{wan-failover-settings}} {{forwarding-reorder-delete}} {{forwarding-verify-ipset}} {{forwarding-test}}"
+    },
+    {
+      "label": "Firewall policies.",
+      "text": "{{firewall-policy-levels}} {{firewall-policy-evaluation}} {{security-policy-fields}} {{security-policy-logging}} The Ransomware Kill Switch color codes are in [[zero-trust-branch.operations.segmentation]]."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which level (site, template, global or system default) holds the matching firewall policy, since evaluation stops at the first match in that order.",
+      "uses": [
+        "firewall-policy-evaluation"
+      ]
+    },
+    {
+      "do": "Whether the appliance runs 8.3.0 or later before relying on ZIA-DTLS or Override NAT in a forwarding rule.",
+      "uses": [
+        "forwarding-methods"
+      ]
+    }
+  ],
+  "claims": {
+    "default-forwarding-policies": {
+      "statement": "A new site automatically gets four default forwarding policies: Default-ZPA-PBR, Default ZIA Rule, Default-App-Segment-PBR and Default Zscaler Rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-forwarding-policies.json",
+          "quotes": [
+            "When a new site is created, Zero Trust Branch automatically generates the following default forwarding policies:",
+            "Default-ZPA-PBR: Ensures all traffic originating from the Airgap network and destined for any Zscaler application segment is routed through Private Access.",
+            "Default ZIA Rule: Ensures all internet-bound or Software as a Service (SaaS) traffic originating from the Airgap network is routed to Internet & SaaS via IPSec.",
+            "Default-App-Segment-PBR: Ensures traffic originating directly from Zero Trust Branch destined for Zscaler app segments is routed to Private Access.",
+            "Default Zscaler Rule: A catch-all forwarding rule that ensures any traffic from any IPv4 network destined for Zscaler IP addresses is sent through the LAN/WAN interfaces."
+          ]
+        }
+      ]
+    },
+    "app-based-forwarding": {
+      "statement": "The forwarding policies page says that with a SaaS Apps object as the destination of a forwarding policy, only traffic to the apps in the object is allowed and all other traffic is blocked (per the page's example); Zero Trust Branch Management maintains the SaaS app IP addresses.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-forwarding-policies.json",
+          "quotes": [
+            "This ensures that only traffic to the specific applications defined in the Corp Apps object is allowed, and all other traffic is blocked.",
+            "Zero Trust Branch Management handles and maintains the IP addresses of the SaaS apps",
+            "Then, you can define a forwarding policy with the SaaS Apps object as the destination."
+          ]
+        }
+      ]
+    },
+    "forwarding-verify-ipset": {
+      "statement": "The destination IPs of a forwarding policy can be checked on the console with iptables -nvL PBR-RULES -t mangle and then ipset list <destination-match-set-no>.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-forwarding-policies.json",
+          "quotes": [
+            "iptables -nvL PBR-RULES -t mangle",
+            "ipset list <destination-match-set-no>"
+          ]
+        }
+      ]
+    },
+    "forwarding-methods": {
+      "statement": "A forwarding rule's Forwarding Method is LAN/WAN, Routed Tunnel, ZIA-DTLS or ZPA; ZIA-DTLS and Override NAT are available only on appliances running version 8.3.0 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-forwarding-policies.json",
+          "quotes": [
+            "Select a method (LAN/WAN, Routed Tunnel, ZIA-DTLS, or ZPA) to forward traffic. The ZIA-DTLS option is available only for Zero Trust Branch appliances running version 8.3.0 or later.",
+            "Override NAT: Enable this to override the NAT configuration for traffic matching forwarding policy. This option is available only for Zero Trust Branch appliances running version 8.3.0 or later."
+          ]
+        }
+      ]
+    },
+    "forwarding-traffic-distribution": {
+      "statement": "The forwarding rule page says that for a rule with WAN as both primary and secondary interface, Traffic Distribution is Best (decided programmatically), Balanced (load balanced between primary and secondary WANs) or None (primary takes as much load as possible).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-forwarding-policies.json",
+          "quotes": [
+            "Best: Zero Trust Branch decides programmatically how to distribute traffic.",
+            "Balanced: Load is balanced between primary and secondary WANs.",
+            "None: The primary interface takes as much load as possible."
+          ]
+        }
+      ]
+    },
+    "forwarding-advanced-options": {
+      "statement": "Advanced options: Match return traffic applies the policy to return traffic, and Apply for locally generated traffic applies it to traffic originating from the appliance; a saved rule takes effect after Commit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-forwarding-policies.json",
+          "quotes": [
+            "Match return traffic: Select this option to apply the forwarding policy to return traffic.",
+            "Apply for locally generated traffic: Select this option to apply the forwarding policy to traffic originating from the Zero Trust Branch appliance.",
+            "Click Commit to apply the changes."
+          ]
+        }
+      ]
+    },
+    "wan-failover-settings": {
+      "statement": "Policy Routing Settings include a Prefer local learned routes over the ZIA and ZPA policies toggle and WAN Failover Settings with a Switchover Threshold (minimum WAN score difference to fail over; default 6) and Performance SLA Metrics of packet loss, latency and jitter.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-forwarding-policies.json",
+          "quotes": [
+            "Enable or disable Prefer local learned routes over the ZIA and ZPA policies.",
+            "WAN Failover Settings:",
+            "Switchover Threshold: Drag the slider to specify the minimum WAN score difference required to initiate failover. The default value is 6.",
+            "Packet Loss: Enable to include packet loss in WAN performance evaluation.",
+            "Latency: Enable to include latency in WAN performance evaluation.",
+            "Jitter: Enable to include jitter in WAN performance evaluation."
+          ]
+        }
+      ]
+    },
+    "forwarding-reorder-delete": {
+      "statement": "Forwarding policies can be reordered to change the order of evaluation (a drag icon appears for each custom policy), and deleting one requires entering DELETE.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-managing-forwarding-policies.json",
+          "quotes": [
+            "You can reorder policies to change the order of evaluation.",
+            "In the delete confirmation window, enter DELETE and click Confirm.",
+            "A Drag icon appears for each custom policy."
+          ]
+        }
+      ]
+    },
+    "forwarding-test": {
+      "statement": "Forwarding policies can be tested by pinging from a source device while running sudo tcpdump -i <interface_link_name> icmp on the primary and secondary interfaces.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-testing-routing-policies.json",
+          "quotes": [
+            "While the ping test is in progress, run the following command to capture packets on both primary and secondary interfaces:",
+            "sudo tcpdump -i <interface_link_name> icmp",
+            "Choose a source device (e.g., a virtual machine) to which the policy applies and ping an IP address (e.g., 8.8.8.8)."
+          ]
+        }
+      ]
+    },
+    "firewall-policy-levels": {
+      "statement": "Firewall policies can be Global (all sites), Template (all sites sharing a template) or Site (one site); new sites automatically get system (default) policies that are editable but cannot be reordered.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-security-policies.json",
+          "quotes": [
+            "Global: Policies that apply to all sites.",
+            "Template: Policies that apply to all sites that share a specific template.",
+            "Site: Policies that apply only to an individual site.",
+            "When a new site is created, Zero Trust Branch automatically generates system (default) policies for the site. These policies are editable but cannot be reordered."
+          ]
+        }
+      ]
+    },
+    "firewall-policy-evaluation": {
+      "statement": "Firewall policies are evaluated site first, then template, then global; at each of these levels a match applies the policy and stops evaluation, and system (default) policies apply only if no match is found at the site, template and global levels.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-security-policies.json",
+          "quotes": [
+            "Site policies: Checked first. If a match is found, the policy is applied and evaluation stops.",
+            "Template policies: Evaluated if no site-level policy matches. If a match is found, the policy is applied and evaluation stops.",
+            "Global policies: Evaluated if no template-level policy matches. If a match is found, the policy is applied and evaluation stops.",
+            "System (default) policies: Applied only if no match is found at the site, template, and global levels."
+          ]
+        }
+      ]
+    },
+    "security-policy-fields": {
+      "statement": "A security policy action is Accept, Reject, Drop or Skip; zones are LAN or WAN, optional, and can be negated; fields also include ports (All, Allowed Ports, Custom Port or port objects) and time schedule group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-security-policies.json",
+          "quotes": [
+            "Choose the policy action (Accept, Reject, Drop, or Skip) from the drop-down menu.",
+            "Source Zone: (Optional) Select the LAN or WAN zone to which this policy must apply from the drop-down menu.",
+            "Destination Zone: (Optional) Select the LAN or WAN zone to which this policy must apply from the drop-down menu.",
+            "You can select All, Allowed Ports, Custom Port, or any objects created for ports.",
+            "Time Schedule Group: If the policy applies to a specific time schedule, select it from the drop-down menu.",
+            "Select the Negate checkbox if you want the policy to apply to all source zones except the ones selected.",
+            "Select the Negate checkbox if you want the policy to apply to all destination zones except the ones selected."
+          ]
+        }
+      ]
+    },
+    "security-policy-logging": {
+      "statement": "With log throttling enabled, the log flows once per tuple per hour; a security policy can also set a Ransomware Kill Switch color code for its threat level.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-security-policies.json",
+          "quotes": [
+            "When log throttling is enabled, the Zero Trust Branch log flows once per tuple per hour.",
+            "Ransomware Kill Switch: Select the color code corresponding to the threat level for this policy."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "saas-app-forwarding-destination": {
+      "summary": "The forwarding policies page uses a SaaS Apps object as a forwarding policy destination, while the objects table lists SaaS App as Not applicable for routing policies.",
+      "positions": [
+        {
+          "says": "A forwarding policy can be defined with the SaaS Apps object as the destination.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-forwarding-policies.json",
+            "quotes": [
+              "Then, you can define a forwarding policy with the SaaS Apps object as the destination."
+            ]
+          }
+        },
+        {
+          "says": "The SaaS App object type is a Destination for firewall policies and Not applicable for routing and DNS policies.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-about-objects.json",
+            "quotes": [
+              "| SaaS App | Destination | Not applicable | Not applicable |",
+              "| Firewall Policies | Routing Policies | DNS Policies |  |"
+            ]
+          }
+        }
+      ],
+      "impact": "An admin building an application-based forwarding rule cannot tell whether the SaaS Apps object is accepted as a routing destination."
+    },
+    "traffic-distribution-modes": {
+      "summary": "The forwarding rule page and the Enhanced HA page define the same Traffic Distribution values (Best, Balanced, None) differently.",
+      "positions": [
+        {
+          "says": "None means the primary interface takes as much load as possible, and Best means Zero Trust Branch decides programmatically.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-forwarding-policies.json",
+            "quotes": [
+              "Best: Zero Trust Branch decides programmatically how to distribute traffic.",
+              "None: The primary interface takes as much load as possible."
+            ]
+          }
+        },
+        {
+          "says": "None means the system selects a path without active direction, and Best sends traffic to the single best-performing WAN link of either appliance.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-creating-zero-trust-branch-enhanced-wan-edge-high-availability-cluster.json",
+            "quotes": [
+              "None: The system selects a path without active direction.",
+              "Best: The cluster sends traffic to the single best-performing WAN link at any given time, regardless of whether it is on the primary or secondary appliance."
+            ]
+          }
+        }
+      ],
+      "impact": "An admin choosing None for a rule or an Enhanced HA site cannot tell from the pages whether the primary interface carries the load or the system picks the path."
+    }
+  },
+  "gaps": {}
+}

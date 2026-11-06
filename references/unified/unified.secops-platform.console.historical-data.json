@@ -1,0 +1,238 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.console.historical-data",
+  "title": "Historical data in the admin portal: granularity, time filter, measurement types, filter evaluation time and caveats",
+  "aliases": [
+    "secops platform historical data",
+    "Was at Last at Turn to measurements",
+    "Historical State filter evaluation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.console"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.console.dashboards-reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.measurements"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Controls.",
+      "text": "{{controls}} {{where-available}} {{dimensions}}"
+    },
+    {
+      "label": "Measurement types.",
+      "text": "{{measurement-was-at}} {{measurement-last-at}} {{measurement-turn-to}} {{measurement-mttx}}"
+    },
+    {
+      "label": "Filter evaluation.",
+      "text": "{{filter-evaluation}} {{filter-evaluation-example}}"
+    },
+    {
+      "label": "Caveats.",
+      "text": "{{caveats}} {{view-items}} The limits of the historical dataset are open {{gap:historical-limits}}, and the page's worked examples do not all match their tables {{gap:example-inconsistencies}}."
+    }
+  ],
+  "claims": {
+    "controls": {
+      "statement": "The historical view has two controls, time granularity (month, week or day buckets) and a time filter (date range), and the time filter always takes precedence: with a range of Last 3 Days and Month granularity the month bucket holds only those 3 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Time granularity: Sets the level at which data is broken down in a chart or report (month, week, or day).",
+            "Time filter: Sets the date range for the displayed data.",
+            "The time filter always takes precedence over granularity.",
+            "the Month bucket includes only those 3 days that fall within the selected range, and not the entire month",
+            "if the date range selected is Last 3 Days and the granularity is Month"
+          ]
+        }
+      ]
+    },
+    "where-available": {
+      "statement": "Historical data is available in system dashboards (some with a date selector, such as Remediation History), in custom dashboard widgets and in reports; custom widgets and reports show current data by default, and reports switch to history with History mode in the date selector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Charts and reports that display historical data are marked with the Historical Data icon",
+            "such as the Remediation History dashboard",
+            "By default, widgets on custom dashboards display current data.",
+            "By default, reports display current data. You can configure reports to display historical data by enabling History mode in the date selector.",
+            "When a widget is configured for historical data, certain measurements and dimensions that are not supported in historical views might not be available."
+          ]
+        }
+      ]
+    },
+    "measurement-was-at": {
+      "statement": "Was at measurements count entities that met a condition at any point in the selected range even if they changed later; the examples are Total Open Tickets and Total Closed Tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Was at measurements count entities when they met a condition at any point during the selected time range, regardless of whether they later changed.",
+            "the Total Open Tickets measurement counts all tickets that were open at any point during the time range",
+            "Similarly, Total Closed Tickets counts all tickets marked as closed at any time during the period."
+          ]
+        }
+      ]
+    },
+    "measurement-last-at": {
+      "statement": "Last at measurements reflect whether the entity met the condition on the last day of the range, such as Active Findings and Max Finding Severity Score.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Last at measurements reflect whether the entity met the measurement's condition on the last day of the specified time range.",
+            "the Active Findings measurement counts the number of findings still active on the final day of the time range",
+            "the Max Finding Severity Score measurement captures the highest severity score observed on the last day of the period"
+          ]
+        }
+      ]
+    },
+    "measurement-turn-to": {
+      "statement": "Turn to measurements count entities that transitioned to a condition during the period, such as Opened Tickets, Remediated Tickets (moved to Remediated) and Closed Tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Turn to measurements counting entities that transitioned to a specific condition during a given time period.",
+            "the Opened Tickets measurement counts tickets first opened during the time range",
+            "the Remediated Tickets measurement counts tickets that were remediated (moved to the Remediated status) during the period",
+            "and the Closed Tickets measurement counts tickets that were closed during the period"
+          ]
+        }
+      ]
+    },
+    "measurement-mttx": {
+      "statement": "Mean time to (MTTX) measurements average the days an entity takes to move between conditions (Ticket Mean Time to Remediate is Active to Inactive); current data uses only the most recent remediation period, while historical data captures every remediation period in the range with separate values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Mean time to (MTTX) measurements calculate the average number of days it takes for an entity to transition from one condition to another.",
+            "Ticket Mean Time to Remediate measures the average duration (in days) it takes for a ticket to transition from the Active to the Inactive state.",
+            "in current data, only the most recent remediation period (the time from when the ticket is open to when it's remediated) is considered, while in historical data, every remediation period within the time range is captured, displaying separate values for each"
+          ]
+        }
+      ]
+    },
+    "dimensions": {
+      "statement": "Adding a dimension such as Assignee adds a grouping level on top of the time granularity, so measurements are split by the dimension value in each period.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Adding the Assignee dimension creates another level of granularity in addition to the time granularity, so the selected measurements are further grouped by the selected dimension"
+          ]
+        }
+      ]
+    },
+    "filter-evaluation": {
+      "statement": "Filters on historical data are evaluated against the current state of each entity by default, so entities that matched in the range but no longer match are omitted; custom historical dashboards and reports can switch the evaluation to Historical State, evaluated for the selected range or each time bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "by default, the Agentic SecOps Platform evaluates the current state of entities and determines if they meet the filter criteria.",
+            "In historical custom dashboards and reports, the filter evaluation time is configurable",
+            "This is the default behavior for historical data.",
+            "Historical State: Evaluates the filter conditions for the selected date range, or for each time bucket if a date breakdown is selected.",
+            "even if an entity matched the filter during the selected date range, it is not included in the results unless it still matches the filter criteria today."
+          ]
+        }
+      ]
+    },
+    "filter-evaluation-example": {
+      "statement": "In the page's example with the filter Assignee = Team 1 and the date range January, Total Open Tickets is 1 under Current State and 2 under Historical State.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "Current State: Total Open Tickets = 1",
+            "Historical State: Total Open Tickets = 2",
+            "To view all tickets in the month of January that were assigned to Team 1, set the date range to January, and apply the filter Assignee = Team 1.",
+            "The following table summarizes the behavior of the Total Open Tickets (Was At) measurement and the configured filters: Assignee = Team 1, Date Range = January."
+          ]
+        }
+      ]
+    },
+    "caveats": {
+      "statement": "Historical data lives in a separate dataset of all entity changes, is slower to retrieve than current data (most noticeably for long ranges or detailed filters and dimensions), and is refreshed in processing intervals typically every 4 hours.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-historical-data.json",
+          "quotes": [
+            "stores historical data in a separate dataset that captures all changes made to entities over time",
+            "Retrieving historical data can result in slower performance compared to current data.",
+            "Performance slowdowns are most noticeable when analyzing extended time ranges or applying detailed filters and dimensions.",
+            "Historical data is updated in periodic processing intervals, typically every 4 hours."
+          ]
+        }
+      ]
+    },
+    "view-items": {
+      "statement": "View Items on a widget segment shows items in their current state for current measures, or as they were at the selected point in time for historical measures.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-viewing-items-widget-segment.json",
+          "quotes": [
+            "Current Measures: The items are displayed based on their current state.",
+            "Historical Measures: The items are displayed based on their state at the selected point in time.",
+            "Click the Export as CSV icon to download the data in CSV format."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "historical-limits": {
+      "kind": "semantic",
+      "title": "Limits of the historical dataset and which fields are unsupported in historical views",
+      "status": "open",
+      "detail": "No maximum date range, row limit or retention of the historical dataset is stated; 'typically every 4 hours' is the only refresh figure. The page says certain measurements and dimensions are not supported in historical views but does not list them.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "example-inconsistencies": {
+      "kind": "semantic",
+      "title": "Worked examples on the historical data page that disagree with their tables",
+      "status": "open",
+      "detail": "The Closed Tickets example text says a ticket reassigned to Team 5 in February 'is therefore counted once in January', while its table shows Team 5 Closed Tickets as 0 in January and 1 in February. The MTTX example text gives the first remediation period of Ticket ID 123 as 20 days in January, while its table row shows 10 for January. The Remediated Tickets example labels its Current State and Historical State counts 'Total Open Tickets = 0' and 'Total Open Tickets = 1' although the measurement is Remediated Tickets. Which of text or table is correct is not stated.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -1,0 +1,285 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.appliances",
+  "title": "Which Zero Trust Branch appliance models exist, how they mount and what their ports do",
+  "aliases": [
+    "ZT400",
+    "ZT600",
+    "ZT800",
+    "ZT8010",
+    "ztb physical port mapping"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.high-availability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{mount-options}} {{shelf-recommendation}} The deployment hub is [[zero-trust-branch.deployment]]."
+    },
+    {
+      "label": "Specifications.",
+      "text": "{{environmental-specs}} {{power-specs}} {{zt8010-ports}} {{zt8010-psu-alarm}} Which model has the redundant power supply and fan cannot be read from the merged table cells {{gap:specs-table-merged-cells}}."
+    },
+    {
+      "label": "Physical ports.",
+      "text": "{{zt400-ports}} {{zt600-ports}} {{zt800-ports}} {{zt8010-port-map}}"
+    },
+    {
+      "label": "Interfaces in HA.",
+      "text": "{{interface-roles-by-model}} The deployment page's interface table names some ports differently from the port mapping {{gap:deployment-table-vs-port-mapping}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which appliance model is deployed, since the mounting options, WAN, LAN and management ports differ by model.",
+      "uses": [
+        "mount-options",
+        "zt400-ports",
+        "zt600-ports",
+        "zt800-ports",
+        "zt8010-port-map"
+      ]
+    }
+  ],
+  "claims": {
+    "mount-options": {
+      "statement": "Mounting options: ZT400 rack posts via rack mount kit (by request only); ZT600 rack posts via rack mount kit; ZT800 rack posts via rack mount kit or wall via wall mount kit (wall kit by request only); ZT8010 rack posts via ear brackets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "- The Zero Trust Branch ZT400: Rack posts using the rack mount kit. (Only available by request.)",
+            "- The Zero Trust Branch ZT600: Rack posts using the rack mount kit.",
+            "- The Zero Trust Branch ZT800:\n  - Rack posts using the rack mount kit.\n  - To the wall, using the wall mount kit. (Only available by request.)",
+            "- The Zero Trust Branch ZT8010: Rack posts using the ear brackets."
+          ]
+        }
+      ]
+    },
+    "environmental-specs": {
+      "statement": "Appliances list operating temperature 32 to 104°F (0 to 40°C), non-operating -4 to 150°F (-20 to 65°C), relative humidity 5 to 90% operating and 5 to 95% non-operating, and altitude 5,000 feet operating and 50,000 feet non-operating.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "| Operating Temperature | 32 to 104°F (0 to 40°C) |",
+            "| Non-Operating Temperature | -4 to 150°F (-20 to 65°C) |",
+            "| Relative Humidity | 5 to 90% (Operating); 5 to 95% (Non-operating) |",
+            "| Altitude | 5,000 feet (1,524 m) Operating; 50,000 feet (15,240 m) Non-operating |"
+          ]
+        }
+      ]
+    },
+    "power-specs": {
+      "statement": "Typical power: ZT400 12W idle/20W full load, ZT600 21W/29W, ZT800 24W/43W, ZT8010 107.8W/225.5W.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "| Typical Power Consumption | Idle Mode: 12W Full Load Mode: 20W | Idle Mode: 21W Full Load Mode: 29W | Idle Mode: 24W Full Load Mode: 43W | Idle Mode: 107.8W Full Load Mode: 225.5W |"
+          ]
+        }
+      ]
+    },
+    "zt8010-psu-alarm": {
+      "statement": "On the ZT8010, a continuous beep indicates the second power source is unplugged or faulty; pressing the round button near the power supplies silences it, as does connecting the second power source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "A continuous beep indicates that either the second power source is unplugged or faulty. To silence the beep, press the round button located near or between the power supplies, or connect the second power source."
+          ]
+        }
+      ]
+    },
+    "zt8010-ports": {
+      "statement": "The ZT8010 has several ports, including 10x 1GbE RJ45 ports and 8x 10G SFP+ ports, and supports redundant PSUs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "quotes": [
+            "The ZT8010 has several ports, including 10x 1GbE RJ45 ports and 8x 10G SFP+ ports.",
+            "The appliance supports redundant power supply units (PSUs)."
+          ]
+        }
+      ]
+    },
+    "shelf-recommendation": {
+      "statement": "In the ZT400, ZT600 and ZT800 rack-mount procedures, Zscaler recommends installing a shelf in the rack to support the appliance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "after": "To rack mount your Zero Trust Branch ZT400:",
+          "quotes": [
+            "Zscaler recommends installing a shelf in the rack to support the appliance."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "after": "To rack mount the Zero Trust Branch ZT600:",
+          "quotes": [
+            "Zscaler recommends installing a shelf in the rack to support the appliance."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-appliances-wall-and-rack-mount-instruction-manual.json",
+          "after": "To rack mount the Zero Trust Branch ZT800:",
+          "quotes": [
+            "Zscaler recommends installing a shelf in the rack to support the appliance."
+          ]
+        }
+      ]
+    },
+    "zt400-ports": {
+      "statement": "ZT400: port 1 GE1 Management, port 2 GE2 LAN or WAN, port 3 GE3 WAN, port 4 GE4 LAN or HA (when running in a cluster).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-physical-port-mapping.json",
+          "quotes": [
+            "| 1 | GE1/enp4s0 | 1GbE RJ45 | Management |",
+            "| 2 | GE2/enp5s0 | 1GbE RJ45 | LAN or WAN |",
+            "| 3 | GE3/enp6s0 | 1GbE RJ45 | WAN |",
+            "| 4 | GE4/enp7s0 | 1GbE RJ45 | LAN or high availability (HA) (when appliances are running in a cluster) |",
+            "This section describes the physical port mapping on the ZT400 appliance."
+          ]
+        }
+      ]
+    },
+    "zt600-ports": {
+      "statement": "ZT600: GE1 Management, GE2 and GE3 LAN, GE4 LAN or HA (in a cluster), GE5 and GE6 WAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-physical-port-mapping.json",
+          "quotes": [
+            "| 1 | GE1/enp3s0 | 1GbE RJ45 | Management |",
+            "| 2 | GE2/enp2s0 | 1GbE RJ45 | LAN |",
+            "| 5 | GE5/eno3 | 1GbE RJ45 | WAN |",
+            "| 6 | GE6/eno4 | 1GbE RJ45 | WAN |",
+            "| 4 | GE4/eno2 | 1GbE RJ45 | LAN or high availability (HA) (when appliances are running in a cluster) |",
+            "| 3 | GE3/eno1 | 1GbE RJ45 | LAN |",
+            "This section describes the physical port mapping on the ZT600 appliance."
+          ]
+        }
+      ]
+    },
+    "zt800-ports": {
+      "statement": "ZT800: GE1 1G SFP LAN, GE2 1G SFP WAN, GE3 Management, GE4 LAN or HA (in a cluster), GE5 and GE6 LAN, GE7 and GE8 WAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-physical-port-mapping.json",
+          "quotes": [
+            "| 1 | GE1/enp2s0f0 | 1G SFP | LAN |",
+            "| 2 | GE2/enp2s0f1 | 1G SFP | WAN |",
+            "| 3 | GE3/enp2s0f2 | 1GbE RJ45 | Management |",
+            "| 4 | GE4/enp2s0f3 | 1GbE RJ45 | LAN or high availability (HA) (when appliances are running in a cluster) |",
+            "| 7 | GE7/enp10s0f0 | 1GbE RJ45 | WAN |",
+            "| 5 | GE5/enp8s0f0 | 1GbE RJ45 | LAN |",
+            "| 6 | GE6/enp8s0f1 | 1GbE RJ45 | LAN |",
+            "| 8 | GE8/enp10s0f1 | 1GbE RJ45 | WAN |",
+            "This section describes the physical port mapping on the ZT800 appliance."
+          ]
+        }
+      ]
+    },
+    "zt8010-port-map": {
+      "statement": "ZT8010: GE1 Management, GE2 WAN, GE3 LAN, GE4 LAN or HA (in a cluster), GE5 and GE6 LAN, XE7 to XE10 10G SFP+ WAN, GE11 to GE14 LAN, XE15 to XE18 10G SFP+ LAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-zero-trust-branch-physical-port-mapping.json",
+          "quotes": [
+            "| 1 | GE1/eno1 | 1GbE RJ45 | Management |",
+            "| 2 | GE2/enp1s0 | 1GbE RJ45 | WAN |",
+            "| 3 | GE3/ens84f3 | 1GbE RJ45 | LAN |",
+            "| 5 | GE5/ens84f1 | 1GbE RJ45 | LAN |",
+            "| 6 | GE6/ens84f0 | 1GbE RJ45 | LAN |",
+            "| 4 | GE4/ens84f2 | 1GbE RJ45 | LAN or high availability (HA) (when appliances are running in a cluster) |",
+            "| 7 | XE7/eno4 | 10G SFP+ | WAN |",
+            "| 10 | XE10/eno3 | 10G SFP+ | WAN |",
+            "| 15 | XE15/ens5f3 | 10G SFP+ | LAN |",
+            "| 8 | XE8/eno5 | 10G SFP+ | WAN |",
+            "| 9 | XE9/eno2 | 10G SFP+ | WAN |",
+            "| 11 | GE11/ens83f0 | 1GbE RJ45 | LAN |",
+            "| 12 | GE12/ens83f1 | 1GbE RJ45 | LAN |",
+            "| 13 | GE13/ens83f2 | 1GbE RJ45 | LAN |",
+            "| 14 | GE14/ens83f3 | 1GbE RJ45 | LAN |",
+            "| 16 | XE16/ens5f2 | 10G SFP+ | LAN |",
+            "| 17 | XE17/ens5f1 | 10G SFP+ | LAN |",
+            "| 18 | XE18/ens5f0 | 10G SFP+ | LAN |",
+            "This section describes the physical port mapping on the ZT8010 appliance."
+          ]
+        }
+      ]
+    },
+    "interface-roles-by-model": {
+      "statement": "The deployment page's table of interfaces used in an HA deployment lists Management as GE1* on ZT400, ZT600 and ZT8010 and GE3* on ZT800, HA as GE4* on all four models, and WAN as GE3* on ZT400, where an asterisk marks a fixed interface.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-deploying-zero-trust-branch-appliance.json",
+          "quotes": [
+            "| Management | GE1* | GE1* | GE3* | GE1* |",
+            "| HA | GE4* | GE4* | GE4* | GE4* |",
+            "| WAN | GE3* | GE2, GE5* | GE2*, GE7, GE8 | GE2*, XE7, XE8, XE9, XE10 |",
+            "The following table shows the interfaces that each Zero Trust Branch model uses in a high availability (HA) deployment.",
+            "The interfaces with an asterisk (*) are fixed and cannot be changed, even on cloned templates."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "specs-table-merged-cells": {
+      "kind": "semantic",
+      "title": "Which models other than the ZT8010 have the redundant power supply and fan, and the maximum power of the ZT400 and ZT600",
+      "status": "open",
+      "detail": "The per-model specification table on the mount instruction page has merged cells, so the redundant power supply and fan rows and the maximum power for ZT400 and ZT600 cannot be assigned to a model from the captured text; they are not claimed. The ZT8010 redundant PSUs come from the ZT8010 procedure's own text, not the table.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "deployment-table-vs-port-mapping": {
+      "kind": "semantic",
+      "title": "Why the deployment page's interface table and the port mapping name some ports differently",
+      "status": "open",
+      "detail": "The deployment page's HA interface table lists GE2 under both LAN and WAN for the ZT600 and no GE6, while the port mapping lists GE2 as LAN and GE5 and GE6 as WAN. For the ZT8010 it names XE11 to XE14 as LAN interfaces, while the port mapping names GE11 to GE14 as 1GbE RJ45 LAN and XE15 to XE18 as 10G SFP+ LAN. The table also marks GE5 as the fixed WAN port of the ZT600 and lists GE5 as a LAN port of the ZT800, while the port mapping lists GE5 as WAN on the ZT600 and LAN on the ZT800 without saying whether either is fixed or reserved for an HA transit link. The pages do not say whether the table shows template defaults or a different naming.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

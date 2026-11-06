@@ -1,0 +1,511 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data",
+  "title": "Agentic SecOps Platform data sources, outegrations and data management: hub (deployment flows, catalogs, outegration wizard)",
+  "aliases": [
+    "secops platform data sources",
+    "data source catalog",
+    "outegration catalog",
+    "deploying data source configurations",
+    "deploying outegration configurations",
+    "managing data sources",
+    "managing outegrations"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "portfolio.secops-platform"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.outegrations"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.authentication-gateway"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping-copilot"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.source-operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.threatlabz"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.asset-aging"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.unification"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{ds-run-map-rerun}} Another page says a new source's data arrives on the next data run {{divergence:ds-first-run}}. {{ds-auto-scheduling}} How often a source refreshes is not stated {{gap:refresh-cadence}}."
+    },
+    {
+      "label": "Before and after configuring.",
+      "text": "{{ds-prereqs}} {{ds-app-inputs}} {{ds-anysource-fallback}} {{ds-monitoring}} {{ds-manage-actions}}"
+    },
+    {
+      "label": "Data source catalog.",
+      "text": "{{ds-catalog-shape}} {{catalog-intune}} {{catalog-entra}} {{catalog-qualys}} {{catalog-sheets-freshservice}} {{catalog-crowdstrike}} Rows for some sources that other captured pages cover are missing from the table {{gap:ds-catalog-rows}}."
+    },
+    {
+      "label": "Outegrations.",
+      "text": "{{og-wizard}} The AWS S3 guide's steps differ {{divergence:og-wizard-steps}}. {{og-flow}} {{og-app-use}} {{og-monitoring}} {{og-manage-actions}}"
+    },
+    {
+      "label": "Outegration catalog.",
+      "text": "{{og-catalog-webhooks}} {{og-catalog-categories}} {{og-catalog-jira}} The connectors the per-connector guides document and the webhook guides are not among these articles; the webhook guides are covered in [[uvm.outegrations.ticketing]] {{gap:og-catalog-coverage}}."
+    },
+    {
+      "label": "Subjects under this hub.",
+      "text": "Authentications and the Zscaler gateway: [[unified.secops-platform.data.authentication-gateway]]. Mapping: [[unified.secops-platform.data.mapping]] and [[unified.secops-platform.data.mapping-copilot]]. Suppression rules and source runs: [[unified.secops-platform.data.source-operations]]. The ThreatLabz source: [[unified.secops-platform.data.threatlabz]]. The data model: [[unified.secops-platform.data.model]], [[unified.secops-platform.data.asset-aging]] and [[unified.secops-platform.data.unification]]. Per-connector guides: [[uvm.data-sources]] and [[uvm.outegrations]]."
+    }
+  ],
+  "claims": {
+    "ds-run-map-rerun": {
+      "statement": "The recommended data source flow triggers an initial extraction, maps the ingested fields, then runs the source a second time to apply the mapping rules, after which it syncs on a schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "3. Run the data source: After the source is created, you must trigger the initial extraction.",
+            "5. Rerun the data source: After your field mappings are saved, run the data source a second time. This applies your mapping rules to the extracted data",
+            "enters a state of continuous, scheduled synchronization"
+          ]
+        }
+      ]
+    },
+    "ds-auto-scheduling": {
+      "statement": "Auto-scheduling, which coordinates source runs as a single process, is recommended; the setting is enabled by default and can be adjusted to your data windows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "coordinate source runs as a single process for consistent",
+            "This setting is enabled by default and can be adjusted to your data windows.",
+            "6. (Recommended) Set scheduling: Use auto"
+          ]
+        }
+      ]
+    },
+    "ds-app-inputs": {
+      "statement": "The help names the telemetry each application needs: UVM scanners and CSPM tools; AEM CMDBs, IT asset management tools and cloud inventories; Identity Protection IAM directories and Zscaler Client Connector endpoint telemetry; Agentic SOC EDR, identity and Zscaler network telemetry.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "Unified Vulnerability Management (UVM): Requires telemetry from vulnerability scanners and Cloud Security Posture Management (CSPM) tools",
+            "Asset Exposure Management (AEM): Requires telemetry from CMDBs (e.g., ServiceNow), IT asset management tools, and cloud inventories",
+            "Identity Protection: Requires signals from IAM directories (e.g., Active Directory, Entra ID, Okta) and endpoint telemetry (via Zscaler Client Connector)",
+            "Agentic SOC: Ingests and correlates alerts from EDR, identity, and Zscaler network telemetry (e.g., Internet & SaaS)"
+          ]
+        }
+      ]
+    },
+    "ds-anysource-fallback": {
+      "statement": "When no data source exists for a tool, the AnySource connector can ingest proprietary or unsupported data feeds, for example through an AWS S3 bucket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "If a data source is not available for a specific tool, you can use the AnySource connector to ingest proprietary or unsupported data feeds (e.g., through an AWS S3 bucket)."
+          ]
+        }
+      ]
+    },
+    "ds-prereqs": {
+      "statement": "Before configuring a data source, the vendor-side credentials should have read-only permissions for the targeted streams, the vendor may require the platform's public IP addresses to be allowlisted, and API keys, secrets and tokens entered in the platform are encrypted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "Ensure the credentials you generate possess the correct read-only permissions for the targeted data streams.",
+            "Determine if the vendor requires Agentic SecOps Platform public IP addresses to be allowlisted.",
+            "All API keys, secrets, and tokens entered into the Agentic SecOps Platform are securely encrypted."
+          ]
+        }
+      ]
+    },
+    "ds-monitoring": {
+      "statement": "Email notifications can be enabled for failures related to source runs and ETL processing, and audit logs track changes to data source instances, mappings and scheduling settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-data-source-configurations.json",
+          "quotes": [
+            "you can enable email notifications for failures related to source runs and ETL processing.",
+            "review audit logs to track changes to data source instances, mappings, and scheduling settings"
+          ]
+        }
+      ]
+    },
+    "ds-manage-actions": {
+      "statement": "The Managing Data Sources page lists these actions: configure auto-scheduling, edit, delete, deactivate, view source runs, map source data, process, rerun last execution and view the audit logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-data-sources.json",
+          "quotes": [
+            "Configure Auto-Scheduling",
+            "Deactivate Data Sources",
+            "View Source Runs",
+            "Map Source Data",
+            "Process Data Sources",
+            "Rerun Last Execution",
+            "View the Audit Logs",
+            "Edit Data Sources",
+            "Delete Data Sources"
+          ]
+        }
+      ]
+    },
+    "ds-catalog-shape": {
+      "statement": "The data source catalog table lists supported data sources by vendor, the streams each supports, and the type of data each stream retrieves.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "listing the streams it supports and the types of data each stream retrieves",
+            "| Vendor | Data Source | Streams and Data Retrieved |"
+          ]
+        }
+      ]
+    },
+    "catalog-intune": {
+      "statement": "Microsoft Intune appears as two data sources: Microsoft Intune Assets, which retrieves Intune devices mapped to assets, and Microsoft Intune Audit Events, which retrieves audit events and logs using the Microsoft Graph API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "Microsoft Intune Assets: Retrieves Microsoft Intune devices that are mapped to assets in the system.",
+            "Microsoft Intune Audit Events: Retrieves Microsoft Intune audit events and logs using the Microsoft Graph API."
+          ]
+        }
+      ]
+    },
+    "catalog-entra": {
+      "statement": "The Entra ID data source lists four streams: Administrative Units, Applications, Devices, and Users & Groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "Entra ID - Administrative Units: Retrieves administrative units and the members assigned to each unit.",
+            "Entra ID - Applications: Retrieves applications registered in the tenant and the owners for each application.",
+            "Entra ID - Devices: Retrieves registered devices and the owners for each device.",
+            "Entra ID - Users & Groups: Retrieves users and the groups each user belongs to."
+          ]
+        }
+      ]
+    },
+    "catalog-qualys": {
+      "statement": "The catalog lists Qualys streams for host data, vulnerabilities and policy compliance, and separate Qualys streams for web applications and their findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "Qualys Assets: Retrieves host data, including IP addresses, DNS names, serial numbers, operating systems, and tags.",
+            "Qualys Policy Compliance: Retrieves compliance posture info records, including the compliance posture ID.",
+            "Qualys Vulnerabilities: Retrieves vulnerabilities from the vulnerabilities and potential vulnerabilities categories.",
+            "Qualys Assets: Retrieves the list of web applications within the user's scope.",
+            "Qualys Vulnerabilities: Retrieves findings, including vulnerabilities, sensitive content, and gathered information associated with web applications within the user's scope."
+          ]
+        }
+      ]
+    },
+    "catalog-sheets-freshservice": {
+      "statement": "The catalog lists Google Sheets as a source that retrieves data from a specified spreadsheet and can optionally filter by sheet, and Freshservice as a source that retrieves ticket data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "Google Sheets: Retrieves data from a specified Google Sheets spreadsheet and can optionally filter by specific sheets.",
+            "Freshservice: Retrieves ticket ID, requester details, ticket status, priority, assignee, and related metadata."
+          ]
+        }
+      ]
+    },
+    "catalog-crowdstrike": {
+      "statement": "Among the CrowdStrike streams the catalog lists are CrowdStrike Vulnerabilities, Managed Hosts and Environmental Assets, CrowdStrike CSPM indicators of misconfiguration (IOM) and of attack (IOA), and CrowdStrike Identity Protection Security Assessment and Domain Users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-data-source.json",
+          "quotes": [
+            "CrowdStrike Vulnerabilities: Retrieves vulnerabilities, including IDs, severity levels, affected systems, and descriptions.",
+            "CrowdStrike CSPM Indicators of Misconfiguration (IOM)",
+            "CrowdStrike CSPM Indicators of Attack (IOA)",
+            "CrowdStrike Identity Protection Domain Users: Retrieves user data, including display names, risk scores, admin status, and archival status.",
+            "CrowdStrike Managed Hosts: Retrieves devices managed by CrowdStrike",
+            "CrowdStrike Environmental Assets: Retrieves assets in your environment",
+            "CrowdStrike Identity Protection Security Assessment: Retrieves security risk details"
+          ]
+        }
+      ]
+    },
+    "og-wizard": {
+      "statement": "Creating Outegrations lists the steps Connect, Settings and Mapping; the Settings step says all outegrations require selecting an entity to create the outegration from, and work management outegrations can configure the Create Ticket button.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-creating-outegrations.json",
+          "quotes": [
+            "In the outegration setup wizard, configure the setup in the following steps:",
+            "Connect: Enter the outegration details.",
+            "Settings: Configure the outegration settings. All outegrations require selecting an entity to create the outegration from.",
+            "work management outegrations allow you to configure the Create Ticket button",
+            "Mapping: Configure the outegration mapping to define how data is exchanged and synchronized between the two systems."
+          ]
+        }
+      ]
+    },
+    "og-flow": {
+      "statement": "For outegrations that support bidirectional synchronization, the deployment flow includes configuring a webhook to receive updates from the third-party system; an outegration can be deactivated to stop outbound activity without removing its configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-outegration-configurations.json",
+          "quotes": [
+            "If the outegration supports bidirectional synchronization, configure the webhook required to receive updates from the third-party system.",
+            "you can deactivate an outegration to temporarily stop outbound activity or synchronization without removing its configuration"
+          ]
+        }
+      ]
+    },
+    "og-app-use": {
+      "statement": "UVM uses outegrations to send remediation tasks to external ticketing and workflow systems, and AEM uses them to route asset exposure findings and operational context into external systems.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-outegration-configurations.json",
+          "quotes": [
+            "Unified Vulnerability Management (UVM): Uses outegrations to send remediation tasks to external ticketing and workflow systems",
+            "Asset Exposure Management (AEM): Uses outegrations to route asset exposure findings and related operational context into external systems"
+          ]
+        }
+      ]
+    },
+    "og-monitoring": {
+      "statement": "Outegration activity is monitored through activity logs, email notifications can be enabled for outegration failures, and audit logs track changes to outegration configurations and mappings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-deploying-outegration-configurations.json",
+          "quotes": [
+            "You can monitor outegration activity by reviewing activity logs and investigating failed or incomplete operations.",
+            "you can enable email notifications for outegration failures",
+            "review audit logs to track changes to outegration configurations, mappings, and related settings"
+          ]
+        }
+      ]
+    },
+    "og-manage-actions": {
+      "statement": "The Managing Outegrations page lists these actions: edit mapping, edit details and settings, delete, clone, deactivate and see the activity log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-outegrations.json",
+          "quotes": [
+            "Edit Outegration Mapping",
+            "Edit Outegration Details and Settings",
+            "Delete an Outegration",
+            "Clone an Outegration",
+            "Deactivate an Outegration",
+            "See Activity Log"
+          ]
+        }
+      ]
+    },
+    "og-catalog-webhooks": {
+      "statement": "In the outegration catalog, Jira, Freshservice, Azure DevOps and ServiceNow list a webhook guide for bidirectional sync, while Kafka, GCP Storage, ServiceNow CMDB, Tenable and Email are listed as Not supported.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-outegration.json",
+          "quotes": [
+            "Configuring the Jira Outegration Webhook",
+            "Configuring the Freshservice Outegration Webhook",
+            "Configuring the Azure DevOps Outegration Webhook",
+            "Configuring the ServiceNow Outegration Webhook",
+            "| Apache | Apache Kafka | Alerts | Publishes entity data and ticket events to an external Kafka topic. | Not supported |",
+            "| Google | GCP Storage | Storage | Delivers exported Agentic SecOps Platform report files to a designated Google Cloud Storage bucket. | Not supported |",
+            "| ServiceNow | ServiceNow CMDB | CMDB | Dispatches asset details from violation tickets to update specified ServiceNow CMDB records. | Not supported |",
+            "| Tenable | Tenable Vulnerability Management / Security Center | Scanner | Triggers on-demand vulnerability scans on managed assets to validate remediation after patching. | Not supported |",
+            "| Email | Alerts | Dispatches details configured in the email to recipients. | Not supported |",
+            "If an outegration supports bidirectional sync, the corresponding webhook guide is listed."
+          ]
+        }
+      ]
+    },
+    "og-catalog-categories": {
+      "statement": "The outegration catalog assigns categories: Kafka and Email are Alerts, Jira, Freshservice, Azure DevOps and ServiceNow are Work Management, GCP Storage is Storage, ServiceNow CMDB is CMDB and Tenable is Scanner.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-outegration.json",
+          "quotes": [
+            "| Atlassian | Jira (Cloud and Data Center) | Work Management |",
+            "| Freshworks | Freshservice | Work Management |",
+            "| Microsoft | Azure DevOps | Work Management |",
+            "| ServiceNow | ServiceNow | Work Management |",
+            "| Apache | Apache Kafka | Alerts |",
+            "| Google | GCP Storage | Storage |",
+            "| ServiceNow | ServiceNow CMDB | CMDB |",
+            "| Tenable | Tenable Vulnerability Management / Security Center | Scanner |",
+            "| Email | Alerts |"
+          ]
+        }
+      ]
+    },
+    "og-catalog-jira": {
+      "statement": "The catalog lists Jira (Cloud and Data Center) as dispatching Agentic SecOps Platform tickets to a Jira project as mapped issue types such as Task or Bug.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-agentic-security-operations-platform-configurations-outegration.json",
+          "quotes": [
+            "Dispatches Agentic SecOps Platform tickets to a Jira project as mapped issue types, such as Task or Bug."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "og-wizard-steps": {
+      "summary": "Creating Outegrations gives Connect, Settings and Mapping as the creation steps and says all outegrations require selecting an entity; the AWS S3 outegration guide lists its steps as Connect, Settings, and Configure Reports or Define Dispatch Criteria, with no Mapping step.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-creating-outegrations.json",
+            "quotes": [
+              "Mapping: Configure the outegration mapping to define how data is exchanged and synchronized between the two systems.",
+              "Settings: Configure the outegration settings. All outegrations require selecting an entity to create the outegration from."
+            ]
+          },
+          "says": "Creating Outegrations: every outegration has Settings, where an entity is selected, and Mapping steps."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-aws-s3-outegration.json",
+            "quotes": [
+              "Step 1: Authenticate the AWS S3 Connection (Connect)",
+              "Step 2: Configure the Outegration Visibility and Behavior (Settings)",
+              "Step 3: Configure Reports or Define Dispatch Criteria"
+            ]
+          },
+          "says": "The AWS S3 guide has Connect, Settings and a reports or dispatch criteria step, with no Mapping step."
+        }
+      ],
+      "impact": "Do not state the Connect, Settings, Mapping sequence or entity selection as holding for every outegration; the Google Cloud Storage outegration guide uses none of those step names."
+    },
+    "ds-first-run": {
+      "summary": "Deploying Data Source Configurations says that after the source is created you must trigger the initial extraction; Creating data sources and the suppression rules page say the new data is retrieved on the next data run, or the source runs automatically on its schedule, with Process Now to retrieve immediately.",
+      "positions": [
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "unified-deploying-data-source-configurations.json",
+            "quotes": [
+              "3. Run the data source: After the source is created, you must trigger the initial extraction."
+            ]
+          },
+          "says": "The initial extraction must be triggered."
+        },
+        {
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-creating-data-sources.json",
+            "quotes": [
+              "Your new data is retrieved on the next data run. To retrieve the data immediately, hover over the source and click the Process Now icon."
+            ]
+          },
+          "says": "New data is retrieved on the next data run, or immediately with Process Now."
+        }
+      ],
+      "impact": "Do not say whether a new source needs a manual first run without naming that the pages differ."
+    }
+  },
+  "gaps": {
+    "refresh-cadence": {
+      "kind": "semantic",
+      "title": "Full and incremental refresh cadence and default auto-scheduling window",
+      "status": "open",
+      "detail": "Deploying Data Source Configurations says to follow the platform's guidance for full and incremental refresh cadence, but no captured article states the cadence, the auto-scheduling window or default schedule values.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    },
+    "ds-catalog-rows": {
+      "kind": "semantic",
+      "title": "Data source catalog rows missing for sources other captured pages cover",
+      "status": "open",
+      "detail": "The captured data source table has no rows for Okta, SFTP, SecurityScorecard, Snyk, Wiz, SentinelOne, Zscaler Client Connector or ZIA, which other captured pages cover. The page scopes itself to third-party sources, so Client Connector and ZIA may be absent by design; whether the page or the capture is incomplete for the others is not settled by these articles; this also leaves portfolio.secops-platform's connector-catalog gap only partly closed.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "og-catalog-coverage": {
+      "kind": "semantic",
+      "title": "Outegration catalog coverage against the per-connector guides",
+      "status": "open",
+      "detail": "The outegration catalog lists Kafka, Jira, Freshservice, GCP Storage, Azure DevOps, ServiceNow, ServiceNow CMDB, Tenable and Email, and does not list AWS S3, Microsoft Teams or Splunk, which uvm.outegrations documents. Creating Outegrations also names Slack as an alert-system example with no Slack guide among these articles, and the Jira, Freshservice, Azure DevOps and ServiceNow webhook guides are not among these articles, though they are captured separately and cited by uvm.outegrations.ticketing. This is an absence from comparing pages, not a claim.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

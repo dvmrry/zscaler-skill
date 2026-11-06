@@ -1,0 +1,307 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data.source-operations",
+  "title": "Agentic SecOps Platform source operations: suppression rules and tracking data source runs",
+  "aliases": [
+    "suppression rules",
+    "source runs",
+    "tracking data source runs"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.data-sources"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use.log-retention"
+    }
+  ],
+  "prose": [
+    {
+      "heading": "Suppression rules"
+    },
+    {
+      "text": "{{sup-purpose}} {{sup-not-retroactive}} {{sup-field-names}}"
+    },
+    {
+      "label": "Configuring.",
+      "text": "{{sup-rule-config}} {{sup-existing-source}} The step bodies are not in the capture {{gap:sup-steps-not-captured}}. {{sup-save-not-run}}"
+    },
+    {
+      "label": "Checking that they work.",
+      "text": "{{sup-validate}}"
+    },
+    {
+      "heading": "Source runs"
+    },
+    {
+      "text": "{{run-status}} {{run-category}} {{run-retrieval-type}}"
+    },
+    {
+      "label": "What triggered a run.",
+      "text": "{{run-trigger-type}}"
+    },
+    {
+      "text": "The Entity Management Runs list defines Batched differently [[unified.secops-platform.data.model]]."
+    },
+    {
+      "label": "Run detail.",
+      "text": "{{run-activities}} {{run-failed-details}} {{run-common-errors}} How long run history is kept is not stated {{gap:run-history-retention}}."
+    }
+  ],
+  "claims": {
+    "sup-purpose": {
+      "statement": "Suppression rules either exclude specific data or include only a targeted subset of the source data, and can be set during initial source setup or after the source has first ingested data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Suppression rules allow you to either exclude specific data (e.g., from decommissioned assets or test environments) or include only a targeted subset of the source data.",
+            "Suppression rules can be configured either during initial source setup or after the source has ingested data for the first time."
+          ]
+        }
+      ]
+    },
+    "sup-not-retroactive": {
+      "statement": "Suppression rules apply only to data ingested after the rules are configured and do not retroactively affect previously ingested data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Suppression rules only apply to data ingested after the rules are configured. The rules do not retroactively affect data that was previously processed and ingested into the platform."
+          ]
+        }
+      ]
+    },
+    "sup-field-names": {
+      "statement": "Suppression rules use the original field names from the third-party source; the field-name drop-down is populated with field names from the source after at least one ingestion run, and on a new source field names can be entered manually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Suppression rules rely on the original field names provided by the third-party data source.",
+            "The drop-down menu is populated with field names from the source after at least one ingestion run.",
+            "Here, you'll need to add the field names manually in the rule configuration process."
+          ]
+        }
+      ]
+    },
+    "sup-rule-config": {
+      "statement": "A suppression rule takes a scope of Exclude Rows or Include Rows, a field type (for example Text, Date, Number, Boolean) that determines the available operators, a value, and optional AND/OR compound logic; values are case sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Exclude Rows: Filter out data that should not be ingested.",
+            "Include Rows: Ingest only data that matches your criteria.",
+            "The field type determines the available filter operators.",
+            "Suppression rules are case sensitive.",
+            "(Optional) Use AND/OR logic to define compound rules.",
+            "Enter the value to filter by (i.e., to exclude or include in the data ingestion).",
+            "Select the field type (e.g., Text, Date, Number, Boolean)."
+          ]
+        }
+      ]
+    },
+    "sup-existing-source": {
+      "statement": "Configuring rules on an existing source follows three steps: configure the rules, delete existing data, and reprocess the data; for a reader not already familiar with the source field names and field types, the help recommends letting the source ingest once without rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Step 1: Configure Suppression Rules",
+            "Step 2: Delete Existing Data",
+            "Step 3: Reprocess the Data",
+            "If you're not already familiar with the source field names and field types, Zscaler recommends allowing the source to ingest data once without any suppression rules configured.",
+            "This initial ingestion populates the field name drop-down menu in the suppression rules configuration screen"
+          ]
+        }
+      ]
+    },
+    "sup-save-not-run": {
+      "statement": "Saving a source with suppression rules does not run it; the source runs on its schedule unless processed immediately with the Process Now icon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Saving the source does not run the source.",
+            "hover over the source in the list and click the Process Now icon",
+            "Otherwise, the source runs automatically based on its configured scheduling settings."
+          ]
+        }
+      ]
+    },
+    "sup-validate": {
+      "statement": "Suppression can be validated by a decrease in the most recent run's ingested row count or by a Logs query on the suppressed field with the Equals operator, where no results suggests the rule is working.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-suppression-rules.json",
+          "quotes": [
+            "Checking for a decrease in row count is a quick way to verify that suppression rules are filtering data during ingestion.",
+            "Expand the most recent run to view the total number of ingested rows.",
+            "If the query returns no results, the suppression rule is likely to be functioning as expected.",
+            "Use the Equals operator."
+          ]
+        }
+      ]
+    },
+    "run-status": {
+      "statement": "A source run's Status is Completed (no authentication or ingestion issues), Canceled (intentionally stopped by the user) or Failed (an error prevented completion).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "Completed: The run successfully completed without authentication or data ingestion issues.",
+            "Canceled: The run was intentionally stopped by the user.",
+            "Failed: The run encountered an error or issue that prevented it from completing successfully."
+          ]
+        }
+      ]
+    },
+    "run-category": {
+      "statement": "A source run's Category is Map and Aggregate (data has been unified), Map (data not unified, original raw format) or N/A for canceled or failed runs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "Map and Aggregate: The data has undergone unification processes, resulting in a standardized and aggregated format.",
+            "Map: The data has not been unified and is presented in its original, raw format.",
+            "N/A: This value is displayed for cancelled or failed runs, where no processing has occurred."
+          ]
+        }
+      ]
+    },
+    "run-retrieval-type": {
+      "statement": "Data Retrieval Type shows whether a run retrieved the entire dataset (Full) or only new or updated data (Incremental).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "Full: The entire dataset is retrieved from the source.",
+            "Incremental: Only new or updated data is retrieved from the source."
+          ]
+        }
+      ]
+    },
+    "run-trigger-type": {
+      "statement": "A source run is triggered by System (its configured schedule) or User (Process Now or Rerun Last Execution), and its Run type is Source process (manual), Scheduled, or Batched (platform-managed batch process).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "System: The run was triggered by its configured schedule.",
+            "User: The run was triggered by a user with the Process Now or Rerun Last Execution action.",
+            "Source process: A manually processed run.",
+            "Scheduled: A run initiated by its configured schedule.",
+            "Batched: A run initiated as part of a platform-managed batch process."
+          ]
+        }
+      ]
+    },
+    "run-activities": {
+      "statement": "An expanded completed run lists Activities such as Data Retrieval, Mapping and Entities, with nested activities under Entities such as Assets, Findings, Tickets, Merge and Data Manipulation, and shows File Size in megabytes, Number of Files and Total Number of Rows.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "When a run is successful, the Status column displays Completed. To further validate the run, expand the row to view the run's activity details.",
+            "The expanded run includes an Activities section that shows the processing stages completed during the run",
+            "such as Data Retrieval, Mapping, and Entities.",
+            "additional nested activities can appear under Entities, such as Assets, Findings, Tickets, Merge, and Data Manipulation.",
+            "File Size: The size of the ingested file in megabytes.",
+            "Number of Files: The number of files ingested in the run.",
+            "Total Number of Rows: The total number of rows ingested."
+          ]
+        }
+      ]
+    },
+    "run-failed-details": {
+      "statement": "An expanded failed run shows an Error type, Error description, Actionable Resolution Steps and the Original Error Message returned by the external system, and the error details can be copied to share with Zscaler Support.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "Error type: A categorized description of the failure (e.g., Vendor Credentials Issue / Authentication Failure).",
+            "Actionable Resolution Steps: Recommended steps you can take to resolve the issue.",
+            "Original Error Message: The source error returned by the external system or service.",
+            "click the Copy icon to copy the error information for troubleshooting or to share with Zscaler Support",
+            "Error description: A summary of why the run failed."
+          ]
+        }
+      ]
+    },
+    "run-common-errors": {
+      "statement": "The help groups common run failures into authentication, permission, configuration, connectivity, vendor service (unavailable, rate limited or unexpected response) and processing (mapping, merge or data manipulation) errors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-tracking-data-source-runs.json",
+          "quotes": [
+            "Authentication errors: The run failed because the configured authentication credentials are invalid, missing, or expired.",
+            "Permission errors: The run failed because the authenticated account or user does not have the required access to retrieve or process the data.",
+            "Configuration errors: The run failed because of an invalid source, mapping, or processing configuration.",
+            "Connectivity errors: The run failed because the Agentic SecOps Platform could not connect to the external source or service.",
+            "Vendor service errors: The run failed because the external source or service was unavailable or rate limited, or returned an unexpected response.",
+            "Processing errors: The run failed during a later stage, such as mapping, merge, or data manipulation."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "run-history-retention": {
+      "kind": "semantic",
+      "title": "How long source run history is retained",
+      "status": "open",
+      "detail": "No captured article gives a retention period for source run history; the 90-day and 50-record figures in the mapping articles apply to Explore and Test Script, and Mapping Copilot's prerequisite uses the 90-day figure for a successful run.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "sup-steps-not-captured": {
+      "kind": "semantic",
+      "title": "Suppression rule steps 1 to 3 on an existing source",
+      "status": "open",
+      "detail": "Step 1: Configure Suppression Rules, Step 2: Delete Existing Data and Step 3: Reprocess the Data are headings only in the capture, so what each step has the customer do is not established.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,331 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.operations.logging",
+  "title": "How Zero Trust Branch logs traffic: architecture, log types and formats, retention and limits, throttling and tenant isolation",
+  "aliases": [
+    "ztb logs",
+    "ztb packet logs",
+    "ztb flow logs",
+    "ztb log retention",
+    "ztb log throttling",
+    "ztb analytics data lake"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.logs-fair-use.log-retention"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.operations.integrations"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{log-architecture}} {{tenant-log-isolation}} The wider operations area is in [[zero-trust-branch.operations]]."
+    },
+    {
+      "label": "Log types and formats.",
+      "text": "{{packet-vs-flow-logs}} The SIEM page gives a different count of traffic log types {{divergence:traffic-log-type-count}}. {{stored-log-format}} {{traffic-log-fields}} The SIEM page's count of traffic log types is in [[zero-trust-branch.operations.integrations]]."
+    },
+    {
+      "label": "Retention and limits.",
+      "text": "{{data-store-retention}} {{session-log-retention}} The overview and the SIEM page differ on how logs reach a SIEM {{divergence:siem-export-path}}. {{console-export-limits}} {{traffic-chart-node-limit}} The product-level retention terms are in [[shared.logs-fair-use.log-retention]]."
+    },
+    {
+      "label": "Timing and volume.",
+      "text": "{{flow-log-delay}} The traffic chart delay is given differently on the traffic flow chart page {{divergence:traffic-chart-delay}}. {{log-throttling}} {{logging-levels}} Where a logging level is set is open {{gap:logging-level-setting}}. The traffic chart is in [[zero-trust-branch.operations.monitoring]]."
+    }
+  ],
+  "claims": {
+    "log-architecture": {
+      "statement": "Logging is built on an Analytics Data Lake with two subsystems, the Ingestion and Analytics Engine and the Analytics Data Store, with one engine instance deployed per Zero Trust Branch management instance.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-logging-and-monitoring.json",
+          "quotes": [
+            "The Analytics Data Lake comprises two core subsystems:",
+            "Ingestion and Analytics Engine: The ingestion, processing, and analytics layer",
+            "Analytics Data Store: The searchable, query-ready storage and visualization layer",
+            "Per-environment deployment: One engine instance is deployed per Zero Trust Branch management instance, isolating log flows for each environment."
+          ]
+        }
+      ]
+    },
+    "data-store-retention": {
+      "statement": "The Analytics Data Store keeps packet logs and flow logs in dedicated tenant spaces and retains logs for up to 7 days.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-logging-and-monitoring.json",
+          "quotes": [
+            "The Analytics Data Store retains structured packet and flow logs in dedicated tenant spaces.",
+            "Retention: Logs are retained for up to 7 days, supporting short-term analytics and rapid incident response."
+          ]
+        }
+      ]
+    },
+    "traffic-chart-node-limit": {
+      "statement": "Each node in a traffic chart can represent up to 200 neighboring connections.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-logging-and-monitoring.json",
+          "quotes": [
+            "Each node in a chart can represent up to 200 neighboring connections.",
+            "Logs processed by the engine enable dynamic, interactive traffic charts and device maps."
+          ]
+        }
+      ]
+    },
+    "session-log-retention": {
+      "statement": "Session logs (including flow records) are retained for 7 days by default; longer retention is through export to external SIEM platforms or an extended retention request under the master service agreement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Session logs (including flow records) are retained for 7 days by default.",
+            "Export logs to external SIEM platforms.",
+            "Request extended retention through their master service agreement (MSA)."
+          ]
+        }
+      ]
+    },
+    "console-export-limits": {
+      "statement": "The Admin Console displays up to 500 log entries at a time and exported log files can be up to 10 MB; Private Access (ZPA)-related logs do not appear in the Admin Console and are available only in Private Access diagnostics.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "The Zscaler Admin Console displays up to 500 log entries at a time.",
+            "Exported log files can be up to 10 MB in size.",
+            "Private Access (ZPA)-related logs do not appear in the Zscaler Admin Console. They are available only in Private Access diagnostics."
+          ]
+        }
+      ]
+    },
+    "packet-vs-flow-logs": {
+      "statement": "Appliances capture packet logs (all captured packet headers that hit any policy, per packet) and flow logs (session flow details for a source/destination pair and a policy/action set), found under Data Explorer > Zero Trust Branch.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Zero Trust Branch appliances capture two primary types of traffic logs: packet logs and flow logs.",
+            "Packet logs display all captured packet headers that hit any policy in a per-packet manner.",
+            "Flow logs help you to troubleshoot issues using session flow details for a source/destination pair and a policy/action set.",
+            "From the navigation menu, go to Data Explorer > Zero Trust Branch > Packet Logs.",
+            "From the navigation menu, go to Data Explorer > Zero Trust Branch > Flow Logs."
+          ]
+        }
+      ]
+    },
+    "flow-log-delay": {
+      "statement": "Flow logs are near real time, but traffic charts need to collect and compile the data, so a 5- to 7-minute delay is expected in traffic charts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Flow logs are near real time.",
+            "Traffic charts need to collect and compile the data before it is displayed in the graphs. As a result, expect a 5- to 7-minute delay in traffic charts."
+          ]
+        }
+      ]
+    },
+    "log-throttling": {
+      "statement": "By default Zscaler logs a traffic flow once per hour per 4-tuple (source IP address, destination IP address, destination port, protocol) for each policy match, throttling is enabled by default in Firewall and Segmentation policies for east–west traffic, and Disable Log Throttling on a policy gives more verbose logging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "By default, Zscaler only logs the traffic flow once per hour based on the 4-tuple (source IP address, destination IP address, destination port, protocol) for each policy match.",
+            "By default, throttling is enabled in Firewall and Segmentation policies for east–west traffic.",
+            "To enable more verbose logging, select Disable Log Throttling when you add or edit a policy."
+          ]
+        }
+      ]
+    },
+    "logging-levels": {
+      "statement": "Logging levels are Info (the default), Warning, Error and Debug, and Debug produces significantly more logs and is typically enabled only during targeted troubleshooting.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Info: Captures standard operational events and routine activities. This is the default level.",
+            "Warning: Records potential issues that do not interrupt operations but might require attention.",
+            "Error: Captures critical incidents or failures that need immediate investigation",
+            "This level produces significantly more logs and is typically enabled only during targeted troubleshooting.",
+            "Debug: Provides detailed, granular information for diagnostic purposes."
+          ]
+        }
+      ]
+    },
+    "stored-log-format": {
+      "statement": "Logs are stored as structured JSON, entries include key fields such as IPTables data and tunnel information, and logs can be exported in JSON or CSV.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Logs are stored in a structured JSON format",
+            "Each entry includes key fields such as:",
+            "IPTables data: Input/output device, length, type-of-service (TOS), time-to-live (TTL), precedence bits",
+            "Tunnel information",
+            "Logs can be exported in JSON or CSV formats for external analysis or long-term storage."
+          ]
+        }
+      ]
+    },
+    "traffic-log-fields": {
+      "statement": "In a traffic log line, the tenant, site and gateway names are joined by double hyphens, the policy name, policy ID and policy action by a hyphen, and the destination and source MAC addresses by a colon.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Combined value indicating tenant name, site name, and gateway name, separated by double hyphens (--)",
+            "Combined value indicating policy name, policy ID, and policy action, separated by a hyphen (-)",
+            "Combined value indicating destination MAC address and source MAC address, separated by a colon (:)"
+          ]
+        }
+      ]
+    },
+    "tenant-log-isolation": {
+      "statement": "Customer logs are isolated per tenant through dedicated ingestion tables for graph-generation data, separate Analytics Data Store spaces for packet and flow logs, individual cloud storage buckets for syslogs, and dedicated tables for alarms and notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-understanding-log-types-levels-and-formats.json",
+          "quotes": [
+            "Dedicated ingestion records (tables) for each customer’s graph-generation data",
+            "Separate Analytics Data Store spaces for packet logs and flow logs",
+            "Individual cloud storage buckets for syslogs",
+            "Dedicated tables for each customer’s alarms and notifications"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "traffic-chart-delay": {
+      "summary": "The log types page expects a 5- to 7-minute delay in traffic charts, while the traffic flow chart page says it can take up to 10 minutes after an event.",
+      "positions": [
+        {
+          "says": "Expect a 5- to 7-minute delay in traffic charts.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-log-types-levels-and-formats.json",
+            "quotes": [
+              "As a result, expect a 5- to 7-minute delay in traffic charts."
+            ]
+          }
+        },
+        {
+          "says": "It can take up to 10 minutes after an event before traffic is reflected in the traffic flow chart.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-viewing-traffic-flow-charts.json",
+            "quotes": [
+              "it can take up to 10 minutes after an event before the traffic is reflected in the traffic flow chart"
+            ]
+          }
+        }
+      ],
+      "impact": "A chart that is still empty 8 minutes after an event is within one page's stated range but past the other's; treat up to 10 minutes as the outer bound before investigating."
+    },
+    "traffic-log-type-count": {
+      "summary": "The log types page says appliances capture two traffic log types, packet logs and flow logs, while the SIEM integration page says Zero Trust Branch generates only one type of traffic log, the session-init logs.",
+      "positions": [
+        {
+          "says": "Appliances capture two primary types of traffic logs: packet logs and flow logs.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-log-types-levels-and-formats.json",
+            "quotes": [
+              "Zero Trust Branch appliances capture two primary types of traffic logs: packet logs and flow logs."
+            ]
+          }
+        },
+        {
+          "says": "Zero Trust Branch generates only one type of traffic log, the session-init logs, which are the logs exported to the SIEM server.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "Currently, Zero Trust Branch generates only one type of traffic log: the session-init logs."
+            ]
+          }
+        }
+      ],
+      "impact": "What reaches a SIEM is session-init logs; whether they correspond to the packet logs, the flow logs or both is not stated, so do not assume the SIEM receives both log types shown in Data Explorer."
+    },
+    "siem-export-path": {
+      "summary": "The logging and monitoring overview says logs are exported to external SIEM platforms via the API, while the SIEM integration page says the appliance sends syslog messages directly to the configured syslog server.",
+      "positions": [
+        {
+          "says": "Logs can be exported to external SIEM platforms via the API.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-understanding-logging-and-monitoring.json",
+            "quotes": [
+              "Third-party integrations: Logs can be exported to external SIEM platforms, such as Splunk or QRadar, via the API for broader visibility, longer retention, and centralized analysis."
+            ]
+          }
+        },
+        {
+          "says": "The appliance sends syslog messages directly to the configured syslog server.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-siem-integration.json",
+            "quotes": [
+              "The Zero Trust Branch appliance sends syslog messages directly to the configured syslog server."
+            ]
+          }
+        }
+      ],
+      "impact": "Which path carries SIEM logs, and so where to open firewall access, is not settled by the pages."
+    }
+  },
+  "gaps": {
+    "logging-level-setting": {
+      "kind": "semantic",
+      "title": "Where and how a logging level is set, and whether levels have their own retention",
+      "status": "open",
+      "detail": "The captured log types page lists the Info, Warning, Error and Debug levels and says Info is the default, but does not say where or how a level is set or give a per-level retention. The enhanced WAN edge HA page sets Debug Logs to High under Troubleshooting > Debug Logs on the site details page, without saying this is the same setting as the Debug level.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

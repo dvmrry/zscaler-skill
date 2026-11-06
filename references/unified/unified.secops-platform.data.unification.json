@@ -1,0 +1,488 @@
+{
+  "schema_version": 1,
+  "id": "unified.secops-platform.data.unification",
+  "title": "Entity and field unification in the Agentic SecOps Platform: merge rules, field rule sets, reconciliation defaults and precedence over grouping and incident rules",
+  "aliases": [
+    "data unification",
+    "entity unification",
+    "field unification",
+    "Priority By Source",
+    "attribute reconciliation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.model"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.mapping"
+    },
+    {
+      "rel": "see-also",
+      "to": "unified.secops-platform.data.threatlabz"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{uni-two-parts}} {{uni-reconciliation-default}} {{uni-when-run}}"
+    },
+    {
+      "heading": "Entity unification"
+    },
+    {
+      "text": "{{ent-rule-logic}} {{ent-exclude-nulls}} {{ent-fallback}}"
+    },
+    {
+      "label": "Applying rules.",
+      "text": "{{ent-save-run}} {{ent-rule-order}} {{ent-manual-process}} {{ent-role}}"
+    },
+    {
+      "heading": "Field unification"
+    },
+    {
+      "text": "{{fld-defaults-fallback}} {{fld-set-types}} {{fld-value-methods}} The ticket-title definitions of Smart Text and Expression are in [[uvm.tickets:title-methods]]; what they do in a field rule is not defined {{gap:fld-methods-undefined}}."
+    },
+    {
+      "label": "Priority By Source and ordering.",
+      "text": "{{fld-priority-by-source}} {{fld-rule-order}} {{fld-preview-save}}"
+    },
+    {
+      "label": "Uses.",
+      "text": "{{fld-use-cases}} The rule bodies of these examples are not in the capture {{gap:fld-examples-headings-only}}."
+    },
+    {
+      "heading": "Precedence over other settings"
+    },
+    {
+      "text": "{{fld-vs-model}} {{fld-vs-grouping}} {{fld-vs-incident}} {{incident-types}} {{orig-vs-merged}}"
+    },
+    {
+      "heading": "Reconciliation defaults"
+    },
+    {
+      "text": "{{recon-text-number}} {{recon-repeated}} {{recon-first-last-seen}} {{recon-os-example}}"
+    }
+  ],
+  "claims": {
+    "uni-two-parts": {
+      "statement": "Data unification has two components, entity unification (merging duplicate records into one, preserving raw data for lineage) and field unification (attribute reconciliation, then attribute transformation).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-data-unification.json",
+          "quotes": [
+            "The process consists of two main components: entity unification and field unification.",
+            "Entity unification is the data normalization process that merges (i.e., deduplicates) these duplicate records, creating a single trusted source of truth for your organization's data, while still maintaining raw data for lineage and visibility.",
+            "Field unification includes two steps:",
+            "Attribute reconciliation: During entity unification, conflicts can arise between the values of the merged entities' attributes",
+            "Attribute transformation: After your data is properly deduplicated and reconciled"
+          ]
+        }
+      ]
+    },
+    "uni-reconciliation-default": {
+      "statement": "Attribute reconciliation conflicts are resolved by system defaults or Priority By Source logic; attribute transformation then applies business logic to classify and enrich data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-data-unification.json",
+          "quotes": [
+            "These conflicts are typically reconciled (i.e., resolved) using system defaults, or through applying Priority By Source logic.",
+            "Attribute transformation: After your data is properly deduplicated and reconciled, the next step is applying business logic rules to classify and enrich the data through field unification rules."
+          ]
+        }
+      ]
+    },
+    "uni-when-run": {
+      "statement": "Unification rules run when entity data is ingested, when the entity is directly processed or indirectly affected by a related entity, and when manual processing is triggered, including ticket split or merge and Process or Process All on the Data Unification pages.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-what-data-unification.json",
+          "quotes": [
+            "Unification rules run when data related to the entity is ingested, directly processed, or indirectly impacted by a different processed entity.",
+            "Unification rules are triggered automatically when new data related to an entity is ingested.",
+            "Unification rules run when you trigger manual processing when splitting or merging tickets, or when you click Process or Process All on the Data Unification pages."
+          ]
+        }
+      ]
+    },
+    "ent-role": {
+      "statement": "Entity unification and field unification both require a role with Read, Create, Edit and Delete permissions under the Platform - Model Management resource.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Model Management resource"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "your assigned role must include the Read, Create, Edit, and Delete permissions under the Platform - Model Management resource"
+          ]
+        }
+      ]
+    },
+    "ent-rule-logic": {
+      "statement": "An entity merge rule is an if-then statement whose Then fields cluster matching entities into one; multiple Then fields are combined with logical AND, and AND/OR can combine If conditions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "Then: Select at least one field according to which entities that meet your conditions should be merged.",
+            "When merging entities based on multiple fields, the fields are evaluated using a logical AND relationship.",
+            "AND merges entities only if they meet all conditions in the rule.",
+            "OR merges entities if they meet any of the conditions in the rule."
+          ]
+        }
+      ]
+    },
+    "ent-exclude-nulls": {
+      "statement": "Selecting Exclude Nulls from Merge, which is recommended, avoids merging entities with null values in the defined fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "(Recommended) Select the Exclude Nulls from Merge checkbox to avoid merging entities with null values in the defined fields."
+          ]
+        }
+      ]
+    },
+    "ent-fallback": {
+      "statement": "An entity rule set that includes at least one conditional merging rule must also include a fallback rule that names a single field to merge on without conditions, otherwise the rule set cannot be saved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "A rule set that includes at least one conditional merging rule must also include a fallback rule, otherwise the rule set cannot be saved.",
+            "The fallback rule specifies a single field to use for merging entities without applying any conditions."
+          ]
+        }
+      ]
+    },
+    "ent-save-run": {
+      "statement": "Saving an entity unification rule set applies the rules on the next data ingestion, while Save & Run applies them immediately to the data in the account.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "Click Save to save the rule set. Rules will apply the next time data is ingested into your account.",
+            "From the Save drop-down menu, click Save & Run to save the rule set and immediately apply the rules to the data in your account."
+          ]
+        }
+      ]
+    },
+    "ent-rule-order": {
+      "statement": "The order of rules in an entity unification rule set does not affect application order; each data point is evaluated against all rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-entity-unification.json",
+          "quotes": [
+            "The rules' order of appearance doesn't affect the order of their application. Each data point is evaluated against all rules, even if one rule has already been satisfied."
+          ]
+        }
+      ]
+    },
+    "ent-manual-process": {
+      "statement": "Manually processing an entity without processing its related entities can cause data misalignment until the next full data run, and newly configured entity rules apply on the following data run by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-managing-entity-unification.json",
+          "quotes": [
+            "Manually processing an entity without processing its related entities can cause data misalignment issues until the next full data run.",
+            "By default, newly configured unification rules apply to your data on the following data run."
+          ]
+        }
+      ]
+    },
+    "fld-defaults-fallback": {
+      "statement": "On initial account setup all deduplicated fields are populated with default values, and every field rule set includes a fallback rule with no conditional logic that can be edited but not removed or deleted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "On initial account setup, all deduplicated fields in your account are populated with default values, implementing unification best practices.",
+            "Every rule set includes a rule that specifies a default fallback value with no conditional logic.",
+            "The fallback rule can be edited, but can't be removed or deleted."
+          ]
+        }
+      ]
+    },
+    "fld-set-types": {
+      "statement": "A field rule set is either Conditions (the default, available for fields of all entity types) or Priority By Source, which orders sources by precedence and is not available for Ticket fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "Conditions: This rule set type is the default, and it's available for fields of all entity types.",
+            "Priority By Source: This rule set type is designed to allow attribute reconciliation to be prioritized by source in place of the default logic.",
+            "This rule set type is not available for Ticket fields."
+          ]
+        }
+      ]
+    },
+    "fld-value-methods": {
+      "statement": "A conditions rule sets the field value using Value, Field, Smart Text, Expression or Empty, with options varying by field type; field unification conditions are not case sensitive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "Value\n      - Field\n      - Smart Text\n      - Expression\n      - Empty",
+            "Select one of the following methods to set the field's value. Available options vary depending on the field type.",
+            "Field unification conditions are not case sensitive."
+          ]
+        }
+      ]
+    },
+    "fld-priority-by-source": {
+      "statement": "Priority By Source rules evaluate sources in the defined order and return the first non-null value, moving to the next source when the previous one provides none; an expression can transform the returned value.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "If the previous source does not provide a value for the selected field, the rule proceeds to evaluate the next source in the priority order.",
+            "Priority by Source rules are evaluated in the order defined and returns the first non-null value.",
+            "Enable Set result using expression to transform the returned value."
+          ]
+        }
+      ]
+    },
+    "fld-rule-order": {
+      "statement": "Field unification rules in a rule set run sequentially in order of appearance, a field is unified by the first rule that applies, and the fallback rule applies if none does; order can be changed by dragging.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "The rules within a field unification rule set are run sequentially by their order of appearance. A field is unified according to the first rule that applies to it.",
+            "If no rule applies to the field, it's unified by the default fallback rule.",
+            "You can adjust the rule order by dragging them to your desired location."
+          ]
+        }
+      ]
+    },
+    "fld-preview-save": {
+      "statement": "Rule previews show the top 50 entities; Save applies field rules on the next data ingestion, while Save & Run reruns the rules for the current entity and all related entities, with a full rerun of all entities on the next data run.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "A preview of the top 50 entities appears.",
+            "Click Save to save the rule set. Rules will apply the next time data is ingested into your account.",
+            "click Save & Run to save the rule set and immediately rerun the rules for the current entity and all entities with a relation to the current entity. A full rerun of all entities occurs on the next data run."
+          ]
+        }
+      ]
+    },
+    "fld-use-cases": {
+      "statement": "Common field unification uses are classifying assignment and ownership fields (Asset Owner ID, Ticket Assignee) and enriching attributes from tags (Asset Is Crown Jewel, Asset Business Criticality).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-configuring-field-unification.json",
+          "quotes": [
+            "Classifying assignment and ownership fields: Define asset ownership and ticket assignment rules that reflect your organization's business logic.",
+            "Relevant fields to configure include Asset Owner ID and Ticket Assignee.",
+            "Relevant fields to configure include Asset Is Crown Jewel and Asset Business Criticality.",
+            "Enriching field attributes (using tags): Automate the extraction of relevant attributes from tags"
+          ]
+        }
+      ]
+    },
+    "fld-vs-model": {
+      "statement": "The first time a field unification rule is configured for a field, the system prompts to unlink and override the data model logic; later data model changes for that field are not reflected in the field unification rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-field-unification-data-model-and-application-settings.json",
+          "quotes": [
+            "When you first configure field unification for a specific field, the system prompts you to unlink and override on the Data Unification - Fields page to confirm this change.",
+            "Creating or updating a field unification rule populates and overrides the corresponding data model logic, but any subsequent changes made to the data model's rule for that field are not reflected in the field unification rule."
+          ]
+        }
+      ]
+    },
+    "fld-vs-grouping": {
+      "statement": "Creating or updating a ticket grouping rule in UVM or AEM unidirectionally overrides the matching field unification rule; grouping rules configured in field unification do not sync back to the grouping rules setup page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-field-unification-data-model-and-application-settings.json",
+          "quotes": [
+            "it unidirectionally overrides the corresponding rule in field unification.",
+            "these changes won't sync back to the grouping rules setup page.",
+            "When you create or update an Agentic SecOps Platform ticket grouping rule in UVM or AEM",
+            "it's possible to configure grouping rules in field unification and apply them to tickets"
+          ]
+        }
+      ]
+    },
+    "fld-vs-incident": {
+      "statement": "When an incident is created, its incident rule unidirectionally overrides field unification rules for the incident Title, Type and Grouping Details fields.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-field-unification-data-model-and-application-settings.json",
+          "quotes": [
+            "When an incident is created, the associated incident rule unidirectionally overrides any field unification rules for the incident Title, Type, and Grouping Details fields."
+          ]
+        }
+      ]
+    },
+    "incident-types": {
+      "statement": "There are three incident types: Custom (from custom incident rules), Platform (from default incident rules, which can be modified) and AI (created by the Correlation agent).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-field-unification-data-model-and-application-settings.json",
+          "quotes": [
+            "Custom: Incidents created from custom incident rules",
+            "Platform: Incidents created from default incident rules, which are built from common use cases and industry best practices. You can modify these rules to suit your organization's needs.",
+            "AI: Incidents created by the Correlation agent."
+          ]
+        }
+      ]
+    },
+    "recon-text-number": {
+      "statement": "Default reconciliation for conflicting values is MAJORITY for Text fields (most frequent value), MAX for Number fields, MAX for Boolean fields (TRUE if at least one value is TRUE) and MAX for Date fields (most recent date).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-attribute-reconciliation-default-functions.json",
+          "quotes": [
+            "| MAJORITY | The most frequent value from the set of values |",
+            "| Number | MAX | The maximum value for number type fields. MAX is the highest value. |",
+            "The maximum value for Boolean fields is TRUE if at least one value is TRUE",
+            "| Date | MAX | The most recent date |"
+          ]
+        }
+      ]
+    },
+    "recon-repeated": {
+      "statement": "Repeated fields, IP fields and Fix fields default to COLLECT_DISTINCT_FLAT (a list of distinct values), and Message fields default to MAX.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-attribute-reconciliation-default-functions.json",
+          "quotes": [
+            "| Repeated (all types) | COLLECT_DISTINCT_FLAT | A list of distinct values |",
+            "| IP | COLLECT_DISTINCT_FLAT | A list of distinct IP addresses |",
+            "| Fix | COLLECT_DISTINCT_FLAT | A list of distinct fixes |",
+            "| Message | MAX | The structured message data returned for the entity |"
+          ]
+        }
+      ]
+    },
+    "recon-first-last-seen": {
+      "statement": "First Seen fields (all entity types) default to MIN, the earliest date, and Last Seen fields default to MAX, the most recent date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-attribute-reconciliation-default-functions.json",
+          "quotes": [
+            "| First Seen (for all entity types) | MIN | The earliest date value |",
+            "| Last Seen (for all entity types) | MAX | The most recent date value |"
+          ]
+        }
+      ]
+    },
+    "recon-os-example": {
+      "statement": "Where merged Asset records give multiple Asset Operating System values, the system selects the value that appears most frequently; defaults can be adjusted on request or replaced with Priority By Source.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-attribute-reconciliation-default-functions.json",
+          "quotes": [
+            "the system automatically selects the value that appears most frequently among the merged records.",
+            "These defaults can be adjusted upon request or manually replaced with Priority By Source reconciliation logic in field unification.",
+            "when merging multiple Asset records into a single asset, the Asset Operating System field might contain multiple values"
+          ]
+        }
+      ]
+    },
+    "orig-vs-merged": {
+      "statement": "Some rule setups can reference either the original source value (the raw value from the source before processing or deduplication) or the merged entity value (the unified platform value), but not all rule setups support original source values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "unified-understanding-original-source-and-merged-entity-values.json",
+          "quotes": [
+            "Original source value | The raw value retrieved from the original source (e.g., ServiceNow CMDB, CrowdStrike Vulnerabilities) prior to any data processing or deduplication",
+            "Merged entity value | The unified Agentic SecOps Platform value, often merged from multiple sources",
+            "Referencing original source values is not supported across all rule configuration setups."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "fld-methods-undefined": {
+      "kind": "semantic",
+      "title": "What Smart Text and Expression do in a field unification condition",
+      "status": "open",
+      "detail": "The value method list names Smart Text and Expression; the Configuring grouping rules page defines both for setting a ticket title (Smart Text as free text plus field names as tokens, Expression as custom value transformations), and the Freshservice outegration guide defines Smart Text for mapping values, but no captured article defines either for a field unification condition.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "fld-examples-headings-only": {
+      "kind": "semantic",
+      "title": "Rule bodies for the field unification examples",
+      "status": "open",
+      "detail": "Asset Owner ID, Ticket Assignee, Asset Is Crown Jewel and Asset Business Criticality are named as relevant fields; the example headings the capture holds do not include Asset Is Crown Jewel, and no example rule body is in the capture.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

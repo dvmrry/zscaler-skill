@@ -1,0 +1,264 @@
+{
+  "schema_version": 1,
+  "id": "zero-trust-branch.deployment.vlan",
+  "title": "How Zero Trust Branch VLANs are configured: zones, DHCP granularity, management interfaces and IP reservation",
+  "aliases": [
+    "ztb vlan",
+    "ztb ip address reservation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.templates-and-sites"
+    },
+    {
+      "rel": "see-also",
+      "to": "zero-trust-branch.deployment.high-availability"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{vlan-zones}} {{vlan-staged-default}} The deployment hub is [[zero-trust-branch.deployment]]."
+    },
+    {
+      "label": "VLAN settings.",
+      "text": "{{vlan-granularity}} {{vlan-micro-subnets}} {{vlan-igmp-8-1-2}} {{vlan-dns-proxy}}"
+    },
+    {
+      "label": "Management and WAN zones.",
+      "text": "{{vlan-management-interfaces}} The port that ge3 names differs by model {{divergence:management-port-ge3}}. {{vlan-wan-virtual-ip}} {{vlan-svi-return-route}}"
+    },
+    {
+      "label": "IP reservation.",
+      "text": "{{ip-reservation-scope}} {{ip-reservation-csv}} {{ip-reservation-discovered}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the VLAN is still in the staged state and has been enabled, since VLANs are created staged by default.",
+      "uses": [
+        "vlan-staged-default"
+      ]
+    },
+    {
+      "do": "Whether Zero Trust Branch is the DHCP server for the VLAN before expecting an IP reservation to apply.",
+      "uses": [
+        "ip-reservation-scope"
+      ]
+    }
+  ],
+  "claims": {
+    "vlan-zones": {
+      "statement": "A VLAN is assigned to a LAN Zone (LAN-side interface with endpoints), Management Zone (management-side interface) or WAN Zone (WAN-side interface).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "LAN Zone: Select this if the VLAN is configured on the LAN-side interface with endpoints.",
+            "Management Zone: Select this if the VLAN is configured on the management-side interface.",
+            "WAN Zone: Select this if the VLAN is configured on the WAN-side interface."
+          ]
+        }
+      ]
+    },
+    "vlan-staged-default": {
+      "statement": "By default VLANs are created in the staged state and each must be enabled to be configured into the branch appliances or VMs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "By default, the VLANs are created in the staged state. Each VLAN must be enabled to configure it into the branch appliances or VMs."
+          ]
+        }
+      ]
+    },
+    "vlan-igmp-8-1-2": {
+      "statement": "IGMP querier (IGMPv2 or IGMPv3) lets the appliance send periodic IGMP Query messages to maintain multicast group membership in the VLAN, and is supported only on appliances running version 8.1.2 or later; per-VLAN DHCP profiles are likewise supported only on 8.1.2 or later.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Enabling IGMP querier allows the Zero Trust Branch appliance to send periodical IGMP Query messages and maintain multicast group membership within the VLAN.",
+            "IGMP querier is supported only on Zero Trust Branch appliances running version 8.1.2 or later.",
+            "Per-VLAN DCHP profiles are supported only on Zero Trust Branch appliances running version 8.1.2 or later.",
+            "select the appropriate version (IGMPv2 or IGMPv3) supported in your environment from the IGMP Version drop-down menu."
+          ]
+        }
+      ]
+    },
+    "vlan-granularity": {
+      "statement": "With Use DHCP, Granularity Device (/32) assigns /32 masks so each device is in a network of one (for full isolation), while Network assigns the original subnet mask to all endpoints on the VLAN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Device (/32): Assigns /32 subnet masks to endpoints, placing each device in a network of one. Select this option if you need full isolation for the devices in this VLAN.",
+            "Network: Assigns the original subnet mask to all endpoints connected to this VLAN."
+          ]
+        }
+      ]
+    },
+    "vlan-micro-subnets": {
+      "statement": "Use Micro-subnets allocates an additional range for statically configured devices; the Micro-subnet Prefix can be /30, /29, /28 or /27.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Use Micro-subnets: Enable this option to allocate an additional IP address range for statically configured devices in micro-subnets.",
+            "Micro-subnet Prefix: Select the subnet prefix (/30, /29, /28, or /27) to determine the size of each micro-subnet."
+          ]
+        }
+      ]
+    },
+    "vlan-management-interfaces": {
+      "statement": "The VLAN page's Interface for Appliance options for a management-zone VLAN are lo0 (in-band management within the main routing domain) and ge3 (out-of-band management through a separate management VRF); a gateway must be configured on the management interface to reach Zero Trust Branch through it from any network, and SNMP monitoring over Private Access reaches only active appliances.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "lo0 (Management): Uses the loopback interface for in-band management within the main routing domain.",
+            "ge3 (Management): Uses a dedicated physical interface for out-of-band management through a separate management VRF.",
+            "A gateway must be configured on the management interface to allow access to Zero Trust Branch through the management interface from any network.",
+            "If the management interface is used to monitor appliances using SNMP over Private Access, only active appliances can be monitored."
+          ]
+        }
+      ]
+    },
+    "vlan-wan-virtual-ip": {
+      "statement": "For a WAN-zone VLAN, an optional Virtual IP can be set if the upstream router requires a consistent return address for reverse routing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Virtual IP: (Optional) Enter a virtual IP address if the upstream router requires a consistent return address for reverse routing."
+          ]
+        }
+      ]
+    },
+    "vlan-svi-return-route": {
+      "statement": "The VLAN configuration procedure's step 6 tells you to shut down the SVI/VLAN interface on the existing L2/L3 switch, router or firewall and add a return route for the VLAN with the Zero Trust Branch WAN Virtual IP address as nexthop; the activation-issues page says devices that get an IP address and ping the default gateway cannot reach the internet when the upstream firewall or router has no return route to the VLAN with the appliance WAN virtual IP as nexthop.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "Log in to your existing L2/L3 switch, router, or firewall, and shut down the SVI/VLAN interface. Add a return route for VLAN with the Zero Trust Branch WAN Virtual IP address as a nexthop."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "ztb-resolving-zero-trust-branch-configuration-activation-issues.json",
+          "quotes": [
+            "Devices can receive the IP address and ping the Zero Trust Branch appliance's default gateway but cannot reach the internet. This occurs when the upstream firewall or router does not have a return route to the VLAN with the appliance WAN virtual IP (VIP) address as a nexthop."
+          ]
+        }
+      ]
+    },
+    "vlan-dns-proxy": {
+      "statement": "Only one VLAN per site can be designated for DNS proxy use, which is needed when an upstream DNS server requires a fixed internal source IP and is reached via a Routed Tunnel; selecting another VLAN clears the previous one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-vlan.json",
+          "quotes": [
+            "This is needed when an upstream DNS server requires a fixed, internal source IP address, and when the server is accessed via a Routed Tunnel.",
+            "You can designate only one VLAN per site. Selecting a different VLAN will automatically clear the previous selection."
+          ]
+        }
+      ]
+    },
+    "ip-reservation-scope": {
+      "statement": "IP address reservation is supported only when the VLAN has Zero Trust Branch as its DHCP server, so a reserved asset receives the same IP address on lease renewals.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ip-reservation-assets-within-vlan.json",
+          "quotes": [
+            "IP address reservation is supported only when the VLAN is configured with Zero Trust Branch operating as its DHCP server.",
+            "so that these devices always receive the same IP address during DHCP lease renewals."
+          ]
+        }
+      ]
+    },
+    "ip-reservation-csv": {
+      "statement": "Reservations are loaded by Import Endpoint CSV mapping MAC addresses to IP addresses; upon discovery the asset's MAC address is matched against the CSV to assign the reserved IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ip-reservation-assets-within-vlan.json",
+          "quotes": [
+            "Edit the CSV file and map the known MAC addresses with the preferred IP addresses.",
+            "Upon discovery, Zero Trust Branch checks the asset’s MAC address and assigns the corresponding reserved IP address when a matching MAC address is found in the CSV file."
+          ]
+        }
+      ]
+    },
+    "ip-reservation-discovered": {
+      "statement": "To reserve the IP of an already discovered asset, the asset must be in a VLAN with DHCP enabled and the reserved-IP CSV must have been uploaded; setting Assignment Type to Reserved adds its current IP and MAC to the DHCP reserved list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "ztb-configuring-ip-reservation-assets-within-vlan.json",
+          "quotes": [
+            "The asset must be part of the VLAN with DHCP enabled, and the CSV file containing the reserved IP addresses must have been uploaded.",
+            "The IP address currently assigned to the asset is added to the DHCP's reserved IP address list along with the MAC address mapping.",
+            "select Reserved from the Assignment Type drop-down menu."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "management-port-ge3": {
+      "summary": "The VLAN page offers ge3 as the dedicated physical management interface without naming models, while the port mapping puts Management on GE1 for the ZT400, ZT600 and ZT8010 and on GE3 for the ZT800.",
+      "positions": [
+        {
+          "says": "ge3 (Management) is a dedicated physical interface for out-of-band management through a separate management VRF.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-configuring-vlan.json",
+            "quotes": [
+              "ge3 (Management): Uses a dedicated physical interface for out-of-band management through a separate management VRF."
+            ]
+          }
+        },
+        {
+          "says": "On the ZT400 the Management port is GE1 and GE3 is a WAN port.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "ztb-zero-trust-branch-physical-port-mapping.json",
+            "quotes": [
+              "| 1 | GE1/enp4s0 | 1GbE RJ45 | Management |",
+              "| 3 | GE3/enp6s0 | 1GbE RJ45 | WAN |"
+            ]
+          }
+        }
+      ],
+      "impact": "Choosing ge3 (Management) on a ZT400, ZT600 or ZT8010 does not match the physical management port in the port mapping."
+    }
+  },
+  "gaps": {}
+}
