@@ -1,0 +1,347 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.firewall-actions",
+  "title": "Runbook: Firewall Control outcomes Allow due to insufficient app data and Bypassed due to missing config",
+  "aliases": [
+    "Allow Due to Insufficient App Data",
+    "Bypassed Due to Missing Config",
+    "Best Effort Policies"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.firewall.network-applications" },
+    { "rel": "see-also", "to": "zia.logs.firewall-records" },
+    { "rel": "see-also", "to": "zia.advanced-settings.partial-configuration" }
+  ],
+  "prose": [
+    {
+      "label": "Allow due to insufficient app data.",
+      "text": "{{insufficient-cause}} {{insufficient-first-packets}} {{insufficient-no-data-packet}} {{insufficient-no-tree}} {{insufficient-logged-rule-action}} {{insufficient-after-12}} What the packet counts include is open {{gap:packet-count-definition}}."
+    },
+    {
+      "label": "Rule design.",
+      "text": "{{insufficient-rule-eval-examples}} {{insufficient-service-vs-app}} {{insufficient-solution}} {{insufficient-advanced-sku}} {{insufficient-example-ruleset}}"
+    },
+    {
+      "label": "Bypassed due to missing config.",
+      "text": "{{missing-config-cause}} {{missing-config-measure}} {{missing-config-threshold}} The export the limits refer to is open {{gap:bypassed-export-limits}}."
+    },
+    {
+      "label": "Modes.",
+      "text": "{{missing-config-modes}} Whether the mode is chosen in the console or by a Support case is in dispute {{divergence:partial-config-mode-choice}}. {{missing-config-best-effort}} Which rules Best Effort Policies apply is in dispute {{divergence:best-effort-rule-set}}; the Fail Closed logging contradiction is in [[zia.advanced-settings.partial-configuration]]."
+    }
+  ],
+  "claims": {
+    "insufficient-cause": {
+      "statement": "Allow due to insufficient app data is logged when the DPI engine could not identify the network application, typically because the connection ended before enough packets were processed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "This action is logged by the Service Edge when its Deep Packet Inspection (DPI) engine could not identify the network application.",
+            "This typically happens when the connection gets terminated before enough packets can be processed to extract the required data."
+          ]
+        }
+      ]
+    },
+    "insufficient-first-packets": {
+      "statement": "The Service Edge allows and processes the first packets of each flow so DPI can build the application tree; the page says the tree is typically completed with the first 5 packets for common applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "So, the Service Edge needs to allow and process the first few packets in each flow.",
+            "Typically, this application tree is completed with the help of first 5 packets for common applications."
+          ]
+        }
+      ]
+    },
+    "insufficient-no-data-packet": {
+      "statement": "If a session ends before 12 packets without the service getting one packet with data, DPI is not triggered and the transaction is allowed or blocked by the firewall rules that contain no network applications, typically logging 0.0.0.0 as the Server Source IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "If the session is terminated by the client or the server before 12 packets, there are three different scenarios:",
+            "The Zscaler service could not even get one packet with data: DPI is not triggered, and the transaction is allowed or blocked depending on all the applicable firewall rules not containing network applications.",
+            "Typically, 0.0.0.0 is logged as the Server Source IP for these entries because the server-side connection was never established."
+          ]
+        }
+      ]
+    },
+    "insufficient-no-tree": {
+      "statement": "If a session ends before 12 packets and DPI could not build the app tree, the packets (fewer than 12) are allowed and logged as allowed due to insufficient app data, and the topmost applicable rule containing a network application is logged.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "DPI could not build the app tree: All these packets (less than 12) are allowed, and the connection is logged as allowed due to insufficient app data in firewall insights.",
+            "The topmost applicable firewall rule containing a network application is logged even though the application could not be identified."
+          ]
+        }
+      ]
+    },
+    "insufficient-logged-rule-action": {
+      "statement": "For these entries the action and network application of the logged topmost rule do not matter because enforcement was postponed, but its other criteria must match; web traffic is first evaluated against Web Policy rules, and Blocked by Web Proxy Policy is logged if Cloud App or URL Filtering rules block it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "The action and the network application defined in the topmost applicable rule does not matter in this case because policy enforcement was postponed, but the other criteria must match.",
+            "In the case of web traffic, all the Web Policy rules are first evaluated on the packets while waiting for DPI to complete the application tree.",
+            "In this case, the reason Blocked by Web Proxy Policy is logged in firewall logs if the web filtering rules (Cloud App and URL Filtering) are configured to block this transaction."
+          ]
+        }
+      ]
+    },
+    "insufficient-after-12": {
+      "statement": "For sessions ending after 12 packets, the page says the most common outcome is that DPI built the app tree but stopped after the leaf application-layer node and transactions are allowed or blocked on all applicable firewall rules; failure to identify is very rare and returns ip.tcp.http, ip.tcp.ssl.https or ip.udp.dns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "If the session is terminated after 12 packets, there are two different scenarios:",
+            "DPI built the app tree, but stopped after the leaf application-layer node: This is the most common outcome. Transactions are allowed or blocked based on all the applicable firewall rules.",
+            "DPI failed to identify the application: This is very rare. DPI returns the application tree as ip.tcp.http, ip.tcp.ssl.https, or ip.udp.dns"
+          ]
+        }
+      ]
+    },
+    "insufficient-rule-eval-examples": {
+      "statement": "The page's examples: a top rule allowing the IP network application allows all IP traffic regardless of other rules; a top rule blocking the HTTPS network service (TCP port 443) with a second rule allowing the HTTPS network application blocks all port 443 traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "If you configure a rule at the top allowing an IP network application, all IP traffic is allowed regardless of any other TCP/UDP or more application-specific rules.",
+            "If the topmost rule blocks the HTTPS network service (e.g., TCP port 443) and the second rule allows the HTTPS network application, all port 443 traffic is blocked."
+          ]
+        }
+      ]
+    },
+    "insufficient-service-vs-app": {
+      "statement": "The page says TCP, UDP or IP should be specified as network services rather than network applications, and that network service rules should be placed before network application rules to limit the scope of DPI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "You must instead specify these as network services in the rule criteria if desired, because DPI is an overkill to identify whether a transaction makes use of TCP, UDP, or some other IP protocol.",
+            "The network service rule should ideally be placed before the network application rules wherever possible. This helps limit the scope of DPI to only the desired traffic."
+          ]
+        }
+      ]
+    },
+    "insufficient-solution": {
+      "statement": "If the network application is part of a higher-ordered rule, the page says to blend the network application condition with at least one other limiting condition, and to order rules with network applications lower than rules without them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "If the network application is part of a higher-ordered rule, then blend the network application condition with at least one other condition that limits the rule to a very specific set of sessions/flows.",
+            "Attempt to order the rules with network applications lower than the rules without network applications."
+          ]
+        }
+      ]
+    },
+    "insufficient-advanced-sku": {
+      "statement": "An Advanced Firewall SKU is needed to enforce rules configured with network applications, and rules of that kind must be cleaned up after a downgrade from Advanced to Basic Firewall.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "An Advanced Firewall SKU is needed for enforcement of any rules configured with network applications.",
+            "If you have recently downgraded from Advanced to Basic Firewall, you must clean up any such rules."
+          ]
+        }
+      ]
+    },
+    "insufficient-example-ruleset": {
+      "statement": "In the page's example of a poorly defined Firewall rule set, Rule 1 is called too wide because it has no other criteria, so all traffic passing through Zscaler Firewall is subject to DPI and suffers delayed policy enforcement; the fix is to add criteria such as user, location or network service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-allow-due-insufficient-app-data.json",
+          "quotes": [
+            "Rule 1 is too wide because it has no other criteria. All traffic passing through Zscaler Firewall is subject to DPI, and thus suffers delayed policy enforcement. The solution is to add more criteria (e.g., user, location, or network service) to limit the scope of this rule:",
+            "The following is an example of a poorly defined Firewall rule set to illustrate the solution:"
+          ]
+        }
+      ]
+    },
+    "missing-config-cause": {
+      "statement": "On the Bypassed Due to Missing Config page, the action is logged in rare circumstances when the Public Service Edge fails to connect to the Zscaler Central Authority, so some traffic passes through Zscaler Firewall without policy enforcement; it typically happens when a user's or location's traffic first arrives and the policy config must be downloaded. The Policy Reasons article words the traffic as passing through Zscaler Firewall or DNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-bypassed-due-missing-config.json",
+          "quotes": [
+            "This action is logged in the rare circumstances when the Public Service Edge fails to establish a connection with the Zscaler Central Authority (CA) and consequently some traffic is allowed through Zscaler Firewall without policy enforcement.",
+            "This typically only happens when traffic from a specific user or location arrives at the Service Edge for the first time and the Service Edge needs to download the policy config for that user or location"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-policy-reasons.json",
+          "quotes": [
+            "resulting in the traffic flow passing through Zscaler Firewall or DNS without policy application."
+          ]
+        }
+      ]
+    },
+    "missing-config-measure": {
+      "statement": "The page computes the bypassed percentage as COUNT_BYPASSED x 100 divided by TOTAL_SESSIONS; above 25K bypassed sessions it suggests downloading a CSV, and for a CSV count of 100,000 it suggests reducing the time period or looking up the logs in the SIEM if NSS is deployed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-bypassed-due-missing-config.json",
+          "quotes": [
+            "The percentage of bypassed transactions equals COUNT_BYPASSED x 100 divided by TOTAL_SESSIONS.",
+            "If COUNT_BYPASSED is greater than 25K, you can try downloading this data to a CSV.",
+            "If the COUNT_BYPASSED in the CSV is equal to 100,000, then you can either reduce the time period or look up these logs in your security information and event management (SIEM), if Nanolog Streaming Service (NSS) has been correctly deployed."
+          ]
+        }
+      ]
+    },
+    "missing-config-threshold": {
+      "statement": "The page describes a bypassed percentage at or below 0.05% of total sessions as the most general case, and says to submit a case to Zscaler Support when it is more than 0.05%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-bypassed-due-missing-config.json",
+          "quotes": [
+            "If the percentage of bypassed transactions is less than or equal to 0.05% of total sessions:",
+            "If the percentage of bypassed transactions is more than 0.05% of total sessions, submit a case to Zscaler Support.",
+            "This is the most general case."
+          ]
+        }
+      ]
+    },
+    "missing-config-modes": {
+      "statement": "The page names Fail-Open as the default mode (policy evaluation is bypassed for some transactions) and Fail-Closed as blocking by default and logging in Firewall Insights, and says the chosen mode is sent to Zscaler Support in a case.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-bypassed-due-missing-config.json",
+          "quotes": [
+            "Fail-Open Mode: This is the default mode. In this mode, if the Service Edge fails to establish a connection with the CA, the Service Edge bypasses policy evaluation for some transactions.",
+            "Fail-Closed Mode: If your business prioritizes security over connectivity, a fail-closed mode can be configured. In this mode, the Service Edge blocks traffic by default and logs it in the Firewall Insights.",
+            "you can choose one of the following modes for this traffic and submit a case to Zscaler Support with the selected mode:"
+          ]
+        }
+      ]
+    },
+    "missing-config-best-effort": {
+      "statement": "Best Effort Policies apply a subset of Firewall rules: those without user, group or location criteria, those with such criteria if the Service Edge received traffic from those users, groups or locations before the disconnection, and those for the Miscellaneous Unauthenticated Transactions user (noauth-misc).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-bypassed-due-missing-config.json",
+          "quotes": [
+            "All the rules without any user, group, or location criteria.",
+            "All the rules with user, group, or location criteria if this Service Edge had received traffic from those users, groups, or locations before the disconnection.",
+            "All the rules for the Miscellaneous Unauthenticated Transactions user (noauth-misc)."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "partial-config-mode-choice": {
+      "summary": "The advanced settings page describes Behavior When Partial Configuration Available as a setting an admin defines; the Bypassed Due to Missing Config runbook says Engineering is working on a console control and the mode is chosen by submitting a Support case.",
+      "positions": [
+        {
+          "says": "A setting lets the admin define how security policies are enforced when a Service Edge operates with incomplete configurations.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-advanced-settings.json",
+            "quotes": [
+              "The Behavior When Partial Configuration Available setting allows you to define how security policies are enforced when a Service Edge operates with incomplete configurations."
+            ]
+          }
+        },
+        {
+          "says": "A solution to control these transactions from the Admin Console is still being worked on, and the mode is chosen by submitting a case to Zscaler Support.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-bypassed-due-missing-config.json",
+            "quotes": [
+              "The Zscaler Engineering team is working on providing a solution to control these transactions from your Zscaler Admin Console.",
+              "you can choose one of the following modes for this traffic and submit a case to Zscaler Support with the selected mode:"
+            ]
+          }
+        }
+      ],
+      "impact": "The runbook's Engineering line is a dated notice (runbook updated 2026-07-29, Advanced Settings page updated 2026-10-28), so the pages may differ by date rather than by tenant; neither page says which holds for a given tenant."
+    },
+    "best-effort-rule-set": {
+      "summary": "The runbook says Best Effort Policies apply rules the Service Edge saw traffic for or that name the Miscellaneous Unauthenticated Transactions user, and limits the Bypassed Due to Missing Config action to Firewall; the Advanced Settings page says rules with explicit location or user criteria need Org Default or the Miscellaneous user added to them, and applies the mode to both web and firewall traffic.",
+      "positions": [
+        {
+          "says": "Best Effort Policies apply rules without user, group or location criteria, rules whose users, groups or locations the Service Edge had traffic from before the disconnection, and rules for the noauth-misc user.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-bypassed-due-missing-config.json",
+            "quotes": [
+              "All the rules without any user, group, or location criteria.",
+              "All the rules with user, group, or location criteria if this Service Edge had received traffic from those users, groups, or locations before the disconnection."
+            ]
+          }
+        },
+        {
+          "says": "A rule with explicit location or user criteria matches the fallback only if the Org Default location or the Miscellaneous Unauthenticated Transactions user is added to it, and the mode applies to both secure web gateway and firewall traffic.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zia-configuring-advanced-settings.json",
+            "quotes": [
+              "To fully implement this mode, you must additionally add the Org Default location or the Miscellaneous Unauthenticated Transactions user, or both, to policy rules that include explicit location or user criteria (i.e., if it is configured to match specific locations or users).",
+              "The selected mode applies to both secure web gateway and firewall traffic."
+            ]
+          }
+        }
+      ],
+      "impact": "Which rules still apply to a Service Edge without a full configuration depends on which page is read; the pages do not say whether the runbook's list is the same set described by the Org Default fallback, and the runbook speaks of Firewall only."
+    }
+  },
+  "gaps": {
+    "packet-count-definition": {
+      "kind": "semantic",
+      "title": "What the 5-packet and 12-packet figures count",
+      "status": "open",
+      "detail": "The page gives 5 packets for common applications and fewer or more than 12 packets for sessions, but does not define packet direction or whether handshake packets are counted.",
+      "resolves_with": ["lab-test", "support-ticket"]
+    },
+    "bypassed-export-limits": {
+      "kind": "semantic",
+      "title": "Which export the 25K and 100,000 bypassed-count limits refer to, and the 0.05% window",
+      "status": "open",
+      "detail": "The page gives 25K and 100,000 as thresholds for a CSV download without naming the export beyond CSV, and gives the 0.05% threshold without a time window other than previous day or previous week.",
+      "resolves_with": ["source-read", "support-ticket"]
+    }
+  }
+}

@@ -1,0 +1,575 @@
+{
+  "schema_version": 1,
+  "id": "shared.zsdk.applications",
+  "title": "ZSDK application segments, segment groups, servers, server groups, device profiles and configuration graphs",
+  "aliases": [
+    "zsdk application segment",
+    "zsdk segment group",
+    "zsdk server group",
+    "zsdk dynamic server discovery",
+    "zsdk device profile",
+    "zsdk health reporting",
+    "zsdk configuration graph"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.configuration"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.limits"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.browser-access"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.disaster-recovery"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{segment-features-per-segment}}"
+    },
+    {
+      "heading": "Application segments"
+    },
+    {
+      "text": "{{application-discovery-format}} {{application-entry-rules}} {{object-name-characters}} {{segment-ports}}"
+    },
+    {
+      "text": "{{segment-fields-left-default}} Whether Double Encryption affects segments is in dispute {{divergence:double-encryption-impact}}. {{segment-bypass-default}} {{segment-double-encryption-default}}"
+    },
+    {
+      "text": "{{health-reporting}} {{health-check-target-limit}} {{cname-resolution}} The client named in that setting is not confirmed {{gap:client-connector-wording}}. {{connector-selection-method}}"
+    },
+    {
+      "text": "{{segment-delete-blocked}} {{multiple-server-groups-edit}}"
+    },
+    {
+      "heading": "Segment groups"
+    },
+    {
+      "text": "{{segment-group-membership}} The maximum number of segment groups is in [[shared.zsdk.limits]]."
+    },
+    {
+      "heading": "Servers and server groups"
+    },
+    {
+      "text": "{{server-group-purpose}} {{server-explicit-use-cases}} {{dynamic-server-discovery}} {{disabled-server}}"
+    },
+    {
+      "heading": "Device profiles"
+    },
+    {
+      "text": "{{device-profile-evaluation}} {{device-profile-evaluator}} Where evaluation runs is in dispute {{divergence:device-profile-evaluation-location}}. {{device-profile-criteria}} The value formats a criterion accepts are open {{gap:device-profile-value-format}}."
+    },
+    {
+      "heading": "Configuration graphs"
+    },
+    {
+      "text": "{{configuration-graph}}"
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether an application entry is an FQDN, IP address, local domain or wildcard domain rather than a hyphenated IP range, and whether a lone wildcard has Zscaler's approval.",
+      "uses": [
+        "application-entry-rules"
+      ]
+    },
+    {
+      "do": "Whether the segment's Health Reporting setting is compatible with its ports and wildcard entries, and with the App Connector Selection Method.",
+      "uses": [
+        "health-reporting",
+        "connector-selection-method",
+        "health-check-target-limit"
+      ]
+    },
+    {
+      "do": "Whether the application segment is referenced in a segment group and has a policy configured when its delete action is unavailable.",
+      "uses": [
+        "segment-delete-blocked"
+      ]
+    }
+  ],
+  "claims": {
+    "segment-features-per-segment": {
+      "statement": "Double encryption and health reporting are configured per application segment, which groups defined applications based upon access type or user privileges.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-applications.json",
+          "quotes": [
+            "An application segment is a grouping of defined applications, based upon access type or user privileges.",
+            "So, features such as double encryption and health reporting are configured per application segment."
+          ]
+        }
+      ]
+    },
+    "application-discovery-format": {
+      "statement": "To enable application discovery, an application can be defined as an FQDN in wildcard format or as an IP subnet.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-applications.json",
+          "quotes": [
+            "To enable application discovery, you can define an application as an FQDN in wildcard format or as an IP subnet."
+          ]
+        }
+      ]
+    },
+    "application-entry-rules": {
+      "statement": "An application entry can be an FQDN, IP address, local domain or wildcard domain, but not a hyphenated IP address range; a lone wildcard (*) should be the only application in its segment and cannot be defined that way unless approved by Zscaler.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Enter an FQDN, IP address, local domain, or a wildcard domain (e.g., *.safemarch.com) associated with the application.",
+            "You can't define an application with hyphenated IP address ranges (e.g., 192.168.0.1-10).",
+            "You can define the application with a wildcard only (i.e., *), but this should be the only application in the application segment.",
+            "You can't define an application this way unless approved by Zscaler."
+          ]
+        }
+      ]
+    },
+    "object-name-characters": {
+      "statement": "Names of application segments, segment groups, servers and server groups cannot contain special characters other than periods, hyphens and underscores.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Name: Enter a name for the application segment. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-segment-groups.json",
+          "quotes": [
+            "Name: Enter a name for the segment group. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-servers.json",
+          "quotes": [
+            "Name: Enter a name for the server. The name cannot contain special characters, except for periods (.), hyphens (-), and underscores ( _ )."
+          ],
+          "after": "Add a server."
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-server-groups.json",
+          "quotes": [
+            "Name: Enter a name for the server group. The name cannot contain special characters, with the exception of periods (.), hyphens (-), and underscores ( _ )."
+          ],
+          "after": "Add a server group."
+        }
+      ]
+    },
+    "segment-ports": {
+      "statement": "An application segment takes TCP and UDP port ranges (a single port is entered as the same number in From and To), and Zscaler recommends excluding DNS traffic (port 53) from them.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "TCP Port Ranges: Enter the TCP port ranges that can be used to access the application.",
+            "UDP Port Ranges: Enter the UDP port ranges that can be used to access the application.",
+            "If you only want to specify one port, you can enter the same number (e.g., 80) for From... and To....",
+            "Zscaler recommends excluding DNS traffic (port 53) from TCP and UDP port ranges."
+          ]
+        }
+      ]
+    },
+    "segment-fields-left-default": {
+      "statement": "The segment definition steps say to leave Source IP Anchor, Double Encryption, ICMP Access and Bypass during Reauthentication as Disabled and TCP Keepalive blank; the limitations list says that fields recommended to be left at their default setting (e.g., deselected, disabled) do not impact application segments at this time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Source IP Anchor: (Optional) Leave as Disabled.",
+            "TCP Keepalive: Leave as blank.",
+            "Double Encryption: Leave as Disabled.",
+            "ICMP Access: Leave as Disabled.",
+            "Bypass during Reauthentication: Leave as Disabled.",
+            "These fields do not impact application segments at this time, regardless of whether you choose to select or enable them.",
+            "There are some fields that are recommended to be left to their default setting (e.g., deselected, disabled)."
+          ]
+        }
+      ]
+    },
+    "segment-bypass-default": {
+      "statement": "The Bypass setting of an application segment should have Use Client Forwarding Policy selected, which is the default; the segment list shows whether users can bypass ZSDK to access applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "Bypass: From the drop-down menu, ensure that Use Client Forwarding Policy is selected by default."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-applications.json",
+          "quotes": [
+            "Bypass: Indicates whether users can bypass ZSDK to access applications."
+          ]
+        }
+      ]
+    },
+    "segment-double-encryption-default": {
+      "statement": "In the segment list, Double Encryption is disabled by default if a Browser Access-enabled application was defined.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-applications.json",
+          "quotes": [
+            "By default, if a Browser Access-enabled application was defined, Double Encryption is disabled."
+          ]
+        }
+      ]
+    },
+    "health-reporting": {
+      "statement": "Health reporting for an application segment is Continuous, On Access (the default) or None; Continuous cannot be chosen for applications configured with more than 10 ports or for a wildcard-only application, and an application with client hostname validation enabled is not shown on the Health dashboard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "The default setting is On Access.",
+            "You can't choose Continuous health reporting for applications configured with more than 10 ports or if any of the applications in the application segment are defined with only a wildcard (e.g., *).",
+            "if an application has client hostname validation enabled to facilitate client-to-client remote assistance, then the application is not shown on the Health dashboard.",
+            "Health Reporting: Choose whether the App Connector reports the health status of all applications within an application segment continuously (Continuous), while a user is accessing it (On Access), or not at all (None)."
+          ]
+        }
+      ]
+    },
+    "cname-resolution": {
+      "statement": "The Client Connector can receive CNAME setting is enabled by default, so Zscaler Client Connector receives CNAME DNS records from the App Connector; disabling it means App Connectors do not send CNAME DNS records.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "By default, this is enabled, and Zscaler Client Connector receives CNAME DNS records from the App Connector.",
+            "Disabling it means App Connectors do not send CNAME DNS records.",
+            "Client Connector can receive CNAME: Choose whether App Connectors can resolve CNAME records."
+          ]
+        }
+      ]
+    },
+    "connector-selection-method": {
+      "statement": "The App Connector Selection Method defaults to Closer to User; Closer to Application selects the App Connector with the shortest round-trip time towards the requested application, supports only TCP applications, and cannot be enabled when Health Reporting is None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "By default, ZSDK chooses the App Connector as closest to the user (Closer to User).",
+            "ZSDK selects an App Connector that has the shortest round-trip time towards the requested application.",
+            "This setting supports only TCP applications.",
+            "If Health Reporting is set to None, the App Connector Selection Method feature cannot be enabled and an error message appears.",
+            "App Connector Selection Method: Choose Closer to Application if you prefer the App Connector that is closest to the application to be selected."
+          ]
+        }
+      ]
+    },
+    "health-check-target-limit": {
+      "statement": "In the App Connector Selection Method description, the limit for the number of targets that check the health of the defined applications at the App Connector is 6,000; beyond it, Health Reporting is set to None and a random selection of App Connectors is chosen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "The limit for the number of targets that check the health of the defined applications at the App Connector is 6,000.",
+            "If this limit is exceeded, then the Health Reporting of the application is set to None, and a random selection of App Connectors is chosen.",
+            "App Connector Selection Method: Choose Closer to Application if you prefer the App Connector that is closest to the application to be selected."
+          ]
+        }
+      ]
+    },
+    "dynamic-server-discovery": {
+      "statement": "A server group with Dynamic Server Discovery enabled lets ZSDK discover the appropriate servers for applications as users request them, so it is created empty and the Servers step is skipped when it is selected for an application segment.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-servers.json",
+          "quotes": [
+            "For this method, you must create an empty server group that has Dynamic Server Discovery enabled.",
+            "Enable Dynamic Server Discovery on a server group: Instead of explicitly defining each server, you can enable Dynamic Server Discovery so that ZSDK can discover the appropriate servers for your applications as users request them."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "If you select or add a server group with Dynamic Server Discovery enabled, the Servers step is no longer required because the server group automatically discovers the server."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-server-groups.json",
+          "quotes": [
+            "When configuring an application segment, the Servers tab disappears when you select a server group with Dynamic Server Discovery enabled."
+          ]
+        }
+      ]
+    },
+    "server-group-purpose": {
+      "statement": "Server groups map applications, via application segments, to servers hosting them, and connect to users via App Connector groups; Zscaler recommends grouping servers that can host the same applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-server-groups.json",
+          "quotes": [
+            "They connect to defined applications via application segments and then connect to users via App Connector groups, thereby allowing you to create access policies to the defined applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-server-groups.json",
+          "quotes": [
+            "Zscaler recommends grouping servers that are capable of hosting the same applications."
+          ],
+          "after": "# Limitations & Considerations"
+        }
+      ]
+    },
+    "server-explicit-use-cases": {
+      "statement": "Explicitly defined servers cover explicit server management, load balancers in front of multiple applications, and no-default-route or no-external-DNS environments with a transparent proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-servers.json",
+          "quotes": [
+            "Explicitly define servers and server groups where one or more applications are hosted (e.g., explicit server management, load balancers in front of multiple applications, and no-default-route/no-external-dns environments with a transparent proxy)."
+          ]
+        }
+      ]
+    },
+    "disabled-server": {
+      "statement": "If a server is disabled, it cannot be found.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-servers.json",
+          "quotes": [
+            "If you disable a server, it cannot be found."
+          ],
+          "after": "Add a server."
+        }
+      ]
+    },
+    "multiple-server-groups-edit": {
+      "statement": "When multiple server groups are selected while editing an application segment, only one is saved, because multiple server groups mapped to the same application segment can cause the console to disconnect.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "If you select multiple server groups when editing, only one server group is saved. This is because multiple server groups mapped to the same application segment can cause the console to disconnect."
+          ],
+          "after": "Edit an Application Segment"
+        }
+      ]
+    },
+    "segment-delete-blocked": {
+      "statement": "The delete action is unavailable for an application segment that is referenced in a segment group and has a policy configured; an admin must remove the link to the policy first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-defining-and-managing-application-segments.json",
+          "quotes": [
+            "If an application segment is referenced in a segment group and has a policy configured, the delete action is unavailable.",
+            "An admin must manually review and remove the link to the policy to successfully delete the application segment."
+          ]
+        }
+      ]
+    },
+    "segment-group-membership": {
+      "statement": "An application segment can belong to only one segment group; the Clear All button is hidden when more than 500 application segments are attached to a segment group.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-segment-groups.json",
+          "quotes": [
+            "An application segment can only belong to one group.",
+            "If you have more than 500 application segments attached to a segment group, the Clear All button is hidden."
+          ],
+          "after": "Add a segment group."
+        }
+      ]
+    },
+    "device-profile-evaluation": {
+      "statement": "A device profile is a set of criteria evaluated when devices access mobile applications; ZSDK evaluates it on every access request, re-evaluates existing connections when the profile is updated, and builds new connections on the updated profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-about-device-profile.json",
+          "quotes": [
+            "A device profile is a set of criteria that is evaluated on devices when they access your mobile applications.",
+            "ZSDK evaluates device profiles every time there is an access request.",
+            "If a device profile is updated, then the existing connections for access are re-evaluated with the updated criteria.",
+            "Upcoming new connections are established based on the updated device profiles."
+          ]
+        }
+      ]
+    },
+    "device-profile-criteria": {
+      "statement": "A device profile criterion is UUID (selected by default), Hardware Identifier, Hardware Model or OS Version, and the same criterion can be entered several times with different values.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-device-profiles.json",
+          "quotes": [
+            "UUID is selected as a criterion by default.",
+            "Hardware Identifier: Enter the hardware identifier.",
+            "Hardware Model: Enter the hardware model.",
+            "OS Version: Enter the OS version.",
+            "You can use the same criteria and enter another value"
+          ]
+        }
+      ]
+    },
+    "device-profile-evaluator": {
+      "statement": "The device profile management article says device profiles are evaluated when ZSDK Private Service Edges receive access requests to application segments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-device-profiles.json",
+          "quotes": [
+            "Device profiles are a set of criteria that are evaluated when the ZSDK Private Service Edges receive access requests to your application segments."
+          ]
+        }
+      ]
+    },
+    "configuration-graph": {
+      "statement": "A configuration graph shows a segment group, application segment, server group, App Connector group and App Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-viewing-configuration-graphs.json",
+          "quotes": [
+            "A configuration graph consists of a segment group, application segment, server group, App Connector group, and App Connector.",
+            "Configuration graphs can be accessed from the following pages:"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "double-encryption-impact": {
+      "summary": "Whether Double Encryption affects application segments.",
+      "positions": [
+        {
+          "says": "The application segment article lists Double Encryption among the fields to leave as Disabled and says these fields do not impact application segments at this time.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-defining-and-managing-application-segments.json",
+            "quotes": [
+              "Double Encryption: Leave as Disabled.",
+              "These fields do not impact application segments at this time, regardless of whether you choose to select or enable them."
+            ]
+          }
+        },
+        {
+          "says": "The App Connector throughput article says double encryption changes throughput and the number of App Connectors needed (2 to 3 without it, 4 to 6 with it, for a 1 Gbps connection).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-understanding-app-connector-throughput.json",
+            "quotes": [
+              "However, the effect varies based on the number of applications that are enabled for double encryption.",
+              "For example, with a 1 Gbps connection, you would need to deploy 2 to 3 App Connectors if your applications are not using double encryption, but 4 to 6 App Connectors if they are."
+            ]
+          }
+        }
+      ],
+      "impact": "A sizing or segment review cannot treat Double Encryption as inert, or as a per-segment feature that changes capacity, from one page alone."
+    },
+    "device-profile-evaluation-location": {
+      "summary": "Where a device profile is evaluated.",
+      "positions": [
+        {
+          "says": "The About Device Profile article says the criteria are evaluated on devices when they access mobile applications.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-about-device-profile.json",
+            "quotes": [
+              "A device profile is a set of criteria that is evaluated on devices when they access your mobile applications."
+            ]
+          }
+        },
+        {
+          "says": "The Managing Device Profiles article says the criteria are evaluated when ZSDK Private Service Edges receive access requests to application segments.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-device-profiles.json",
+            "quotes": [
+              "Device profiles are a set of criteria that are evaluated when the ZSDK Private Service Edges receive access requests to your application segments."
+            ]
+          }
+        }
+      ],
+      "impact": "A device profile check cannot say whether the evaluation runs on the device or on a Private Service Edge from one page alone."
+    }
+  },
+  "gaps": {
+    "client-connector-wording": {
+      "kind": "semantic",
+      "title": "Which client the Zscaler Client Connector wording on the CNAME setting refers to",
+      "status": "open",
+      "detail": "The Client Connector can receive CNAME setting and its description name Zscaler Client Connector, while the rest of the ZSDK pages refer to the ZSDK client and the hub separates ZSDK from Client Connector. No captured page says whether the setting applies to the ZSDK client.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "device-profile-value-format": {
+      "kind": "semantic",
+      "title": "What values the Hardware Identifier, Hardware Model and OS Version criteria accept",
+      "status": "open",
+      "detail": "The device profile article says to enter the hardware identifier, hardware model and OS version, and that the same criterion can be entered again with another value. It gives no value format for Hardware Identifier or Hardware Model, and does not say whether OS Version supports ranges.",
+      "resolves_with": [
+        "lab-test",
+        "source-read"
+      ]
+    }
+  }
+}

@@ -1,0 +1,278 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.policy-mismatch",
+  "title": "Runbook: policy configured but the logs show a different outcome",
+  "aliases": [
+    "Block policy configured but access gets allowed",
+    "Inspected despite a Do Not Inspect action",
+    "Cloud app block action configured for one activity but all activities get allowed"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.url-category-conflicts" },
+    { "rel": "see-also", "to": "zia.cloud-app-control.troubleshooting" },
+    { "rel": "see-also", "to": "zia.ssl-inspection.actions" },
+    { "rel": "see-also", "to": "zia.authentication.exemptions" }
+  ],
+  "prose": [
+    {
+      "label": "Entries that bypassed the service.",
+      "text": "{{bypassed-transaction-column}} {{intermittent-allowed-not-forwarded}} {{firewall-logs-nonstandard-ports}}"
+    },
+    {
+      "label": "Do Not Inspect and Evaluate Other Policies.",
+      "text": "{{dni-evaluate-others}} {{eun-forces-decrypt}}"
+    },
+    {
+      "label": "Inspected despite Do Not Inspect.",
+      "text": "{{port-9443-always-decrypted}} {{eun-inspected-despite}} {{aiml-inspected-despite}}"
+    },
+    {
+      "label": "Policy order and authentication.",
+      "text": "{{cac-vs-url-filtering}} {{noauth-user-field}} {{connect-enforce-auth}} {{connect-solutions}} The menu path for Advanced Settings differs between pages, see [[zia.troubleshooting-runbook.ssl-block-actions]]."
+    },
+    {
+      "label": "Isolation.",
+      "text": "{{isolation-protocol}}"
+    },
+    {
+      "label": "Cloud app activities.",
+      "text": "{{cloud-app-activity-needs-inspection}} {{cloud-app-signature-outdated}} {{cloud-app-non-post}}"
+    }
+  ],
+  "claims": {
+    "bypassed-transaction-column": {
+      "statement": "A web log entry with the Bypassed Transaction column showing Yes did not go through the Zscaler service and was logged because flow logging is enabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "Sometimes you can see entries in the web logs, but the column Bypassed Transaction shows Yes. This implies that the transaction did not go through the Zscaler service, but it was logged because you have enabled flow logging."
+          ]
+        }
+      ]
+    },
+    "intermittent-allowed-not-forwarded": {
+      "statement": "Intermittently allowed traffic to a domain could be because those transactions do not go to the Zscaler service at all.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "When traffic to the same domain gets intermittently allowed, it could be because those transactions do not even go to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "dni-evaluate-others": {
+      "statement": "With SSL Inspection action Do Not Inspect and Evaluate Other Policies, only the domain part of the URL is used for policy evaluation, and \"other policies\" means only URL Filtering and Cloud App Control policies since all the others require SSL Inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "URL Category limitation: Only the domain part of the URL is used for policy evaluation.",
+            "Evaluating other policies only implies the URL and Cloud App Control policies. All the other policies require SSL Inspection."
+          ]
+        }
+      ]
+    },
+    "eun-forces-decrypt": {
+      "statement": "On the Block Policy Configured page, for an SSL Inspection rule with action Do Not Inspect and Evaluate other policies and Show Notifications for blocked traffic enabled, the service decrypts to show the End User Notification; having more Layer 7 information it may then enforce an allow policy on additional criteria, so the transaction can be allowed without any EUN.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "The Zscaler service must decrypt the transaction in order to display the End User Notification (EUN) in the user's browser.",
+            "the transaction eventually is allowed without displaying any EUN.",
+            "EUN behavior: If Show Notifications for blocked traffic is enabled in this rule,",
+            "The Zscaler service has access to more Layer 7 information in the web request due to this forced decryption, and then it may enforce an allow policy based on any additional criteria, if applicable.",
+            "If the SSL Inspection rule is configured with the action Do Not Inspect and Evaluate other policies:"
+          ]
+        }
+      ]
+    },
+    "port-9443-always-decrypted": {
+      "statement": "Traffic from a known location explicitly forwarded to the Zscaler service on port 9443 is always decrypted by the Service Edge regardless of the SSL Inspection rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-inspected-despite-do-not-inspect-action.json",
+          "quotes": [
+            "If the traffic from a known location is explicitly forwarded to Zscaler service on port 9443, the Service Edge always decrypts such traffic regardless of the SSL Inspection rules."
+          ]
+        }
+      ]
+    },
+    "eun-inspected-despite": {
+      "statement": "On the Inspected Despite Do Not Inspect page, a transaction decrypted only to show the End User Notification (generally because the policy decision based on the SSL handshake was to block it) is eventually allowed without any EUN, or blocked if it matches a more specific policy rule, once the Service Edge has more Layer 7 information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-inspected-despite-do-not-inspect-action.json",
+          "quotes": [
+            "The Zscaler service must decrypt the transaction in order to display the End User Notification (EUN) in the user's browser. Generally in such cases, Zscaler service doesn't connect to the remote server because the policy decision based on the SSL handshake was to block the transaction.",
+            "The Service Edge has access to more Layer 7 information in the web request due to this forced decryption",
+            "In that case, even though the Zscaler service initially decided to inspect the session only to show the EUN, the transaction is eventually allowed without displaying any EUN, or blocked if the transaction matches a more specific policy rule."
+          ]
+        }
+      ]
+    },
+    "aiml-inspected-despite": {
+      "statement": "With AI/ML-based content categorization enabled and SSL inspection configured for Miscellaneous, the service initially inspects the transaction; the web log can then show the transaction inspected under a category such as Finance, and the page says that in this case it was inspected because the URL was initially categorized as Miscellaneous.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-inspected-despite-do-not-inspect-action.json",
+          "quotes": [
+            "If you have enabled this feature and configured SSL inspection for the Miscellaneous URL category, the Zscaler service initially inspects the transaction.",
+            "But in this particular case, it was inspected because the URL was initially categorized as Miscellaneous.",
+            "As a result, the Web logs can show that the category (e.g., Finance) URL transaction was inspected."
+          ]
+        }
+      ]
+    },
+    "cac-vs-url-filtering": {
+      "statement": "Without cascading at the global or rule level, an explicit Allow in Cloud App Control bypasses URL Filtering, and a Block in Cloud App Control ends policy evaluation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "If cascading isn't configured at the global or the rule level, then an explicit allow action in Cloud App Control bypasses the URL Filtering policy.",
+            "A Block in the Cloud App Control ends the policy evaluation, and URL Filtering or other policy rules aren't evaluated."
+          ]
+        }
+      ]
+    },
+    "noauth-user-field": {
+      "statement": "A special NoAuth user or the location name in the web log user field indicates an authentication failure or exemption, and rules with users, groups or departments as criteria cannot be evaluated for such transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "If the user field contains a special NoAuth user or the location name, it indicates an authentication failure or an authentication exemption.",
+            "Note that rules with users, groups, or departments as criteria cannot be evaluated for such transactions."
+          ]
+        }
+      ]
+    },
+    "connect-enforce-auth": {
+      "statement": "For Connect requests or undecrypted SSL traffic from a known location, policy is enforced only on the host part of the URL if Enforce Authentication is not enabled for the location; otherwise Connect transactions always show Allowed, because the Service Edge allows SSL handshakes and Connect requests from Enforce Authentication locations to obtain the authenticated user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "Does this concern only Connect requests or undecrypted SSL traffic from a known location?",
+            "Policy is only enforced on the host part of the URL if Enforce Authentication is not enabled for the location.",
+            "Otherwise, the Connect transactions always show Allowed in the web logs.",
+            "Zscaler Service Edge is designed to allow SSL handshake or Connect requests from all the locations where Enforce Authentication is enabled because it needs to obtain information of the authenticated user, which isn't visible in the Connect request or in the SSL handshake."
+          ]
+        }
+      ]
+    },
+    "connect-solutions": {
+      "statement": "To avoid SSL inspection for a domain the page says to use the SSL Inspection action Evaluate Other Policies, or else enable an IP surrogate on the location or Policy for unauthenticated traffic under Administration > Advanced Settings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "ensure that the SSL Inspection rule is configured with the action Evaluate Other Policies.",
+            "If this configuration isn't possible, then enable an IP surrogate on the location.",
+            "Alternatively, enable Policy for unauthenticated traffic from Administration > Advanced Settings"
+          ]
+        }
+      ]
+    },
+    "firewall-logs-nonstandard-ports": {
+      "statement": "If firewall logs show the traffic, specific nonstandard web ports can be configured as web traffic, and dynamic nonstandard ports can use Auto Proxy Forwarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-block-policy-configured-access-gets-allowed.json",
+          "quotes": [
+            "If any specific nonstandard ports are used for web traffic, you can configure them to be processed as web traffic.",
+            "If this web traffic uses nonstandard ports that are dynamic in nature, i.e. the port number is not known or can change at runtime, then you can configure Auto Proxy Forwarding."
+          ]
+        }
+      ]
+    },
+    "isolation-protocol": {
+      "statement": "Per the Specific Criteria page, isolation (Zero Trust Browser) is supported only for HTTP and HTTPS in the Protocol column; transactions logged as SSL need SSL Inspection enabled for the domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "The Protocol column in web insights must show HTTP or HTTPS, because Zero Trust Browser is only supported for those two protocols.",
+            "If a transaction shows up as protocol SSL, you must enable SSL Inspection for the domains in question."
+          ]
+        }
+      ]
+    },
+    "cloud-app-activity-needs-inspection": {
+      "statement": "For Cloud App activity rules the SSL Inspected web log column must show yes; with Do Not Inspect & Evaluate Other Policies only the domain part of the URL is available, so activities such as upload and download cannot be told apart.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-cloud-app-block-action-configured-one-activity-all-activities-get-allowed-confirmed-web-logs.json",
+          "quotes": [
+            "The SSL Inspected column in the web logs must show yes for the URL of interest.",
+            "If the action in the relevant SSL Inspection rule for a cloud app is Do Not Inspect & Evaluate Other Policies, then only the domain part of the URL is available for policy enforcement",
+            "the Zscaler service doesn't have access to sufficient data in order to differentiate between various activities such as upload or download."
+          ]
+        }
+      ]
+    },
+    "cloud-app-signature-outdated": {
+      "statement": "A recently updated cloud app can leave the signature outdated for a specific activity, so the Policy Action can be both Blocked and Allowed for the same request method and app; Zscaler maintains signatures and releases them following the Trust Portal service update schedule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-cloud-app-block-action-configured-one-activity-all-activities-get-allowed-confirmed-web-logs.json",
+          "quotes": [
+            "It's possible that the cloud application in question was very recently updated by its developers, which resulted in the signature becoming outdated for a specific activity within a specific cloud app.",
+            "Sometimes you can see that the Policy Action is Blocked and Allowed for the same request method, e.g. POST in this case, with the same cloud application",
+            "Zscaler takes care of maintaining the most updated signatures of all cloud apps, which get released to the production clouds, following the service update schedule published on the Trust Portal.",
+            "this happens when the app only changes its mechanisms for a set of activities such as liking or commenting."
+          ]
+        }
+      ]
+    },
+    "cloud-app-non-post": {
+      "statement": "If the request method is not POST, the Service Edge typically does not detect the activity as POST, and a different cloud app name in the web logs should be used as the Cloud App rule criterion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-cloud-app-block-action-configured-one-activity-all-activities-get-allowed-confirmed-web-logs.json",
+          "quotes": [
+            "If the request method is not POST, then the Service Edge typically doesn't detect this activity as POST.",
+            "If the web logs show a different cloud app name, use that as criteria in the Cloud App rule."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

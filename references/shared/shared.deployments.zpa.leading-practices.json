@@ -1,0 +1,299 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zpa.leading-practices",
+  "title": "What the ZPA Leading Practices Guide recommends for connector sizing, segmentation rollout, application segments and Private Service Edges",
+  "aliases": [
+    "zpa leading practices",
+    "zpa best practices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-connectors.performance"
+    },
+    {
+      "rel": "see-also",
+      "to": "zpa.app-segments.discovery"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zpa.operations"
+    }
+  ],
+  "prose": [
+    {
+      "label": "App Connectors.",
+      "text": "{{connector-capacity}} {{connector-grouping}} {{connector-network}} {{connector-upgrades}} See [[zpa.app-connectors]] and [[zpa.app-connectors.performance]]."
+    },
+    {
+      "label": "Segmentation rollout.",
+      "text": "{{segmentation-approaches}} {{discovery-prerequisites}} {{discovery-deadline}} See [[zpa.app-segments.discovery]]."
+    },
+    {
+      "label": "Policy and segments.",
+      "text": "{{rule-order-evaluation}} {{critical-apps}} {{segment-hygiene}} The 6k target limit is stated per Connector Group here and per App Connector elsewhere: {{divergence:target-limit-scope}}. {{unmanaged-devices}}"
+    },
+    {
+      "label": "Private Service Edges and log streaming.",
+      "text": "{{private-service-edge-use}} {{lss-leading-practice}}"
+    }
+  ],
+  "claims": {
+    "connector-capacity": {
+      "statement": "App Connector groups should be scaled for N+1 redundancy and a single App Connector can handle up to 500 Mbps total inbound and outbound; 1 Gbps needs at least three connectors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "App Connector groups are scaled to provide N+1 redundancy. A single App Connector can handle up to 500 Mbps (total inbound and outbound) throughput.",
+            "if you require 1 Gbps throughput, configure at least three App Connectors."
+          ]
+        }
+      ]
+    },
+    "connector-grouping": {
+      "statement": "Connectors in a connector group must share the same geographic location (latitude and longitude); all connectors at a site belong in one group, and a group per logical application domain (a single AWS VPC, data center, or isolated segment) is recommended. Not using location-based groups adversely impacts location-sensitive apps such as AD domain controllers for DFS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Connectors in a connector group must share the same geographic location (latitude and longitude).",
+            "Not using location-based connector groups adversely impacts location-sensitive apps.",
+            "Zscaler recommends defining a connector group for each logical domain of applications.",
+            "To ensure users are connected to a location-appropriate app, place all connectors at a location in the same connector group.",
+            "For example, define a separate connector group for a single AWS virtual private cloud (VPC), a single data center, and a data center segment that is isolated within a security boundary, etc.",
+            "That is, Active Directory (AD) domain controllers used for distributed file servers (DFSs) and other AD services where the user is associated to a local instance."
+          ]
+        }
+      ]
+    },
+    "connector-network": {
+      "statement": "Connectors must have ICMP access to servers, which is mandatory for optimal path selection for UDP-based apps and recommended for TCP-based apps; Zscaler does not recommend forwarding the App Connector's outbound traffic via a ZIA Public or Private Service Edge.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Connectors must have Internet Control Message Protocol (ICMP) access to servers. This provides an optimal path selection for UDP-based apps and is mandatory.",
+            "Zscaler does not recommend forwarding the App Connector's outbound traffic via a ZIA Public Service Edge or Private Service Edge.",
+            "Though not mandatory, Zscaler also recommends ICMP access for TCP-based apps (to help with troubleshooting)."
+          ]
+        }
+      ]
+    },
+    "connector-upgrades": {
+      "statement": "Connectors are automatically updated frequently; customers should select off-hour slots, and the ZPA cloud upgrades members of an App Connector group sequentially.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Customers should select off-hour time slots for upgrade operations to minimize the impact on the service.",
+            "ZPA cloud sequentially upgrades members of an App Connectors group to reduce service interruptions during the upgrade window.",
+            "Zscaler frequently automatically updates App Connectors during the life cycle of the ZPA service."
+          ]
+        }
+      ]
+    },
+    "segmentation-approaches": {
+      "statement": "Two segmentation rollouts: Day 0 Trust (define every known FQDN/IP, app segment and group policy before rollout; risks blocking missed applications) and Discovery-Based Zero Trust (allow all authenticated users access to a pattern-based segment and refine from discovery); Zscaler says most organizations find the second a better fit.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler recommends an organization only use the Day 0 Trust approach if it is confident that it can enumerate all applications and corresponding user access patterns.",
+            "allow all authenticated users access to any private application (very similar to a traditional client-based VPN).",
+            "The organization defines a pattern-based application segment with a private app space and a permissive allow policy that provides authenticated users access",
+            "The fastest way to achieve Zero Trust is to define every known Fully Qualified Domain Name (FQDN), IP address in application segments, and user group access policies mappings, and then to create access to each application segment in advance of rollout.",
+            "risks blocking business activity for any applications or users missed",
+            "ZPA then discovers and surfaces applications that users access, which allows further application segment and access policy creation over time",
+            "Generally, organizations can take one of two broad approaches to segmentation rollout. Most organizations find the second of the two approaches a better fit.",
+            "Discovery-Based Zero Trust: A slower but less disruptive way to roll out Zero Trust"
+          ]
+        }
+      ]
+    },
+    "discovery-prerequisites": {
+      "statement": "Before discovery-based segmentation Zscaler recommends App Connectors for the majority of applications, Client Connector on most managed endpoints and over half of users actively using ZPA; the initial deployment within the first 60 days should include 60% of entitled users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "App Connectors are deployed for the majority of your applications.",
+            "Zscaler Client Connector is deployed to most managed endpoints.",
+            "A substantial portion (more than half) of your user base actively leverages ZPA to access private applications.",
+            "Verifying that the initial ZPA deployment (within the first 60 days in production) includes 60% of entitled users."
+          ]
+        }
+      ]
+    },
+    "discovery-deadline": {
+      "statement": "Administrators should define an application discovery deadline (the example uses 60 or 90 days or a percentage of users deployed per user group); after it discovery is turned off, wildcards are removed, and least-privilege access is enforced; the example schedule removes the wildcard rule at Day 60.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Administrators should define an application discovery deadline. After the deadline, application discovery is turned off.",
+            "Zscaler recommends managing access via the discovered applications rule for a limited period (i.e., 60 or 90 days) or until a percentage of users are deployed (i.e, 60%) for each ZPA user group during the deployment phase.",
+            "Turning off application discovery enforces least-privilege access for all discovered applications and any newly requested applications.",
+            "Define discovered applications within appropriate Application Segments based on the discovery phase findings, and remove wildcards while building granular policies for the specifically named applications."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Remove the last wildcard rule that handles remaining traffic."
+          ],
+          "after": "#### Day 60:"
+        }
+      ]
+    },
+    "critical-apps": {
+      "statement": "For business-critical applications the guide recommends early posture checks, Client Forwarding rules so access goes through ZPA even on the local corporate network, and changing the Authentication Timeout (for example to one hour or one day); the guide also notes the default Timeout Policy rule has all users authenticate every 7 days for any application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Add posture checks very early in the process to ensure that access to these apps is allowed from only compliant corporate-managed devices.",
+            "Add Client Forwarding rules to ensure access to these apps goes through ZPA, even if the user is on the local corporate network.",
+            "The default Timeout Policy rule specifies that all users have to authenticate every 7 days for any application.",
+            "You can change the Authentication Timeout for critical apps (i.e., one hour or one day)"
+          ]
+        }
+      ]
+    },
+    "rule-order-evaluation": {
+      "statement": "ZPA evaluates policy rules using the most specific application segment and a top-down, first-match principle, so rule order matters.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Remember that rule order matters. ZPA evaluates policy rules using the most specific application segment and a top-down, first-match principle."
+          ]
+        }
+      ]
+    },
+    "segment-hygiene": {
+      "statement": "Avoid TCP port 53 in app segments (Diagnostics filter Application: Server Port = 53); app segments with a health check of None are reachable by any App Connector servicing an associated server group; Continuous can create high loads while continuously monitoring infrequently, and there is a limit of 6k targets (IP address and port) per Connector Group; app segments with large IP ranges such as 10.0.0.0/8 are strongly discouraged, with wildcard domains such as *.internal.corp.com preferred.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Administrators should avoid using TCP port 53 in any app segments.",
+            "App segments set to None are reachable by any App Connector servicing an associated server group.",
+            "there is a limit of 6k targets (a combination of the IP address and port) per Connector Group.",
+            "Zscaler strongly discourages defining app segments with large IP ranges (i.e., 10.0.0.0/8).",
+            "To determine if any App Segment uses TCP port 53, go to Diagnostics and filter for Application: Server Port = 53.",
+            "App segments set to Continuous can create high loads while continuously monitoring infrequently",
+            "Administrators should use wildcard domains such as *.internal.corp.com or *.corp.com.",
+            "Zscaler recommends that admins review any app segments with a health check set to None or Continuous"
+          ]
+        }
+      ]
+    },
+    "unmanaged-devices": {
+      "statement": "For unmanaged laptops and contractor/vendor/third-party users Zscaler recommends browser-based access to a limited number of applications, possibly with Multiple IdP support, and Isolation access for critical apps accessed by unmanaged devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler recommends using browser-based access to a limited number of applications.",
+            "Critical apps accessed by unmanaged devices should use Isolation access for an additional security layer.",
+            "It is possible to use Browser Access with Multiple IdP support"
+          ]
+        }
+      ]
+    },
+    "private-service-edge-use": {
+      "statement": "A Private Service Edge can facilitate local users, remote users reaching regional internal applications, and business continuity; Trusted Networks criteria on the Private Service Edge group redirect trusted-network users to it, and an FQDN resolving to the public IP externally and the private IP internally is used when it serves both user types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Users who connect to the local corporate network and access applications on the internal network.",
+            "Implementing a business continuity plan.",
+            "assign the Trusted Networks criteria to the Private Service Edge group so that users connected to the trusted network are redirected to the Private Service Edge instead of a Public Service Edge.",
+            "the admin should use an FQDN that resolves from the internet to the Private Service Edge's public IP address, and from the internal network to the Private Service Edge’s private IP address.",
+            "Remote users who access regional internal applications.",
+            "When a Private Service Edge is configured for both types of users rather than an IP address"
+          ]
+        }
+      ]
+    },
+    "lss-leading-practice": {
+      "statement": "Use dedicated connector groups for log streaming, separate from user traffic groups (ZPA traffic has higher priority than log streaming), and set the Log Receiver Log Stream Policy Session setting to reauthBlock to exclude log entries for authentication timeouts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zpa-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler recommends using dedicated connector groups configured for log streaming, separate from connector groups serving user traffic.",
+            "since ZPA traffic has a higher priority than log streaming",
+            "Zscaler recommends that admins configure the Log Receiver Log Stream Policy Session setting to reauthBlock. This setting excludes log entries for authentication timeouts."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "target-limit-scope": {
+      "summary": "What the 6,000-target limit applies to: the leading practices guide says per Connector Group, the App Connector performance and application segment articles say per App Connector.",
+      "positions": [
+        {
+          "says": "There is a limit of 6k targets (IP address and port) per Connector Group.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-zpa-leading-practices-guide.json",
+            "quotes": [
+              "there is a limit of 6k targets (a combination of the IP address and port) per Connector Group."
+            ]
+          }
+        },
+        {
+          "says": "An App Connector can only monitor a maximum of 6,000 application targets at any given time.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zpa-configuring-defined-application-segments.json",
+            "quotes": [
+              "The limit for the number of targets that check the health of the defined applications at the App Connector is 6,000."
+            ]
+          }
+        }
+      ],
+      "impact": "Sizing a Connector Group against 6k targets in total, rather than 6,000 on each connector, changes how many segments fit; the pages do not reconcile the scope."
+    }
+  },
+  "gaps": {}
+}

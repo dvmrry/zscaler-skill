@@ -1,0 +1,292 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.ssl-policy-reasons",
+  "title": "Runbook: SSL Policy Reason values and what causes each",
+  "aliases": [
+    "SSL Policy Reason Runbook",
+    "Not Inspected because of mutual TLS authentication",
+    "Not inspected because of Zscaler best practices",
+    "Zscaler Service Domains reason",
+    "HSM error reason"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.ssl-block-actions" },
+    { "rel": "see-also", "to": "zia.logs.web-field-semantics" },
+    { "rel": "see-also", "to": "zia.advanced-settings.m365-one-click" }
+  ],
+  "prose": [
+    {
+      "label": "Mutual TLS.",
+      "text": "{{mtls-not-decrypted}} {{mtls-allow}}"
+    },
+    {
+      "label": "UCaaS One Click.",
+      "text": "{{ucaas-bypass}} {{ucaas-other-rules}} {{ucaas-solutions}}"
+    },
+    {
+      "label": "Microsoft 365 Bypass.",
+      "text": "{{m365-bypass}} {{m365-one-click-rule}} {{m365-solutions}} The One Click option itself is in [[zia.advanced-settings.m365-one-click]]."
+    },
+    {
+      "label": "Undecryptable traffic.",
+      "text": "{{undecryptable-reason-control}}"
+    },
+    {
+      "label": "Zscaler best practices.",
+      "text": "{{best-practices-category}} {{best-practices-solutions}} {{best-practices-search}}"
+    },
+    {
+      "label": "Service domains and HSM.",
+      "text": "{{service-domains}} {{hsm-error}}"
+    },
+    {
+      "label": "SSL policy.",
+      "text": "{{ssl-policy-reason-do-not-inspect}} {{ssl-policy-reason-inspect-above}} The filter values are listed in [[zia.logs.web-field-semantics]]; whether the logged field matches them is open {{gap:logged-value-spelling}}."
+    }
+  ],
+  "claims": {
+    "mtls-not-decrypted": {
+      "statement": "Zscaler does not support mutual TLS authentication for decryption, so a Service Edge cannot decrypt a transaction when the remote server requires client certificates; if inspection is required and undecryptable traffic is set to block, these transactions are blocked.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "Zscaler does not support mutual TLS authentication for decryption, which means a Zscaler Service Edge cannot decrypt a transaction if the remote web server requires client authentication using certificates.",
+            "If the SSL Inspection Policy requires inspection for such traffic and undecryptable traffic is configured to be blocked, these transactions are blocked by Zscaler."
+          ]
+        }
+      ]
+    },
+    "mtls-allow": {
+      "statement": "For a trusted domain, an SSL Inspection rule with Block Undecryptable Traffic disabled lets transactions needing a client certificate go uninspected and be allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "If you trust the domain in question, create an SSL Inspection Policy rule for it with the Block Undecryptable Traffic option disabled.",
+            "any transactions to the domain which require client certificate aren't inspected and thus are allowed."
+          ]
+        }
+      ]
+    },
+    "ucaas-bypass": {
+      "statement": "Enabling a UCaaS One Click option creates a predefined SSL Inspection rule with action Do Not Inspect for the corresponding destinations; the page names Zoom, GoTo, RingCentral and Webex as the UCaaS vendors.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "When any of these options is enabled, it creates a predefined SSL Inspection rule with the action Do Not Inspect for the corresponding destinations.",
+            "Zscaler partners with all major UCaaS vendors (Zoom, GoTo, RingCentral, and Webex)",
+            "The Zscaler service provides a One Click Configuration option for UCaaS applications"
+          ]
+        }
+      ]
+    },
+    "ucaas-other-rules": {
+      "statement": "A UCaaS One Click Rule is also created automatically in Firewall Control and DNS Control (to allow traffic) and in Cloud App Control under the Collaboration & Online Meetings category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "Firewall Control Policy and DNS Control Policy: The rule is created to allow traffic from Firewall.",
+            "Cloud App Control Policy: The rule is created under the Collaboration & Online Meetings category"
+          ]
+        }
+      ]
+    },
+    "ucaas-solutions": {
+      "statement": "Disabling the UCaaS option removes the automatically created rules; to retain the One Click options while enforcing SSL Inspection on some transactions, the page says to order more specific SSL Inspection rules above the UCaaS One Click rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "disabling the UCaaS option should remove all the automatically created rules, allowing you to configure granular rules as required.",
+            "you can choose to reorder your SSL Inspection rules such that more specific rules are at a higher order than the UCaaS One Click rule.",
+            "However, if you wish to retain the facility of these One Click options while also enforcing SSL Inspection on some transactions,"
+          ]
+        }
+      ]
+    },
+    "undecryptable-reason-control": {
+      "statement": "The policy action for transactions logged Not Inspected Because of Undecryptable Traffic is controlled by the Block Undecryptable Traffic option in the SSL Inspection Policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "The policy action for undecryptable traffic is controlled by the option Block Undecryptable Traffic in the SSL Inspection Policy."
+          ]
+        }
+      ]
+    },
+    "best-practices-category": {
+      "statement": "Transactions to the predefined URL category Zscaler-Recommended Exemptions are not inspected; the category holds a few dozen trusted destinations that cannot be SSL inspected for reasons such as certificate pinning, and the matching traffic is commonly under 1%.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "Any transactions destined to the predefined URL Category Zscaler-Recommended Exemptions are not inspected.",
+            "The Zscaler-Recommended Exemptions URL category contains a few dozen trusted destinations that cannot be SSL inspected for various reasons, such as certificate pinning.",
+            "The percentage of traffic that matches this rule is commonly very small and less than 1%."
+          ]
+        }
+      ]
+    },
+    "best-practices-solutions": {
+      "statement": "Zscaler recommends not inspecting these domains, but the rule can be disabled with Edit, or left enabled with higher-order Inspect rules for specific domains outside the list.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "While Zscaler recommends not inspecting these domains, you can always disable the rule with Edit.",
+            "Alternatively, you can leave the rule enabled, but create higher order inspect rules if you want to inspect only specific domains outside the list."
+          ]
+        }
+      ]
+    },
+    "best-practices-search": {
+      "statement": "The web logs can be searched with the SSL Policy Reason field for the reason Not inspected because of Zscaler best practices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "you can search the weblogs using the SSL Policy Reason field for the reason Not inspected because of Zscaler best practices."
+          ]
+        }
+      ]
+    },
+    "service-domains": {
+      "statement": "The Zscaler Service Domains reason means the transaction went to domains Zscaler owns, covering service domains used for control plane traffic; Zscaler strongly recommends against inspecting such traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "This reason implies that the corresponding transaction was destined to domains that Zscaler owns.",
+            "This category covers all the service domains that the Zscaler service uses for control plane traffic.",
+            "Zscaler strongly recommends against inspecting any control traffic destined to the Zscaler cloud as it may break vital communication and result in service issues."
+          ]
+        }
+      ]
+    },
+    "hsm-error": {
+      "statement": "The HSM error reason indicates a problem with the Hardware Security Module during SSL inspection; it is rare, typically caused by API errors, and recurring cases should go to Zscaler Support with the Web Insights logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "This reason indicates a problem with the Hardware Security HSM during the SSL inspection process. This is a rare problem, and it's typically caused by API errors.",
+            "if you notice this error recurring in your logs, open a case with Zscaler Support and attach the web insights logs."
+          ]
+        }
+      ]
+    },
+    "m365-bypass": {
+      "statement": "The runbook's Not Inspected Because of Microsoft 365 Bypass section covers URLs not inspected because of a Microsoft 365 bypass; with One Click configuration enabled (by default), Microsoft 365 traffic is optimized through the Zscaler systems and bypasses SSL inspection and preauthentication layers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "The following sections describe URLs that are not inspected because of a Microsoft 365 bypass.",
+            "When One Click configuration is enabled (by default), Microsoft 365 traffic is optimized through the Zscaler systems and bypasses SSL inspection and preauthentication layers for the fastest performance and best interoperability."
+          ]
+        }
+      ]
+    },
+    "m365-one-click-rule": {
+      "statement": "Enabling the Microsoft-recommended One Click configuration automatically creates an SSL Inspection policy that identifies Microsoft 365 web traffic (based on REST API) and bypasses SSL Inspection (and authentication); other Zscaler policies are also bypassed for this traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "SSL Inspection Policy: Policy to identify Microsoft 365 web traffic (based on REST API) and then bypass SSL Inspection (and authentication). Other Zscaler policies are also bypassed for this traffic."
+          ]
+        }
+      ]
+    },
+    "m365-solutions": {
+      "statement": "To have Microsoft 365 application traffic inspected, the runbook says to disable the One Click rule or change the SSL Inspection policy order; to use Tenant Restriction with One Click enabled, create an SSL Inspection rule for Microsoft Login Services with a rule order higher than the Office 365 One Click Rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "If you want the Microsoft 365 Application traffic to be inspected, you can disable the One Click rule or change the SSL Inspection policy order in order to change the behaviour.",
+            "If you wish to implement Tenant Restriction while keeping Microsoft-Recommended One Click configuration enabled",
+            "you can do this by creating an SSL Inspection rule for Microsoft Login Services with a rule order higher than Office 365 One Click Rule."
+          ]
+        }
+      ]
+    },
+    "ssl-policy-reason-do-not-inspect": {
+      "statement": "The runbook writes the reason as Not Inspected because of SSL Policy, logged when an SSL Inspection rule has action Do Not Inspect; changes to the default Zscaler Recommended Exemptions rule can also produce it, and the SSL Policy Name column identifies the rule. The Web Insights filter lists the value as Not inspected because of SSL/TLS policy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "This SSL policy reason indicates that the traffic was not inspected due to the SSL policy rules. This happens when an SSL Inspection policy rule is configured with the action Do Not Inspect.",
+            "If you make any changes to the default rule for Zscaler Recommended Exemptions URL category, then the transactions bypassed by this rule might also show the value Not Inspected because of SSL Policy.",
+            "In order to identify the rule, you can refer to the column SSL Policy Name in Web Insights logs for the corresponding transactions."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "web-insights-logs-filters.json",
+          "quotes": [
+            "Not inspected because of SSL/TLS policy - Not inspected because of UCaaS bypass"
+          ]
+        }
+      ]
+    },
+    "ssl-policy-reason-inspect-above": {
+      "statement": "To inspect transactions bypassed by an SSL policy rule, add an Inspect rule with more specific criteria just above the rule shown in the Web Insights logs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-ssl-policy-reason-runbook.json",
+          "quotes": [
+            "You can add a new SSL Inspection rule with the action Inspect and more specific criteria just above the rule shown in the Web Insights logs."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "logged-value-spelling": {
+      "kind": "semantic",
+      "title": "Whether the logged SSL Policy Reason values match the runbook headings or the Web Insights filter list",
+      "status": "open",
+      "detail": "Each section of the SSL Policy Reason Runbook is headed Not Inspected Because of ..., and the Untrusted Server Certificate page writes Not inspected because of mutual TLS authentication. The Web Insights Logs filters page lists the filter values (zia.logs.web-field-semantics: Not inspected because of SSL/TLS policy, O365 bypass), which differ from the headings for the SSL policy and Microsoft 365 reasons. None of these pages shows the stored log value.",
+      "resolves_with": ["tenant-data", "source-read"]
+    }
+  }
+}

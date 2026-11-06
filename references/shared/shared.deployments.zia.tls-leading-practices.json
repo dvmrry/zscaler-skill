@@ -1,0 +1,325 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.tls-leading-practices",
+  "title": "What the Internet & SaaS TLS and SSL Inspection Leading Practices Guide recommends for rollout, rule layout, bypasses and certificates",
+  "aliases": [
+    "tls inspection leading practices",
+    "ssl inspection best practices"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zia.threat-and-data"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Goals and limits.",
+      "text": "{{inspection-rate}} {{cannot-inspect}} {{dependent-features}} See [[zia.ssl-inspection]]."
+    },
+    {
+      "label": "Certificates.",
+      "text": "{{root-ca-options}} {{certificate-handling}} {{chromeos-trust}}"
+    },
+    {
+      "label": "Rules.",
+      "text": "{{rule-layout}} {{rule-order-first-match}} {{rule-table-tls-minimums}} {{criteria-limits}} {{bypass-other-policies}} {{bypass-hygiene}}"
+    },
+    {
+      "label": "Protocol versions.",
+      "text": "{{min-tls-version}} {{quic-for-tls}}"
+    },
+    {
+      "label": "Rollout and reporting.",
+      "text": "{{pilot-criteria}} {{pilot-users}} {{reporting}}"
+    }
+  ],
+  "claims": {
+    "inspection-rate": {
+      "statement": "Zscaler often sees companies achieve a 60-70 percent TLS inspection rate; the example project success criteria are 90%+ of users with inspection enabled, reported issues below one per 100 users per day and 65%+ of encrypted traffic inspected.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler often sees companies achieve a 60–70 percent TLS inspection rate.",
+            "90%+ of the user base has traffic inspection enabled in some form.",
+            "Reported issues below one per 100 users per day.",
+            "65%+ of all encrypted traffic is being inspected."
+          ]
+        }
+      ]
+    },
+    "cannot-inspect": {
+      "statement": "Zscaler cannot inspect TLS traffic from sites or applications using certificate pinning, client-authentication certificates (mTLS) or unsupported ciphers, nor devices that cannot install the certificate (IoT/OT, BYOD, guest networks).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "inspection is not possible on devices that cannot reasonably install the certificate (e.g., IoT/OT, BYOD, guest networks, etc.).",
+            "Zscaler cannot inspect TLS traffic from sites or applications that use certificate pinning",
+            "Zscaler cannot inspect sites and applications using client-authentication certificates mutual Transport Layer Security (mTLS), or use unsupported ciphers."
+          ]
+        }
+      ]
+    },
+    "dependent-features": {
+      "statement": "Some of the features that depend on TLS inspection for encrypted transactions are: Anti-Virus/Malware, Cloud Sandbox, Advanced Threat Prevention, Isolation, Data Loss Prevention, File Type Control, Inline CASB and Intrusion Prevention System.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Some of the features that depend on TLS inspection are:"
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "- Anti-Virus/Malware",
+            "- Cloud Sandbox",
+            "- Advanced Threat Prevention",
+            "- Isolation",
+            "- Data Loss Prevention (DLP)",
+            "- File Type Control",
+            "- Inline CASB",
+            "- Intrusion Prevention System (IPS)"
+          ],
+          "after": "Some of the features that depend on TLS inspection are:"
+        }
+      ]
+    },
+    "root-ca-options": {
+      "statement": "Three root CA options exist: your own CA, your own CA with Zscaler Cloud HSM, or Zscaler's CA; using your existing CA requires an additional Zscaler subscription, and custom certificates must be added to application-specific trust stores for applications that do not use the system store.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler provides three options for root CA certificates: using your own certificate authority, using your own CA with Zscaler Cloud Hardware Security Model (HSM), or leveraging Zscaler’s CA.",
+            "Using your existing CA requires an additional Zscaler subscription.",
+            "Adding the customer certificate is required, since some applications do not leverage the system’s built-in certificate store.",
+            "Either way, you must deploy the certificate to all necessary devices and handle adding the custom certificate to an Application-Specific Trust Store."
+          ]
+        }
+      ]
+    },
+    "rule-layout": {
+      "statement": "The recommended layout ends with an Inspect All rule (no criteria, blocking untrusted server certificates, enabling OCSP and blocking undecryptable traffic, minimum client and server TLS 1.2) before a Default rule of Do Not Inspect: Evaluate other policies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "| 11 | Inspect All | Criteria: None (Inspecting everything not exempted previously) | Inspect: Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Block Undecryptable Traffic: Enabled Minimum Client TLS Version: TLS 1.2 Minimum Server TLS Version: TLS 1.2 |",
+            "| Default | Default Rule | N/A | Do Not Inspect: Evaluate other policies. |"
+          ]
+        }
+      ]
+    },
+    "criteria-limits": {
+      "statement": "User attributes (Group/Department) in SSL/TLS rules work only if traffic is routed by Client Connector, or if Enforce Surrogate IP is enabled for locations with traffic through GRE/IPSec; the Device OS Type is identified only via Client Connector, otherwise flagged No Client Connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "This works only if the traffic forwarded to the Zscaler service is routed by the Zscaler Client Connector (preferred) or if Enforce Surrogate IP is enabled for the locations and traffic is flowing through a GRE/IPSec tunnel to the Zscaler service.",
+            "The Device OS Type is only identified if traffic is forwarded to the Zscaler service via the Zscaler Client Connector; otherwise it is flagged as No Client Connector."
+          ]
+        }
+      ]
+    },
+    "bypass-other-policies": {
+      "statement": "Avoid Bypass Other Policies in custom exemption rules: besides not inspecting, matching traffic ignores Cloud App Control and URL Filtering policies and is Allowed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "In addition to not inspecting the SSL/TLS connection, any traffic matching the criteria in a Bypass Other Policies rule ignores Cloud App Control and URL Filtering policies and is Allowed.",
+            "Avoid using Bypass Other Policies for any custom exemption rules."
+          ]
+        }
+      ]
+    },
+    "rule-order-first-match": {
+      "statement": "SSL/TLS inspection rules are evaluated top-down, first-match; a rule that must inspect traffic otherwise exempted is inserted before the exemption rule, and a final rule inspecting everything not exempted makes new groups, apps, categories or locations inspected automatically.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Rules are evaluated in a top-down, first-match style.",
+            "If something needs to be inspected and is otherwise exempted, insert an inspection rule before the exemption rule.",
+            "Define a final rule to inspect everything not explicitly exempted by an earlier rule.",
+            "Any new groups, applications, categories, or locations are automatically inspected until configured otherwise."
+          ]
+        }
+      ]
+    },
+    "certificate-handling": {
+      "statement": "On certificate failures the choices are Allow, Caution or Block and Zscaler recommends blocking; with OCSP enabled a revoked certificate is treated as untrusted, with the same action as failed trust, and Zscaler recommends enabling OCSP for all inspection rules and blocking undecryptable traffic unless there is a specific use case.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "you can choose to Allow, Caution, or Block the connection. Zscaler recommends blocking access until the certificate issue is addressed on the server side.",
+            "If the issuing CA revokes the certificate, the Public Service Edge for Internet & SaaS treats the certificate as an untrusted certificate.",
+            "Zscaler generally recommends dropping all traffic associated with bad certificates and enabling OCSP for all inspection rules.",
+            "Zscaler recommends blocking undecryptable traffic unless your organization has a specific use case for communication.",
+            "When enabled, the Public Service Edge for Internet & SaaS checks the revocation status of the certificate.",
+            "The same action you choose for failed trust certificates applies to an OCSP failure."
+          ]
+        }
+      ]
+    },
+    "bypass-hygiene": {
+      "statement": "Bypass guidance: avoid major shared domains such as (.s3).amazonaws.com, (.blob.core).windows.net and .cloudfront.net, avoid IP addresses in favour of FQDNs, bypass specific domains rather than wildcards, do not add file paths, and review all bypass entries at least annually.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Avoid adding major domains to the list (Alexa top 100). Common exemptions to avoid are:",
+            "Avoid adding IP addresses in favor of FQDNs or domains.",
+            "Do not add file paths or anything other than the FQDN (i.e., safemarch.com/games/)",
+            "all bypass entries should be reviewed at least annually",
+            "(.s3).amazonaws.com",
+            "(.blob.core).windows.net",
+            ".cloudfront.net",
+            "While adding domains, try bypassing the most specific domains instead of wildcards (i.e., add corp.safemarch.com and eng.safemarch.com instead of .safemarch.com)."
+          ]
+        }
+      ]
+    },
+    "quic-for-tls": {
+      "statement": "Zscaler's TLS/SSL inspection relies on TCP session information, so Google QUIC should be blocked with a Block/ICMP action (rather than Block/Drop or Block/Reset) so the application falls back to TCP; Zscaler's firewall and Client Connector both support blocking QUIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler’s TLS/SSL inspection relies on TCP session information, so Zscaler recommends blocking Google QUIC.",
+            "The block rule should use a Block/ICMP action, instead of Block/Drop or Block/Reset",
+            "Zscaler’s firewall and Zscaler Client Connector both support blocking QUIC connections.",
+            "as the ICMP response more quickly triggers the application to fall back to TCP."
+          ]
+        }
+      ]
+    },
+    "chromeos-trust": {
+      "statement": "ChromeOS does not trust managed or user-installed certificates for OS-level communications, so only user traffic can be inspected and traffic between the device and Google's ChromeOS services must be exempted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "ChromeOS doesn’t trust any managed or user-installed certificates for OS-level communications. As such, you can only inspect user traffic, and you must exempt the traffic between the device and Google’s ChromeOS services."
+          ]
+        }
+      ]
+    },
+    "min-tls-version": {
+      "statement": "Zscaler recommends initially allowing all supported protocols and ciphers to discover legacy use, then blocking all TLS versions earlier than 1.2 including legacy SSL services, with some services needing exception rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Zscaler recommends initially allowing all supported protocols and ciphers to minimize user disruption.",
+            "Zscaler recommends blocking all TLS versions earlier than 1.2, including any legacy SSL services",
+            "During this time, you can discover what is in use on your network and which services or platforms still use legacy encryption.",
+            "noting that some services might require special exception rules until they can be upgraded."
+          ]
+        }
+      ]
+    },
+    "pilot-criteria": {
+      "statement": "Example pilot criteria: tested with 10 users for 5 business days, issues addressed within two hours, fewer than three issue reports in the last two days; the guide says organizations that prioritize and understand the importance of TLS inspection can reasonably expect successful deployment to most of their use cases within 45-90 days, depending on the environment's size, complexity and distance along their zero trust journey.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Tested with 10 users for 5 business days.",
+            "Addressed reported issues within two hours.",
+            "Received fewer than three issue reports in the last two days of testing.",
+            "Organizations that prioritize and understand the importance of TLS inspection can reasonably expect successful deployment of TLS inspection to most of their use cases within 45–90 days (although this timing depends on the environment’s size, complexity, and distance along their zero trust journey)."
+          ]
+        }
+      ]
+    },
+    "pilot-users": {
+      "statement": "The guide advises not including IT or development staff in the pilot group, because they often work around issues before reporting them and operate in non-average environments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Don't include IT or development staff in the pilot group because IT and development users often try to work around issues before reporting them.",
+            "Additionally, their work often entails operating in an environment that does not match that of the average user."
+          ]
+        }
+      ]
+    },
+    "reporting": {
+      "statement": "TLS inspection can be reported in the Security Policy Audit Report (SSL/TLS Inspection row), Interactive Reports (Traffic Distribution by Protocol and SSL Traffic Overview with top ciphers and SSL/TLS versions) and Web Insights, where HTTPS versus SSL protocol indicates inspected versus not inspected; the Client SSL Handshake Failure Reason filter identifies transactions that failed inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Select the SSL/TLS Inspection row to expand the details.",
+            "Top ciphers",
+            "SSL/TLS versions",
+            "filtering of various data sections by protocol being either HTTPS or SSL; indicating whether traffic was TLS inspected or not inspected, respectively.",
+            "Leverage web insights with the filter Client SSL Handshake Failure Reason to identify transactions that failed SSL inspection"
+          ]
+        }
+      ]
+    },
+    "rule-table-tls-minimums": {
+      "statement": "In the example rule table, rule 1 (Smart Isolation One Click Rule) and rule 2 (Zscaler Recommended Exemption Rule) set Minimum TLS Version TLS 1.0.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+          "quotes": [
+            "Minimum Client TLS Version: TLS 1.0 Minimum Server TLS Version: TLS 1.0 Enable HTTP/2: Enabled |",
+            "Show End User Notifications: Disabled Untrusted Server Certificates: Block OCSP Revocation Check: Enabled Minimum TLS Version: TLS 1.0 |"
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

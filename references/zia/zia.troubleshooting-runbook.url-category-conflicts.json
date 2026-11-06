@@ -1,0 +1,254 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.url-category-conflicts",
+  "title": "Runbook: URL category conflicts, Miscellaneous and Newly Registered and Observed Domains handling",
+  "aliases": [
+    "Resolve user-defined category conflicts",
+    "Specific criteria in the access control policy do not match",
+    "Categorization Method column"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.policy-mismatch" },
+    { "rel": "see-also", "to": "zia.url-categories.entry-matching" },
+    { "rel": "see-also", "to": "zia.url-filtering.advanced-settings" },
+    { "rel": "see-also", "to": "zia.authentication.exemptions" }
+  ],
+  "prose": [
+    {
+      "label": "Categorization method.",
+      "text": "{{categorization-method-values}}"
+    },
+    {
+      "label": "User-defined categories.",
+      "text": "{{custom-urls-removes-predefined}} {{parent-category-field-recommended}} {{conflict-solution}}"
+    },
+    {
+      "label": "Most specific match examples.",
+      "text": "{{most-specific-match-example1}} {{most-specific-match-example2}} {{most-specific-match-example3}} {{logged-category-differs}}"
+    },
+    {
+      "label": "Miscellaneous and NROD.",
+      "text": "{{misc-removed-by-custom}} {{suspicious-new-domains}} {{misc-nrod-rule-order}} {{allow-one-url-professional-services}}"
+    },
+    {
+      "label": "AI/ML-based content categorization.",
+      "text": "{{aiml-defers-enforcement}} {{aiml-two-categories}} The SSL inspection of Miscellaneous that makes the early decryption happen is described in [[zia.troubleshooting-runbook.policy-mismatch]]."
+    }
+  ],
+  "claims": {
+    "categorization-method-values": {
+      "statement": "The runbook's Categorization Method web log column (named URL Categorization Method on the Web Insights columns page) shows Database A (Zscaler's proprietary URL database), Database B (a third-party vendor's database), AI/ML-based content categorization, User-Defined, or None.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "The Categorization Method column shows how the category was determined for the URL shown in the web log entry:",
+            "Database A: Indicates that the URL was categorized as per Zscaler's proprietary URL database.",
+            "Database B: Implies categorization based on a third-party vendor’s URL database.",
+            "AI/ML-based content categorization: Refers to the content classification of uncategorized pages using artificial intelligence (AI) or machine learning (ML).",
+            "User-Defined: Indicates that an administrator explicitly defined the category.",
+            "None: Indicates that the category of the URL is unavailable using any of the above methods."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zia-web-insights-logs-columns.json",
+          "quotes": [
+            "URL Categorization Method"
+          ]
+        }
+      ]
+    },
+    "custom-urls-removes-predefined": {
+      "statement": "Adding a domain such as drive.google.com to the Custom URLs field of a user-defined category removes it from the predefined category FileHost for that customer, and policies for FileHost do not apply to it; the page's .office365.com example says O365 traffic might then not show in an Office365 report and could get undesirable SSL Inspection enforcement.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "If you add drive.google.com to the Custom URLs field in the category CAT1, then this domain no longer belongs to the predefined category FileHost for this customer.",
+            "Any policy (not just URL Filtering but any other policy that uses URL category in the rule criteria) for the FileHost category doesn't apply on the transactions to this domain.",
+            "if you add .office365.com to the Custom URLs field of a category CAT1, the O365 traffic might not show up in an Office365 report, and it could also lead to undesirable SSL Inspection policy enforcement."
+          ]
+        }
+      ]
+    },
+    "parent-category-field-recommended": {
+      "statement": "The page recommends adding such URLs to the URLs retaining Parent Category field so all access control policy rules are enforced for both user-defined and predefined categories, with no impact on predefined reports and dashboards.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "It's recommended to add these URLs to the Parent Category field because this ensures that all the access control policy rules are enforced for the user-defined and the predefined categories based on Zscaler's URL categorization.",
+            "It has no impact on any predefined reports and dashboards."
+          ]
+        }
+      ]
+    },
+    "most-specific-match-example1": {
+      "statement": "In the page's first example (CAT1 holds .google.com and CAT2 holds drive.google.com, both in Custom URLs), a Google Drive request is evaluated only against CAT2, and without a matching CAT2 rule it is implicitly allowed unless an explicit block or bottom rule applies.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "If the user tries to access Google Drive (drive.google.com), only the policy for CAT2 is enforced.",
+            "Even if no policy matches for the CAT2 category, the policy for CAT1 or the parent predefined category FileHost is not evaluated.",
+            "So, this transaction is implicitly allowed unless there's an explicit block or any rule at the bottom."
+          ]
+        }
+      ]
+    },
+    "most-specific-match-example2": {
+      "statement": "In the second example (CAT3 and CAT4 entries in the URLs retaining Parent Category field), drive.google.com matches CAT3 and FileHost, and www.google.com matches .google.com in both CAT3 and CAT4 so rules for CAT3, CAT4 and WebSearch are selected and the topmost rule is enforced.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "If the user tries accessing Google Drive (drive.google.com), then only the policy for CAT3 and FileHost match.",
+            "So, all the rules for the CAT3, CAT4, and WebSearch are selected, and the topmost rule is enforced.",
+            "If the user tries accessing www.google.com, then the most specific match becomes .google.com, which is present in both CAT3 and CAT4."
+          ]
+        }
+      ]
+    },
+    "most-specific-match-example3": {
+      "statement": "In the third example, with drive.google.com added directly to authentication exemptions and CAT5 holding .google.com in the Parent Category field, a Google Drive request matches only the FileHost policy while other .google.com subdomains match CAT5 and the applicable predefined categories.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "only the policy for FileHost is matched, because the authentication exemption and the predefined category is the most specific match.",
+            "For all the other subdomains of .google.com, the policy for CAT5 and the applicable predefined categories is evaluated."
+          ]
+        }
+      ]
+    },
+    "conflict-solution": {
+      "statement": "When adding a specific subdomain to a Custom Category, the page says to add it to all existing user-defined categories that contain the top-level domain unless the policy should apply only to the most specific match.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "When adding a specific subdomain to a Custom Category, add it to all the existing user-defined categories that contain the top-level domain unless you want to enforce the policy only on the most specific match."
+          ]
+        }
+      ]
+    },
+    "logged-category-differs": {
+      "statement": "When the correct category is enforced but a different one is logged, a Block configured for at least one matching category and Allow for others blocks access if the Block rule is above the Allow rule; otherwise only URL Filtering allows it and the effective action depends on the remaining modules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-resolve-user-defined-category-conflicts.json",
+          "quotes": [
+            "The Block action is configured for at least one category and an Allow action for others. If the Block rule is above the Allow rule, access is blocked.",
+            "Otherwise, access is allowed only by the URL Filtering policy, but the effective policy action will depend on the verdict of the remaining modules",
+            "Sometimes, the correct category gets selected for policy enforcement, but a different category still gets logged in the web logs based on how the policy is configured for all the matching categories."
+          ]
+        }
+      ]
+    },
+    "misc-removed-by-custom": {
+      "statement": "Adding a URL to a user-defined URL category removes it from the Miscellaneous category by design; for Miscellaneous or Unknown URLs, the retaining-parent-category fields behave like Custom URLs and Custom Keywords.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "As soon as you add a URL to a user-defined URL category, it gets removed from the Miscellaneous category by design.",
+            "for Miscellaneous or Unknown URLs, the behavior of the URLs retaining parent category and Keywords retaining parent category is the same as Custom URLs and Custom Keywords, respectively."
+          ]
+        }
+      ]
+    },
+    "suspicious-new-domains": {
+      "statement": "With Suspicious New Domains Lookup enabled under URL & Cloud App Control > Advanced Policy Settings, Newly Registered or Observed Domains are also classified under Miscellaneous; the service considers such a domain suspicious for 30 days after detection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "Check whether Suspicious New Domains Lookup is enabled under URL & Cloud App Control > Advanced Policy Settings. If enabled, then any Newly Registered or Observed Domain is also classified under the Miscellaneous category.",
+            "it means the domain in question was either recently registered or observed; in both these cases, the Zscaler service considers a domain suspicious for 30 days after its detection."
+          ]
+        }
+      ]
+    },
+    "misc-nrod-rule-order": {
+      "statement": "If different policy rules exist for Miscellaneous and Newly Registered and Observed Domains, the rule at the top is enforced; to block NROD while allowing Miscellaneous, the NROD block rule must be above the Miscellaneous allow rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "If you have different policy rules for the Miscellaneous and Newly Registered and Observed Domains categories, then the rule at the top is enforced.",
+            "your block rule for the Newly Registered and Observed Domains category should be above the allow rule for the Miscellaneous category."
+          ]
+        }
+      ]
+    },
+    "allow-one-url-professional-services": {
+      "statement": "The runbook says not every URL to be allowed needs a custom category; if the business must block Professional Services for the criteria, create a Custom URL category allowing only a set of URLs while still blocking the parent category.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "You don't need to create a custom category for every URL that must be allowed.",
+            "If your business requires blocking Professional Services for the concerned criteria, then you must create a Custom URL category so that only a set of one or more URLs can be allowed while still blocking the parent category."
+          ]
+        }
+      ]
+    },
+    "aiml-defers-enforcement": {
+      "statement": "With AI/ML-based Content Categorization enabled, enforcement for SSL-inspected transactions to Miscellaneous URLs is deferred until the server responds; if the server does not respond or the client terminates the connection on a timeout, the policy might not be applied and received bytes show 0, and disabling the feature is a global change.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-specific-criteria-access-control-policy-do-not-match.json",
+          "quotes": [
+            "then policy enforcement for SSL Inspected transactions to a URL in the Miscellaneous category is deferred until the Zscaler service receives the response from the server.",
+            "If the server does not respond or if the client terminates the connection due to a timeout while the server has yet to provide a complete response, the policy might not be applied.",
+            "if a more consistent logging behavior is desired, you can disable AI/ML-based Content Categorization. This is a global change.",
+            "In this case, the received bytes column shows 0 in the web logs."
+          ]
+        }
+      ]
+    },
+    "aiml-two-categories": {
+      "statement": "When only the first request through a data center shows Miscellaneous or Newly Registered and Observed Domains and later ones a more specific category, AI/ML-Based Content Categorization is a possible cause; because the transaction was already decrypted, the SSL inspection bypass is not enforced for the dynamic category but other policies for it are applied.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-not-allowed-browse-category.json",
+          "quotes": [
+            "If only the first request going through a data center shows the URL Category as Miscellaneous or Newly Registered and Observed Domains, but the subsequent transactions show a more specific category, it could be due to AI/ML-Based Content Categorization.",
+            "Because the Service Edge has already decrypted the transaction, it can't enforce the SSL inspection bypass for the dynamically determined category. But it applies any other policies based on the rules for this category."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {}
+}

@@ -28,6 +28,18 @@
     },
     {
       "rel": "see-also",
+      "to": "shared.zsdk.applications"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.authentication"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.zsdk.browser-access"
+    },
+    {
+      "rel": "see-also",
       "to": "zpa.policy"
     }
   ],
@@ -51,7 +63,16 @@
       "heading": "Access policy"
     },
     {
-      "text": "{{default-block}} {{policy-targets}} {{criteria}} {{operators}} {{actions}} {{rule-order}} Whether evaluation stops at the first matching rule is open {{gap:first-match}}. How often the token is checked once a tunnel is up is open {{gap:token-check-frequency}}."
+      "text": "{{default-block}} {{policy-targets}} {{criteria}} {{operators}} {{actions}} {{rule-order}} {{first-match-evaluation}} How often the token is checked once a tunnel is up is open {{gap:token-check-frequency}}."
+    },
+    {
+      "text": "{{rule-action-allow-or-block}} The Require Approval action has no configuration field in the captured pages {{gap:require-approval-field}}. {{client-types-and-certificates}} The certificate lifetimes per tunnel type are in dispute {{divergence:client-certificate-validity}}, as is the set of client types {{divergence:client-type-set}}."
+    },
+    {
+      "text": "{{criteria-or-within-type}} {{policy-name-and-criteria-menu}} {{no-limit-on-selectable-segments}} {{traffic-steering}} The SAML attribute criterion is not in the criteria list {{gap:saml-attribute-criterion}}."
+    },
+    {
+      "text": "Application segments, segment groups, servers and device profiles are in [[shared.zsdk.applications]]; the validators and certificates are in [[shared.zsdk.authentication]]; the Web Browser client type is also in [[shared.zsdk.browser-access]]."
     }
   ],
   "checks": [
@@ -270,6 +291,177 @@
           ]
         }
       ]
+    },
+    "first-match-evaluation": {
+      "statement": "ZSDK uses a first-match principle when evaluating access policies, so in the article's scenario of blocking some users while allowing all others, the block rule must be listed before the allow rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "ZSDK uses a first-match principle when evaluating policies, so for this scenario, you must list the block rule before the allow rule.",
+            "if you want to allow access to all applications in your organization for most users but block access for some users, you can configure one policy rule that blocks access for those specific users while another rule allows access to all other users."
+          ]
+        }
+      ]
+    },
+    "rule-action-allow-or-block": {
+      "statement": "In the Add Access Policy window the Rule Action is Allow Access or Block Access, with an optional message to users with blocked access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "Rule Action: Select Allow Access or Block Access.",
+            "Message to User: (Optional) Enter the message that you want to display to users with blocked access."
+          ]
+        }
+      ]
+    },
+    "client-types-and-certificates": {
+      "statement": "The access policy Client Types are Prelogin Tunnel (certificate valid for 7 days), Zero Trust Tunnel (certificate valid for 6 months) and Web Browser.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "Prelogin Tunnel: Applications that require access before the user is authenticated. Zscaler issues a client certificate that is valid for 7 days.",
+            "Zero Trust Tunnel: Applications that require access after the user is authenticated. Zscaler issues a client certificate that is valid for 6 months.",
+            "Web Browser: Applications that require access over a web browser."
+          ]
+        }
+      ]
+    },
+    "traffic-steering": {
+      "statement": "Traffic Steering uses an App Connector Selection Method of all App Connector groups for the application or specific App Connector groups or server groups; if all are selected and more than 48 exist, only 48 are used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "If Specific App Connector groups or server groups for the application is selected, then you can select which App Connector groups or server groups are used.",
+            "If All App Connector groups for the application is selected and there are more than 48 configured for your organization, then only 48 App Connector groups are used."
+          ]
+        }
+      ]
+    },
+    "criteria-or-within-type": {
+      "statement": "Within one criterion type of an access policy rule, multiple application segments, segment groups, client types, country codes or device profiles are joined by an OR Boolean operator.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "If you add multiple application segments to the policy rule, the access policy uses an OR Boolean operator between them.",
+            "If you add multiple segment groups to the policy rule, the access policy uses an OR Boolean operator between them.",
+            "If you add multiple client types to the policy rule, the access policy uses an OR Boolean operator between them.",
+            "If you add multiple country codes to the policy rule, the access policy uses an OR Boolean operator between them.",
+            "If you add multiple device profiles to the policy rule, the access policy uses an OR Boolean operator between them."
+          ]
+        }
+      ]
+    },
+    "policy-name-and-criteria-menu": {
+      "statement": "An access policy rule name cannot contain special characters other than periods, hyphens and underscores, and the Add Criteria menu only offers criteria types the rule does not already use.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "Name: Enter an access policy name that does not contain special characters, except for periods (.), hyphens (-), and underscores ( _ ).",
+            "The drop-down menu only displays criteria that are not already in use by the rule.",
+            "For Criteria, click Add Criteria to add any of the available criteria types."
+          ]
+        }
+      ]
+    },
+    "no-limit-on-selectable-segments": {
+      "statement": "The access policy criteria menus say there is no limit to the number of application segments or segment groups that can be selected, while the same article says there are limits to the number of application segments applied to a rule and defers to Ranges & Limitations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zsdk-managing-access-policies.json",
+          "quotes": [
+            "There are limits to the number of application segments applied to a rule. For a complete list of ranges and limitations for access policy rules, see Ranges & Limitations.",
+            "The application segments you've configured appear in the menu. There is no limit to the number you can select.",
+            "The segment groups you've configured appear in the menu. There is no limit to the number you can select."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "client-type-set": {
+      "summary": "Which client types (tunnel types) ZSDK has.",
+      "positions": [
+        {
+          "says": "The About Access Policy article lists two client types, Prelogin Tunnel and Zero Trust Tunnel.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-about-access-policy.json",
+            "quotes": [
+              "Client Types: The available client types are Prelogin Tunnel and Zero Trust Tunnel."
+            ]
+          }
+        },
+        {
+          "says": "The Managing Access Policies article lists three client types, Prelogin Tunnel, Zero Trust Tunnel and Web Browser.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-access-policies.json",
+            "quotes": [
+              "Prelogin Tunnel: Applications that require access before the user is authenticated. Zscaler issues a client certificate that is valid for 7 days.",
+              "Web Browser: Applications that require access over a web browser."
+            ]
+          }
+        },
+        {
+          "says": "The April 15, 2025 Platform 2.0 release notes list merging the Prelogin tunnel and Zero Trust tunnel into a User tunnel, which neither access policy article nor the developer reference's tunnel operations mention.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-zsdk-platform-release-upgrade-summary-2025.json",
+            "quotes": [
+              "Merge Prelogin tunnel and Zero Trust tunnel into User tunnel."
+            ]
+          }
+        }
+      ],
+      "impact": "A rule review cannot tell from one page which client types exist or whether a User tunnel replaces the Prelogin and Zero Trust tunnel types, so the certificate lifetimes per type may not apply to current releases."
+    },
+    "client-certificate-validity": {
+      "summary": "How long the client certificate issued for a Prelogin tunnel and a Zero Trust tunnel is valid.",
+      "positions": [
+        {
+          "says": "The developer reference says a Prelogin tunnel's client certificate is valid for 180 days and a Zero Trust tunnel's for 7 days.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-developer-reference.json",
+            "quotes": [
+              "| startPreLoginTunnel(appKey: String, deviceUdid: String) | Starts a Prelogin tunnel. Zscaler issues a client certificate that is valid for 180 days. |",
+              "| startZeroTrustTunnel(appKey: String, deviceUdid: String, accessToken: String) | Starts a Zero Trust tunnel. Zscaler issues a client certificate that is valid for 7 days."
+            ]
+          }
+        },
+        {
+          "says": "The access policy article says a Prelogin Tunnel client certificate is valid for 7 days and a Zero Trust Tunnel's for 6 months.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-access-policies.json",
+            "quotes": [
+              "Prelogin Tunnel: Applications that require access before the user is authenticated. Zscaler issues a client certificate that is valid for 7 days.",
+              "Zero Trust Tunnel: Applications that require access after the user is authenticated. Zscaler issues a client certificate that is valid for 6 months."
+            ]
+          }
+        }
+      ],
+      "impact": "An answer about how long a tunnel's client certificate lasts depends on which page is followed; neither lifetime is confirmed by observed behavior."
     }
   },
   "gaps": {
@@ -298,9 +490,29 @@
     "first-match": {
       "kind": "semantic",
       "title": "Whether ZSDK access policy stops at the first matching rule",
+      "status": "resolved",
+      "detail": "Unverified legacy statement: \"Rules are evaluated in order; the first matching rule applies.\" The ZSDK access policy page says only that rules are applied in the order listed.",
+      "resolution": "The Managing Access Policies article states that ZSDK uses a first-match principle when evaluating policies (first-match-evaluation).",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "require-approval-field": {
+      "kind": "semantic",
+      "title": "Where the Require Approval rule action is configured",
       "status": "open",
-      "detail": "Unverified legacy statement: \"Rules are evaluated in order; the first matching rule applies.\" The ZSDK help page says only that rules are applied in the order listed.",
-      "blocks": "predicting which rule decides a request when several match",
+      "detail": "The access policy overview names Require Approval as a rule action and says policy rules are needed to block access for specific circumstances or to require approval, but the Add Access Policy window documents only Allow Access and Block Access as the Rule Action. No captured page shows a Require Approval configuration field.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "saml-attribute-criterion": {
+      "kind": "semantic",
+      "title": "Whether SAML attributes are an access policy criterion",
+      "status": "open",
+      "detail": "The Managing Access Policies Boolean-logic example mentions Security Assertion Markup Language attributes, but the SAML attribute criterion is not in the criteria list of the access policy articles.",
       "resolves_with": [
         "source-read",
         "lab-test"

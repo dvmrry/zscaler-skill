@@ -1,0 +1,270 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.threat-and-data",
+  "title": "What the ZIA deployment and operations guides say about Sandbox, Threat Protection, DLP, SaaS Security and SSL inspection",
+  "aliases": [
+    "zia deployment and operations guide sandbox",
+    "zia d&o guide threat protection"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.sandbox"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dlp"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.casb"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.ssl-inspection"
+    },
+    {
+      "rel": "see-also",
+      "to": "shared.deployments.zia.tls-leading-practices"
+    }
+  ],
+  "prose": [
+    {
+      "label": "Advanced Sandbox.",
+      "text": "{{sandbox-advanced-vs-basic}} {{sandbox-static-analysis}} {{sandbox-unauth-rules}} See [[zia.sandbox]]."
+    },
+    {
+      "label": "Threat Protection.",
+      "text": "{{threat-exceptions}} {{threat-separate-from-url}}"
+    },
+    {
+      "label": "DLP.",
+      "text": "{{dlp-subscription-and-rollout}} {{dlp-third-party-options}} {{dlp-ssh-key-error}} See [[zia.dlp]]."
+    },
+    {
+      "label": "SaaS Security.",
+      "text": "{{saas-out-of-band}} {{saas-dlp-first-and-exceptions}} See [[zia.casb]]."
+    },
+    {
+      "label": "SSL inspection.",
+      "text": "{{ssl-guide-pinning-and-troubleshoot}} What to do with a pinned app is {{divergence:pinned-app-handling}}. {{ssl-guide-minimum-tls}} See [[zia.ssl-inspection]] and [[shared.deployments.zia.tls-leading-practices]]."
+    }
+  ],
+  "claims": {
+    "sandbox-advanced-vs-basic": {
+      "statement": "Advanced Sandbox scans more file types than .exe and .dll (including .jar, archives, scripts in MS files, MS macros, .pdf, .swf and .apk), scans files larger than 2 MB, and quarantines files via configuration rules; it requires ZIA Transformation Edition and later or the Advanced Sandbox Add-On.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-advanced-sandbox-deployment-and-operations-guide.json",
+          "quotes": [
+            "Scans more file types than .exe and .dll, including .jar, archives, scripts in MS files, MS macros, .pdf, .swf, and .apk.",
+            "Scans files sized higher than 2 MB.",
+            "Quarantines files via configuration rules.",
+            "ZIA Transformation Edition and later.",
+            "Advanced Sandbox Add-On."
+          ]
+        }
+      ]
+    },
+    "sandbox-static-analysis": {
+      "statement": "For unknown PDF or Microsoft Office files the service does an initial static analysis for active content: files with active content go to the Sandbox for behavioral analysis, others are classified benign and allowed. Allowing subsequent downloads lets a user download a Sandbox-classified malicious file; Zscaler recommends disallowing them except for testing.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-advanced-sandbox-deployment-and-operations-guide.json",
+          "quotes": [
+            "If the Zscaler service detects active content, it sends the files to the Sandbox for behavioral analysis.",
+            "If the Zscaler service does not detect active content, the files are classified as benign and allowed to download.",
+            "If you choose Allow as the action for subsequent downloads, and a user attempts to download a malicious Sandbox classified file, the service allows the download.",
+            "Zscaler recommends disallowing subsequent downloads of flagged malicious content (unless it is for testing)."
+          ]
+        }
+      ]
+    },
+    "sandbox-unauth-rules": {
+      "statement": "Any Sandbox rule that applies to unauthenticated traffic must apply to all groups and departments.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-advanced-sandbox-deployment-and-operations-guide.json",
+          "quotes": [
+            "Any rule that applies to unauthenticated traffic must apply to all groups and departments."
+          ]
+        }
+      ]
+    },
+    "threat-exceptions": {
+      "statement": "ATP security exceptions also apply to Malware Protection but not vice versa, and ATP exceptions also cover Sandbox policies; allowing a destination across all of Zscaler requires exceptions in ATP, URL Filtering and File Type Control policies; threat protection policies are global for all users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-threat-protection-deployment-and-operations-guide.json",
+          "quotes": [
+            "ATP security exceptions also apply to Malware Protection, but not vice versa. ATP exceptions also cover Sandbox policies.",
+            "To allow a specific destination across all Zscaler, you must create exceptions in ATP, URL Filtering, and File Type Control policies.",
+            "threat protection policies are global policies configured for all users."
+          ]
+        }
+      ]
+    },
+    "threat-separate-from-url": {
+      "statement": "Malware Protection, ATP and Mobile Malware Protection work separately from the URL and Cloud App policies and are handled by separate Zscaler features.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-threat-protection-deployment-and-operations-guide.json",
+          "quotes": [
+            "Malware Protection, ATP, and Mobile Malware Protection work separately from the URL and Cloud App policies, and are handled by separate Zscaler features."
+          ]
+        }
+      ]
+    },
+    "dlp-subscription-and-rollout": {
+      "statement": "DLP requires ZIA ELA Edition or a Data Loss Prevention subscription; new policies should be monitored first and the action changed to Block when false positives are low; the guide suggests starting with alerts for a small subset of users and applications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-data-loss-prevention-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA ELA Edition.",
+            "Data Loss Prevention subscription.",
+            "As a best practice, new policies are only monitored first, so you can fine-tune them to reduce false positives. When the policy shows low false positives, change the action to Block.",
+            "Start by configuring DLP policies that alert users to potential policy violations across a small subset of users and applications."
+          ]
+        }
+      ]
+    },
+    "dlp-third-party-options": {
+      "statement": "A DLP policy can monitor or block with Zscaler DLP engines, with or without forwarding to a third-party DLP solution, or use criteria and forward to a third party without Zscaler engines; the guide says a policy can be used with or without content inspection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-data-loss-prevention-deployment-and-operations-guide.json",
+          "quotes": [
+            "Monitor or block data using Zscaler DLP engines.",
+            "Monitor or block data using Zscaler DLP engines, then forward information to a third-party DLP solution.",
+            "Monitor or block data based on specific criteria, then forward information to a third-party DLP solution.",
+            "You can decide to use Zscaler DLP with or without content inspection.",
+            "You can configure Zscaler DLP policies not to use Zscaler DLP engines. Traffic is forwarded to third-party DLP solutions based on matched criteria."
+          ]
+        }
+      ]
+    },
+    "dlp-ssh-key-error": {
+      "statement": "The message 'Error: unable to update SSH public key' is directed to the Configuring the Zscaler Incident Receiver article.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-data-loss-prevention-deployment-and-operations-guide.json",
+          "quotes": [
+            "If you see the message Error: unable to update SSH public key, review Configuring the Zscaler Incident Receiver."
+          ]
+        }
+      ]
+    },
+    "saas-out-of-band": {
+      "statement": "SaaS Security API is an out-of-band CASB that prevents data exposure and ensures SaaS app compliance; it scans data repositories and retains historical data for cloud applications, while the inline (proxy-based) solution is through ZIA Cloud App Control, Threat Protection, Sandboxing, DLP and URL Filtering.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-saas-security-api-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler’s Software as a Service (SaaS) Security API is an out-of-band CASB solution that prevents data exposure and ensures SaaS app compliance. It also scans data repositories and retains historical data for cloud applications.",
+            "The inline (proxy-based) solution is in place through ZIA using Cloud App Control, Threat Protection, Sandboxing, DLP, and URL Filtering."
+          ]
+        }
+      ]
+    },
+    "saas-dlp-first-and-exceptions": {
+      "statement": "A SaaS Security DLP policy requires DLP to be configured first; exceptions fail to work when the username assigned in ZIA does not match the username of the scanned folder in the SaaS tenant (for example joe.blogs@xyz.com versus joe.blogs@abc.com).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-saas-security-api-deployment-and-operations-guide.json",
+          "quotes": [
+            "You must configure DLP first.",
+            "it’s possible that the username assigned in ZIA does not match the username of the scanned folder in the SaaS tenant.",
+            "Usernames must be consistent across the policies and tenants for the exceptions to work.",
+            "For example, the ZIA policy exception uses joe.blogs@xyz.com, while the SaaS tenant uses joe.blogs@abc.com."
+          ]
+        }
+      ]
+    },
+    "ssl-guide-pinning-and-troubleshoot": {
+      "statement": "Mobile applications often use certificate pinning, which prevents SSL Inspection from working correctly; for a pinned app, the SSL Inspection deployment guide says to exempt it by removing the cloud application or the individual domains from SSL Inspection using custom URL categories. Web transaction content inspection takes place in memory and is never written to disk; Zscaler supports private keys in cloud hardware security modules (HSM).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-ssl-inspection-deployment-and-operations-guide.json",
+          "quotes": [
+            "Remember that mobile applications often use certificate pinning, which prevents SSL Inspection from working correctly.",
+            "exempt the applications from SSL Inspection by removing the cloud application from SSL Inspection or the individual domains from SSL Inspection, using the custom URL categories.",
+            "Web transaction content inspection takes place in memory and is never written to disk.",
+            "Zscaler supports private keys in cloud hardware security modules (HSM).",
+            "The app is not working properly. Check if the app uses certificate pinning"
+          ]
+        }
+      ]
+    },
+    "ssl-guide-minimum-tls": {
+      "statement": "A legitimate site being blocked can come from policies that are too restrictive on the minimum Transport Layer Security (TLS) version; using the default Zscaler intermediate certificate requires clients to install the Zscaler root certificate or they see browser and application warnings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-ssl-inspection-deployment-and-operations-guide.json",
+          "quotes": [
+            "A legitimate site is blocked: Make sure you don't configure policies that are too restrictive regarding the minimum Transport Layer Security (TLS) version.",
+            "If you use the default Zscaler intermediate certificate, ensure all clients have installed the Zscaler root certificate.",
+            "Failure to install the Zscaler root certificate results in warnings from browsers and applications or the inability to inspect the traffic properly."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "pinned-app-handling": {
+      "summary": "What to do with an application that uses certificate pinning: the SSL Inspection deployment guide says to exempt it from SSL Inspection, while the SSL Inspection leading practices guide says to replace the application, bypass only if it is of high value, and otherwise deny the traffic.",
+      "positions": [
+        {
+          "says": "If certificate pinning is in place, exempt the applications from SSL Inspection by removing the cloud application or the individual domains from SSL Inspection.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-ssl-inspection-deployment-and-operations-guide.json",
+            "quotes": [
+              "If certificate pinning is in place, exempt the applications from SSL Inspection by removing the cloud application from SSL Inspection or the individual domains from SSL Inspection, using the custom URL categories."
+            ]
+          }
+        },
+        {
+          "says": "Replace the application if possible; bypass inspection only if the application is of such high value that the risks of not inspecting are worth it; otherwise deny the traffic.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-zia-ssl-inspection-leading-practices-guide.json",
+            "quotes": [
+              "If possible, look to replace the application if you encounter certificate pinning. Bypass inspection on an application's traffic only if the application is of such high value to the organization that it is worth the risks associated with not inspecting the traffic. Otherwise, deny the traffic."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether a pinned app is exempted by default or only as an exception to a deny decides whether its traffic goes uninspected; the two guides do not reconcile this."
+    }
+  },
+  "gaps": {}
+}

@@ -1,0 +1,528 @@
+{
+  "schema_version": 1,
+  "id": "shared.deployments.zia.policy-controls",
+  "title": "What the ZIA deployment and operations guides say about authentication, bandwidth, Cloud App Control, URL filtering, DNS, firewall, IPS and Isolation",
+  "aliases": [
+    "zia deployment and operations guide",
+    "zia d&o guide"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "shared.deployments"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.authentication.surrogate-ip"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.bandwidth-control.location-scope"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.cloud-app-control.precedence"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.url-filtering"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.dns-control"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall"
+    },
+    {
+      "rel": "see-also",
+      "to": "zia.firewall.ips"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{auth-ip-surrogacy-churn}} The surrogate IP mechanics are in [[zia.authentication.surrogate-ip]]."
+    },
+    {
+      "label": "Authentication.",
+      "text": "{{auth-surrogacy-refresh-vs-dhcp}} {{auth-cookie-ssl-requirement}} {{auth-unauthenticated-allowed}} {{auth-recommended-methods}} {{auth-unmapped-users-fix}}"
+    },
+    {
+      "label": "Bandwidth Control.",
+      "text": "{{bw-subscription}} {{bw-overhead-setting}} The margin below measured bandwidth is {{divergence:bw-margin}}. {{bw-sublocation-modes}} {{bw-troubleshoot-remote}} {{bw-min-tuning}} The product-level behavior is in [[zia.bandwidth-control.location-scope]]."
+    },
+    {
+      "label": "Cloud App Control.",
+      "text": "{{cac-defaults}} {{cac-cascading}} {{cac-quic-bypass}} Precedence against URL Filtering is in [[zia.cloud-app-control.precedence]]."
+    },
+    {
+      "label": "URL Filtering.",
+      "text": "{{url-precedence-and-first-match}} {{url-custom-category-specificity}} {{url-ssl-dependent-criteria}} {{url-misc-aiml}} See [[zia.url-filtering]]."
+    },
+    {
+      "label": "DNS Control.",
+      "text": "{{dns-modes}} {{dns-reach-trusted-resolver}} {{dns-troubleshooting}} See [[zia.dns-control]]."
+    },
+    {
+      "label": "Firewall and IPS.",
+      "text": "{{fw-subscription-and-order}} {{fw-remote-and-insufficient-data}} {{ips-subscription-defaults}} {{ips-logs-and-ssh}} The Firewall guide's product limits are open {{gap:firewall-product-limits}}. See [[zia.firewall]] and [[zia.firewall.ips]]."
+    },
+    {
+      "label": "Isolation.",
+      "text": "{{isolation-requirements}} The menu item that shows Isolation latency is open {{gap:isolation-latency-measure}}. {{isolation-service-urls}}"
+    }
+  ],
+  "claims": {
+    "auth-ip-surrogacy-churn": {
+      "statement": "IP Surrogacy maps a private IP to a new user when a different user logs in from it; if the mapping changes more than three times in a minute, the service stops mapping users to that IP for 5 minutes and applies location policies to transactions that do not support authentication. Zscaler discourages IP Surrogacy on shared hosts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "If the mapping changes more than three times in a minute (e.g., three different users log in and surf the internet from the same private IP address within a minute)",
+            "the service stops mapping users to the private IP address for 5 minutes and applies the location policies to the transactions that do not support authentication during these 5 minutes.",
+            "Zscaler discourages the use of IP Surrogacy on shared hosts.",
+            "IP Surrogacy maps the private IP address to a new user if a different user logs in to the Zscaler service from the same private IP address."
+          ]
+        }
+      ]
+    },
+    "auth-surrogacy-refresh-vs-dhcp": {
+      "statement": "The refresh time for revalidating IP Surrogacy must be shorter than the DHCP lease time, otherwise ZIA might apply the wrong user policies; Zscaler recommends a Refresh Time shorter than Idle Time to Disassociation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "The refresh time for the revalidation of IP Surrogacy must be shorter than the DHCP lease time. Otherwise, ZIA might apply the wrong user policies.",
+            "Zscaler recommends setting the Refresh Time for re-validation of Surrogacy to a period shorter than what you specified for Idle Time to Disassociation."
+          ]
+        }
+      ]
+    },
+    "auth-cookie-ssl-requirement": {
+      "statement": "Without Zscaler Client Connector, Zscaler uses cookie-based authentication for most traffic; with cookie-based authentication SSL inspection must be enabled for TLS-encrypted destinations, and where it is not, IP Surrogacy maps transactions to the previously authenticated user.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "If you don’t use Zscaler Client Connector, Zscaler uses cookie-based authentication for most traffic.",
+            "If you use cookie-based authentication, you must enable SSL inspection for TLS-encrypted destinations. If SSL inspection isn’t used, use IP Surrogacy to map transactions to the previously authenticated user."
+          ]
+        }
+      ]
+    },
+    "auth-unauthenticated-allowed": {
+      "statement": "URL Filtering assumes an implicit Allow All rule as a last resort, so unauthenticated traffic is allowed by default; restricting it needs specific URL filtering rules.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "URL Filtering policies assume an implicit Allow All rule as a last resort choice if no other URL filtering rule applies to the traffic. This means that unauthenticated traffic is allowed by default.",
+            "To restrict unauthenticated traffic, you must add specific URL filtering rules."
+          ]
+        }
+      ]
+    },
+    "auth-recommended-methods": {
+      "statement": "Zscaler recommends SCIM-based provisioning for real-time synchronization and Identity Federation using SAML for authentication; SAML auto provisioning does not support real-time synchronization, so new groups must be synchronized manually and users must reauthenticate.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "Zscaler recommends SCIM-based provisioning to allow for real-time synchronization.",
+            "Zscaler recommends using an Identity Federation using SAML.",
+            "SAML auto provisioning doesn’t support real-time synchronization, so you must manually synchronize new groups if the users or their group mapping recently changed. Users must reauthenticate to make updated information available."
+          ]
+        }
+      ]
+    },
+    "auth-unmapped-users-fix": {
+      "statement": "Users that are not correctly mapped in Insights and Interactive Reports: check whether IP Surrogacy is enabled and multiple users authenticate from the same private IP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-authentication-deployment-and-operations-guide.json",
+          "quotes": [
+            "Users are not correctly mapped in Insights and Interactive Reports): Check if IP Surrogacy is enabled and if multiple users try to authenticate using the same private IP."
+          ]
+        }
+      ]
+    },
+    "bw-overhead-setting": {
+      "statement": "The Bandwidth Control deployment guide says about five to seven percent of TCP traffic is overhead that Bandwidth Control does not count, and sets a location's ZIA bandwidth 10 to 15 percent below the measured traffic (100 Mbps measured becomes 85 Mbps).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "About five to seven percent of TCP traffic is overhead (e.g., packet headers). The Zscaler service does not include overhead in its bandwidth calculations.",
+            "Actual bandwidth should be set at 10 to 15 percent less than the measured traffic to account for the protocol overhead when setting the upload and download bandwidth in the ZIA Admin Portal.",
+            "For example, if the actual bandwidth of a location is 100 Mbps, set the location bandwidth in ZIA Admin Portal to 85 Mbps (100 minus 15 percent)."
+          ]
+        }
+      ]
+    },
+    "bw-sublocation-modes": {
+      "statement": "On a sub-location with Enforce Bandwidth Control disabled, it uses the shared bandwidth; with Override, its defined bandwidth is dedicated and no other sub-location can use it whether or not it has traffic; with Disabled no Bandwidth Control policies are applied, while they are applied for Use Location Bandwidth.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "On a sub-location where Enforce Bandwidth Control is disabled, it uses the shared bandwidth at any given time.",
+            "On a sub-location with Enforce Bandwidth Control set to Override, the defined bandwidth is dedicated to that sub-location. It can't be used by any other sub-location, regardless if there is any traffic or not on the sub-location.",
+            "With Bandwidth Control set to Disabled, no Bandwidth Control policies and functionalities are applied. Bandwidth Control policies are applied if Bandwidth Control is set to Use Location Bandwidth."
+          ]
+        }
+      ]
+    },
+    "bw-subscription": {
+      "statement": "Bandwidth Control requires ZIA Business Edition and later or the Bandwidth Control Add-On.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA Business Edition and later",
+            "Bandwidth Control Add-On"
+          ],
+          "after": "1. One of the following ZIA subscriptions is required:"
+        }
+      ]
+    },
+    "bw-troubleshoot-remote": {
+      "statement": "When Bandwidth Control is not applied as expected, one check is the user's location, because Bandwidth Control policies are not enforced for remote users.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Check where the user is (in the office or remote) as Bandwidth Control policies aren’t enforced for remote users."
+          ]
+        }
+      ]
+    },
+    "bw-min-tuning": {
+      "statement": "For a bandwidth-controlled productivity app with performance issues at peak hours, the guide suggests increasing the policy's minimum bandwidth percentage in five percent steps, testing between steps.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Consider increasing the minimum bandwidth five percent and test for performance. If there is no change, increase minimum bandwidth another five percent and test again. Repeat this process until performance is acceptable."
+          ]
+        }
+      ]
+    },
+    "cac-defaults": {
+      "statement": "The default Cloud App Control policy behavior is Allow All, and rules are evaluated top to bottom; Cloud App Control policies do not support custom End User Notifications.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-app-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "The default policy behavior is Allow All.",
+            "Rules evaluation proceeds in order from top to bottom.",
+            "Cloud App Control policies do not support custom End User Notifications (EUNs)."
+          ]
+        }
+      ]
+    },
+    "cac-cascading": {
+      "statement": "A rule that explicitly allows a cloud app applies only Cloud App Control and not URL Filtering unless Allow Cascading to URL Filtering is enabled; for an allowed cloud app that Zscaler is blocking, the troubleshooting step is to verify that Allow Cascading to URL Filtering is enabled and, if so, that a corresponding URL filtering rule allows the traffic.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-app-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "the service only applies the Cloud App Control policy and does not apply a URL Filtering policy. You can change this by enabling Allow Cascading to URL Filtering.",
+            "Zscaler is blocking an allowed cloud app: Verify that you enabled Allow Cascading to URL Filtering. If so, verify that you have a corresponding URL filtering rule that allows this traffic.",
+            "If a user requests a cloud app that you explicitly allow with a Cloud App Control policy rule"
+          ]
+        }
+      ]
+    },
+    "cac-quic-bypass": {
+      "statement": "For users who can still access a blocked cloud app, the guide says to verify that their transactions are visible in Web/Firewall Insights (if not, it is possible the traffic goes direct and bypasses the rules; the PAC file / Proxy settings can block the traffic), and to check Firewall Insights for QUIC, disabling QUIC in browser settings if it is used.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-app-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Verify if transactions from the affected users are visible in Zscaler Web/Firewall Insights. If not, it’s possible the traffic goes direct and bypasses the rules.",
+            "Verify if the protocol used is QUIC in Zscaler Firewall Insights. If yes, disable QUIC in Internet Browser settings.",
+            "The PAC file / Proxy settings can block the traffic."
+          ]
+        }
+      ]
+    },
+    "url-precedence-and-first-match": {
+      "statement": "By default the Cloud App Control policy takes precedence over the URL filtering policy; URL filtering rules are applied on a first-match basis, and the Zscaler default policy allows access.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-url-filtering-deployment-and-operations-guide.json",
+          "quotes": [
+            "By default, the Cloud App Control policy takes precedence over the URL filtering policy.",
+            "URL filtering rules are applied on a first-match basis.",
+            "The Zscaler default policy allows access."
+          ]
+        }
+      ]
+    },
+    "url-custom-category-specificity": {
+      "statement": "More specific custom category entries take precedence: a rule on a wildcard category is not applied if the destination is defined more specifically in another category, even when the wildcard rule is higher in the rule order (example: .example.com in CUSTOM_C1 and www.example.com in CUSTOM_C2).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-url-filtering-deployment-and-operations-guide.json",
+          "quotes": [
+            "More specific custom category entries always take precedence. URL filtering rules aren’t applied to a category with a wildcard if the destination is defined more specifically in another category.",
+            "When accessing www.example.com, the CUSTOM_C1 policy isn’t applied because CUSTOM_C2 is more specific (even though CUSTOM_C1 is higher in the rule order).",
+            "For example, the first rule CUSTOM_C1 contains .example.com and the second rule CUSTOM_C2 contains www.example.com."
+          ]
+        }
+      ]
+    },
+    "url-ssl-dependent-criteria": {
+      "statement": "ZIA might not enforce rules on certain criteria without SSL inspection or Zscaler Client Connector; Enforce SafeSearch requires SSL Inspection; rules with Request Method or Protocol criteria may misbehave on uninspected transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-url-filtering-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA might not enforce rules based on certain criteria if you don’t enable SSL inspection or use the Zscaler Client Connector.",
+            "You must have SSL Inspection enabled in order to enable Enforce SafeSearch.",
+            "Rules with Request Method or Protocol criteria are not processed as expected: Check if SSL inspection is applied to these transactions."
+          ]
+        }
+      ]
+    },
+    "url-misc-aiml": {
+      "statement": "A troubleshooting item in the guide: where the category check shows a site as MISCELLANEOUS_OR_UNKNOWN but other rules apply, check whether AI/ML categorization is enabled, which automatically assigns certain categories to uncategorized sites. The guide also notes that blocking miscellaneous URLs might impact users until the URL is categorized.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-url-filtering-deployment-and-operations-guide.json",
+          "quotes": [
+            "Check if AI/ML categorization is enabled. This feature automatically assigns certain categories to uncategorized sites.",
+            "Blocking access to URLs in the miscellaneous category might impact your users' experience if they can’t access these sites until the URL is categorized.",
+            "Rule processing for a site is unexpected: The category check shows it as MISCELLANEOUS_OR_UNKNOWN, but other rules apply."
+          ]
+        }
+      ]
+    },
+    "dns-modes": {
+      "statement": "The DNS Control proxy model has a Transit option (passes DNS requests through the proxy, hiding the customer IP from third parties including the external resolver, security policy still applied) and a Resolver option (intercepts and resolves the request at the Public Service Edge); Zscaler recommends Resolver.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-dns-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Transit Option: This mode passes DNS requests through the proxy.",
+            "Resolver Option: This option sees and intercepts the DNS request at the Public Service Edge and resolves the request pending DNS Control policy.",
+            "Zscaler recommends using the Resolver option.",
+            "A proxy safely hides the customer's IP address from third parties, including the external resolver (DNS security policy is still applied)."
+          ]
+        }
+      ]
+    },
+    "dns-reach-trusted-resolver": {
+      "statement": "Traffic can reach Zscaler's Trusted DNS Resolver by enabling a NAT control rule or using Z-Tunnel 2.0 with specified DNS exclusions and inclusions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-dns-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Enable a NAT control rule.",
+            "Use a Z-Tunnel 2.0 with specified DNS exclusions and inclusions."
+          ]
+        }
+      ]
+    },
+    "dns-troubleshooting": {
+      "statement": "Internal domains blocked or inaccessible: check whether they are in DNS exclusions. Iterative queries unresolved: disable the default NAT Control rule or create a higher-precedence rule so iterative queries can transit ZIA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-dns-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Internal domains are blocked or not accessible: Check if the internal domains are part of DNS exclusions.",
+            "Disable the default rule in NAT Control or create a higher precedence rule to support iterative queries transiting the ZIA service.",
+            "Iterative queries are not getting resolved:"
+          ]
+        }
+      ]
+    },
+    "fw-subscription-and-order": {
+      "statement": "Firewall deployment starts from a Standard or Advanced Firewall subscription; rules should be built with specific rules first and less specific last, and should be created in a disabled state then gradually enabled with a controlled per-location test.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-firewall-deployment-and-operations-guide.json",
+          "quotes": [
+            "Validate and review one of the needed subscriptions (i.e., Standard Firewall or Advanced Firewall).",
+            "Create the Firewall rules in a disabled state.",
+            "Perform a controlled test per location before enabling all rules on all locations.",
+            "Build a rule set with specific rules first and less specific rules last."
+          ]
+        }
+      ]
+    },
+    "fw-remote-and-insufficient-data": {
+      "statement": "Firewall is enabled for Z-Tunnel 1.0 and PAC remote users via the advanced settings, and the guide also lists ensuring traffic is forwarded to the ZIA Firewall from Zscaler Client Connector using Z-Tunnel 2.0; transactions logged as Allow due to insufficient app data in Firewall Insights might relate to a match from the DPI mechanism and a specific rule.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-firewall-deployment-and-operations-guide.json",
+          "quotes": [
+            "Enable a firewall for Z-Tunnel 1.0 and PAC remote users via the advanced settings.",
+            "Ensure traffic is forwarded to the ZIA Firewall from Zscaler Client Connector using Z-Tunnel 2.0.",
+            "If transactions are logged as Allow due to insufficient app data on Firewall Insights, it might relate to a match from our DPI mechanism and specific rule."
+          ]
+        }
+      ]
+    },
+    "ips-subscription-defaults": {
+      "statement": "IPS Control requires ZIA Transformation Edition and later or an Advanced Firewall subscription; Firewall Control and IPS Control are enabled by default for Client Connector Z-Tunnel 2.0 remote users, and IPS can be enabled for Z-Tunnel 1.0 and PAC remote users by enabling Firewall Control.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-ips-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "ZIA Transformation Edition and later.",
+            "Advanced Firewall subscription.",
+            "Firewall Control is enabled by default for Zscaler Client Connector Z-Tunnel 2.0 remote users.",
+            "IPS Control is enabled by default for Zscaler Client Connector Z-Tunnel 2.0 remote users.",
+            "You can enable IPS Control by enabling Firewall Control for Zscaler Client Connector Z-Tunnel 1.0 and PAC remote users."
+          ]
+        }
+      ]
+    },
+    "ips-logs-and-ssh": {
+      "statement": "Detected threats for web and non-web traffic display in Firewall Insights > Logs, while web-only threats also appear in the Security Dashboard; SSH tunneling is blocked or allowed for the whole tenant and cannot be allowed for specific users or groups.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-ips-control-deployment-and-operations-guide.json",
+          "quotes": [
+            "Detected threats for both web and non-web traffic display in Firewall Insights > Logs. Threats detected from web-only traffic also appear in the Security Dashboard.",
+            "SSH tunneling is blocked, or allowed, for your entire tenant. It can’t be granularly allowed for specific users or groups."
+          ]
+        }
+      ]
+    },
+    "isolation-requirements": {
+      "statement": "Isolation needs a ZIA subscription and the Isolation add-on; HTTPS destinations need SSL inspection to be redirected to Isolation; Isolate is available only for known user agents (Other cannot be chosen); it works only with HTTP and HTTPS in the web browser; latency should be below 100 ms, which the guide says to check through the isolation browser menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-browser-isolation-deployment-and-operations-guide.json",
+          "quotes": [
+            "A ZIA subscription and the Isolation add-on.",
+            "SSL inspection for respective destinations is mandatory for redirecting HTTPS traffic to Isolation.",
+            "The web traffic action Isolate is only available for known user agents. In a URL filtering rule, you cannot choose Other as the user agent criteria.",
+            "Isolation only works with HTTP and HTTPS protocols in the web browser.",
+            "Latency is less than 100 ms for the optimal end user experience. Check through the isolation browser menu."
+          ]
+        }
+      ]
+    },
+    "isolation-service-urls": {
+      "statement": "Isolation requires configuring the service URLs in its table, including .files.rbi.zscaler.com (shares files between isolation and the user machine, bypassed from isolation) and .isolation.zscaler.com (connects to the isolation service; SSL inspection bypassed by default), both on 443/HTTPS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "deployments-ops-cloud-browser-isolation-deployment-and-operations-guide.json",
+          "quotes": [
+            "| User Machine | .files.rbi.zscaler.com | 443/HTTPS | URL Filtering policy. Bypassed from isolation. Configure the appropriate file type control. | This wildcard domain shares the files between isolation and the user machine (upload and download). |",
+            "| User Machine | .isolation.zscaler.com | 443/HTTPS | SSL inspection is bypassed by default (Zscaler recommends this policy). | This wildcard domain connects to the isolation service. |",
+            "Isolation requires configuring the service URLs listed in the following table:"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "bw-margin": {
+      "summary": "How much of a location's bandwidth to set as the Bandwidth Control limit: the deployment guide says 10 to 15 percent below measured traffic (85 of 100 Mbps), the Bandwidth Control article says only 70–80% of the overall bandwidth per location.",
+      "positions": [
+        {
+          "says": "Set the location bandwidth 10 to 15 percent less than the measured traffic, for example 85 Mbps for a 100 Mbps location.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "deployments-ops-bandwidth-control-deployment-and-operations-guide.json",
+            "quotes": [
+              "Actual bandwidth should be set at 10 to 15 percent less than the measured traffic to account for the protocol overhead when setting the upload and download bandwidth in the ZIA Admin Portal.",
+              "For example, if the actual bandwidth of a location is 100 Mbps, set the location bandwidth in ZIA Admin Portal to 85 Mbps (100 minus 15 percent)."
+            ]
+          }
+        },
+        {
+          "says": "Only 70–80% of the overall bandwidth per location is the ideal setting for upload and download limits.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "about-bandwidth-control.json",
+            "quotes": [
+              "Only 70–80% of the overall bandwidth per location is the ideal setting for upload and download limits."
+            ]
+          }
+        }
+      ],
+      "impact": "A location limit of 85% sits outside the 70–80% range, so the value to configure depends on which page is followed; neither page reconciles the two."
+    }
+  },
+  "gaps": {
+    "isolation-latency-measure": {
+      "kind": "semantic",
+      "title": "Which isolation browser menu item shows latency",
+      "status": "open",
+      "detail": "The Isolation guide says to check latency through the isolation browser menu but does not name the menu item or the figure it reports.",
+      "resolves_with": [
+        "source-read"
+      ]
+    },
+    "firewall-product-limits": {
+      "kind": "semantic",
+      "title": "What the Firewall guide's ZIA product limits are",
+      "status": "open",
+      "detail": "The Firewall deployment guide refers to ZIA product limits without giving a value.",
+      "resolves_with": [
+        "source-read"
+      ]
+    }
+  }
+}

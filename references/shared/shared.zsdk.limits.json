@@ -64,6 +64,9 @@
           ]
         ]
       }
+    },
+    {
+      "text": "The maximum number of segment groups is in dispute {{divergence:segment-group-limit}}, as is the number of application segments per policy rule {{divergence:segments-per-rule}}."
     }
   ],
   "checks": [
@@ -215,6 +218,61 @@
           ]
         }
       ]
+    }
+  },
+  "divergences": {
+    "segment-group-limit": {
+      "summary": "How many segment groups an organization can have.",
+      "positions": [
+        {
+          "says": "The Ranges & Limitations page lists 200 segment groups.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-ranges-limitations.json",
+            "quotes": [
+              "| Segment Groups | 200 groups |"
+            ]
+          }
+        },
+        {
+          "says": "The Managing Segment Groups article says up to 100 segment groups can be added.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-segment-groups.json",
+            "quotes": [
+              "up to 100 segment groups"
+            ]
+          }
+        }
+      ],
+      "impact": "A design near 100 segment groups cannot rely on either number without confirming with Zscaler Support."
+    },
+    "segments-per-rule": {
+      "summary": "How many application segments one access policy rule can include.",
+      "positions": [
+        {
+          "says": "The Ranges & Limitations page lists 1,000 application segments per policy rule.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-ranges-limitations.json",
+            "quotes": [
+              "2,000 policy rules 1,000 application segments per policy rule 48 App Connector groups per policy rule"
+            ]
+          }
+        },
+        {
+          "says": "The Managing Access Policies article says there are limits to the number of application segments applied to a rule, deferring to Ranges & Limitations, and also says the selection menu has no limit.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "zsdk-managing-access-policies.json",
+            "quotes": [
+              "There are limits to the number of application segments applied to a rule. For a complete list of ranges and limitations for access policy rules, see Ranges & Limitations.",
+              "The application segments you've configured appear in the menu. There is no limit to the number you can select."
+            ]
+          }
+        }
+      ],
+      "impact": "The same article defers to Ranges & Limitations for the rule limit while describing the selection menu as unlimited, so a rule needing more than 1,000 application segments should be checked against the limits page and Zscaler Support."
     }
   }
 }

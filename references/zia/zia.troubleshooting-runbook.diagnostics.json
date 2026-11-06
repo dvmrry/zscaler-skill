@@ -1,0 +1,345 @@
+{
+  "schema_version": 1,
+  "id": "zia.troubleshooting-runbook.diagnostics",
+  "title": "Runbook diagnostics: HAR analysis, QUIC detection, XFF compatibility and SSL configuration checks",
+  "aliases": [
+    "HAR file capture",
+    "is the website using QUIC",
+    "XFF header test",
+    "validate SSL configuration of a web server"
+  ],
+  "related": [
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook" },
+    { "rel": "see-also", "to": "zia.troubleshooting" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.server-certificates" },
+    { "rel": "see-also", "to": "zia.troubleshooting-runbook.access-failures" }
+  ],
+  "prose": [
+    {
+      "label": "Capturing headers.",
+      "text": "{{har-chromium-130}} {{har-thick-apps}} {{har-fiddler-no-zcc}}"
+    },
+    {
+      "label": "Analyzing headers.",
+      "text": "{{har-formats}} {{har-http-version-proxied}} {{har-remote-ip}}"
+    },
+    {
+      "label": "QUIC.",
+      "text": "{{quic-browser-h3}} {{quic-firewall-insights}} {{quic-wireshark}}"
+    },
+    {
+      "label": "XFF.",
+      "text": "{{xff-test-method}} {{xff-insertion-default}} {{xff-not-inserted-misc-legal}} {{xff-not-inserted-vse-sipa}} {{xff-from-client-request}} {{xff-incompatible-sites}} {{xff-solution}} Whether XFF is always or almost always inserted is in dispute {{divergence:xff-always-vs-almost-always}}."
+    },
+    {
+      "label": "SSL configuration of a web server.",
+      "text": "{{sslv-ssllabs-indicators}} {{sslv-openssl-ciphers}} {{sslv-selfsigned-chain}}"
+    }
+  ],
+  "claims": {
+    "har-chromium-130": {
+      "statement": "In Chromium versions 130 and later the exported HAR file has less detail; to capture all data, adjust the Developer Tools settings by selecting Allow to generate HAR (with sensitive data) and use the Export menu option to export sensitive data.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-capture-http-headers-har-file-client-system.json",
+          "quotes": [
+            "Chromium versions 130 and later limit the level of detail in the exported HAR file.",
+            "select the box Allow to generate HAR (with sensitive data).",
+            "Click and hold Export until a menu appears with the option to export sensitive data.",
+            "To capture all data in the exported HAR file, you must first adjust the settings in Developer Tools:"
+          ]
+        }
+      ]
+    },
+    "har-thick-apps": {
+      "statement": "For non-browser applications such as Outlook, Teams and Slack, the runbook says a third-party application such as Fiddler or Charles Proxy is needed to capture HTTP headers; it says these applications insert themselves as the system proxy.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-capture-http-headers-har-file-client-system.json",
+          "quotes": [
+            "For such non-browser applications (e.g., Outlook, Teams, Slack), you need a third-party application such as Fiddler or Charles Proxy to capture the HTTP headers.",
+            "These applications insert themselves as the system proxy to intercept and capture the web traffic."
+          ]
+        }
+      ]
+    },
+    "har-fiddler-no-zcc": {
+      "statement": "With Zscaler Client Connector not enabled, Fiddler Classic is configured to decrypt HTTPS under Tools > Options > HTTPS, and the capture is saved via File > Save > All sessions as a *.saz file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-capture-http-headers-har-file-client-system.json",
+          "quotes": [
+            "Configure Fiddler Classic. Enable HTTPS decryption by going to Tools > Options > HTTPS and enabling the Decrypt HTTPS traffic checkbox.",
+            "Go to File menu > Save > All sessions to save the capture as *.saz file.",
+            "If Zscaler Client Connector is not enabled on the system:"
+          ]
+        }
+      ]
+    },
+    "har-formats": {
+      "statement": "Most browsers export HTTP headers to a .har file, while Fiddler typically saves a .saz file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-analyze-http-headers.json",
+          "quotes": [
+            "Although most browsers allow exporting HTTP headers with or without data to a .har file, Fiddler typically saves them to a .saz file."
+          ]
+        }
+      ]
+    },
+    "har-http-version-proxied": {
+      "statement": "The HTTP version of a request, shown in the Google HAR analyzer, helps show whether it was proxied through Zscaler: generally the response is HTTP 1.1 unless the organization enabled and configured H2.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-analyze-http-headers.json",
+          "quotes": [
+            "This helps you determine whether the request is proxied through the Zscaler service (generally, the response is HTTP 1.1 unless the organization enabled and configured H2).",
+            "You can use the free web-based HAR analyzer tool in the Google Admin Toolbox.",
+            "The HTTP version."
+          ]
+        }
+      ]
+    },
+    "har-remote-ip": {
+      "statement": "For Tunnel 1/Explicit Proxy the remote address can be checked for a Proxy VIP; the remote IP identifies the node a request lands on, but the Zscaler admin portals are behind the cloudfront CDN so their IP is an AWS one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-analyze-http-headers.json",
+          "quotes": [
+            "If this is Tunnel 1/Explicit Proxy, you can also look at the remote address to check whether it is a Proxy VIP.",
+            "The remote IP. This identifies which node a request is landing on. However, the Zscaler admin portals are now behind cloudfront CDN, so the IP is from AWS."
+          ]
+        }
+      ]
+    },
+    "quic-browser-h3": {
+      "statement": "In Google Chrome developer tools, QUIC shows as h3 when the Protocol column is selected; a valid response code such as 200 for an h3 transaction means the request succeeded using QUIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-determine-if-website-using-quic.json",
+          "quotes": [
+            "Google Chrome shows QUIC as h3.",
+            "If you see a valid response code (such as 200) in the Status column for this h3 transaction, it implies that the concerned request was successful using QUIC.",
+            "ensure that Protocol is selected."
+          ]
+        }
+      ]
+    },
+    "quic-firewall-insights": {
+      "statement": "To find QUIC in Firewall Insights logs, filter on the Network Service QUIC; if a header trace shows QUIC but there are no firewall log entries for that time, the runbook says the QUIC traffic did not go to the Zscaler service.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-determine-if-website-using-quic.json",
+          "quotes": [
+            "Verify that Add the Network Service filter with QUIC is selected.",
+            "If the first approach using HTTP header trace shows that the application or website used QUIC, but you don't see any entries in firewall logs for the time when the user tested this access, it indicates that the QUIC traffic did not go to the Zscaler service."
+          ]
+        }
+      ]
+    },
+    "quic-wireshark": {
+      "statement": "In Wireshark the display filter quic and tls.handshake.type==1 lists the handshakes using QUIC; no packets means the capture started after the website was already open or the website does not use QUIC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-determine-if-website-using-quic.json",
+          "quotes": [
+            "In Wireshark, use the display filter quic and tls.handshake.type==1 to see all the SSL handshakes using QUIC.",
+            "If there are no packets, either your capture was started after the website was already open or the website does not use QUIC."
+          ]
+        }
+      ]
+    },
+    "xff-test-method": {
+      "statement": "When a website is accessible only with SSL inspection disabled, the runbook has the reader test XFF compatibility on a test laptop with direct internet access: in Google Chrome, install the ModHeader extension, enter the XFF header name and a valid IP value, confirm at https://ip.zscaler.com that the traffic is not going through the Zscaler service, then try the website with and without the header.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If the website is accessible only when SSL inspection is disabled, verify whether the website works well with the XFF header.",
+            "Here's how you can test the compatibility with the XFF header for any website on a test laptop that has direct internet access:",
+            "If it isn't already installed, install the free ModHeader extension from Google Chrome Web Store.",
+            "Then enter in the name of the XFF header and enter a valid IP value.",
+            "Now you can first test that the header insertion is successful by going to https://ip.zscaler.com and ensure that the traffic is not going through the Zscaler service.",
+            "You can now try to access the website with and without the XFF header on this system."
+          ]
+        }
+      ]
+    },
+    "xff-insertion-default": {
+      "statement": "When SSL Inspection is enabled for a domain the Zscaler service almost always inserts the XFF header; Not Inspected in the SSL Policy Reason column means the Zscaler cloud could not have inserted it in such transactions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If SSL Inspection is enabled for a domain, the Zscaler service almost always inserts this XFF header in the web requests.",
+            "If you see Not Inspected ... in the SSL Policy Reason column, then the Zscaler cloud could not have inserted the XFF header in such transactions."
+          ]
+        }
+      ]
+    },
+    "xff-not-inserted-misc-legal": {
+      "statement": "The Zscaler service does not insert XFF for domains in the Miscellaneous or Legal Liability categories, to prevent the organization's egress IPs from being denylisted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If the domain falls under the Miscellaneous or Legal Liability categories, the Zscaler service does not insert XFF to prevent your egress IPs from getting denylisted."
+          ]
+        }
+      ]
+    },
+    "xff-not-inserted-vse-sipa": {
+      "statement": "XFF is also not inserted when the transaction does not go through a Public Service Edge and XFF insertion is disabled on the Virtual Service Edge (xff_enable=0 in /sc/sme/conf/sc.conf), or for Source IP Anchoring traffic when Insert XFF Header for ZPA Traffic is disabled.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If the transaction does not go through a Public Service Edge and the XFF insertion is disabled on the Virtual Service Edge.",
+            "In this case, the /sc/sme/conf/sc.conf file contains the following line:",
+            "xff_enable=0",
+            "If the transaction is related to Source IP Anchoring and the option Insert XFF Header for ZPA Traffic under Policies > Common Configuration > Advanced > Advanced Settings is disabled"
+          ]
+        }
+      ]
+    },
+    "xff-from-client-request": {
+      "statement": "For a location with Use XFF from Client Request enabled, the service uses the private IP in the incoming XFF for sublocation detection and logs it in the Client IP column; the Service Edge replaces such headers with one holding the client's external IP before forwarding.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If you enable Use XFF from Client Request for such a location by logging in to Internet & SaaS and going to Infrastructure > Locations > Location Management, the Zscaler service used this private IP for detecting sublocations and logs it in the Client IP column in the web logs.",
+            "The Service Edge removes any such XFF headers and replaces them with the XFF header containing the client's external IP before forwarding the request to destination server."
+          ]
+        }
+      ]
+    },
+    "xff-incompatible-sites": {
+      "statement": "Some websites (the page names agriculture.canada.ca and talabat.com) do not return a valid response to a request containing XFF; they may return an error or time out and almost never say XFF was the reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "There are some websites that do not return a valid response if they receive a web request containing the XFF header (e.g., agriculture.canada.ca, talabat.com).",
+            "Some of these websites return an error code, and some others might time out, but they almost never explicitly state in the error code that the request was not successful because it contained an XFF header."
+          ]
+        }
+      ]
+    },
+    "xff-solution": {
+      "statement": "If the website is trusted and business policy allows, turning off SSL Inspection for the domain automatically disables XFF insertion.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+          "quotes": [
+            "If the website is trusted and your business policy allows disabling SSL inspection for this domain, then turning off SSL Inspection automatically disables insertion of XFF."
+          ]
+        }
+      ]
+    },
+    "sslv-ssllabs-indicators": {
+      "statement": "In SSL Labs, if any of the Certificate, Protocol Support, Key Exchange or Cipher Strength summary indicators is not green, it helps explain why the certificate was considered bad or untrusted.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-validate-ssl-configuration-web-server.json",
+          "quotes": [
+            "Look at the summary indicators for Certificate, Protocol Support, Key Exchange and Cipher Strength. If any of these is not green, it helps explain why this certificate was considered bad or untrusted."
+          ]
+        }
+      ]
+    },
+    "sslv-openssl-ciphers": {
+      "statement": "The page lists strong ciphers as ECDHE/DHE for forward secrecy, AES-256/AES-128, GCM/CBC and SHA256/SHA384, and says a server answering with Cipher is RC4-SHA or similar accepts weak ciphers.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-validate-ssl-configuration-web-server.json",
+          "quotes": [
+            "Strong ciphers typically include ECDHE/DHE for perfect forward secrecy, AES-256/AES-128 for encryption algorithm, GCM/CBC for encryption mode and SHA256/SHA384 for hashing.",
+            "If you see the Cipher is RC4-SHA or similar, the server accepts weak ciphers."
+          ]
+        }
+      ]
+    },
+    "sslv-selfsigned-chain": {
+      "statement": "With openssl, identical Issuer and Subject values mean a self-signed certificate, which must never be seen for a public production website; a chain count of 1 means the only certificate's issuer must be in the application's trusted CA store, and a complete chain has each certificate's AKI matching the next certificate's SKI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "runbooks-how-validate-ssl-configuration-web-server.json",
+          "quotes": [
+            "If the Issuer and Subject values are identical, then the certificate is self-signed. This must never be seen for a public website in production.",
+            "If the output is 1, then there is really no chain and the Issuer in the only certificate must be present in the Trusted CA store used by the application.",
+            "If the certificate chain is complete, then AKI of Certificate 0 must match SKI of Certificate 1, AKI of Certificate 1 must match SKI of Certificate 2, and so on.",
+            "Command-line openssl utility"
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "xff-always-vs-almost-always": {
+      "summary": "One runbook page says the Public Service Edge always inserts the XFF header when SSL inspection is enabled for a website; the XFF test page says it almost always does and lists exceptions.",
+      "positions": [
+        {
+          "says": "With SSL inspection enabled for a website, the Public Service Edge always inserts the XFF header with the client's external source IP.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-unable-access-specific-websites-or-applications.json",
+            "quotes": [
+              "If SSL inspection is enabled for a website, the Public Service Edge for Internet & SaaS (ZIA) always inserts the XFF header containing the client's external source IP"
+            ]
+          }
+        },
+        {
+          "says": "With SSL Inspection enabled for a domain the service almost always inserts XFF, and the page then lists cases where it does not.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "runbooks-how-test-if-website-does-not-work-xff-header.json",
+            "quotes": [
+              "If SSL Inspection is enabled for a domain, the Zscaler service almost always inserts this XFF header in the web requests."
+            ]
+          }
+        }
+      ],
+      "impact": "The XFF test page lists exceptions (Miscellaneous or Legal Liability categories, a Virtual Service Edge with insertion disabled, Source IP Anchoring) that the other page's Public Service Edge statement does not mention; the pages do not say whether those exceptions also apply there."
+    }
+  },
+  "gaps": {}
+}
