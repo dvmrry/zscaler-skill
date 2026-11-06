@@ -1,0 +1,355 @@
+{
+  "schema_version": 1,
+  "id": "easm.admin-portal",
+  "title": "EASM Admin Portal access: sign-in and MFA, session limits, roles, navigation and PPTX reports",
+  "related": [
+    { "rel": "see-also", "to": "easm.overview" },
+    { "rel": "see-also", "to": "easm.discovery" },
+    { "rel": "see-also", "to": "easm.jira-integration" },
+    { "rel": "see-also", "to": "zidentity.overview" }
+  ],
+  "prose": [
+    {
+      "text": "{{super-admin}} {{registration-window}} {{eusa}}"
+    },
+    {
+      "heading": "Sign-in and MFA"
+    },
+    {
+      "text": "{{mfa-methods}} {{sms-otp-limits}} {{signin-otp-expiry}} {{mfa-skip}} {{email-otp-signin}} {{reset-link-expiry}} {{idle-logout}}"
+    },
+    {
+      "heading": "Navigation"
+    },
+    {
+      "text": "{{navigation}} Where the Findings Impact page sits differs between pages {{divergence:findings-impact-location}}."
+    },
+    {
+      "heading": "Roles"
+    },
+    {
+      "text": "{{rbac-roles}} {{role-assignment}} {{view-only-icon}}"
+    },
+    {
+      "heading": "Reports"
+    },
+    {
+      "text": "{{report-format}} {{report-contents}} {{report-generation}}"
+    },
+    {
+      "text": "The permissions a Full Access or View Only role carries beyond the cited pages are open {{gap:role-permission-detail}}, and whether any report content shows a business or financial impact figure is open {{gap:report-impact-calculation}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the user's role has Full Access or View Only on the organization before asking why a report or Role Management edit action is unavailable.",
+      "uses": [
+        "rbac-roles",
+        "report-format",
+        "view-only-icon"
+      ]
+    },
+    {
+      "do": "Whether the registration email's time window has passed before asking why account setup cannot be completed.",
+      "uses": [
+        "registration-window"
+      ]
+    }
+  ],
+  "claims": {
+    "super-admin": {
+      "statement": "When an EASM tenant is provisioned, a user account with the super admin role is created, with access to all functionality in the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "When an EASM tenant is provisioned for your organization, a user account with the super admin role is created.",
+            "This account allows you to access all functionalities and features in the EASM Admin Portal."
+          ]
+        }
+      ]
+    },
+    "registration-window": {
+      "statement": "Account registration must be completed within the time stated in the Zscaler email.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "You must complete the registration within the stipulated time mentioned in your email."
+          ]
+        }
+      ]
+    },
+    "mfa-methods": {
+      "statement": "At registration the second factor is chosen from Security Key or Biometric, Google Authenticator, Phone OTP and Email OTP.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "select one of the following authentication methods as your second factor of authentication, then click Set Up:",
+            "To configure a security key or biometric:",
+            "To set up Google Authenticator:",
+            "To set up SMS one-time password (OTP):",
+            "Your second-factor authentication is configured as Email OTP as soon as you click Set Up."
+          ]
+        }
+      ]
+    },
+    "sms-otp-limits": {
+      "statement": "The SMS OTP is valid for two minutes during setup, and the SMS OTP option is only supported for phone numbers from India and the USA.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "The OTP is valid for two minutes.",
+            "Currently, the SMS OTP option is only supported for phone numbers from India and the USA."
+          ]
+        }
+      ]
+    },
+    "signin-otp-expiry": {
+      "statement": "At sign-in, a phone OTP and an email OTP each expire after two minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "Enter the one-time password (OTP) received on your phone number and click Verify. The OTP expires after two minutes.",
+            "Enter the OTP received at your email address and click Verify. The OTP expires after two minutes."
+          ]
+        }
+      ]
+    },
+    "mfa-skip": {
+      "statement": "MFA enrollment can be skipped for a period if the Authentication Service configuration allows it, and enrolled later with the Enroll Second Factor button; Zscaler recommends enrolling all accounts.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "Optionally, you can skip configuring MFA if your Authentication Service configuration allows it until a period of time and enroll later using the Enroll Second Factor button on the Welcome page.",
+            "Zscaler recommends that all user accounts are enrolled for MFA for enhanced security."
+          ]
+        }
+      ]
+    },
+    "email-otp-signin": {
+      "statement": "Other Sign-in Options with Email OTP is a temporary alternative way to sign in without entering a password or second-factor details, and is supported only if MFA is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "click Other Sign-in Options on the Password screen and select Email OTP.",
+            "This option is supported only if you have configured MFA.",
+            "If you want to use a temporary alternative method to sign in without having to enter a password or the second factor authentication details"
+          ]
+        }
+      ]
+    },
+    "reset-link-expiry": {
+      "statement": "Having trouble signing in? > Reset Password sends a password reset email, Having trouble signing in? > Reset Second Factor sends an email with instructions to reset the second method of authentication, and the reset link in the email expires after 5 minutes.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "click Having trouble signing in? > Reset Password to receive a password reset email.",
+            "The reset link within the email expires after 5 minutes.",
+            "click Having trouble signing in? > Reset Second Factor to receive an email with instructions to reset your second method of authentication"
+          ]
+        }
+      ]
+    },
+    "idle-logout": {
+      "statement": "Users are automatically logged out of the EASM Admin Portal after 1 hour of inactivity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "Users are automatically logged out of the portal after 1 hour of inactivity."
+          ]
+        }
+      ]
+    },
+    "eusa": {
+      "statement": "Administrators must accept the EUSA the first time they log in to the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "When administrators log in to the EASM Admin Portal for the first time, an EUSA is displayed. You need to accept the EUSA to start using the features in the EASM Admin Portal."
+          ]
+        }
+      ]
+    },
+    "navigation": {
+      "statement": "The portal navigation page lists a Dashboard menu (Insights Overview, Assets Overview), an Insights menu (Findings, Lookalike Domains), Assets and an Administration menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+          "quotes": [
+            "Click the Dashboard drop-down menu to select between Insights Overview and Assets Overview.",
+            "Click the Insights drop-down menu to select between Findings and Lookalike Domains.",
+            "Click the Administration drop-down menu to select from the following menu items displayed:",
+            "Click Assets to view a tabulated list of all the internet-exposed assets linked to your organization"
+          ]
+        }
+      ]
+    },
+    "rbac-roles": {
+      "statement": "EASM roles carry a Name, Permissions (Full Access or View Only), the custom organizations in scope and a Description.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-role-management.json",
+          "quotes": [
+            "Permissions: The permissions to the EASM Admin Portal (Full Access or View Only) configured for the role.",
+            "Organizations: The list of custom EASM organizations that are within the scope of the role.",
+            "Description: Additional information about the role.",
+            "Name: The name of the administrator role."
+          ]
+        }
+      ]
+    },
+    "role-assignment": {
+      "statement": "Role management is in the EASM Admin Portal, but role assignment to users takes place in ZIdentity.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-role-management.json",
+          "quotes": [
+            "While role management is supported in the EASM Admin Portal, role assignment to users takes place in Zscaler's centralized identity management platform, ZIdentity."
+          ]
+        }
+      ]
+    },
+    "view-only-icon": {
+      "statement": "With view-only permission to an organization, a View icon appears on the Role Management page instead of the action to edit or delete configured administrator roles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-role-management.json",
+          "quotes": [
+            "Edit or delete configured administrator roles.",
+            "If you have view-only permission to the organization, a View icon appears instead."
+          ]
+        }
+      ]
+    },
+    "report-format": {
+      "statement": "EASM generates reports for individual organizations in PPTX format, and admins need full permission to the organization to generate one.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-generating-reports.json",
+          "quotes": [
+            "You can generate reports for individual EASM organizations in the PPTX format",
+            "Admins require full permission to an EASM organization to generate reports."
+          ]
+        }
+      ]
+    },
+    "report-contents": {
+      "statement": "Report data varies by organization depending on available discoveries, and key metrics include known vulnerabilities, exposed servers and public cloud instances, outdated SSL/TLS, domain expiration and registered lookalike domains.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-generating-reports.json",
+          "quotes": [
+            "The report data varies across EASM organizations depending on the available discoveries",
+            "some key metrics included are known vulnerabilities, exposed servers and public cloud instances, outdated SSL/TLS, domain expiration, and registered lookalike domains"
+          ]
+        }
+      ]
+    },
+    "report-generation": {
+      "statement": "A report is generated with Generate Report on the organization page under Administration > Organization, and downloads as a PPTX file.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-generating-reports.json",
+          "quotes": [
+            "On the organization page, click Generate Report displayed in the top-right corner.",
+            "The report is generated and downloaded to your system as a PPTX file.",
+            "Go to Administration > Organization."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "findings-impact-location": {
+      "summary": "The portal navigation page says the Insights menu selects between Findings and Lookalike Domains; the Findings Impact page gives its location as Insights > Findings Impact.",
+      "positions": [
+        {
+          "says": "The Insights drop-down menu selects between Findings and Lookalike Domains.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-accessing-and-navigating-easm-admin-portal.json",
+            "quotes": [
+              "Click the Insights drop-down menu to select between Findings and Lookalike Domains."
+            ]
+          }
+        },
+        {
+          "says": "The Findings Impact page is at Insights > Findings Impact.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-about-findings-impact.json",
+            "quotes": [
+              "On the Findings Impact page (Insights > Findings Impact), you can do the following:"
+            ]
+          }
+        }
+      ],
+      "impact": "The navigation list is not the full Insights menu; look for Findings Impact under Insights as well."
+    }
+  },
+  "gaps": {
+    "role-permission-detail": {
+      "kind": "semantic",
+      "title": "What Full Access and View Only permit beyond the cited pages",
+      "status": "open",
+      "detail": "The Role Management page names the permissions as Full Access or View Only; the report statement here is the only listed action in this subject that needs full access, and the Jira pages name full permission for ticket actions.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "report-impact-calculation": {
+      "kind": "semantic",
+      "title": "Whether any report content shows a business or financial impact figure",
+      "status": "open",
+      "detail": "The reports page says reports help organizations assess the resulting business and financial impact, but does not say that a report contains an impact assessment or how one would be computed.",
+      "resolves_with": [
+        "source-read",
+        "tenant-data"
+      ]
+    }
+  }
+}

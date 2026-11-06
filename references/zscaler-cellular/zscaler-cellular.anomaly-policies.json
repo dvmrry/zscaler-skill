@@ -1,0 +1,195 @@
+{
+  "schema_version": 1,
+  "id": "zscaler-cellular.anomaly-policies",
+  "title": "Cellular SIM Location Groups, the Anomaly Dashboard and geofence anomaly detection policies",
+  "aliases": [
+    "sim location group",
+    "anomaly dashboard",
+    "geofence anomaly detection policy",
+    "geofencing policy",
+    "inside and tracked"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.monitoring"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.sdk-python.location-groups"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{location-group-purpose}} The concepts and the API policy type are in [[zscaler-cellular.monitoring]]."
+    },
+    {
+      "label": "SIM Location Groups.",
+      "text": "{{group-page}} {{tracking-states}} {{add-group}}"
+    },
+    {
+      "label": "Policies.",
+      "text": "{{group-then-policy}} {{policy-config}}"
+    },
+    {
+      "label": "Anomaly Dashboard.",
+      "text": "{{dashboard-table}} {{policy-actions}} Device and group limits per policy, the running status values and violation retention are open {{gap:policy-limits-and-states}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the policy is disabled before it is edited or deleted.",
+      "uses": [
+        "policy-actions"
+      ]
+    }
+  ],
+  "claims": {
+    "location-group-purpose": {
+      "statement": "SIM Location Groups define geographic zones that can be linked to SIM-enabled IoT devices, set device limits per group, and are used in anomaly detection policies to detect deviations from assigned zones.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sim-location-groups.json",
+          "quotes": [
+            "Define geographic zones that can be linked to SIM-enabled IoT devices.",
+            "Define geographical areas and set device limits per group.",
+            "Use in anomaly detection policies to monitor device movement and detect deviations from assigned zones."
+          ]
+        }
+      ]
+    },
+    "tracking-states": {
+      "statement": "A SIM Location Group's tracking details give each device's status relative to the boundary: Inside & Tracked, Inside & Untracked or Outside & Tracked, with a map of the geofence area and its radius in kilometers and miles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sim-location-groups.json",
+          "quotes": [
+            "A map view showing the geofencing area along with distance radius in kilometers and miles.",
+            "Inside & Tracked: SIMs are located within the area and actively monitored.",
+            "Inside & Untracked: SIMs are present but not tracked.",
+            "Outside & Tracked: SIMs are outside the area yet still under active monitoring."
+          ]
+        }
+      ]
+    },
+    "group-page": {
+      "statement": "The SIM Location Groups page (Infrastructure > Cellular > SIM Location Groups) shows each group's name, tracked device count and a delete action, and a group's detail view shows its assigned policy with anomaly name, type, enabled status and current running status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-about-sim-location-groups.json",
+          "quotes": [
+            "On the SIM Location Groups page (Infrastructure > Cellular > SIM Location Groups)",
+            "Tracked Devices: Number of SIM devices being tracked within the group.",
+            "Action: Option to delete a SIM Location Group.",
+            "The policy assigned to the group, including anomaly name, type, enabled status, and current running status."
+          ]
+        }
+      ]
+    },
+    "add-group": {
+      "statement": "When adding a SIM Location Group, the ICCID and tags are optional, the geographic zone is drawn on the map with the mouse cursor, and the group needs a name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-adding-sim-location-group.json",
+          "quotes": [
+            "ICCID and tags are optional. Use them if you need to include specific devices and already have their details.",
+            "Create a geographical zone on the map using the mouse cursor.",
+            "Group Name: Enter a name for the group."
+          ]
+        }
+      ]
+    },
+    "group-then-policy": {
+      "statement": "Creating a SIM Location Group is the initial step for anomaly detection; after it is added to a policy and the policy is enabled, the system raises a violation if a tracked device crosses the geofence area.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-adding-sim-location-group.json",
+          "quotes": [
+            "creating a SIM Location Group serves as the initial step in enabling anomaly detection",
+            "After the group is created, it can be added to a policy.",
+            "When the policy is enabled, the system monitors the movement of tracked devices and raises a violation if any device crosses the defined geofence area."
+          ]
+        }
+      ]
+    },
+    "policy-config": {
+      "statement": "Configuring a geofence anomaly detection policy needs SIM Location Groups created first; the Policy Details tab has Rule Name, an optional description and Rule Status, geofencing is the only policy type currently available, and after adding the policy you are redirected to the Anomaly Dashboard, where the Enable toggle in the Enabled column runs it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-configuring-geofence-anomaly-detection-policies.json",
+          "quotes": [
+            "In the Policy Details tab:",
+            "You are redirected to the Anomaly Dashboard.",
+            "Before configuring an anomaly detection policy, create SIM Location Groups.",
+            "Rule Name: Enter the name of the rule.",
+            "Rule Status: Enable or disable the status.",
+            "Add Description (Optional): Enter a description of the rule.",
+            "Geofencing is the only policy type currently available.",
+            "In the Enabled column, click the Enable toggle to run the policy."
+          ]
+        }
+      ]
+    },
+    "dashboard-table": {
+      "statement": "The Anomaly Dashboard (Infrastructure > Cellular > Anomaly Dashboard) gives an overview of anomaly detection policies and their violations, which the page describes as all active policies, and its Policy Details table shows each policy's name, total violations, last recorded activity timestamp, running status and whether it is enabled; deleted policies also remain visible in that table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-anomaly-dashboard.json",
+          "quotes": [
+            "The Anomaly Dashboard provides an overview of all active anomaly detection policies and their associated violations",
+            "Policy Details Table",
+            "This table displays detailed information for each policy, including its name, the total number of violations, the timestamp of the last recorded activity, its current running status, and whether it is enabled.",
+            "Deleted policies remain visible in the Policy Details table."
+          ]
+        }
+      ]
+    },
+    "policy-actions": {
+      "statement": "Policy actions on the Anomaly Dashboard are Edit (change the policy name, add or remove SIM Location Groups), View and Delete; a policy can be edited or deleted only when disabled, and deleted policies remain visible in the Policy Details table.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-anomaly-dashboard.json",
+          "quotes": [
+            "Edit: Update policy configurations, including changing the policy name and adding or removing SIM Location Groups.",
+            "View: Display detailed policy configuration information, including the policy name, type, and associated SIM Location Groups.",
+            "Delete: Delete the policy. Deleted policies remain visible in the Policy Details table.",
+            "You can edit or delete a policy only when it is disabled."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "policy-limits-and-states": {
+      "kind": "semantic",
+      "title": "Devices or groups per policy, running status values and violation retention",
+      "status": "open",
+      "detail": "The captured anomaly articles do not state how many devices or SIM Location Groups a policy takes, what values the current running status can have, or how long violations are kept. The API spec defines AnomalyPolicyStatusEnum (Creating, Failed, Running, Deleting, Disabled) on the policy status log, while the policy's `runningStatus` is a free string, so the two cannot be assumed to share values. Cellular log retention generally is in shared.logs-fair-use.log-retention:cellular, but no source maps those logs to violations.",
+      "resolves_with": [
+        "source-read",
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

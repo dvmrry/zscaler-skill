@@ -20,6 +20,10 @@
     },
     {
       "rel": "see-also",
+      "to": "zscaler-cellular.anomaly-policies"
+    },
+    {
+      "rel": "see-also",
       "to": "zscaler-cellular.sdk-python.location-groups"
     }
   ],
@@ -29,11 +33,11 @@
     },
     {
       "label": "Network events.",
-      "text": "{{network-events}} {{network-event-fields}} Tower-location history built from network events is an API read: [[zscaler-cellular.api.wire-notes:tower-history]]."
+      "text": "{{network-events}} {{network-event-fields}} {{event-details-fields}} {{event-json-log}} Tower-location history built from network events is an API read: [[zscaler-cellular.api.wire-notes:tower-history]]."
     },
     {
       "label": "Anomaly detection.",
-      "text": "{{geofence-detection}} {{location-groups}} {{api-policy-type-geofence-only}} Whether the console offers other anomaly types is open {{gap:non-geofence-anomalies}}."
+      "text": "{{geofence-detection}} {{location-groups}} {{api-policy-type-geofence-only}} Group, dashboard and policy pages are in [[zscaler-cellular.anomaly-policies]]. The console's policy page says geofencing is the only policy type currently available ([[zscaler-cellular.anomaly-policies:policy-config]]); whether a later release adds others is open {{gap:non-geofence-anomalies}}."
     },
     {
       "label": "Audit logs.",
@@ -41,7 +45,7 @@
     },
     {
       "label": "Retention.",
-      "text": "How long either log is kept, and whether it can be exported, is open {{gap:retention-and-export}}."
+      "text": "The Cellular logs-and-fair-use page gives a retention period and NSS streaming for Cellular logs ([[shared.logs-fair-use.log-retention:cellular]]), but no captured page ties them to the Network Events or Audit Logs pages; per-event JSON download is the only export the console pages state. Whether either console log is kept that long or can reach a SIEM is open {{gap:retention-and-export}}."
     }
   ],
   "checks": [
@@ -61,6 +65,48 @@
     }
   ],
   "claims": {
+    "event-details-fields": {
+      "statement": "The Network Event Details drawer, opened by clicking an event's ICCID, shows ICCID, SIM Name, IMSI, Country, Operator, Timestamp, IP Address, Source System, Location Details (LAC, CID, MCC, MNC), RAT Type, Data Cap Reached, Event Name, Session ID, SIM ID and SIM EID, plus the Connection Status Log.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-network-event-details.json",
+          "quotes": [
+            "ICCID: The Integrated Circuit Card Identifier assigned to the SIM.",
+            "SIM Name: The name or alias assigned to the SIM.",
+            "IMSI: The International Mobile Subscriber Identity associated with the SIM.",
+            "Country: The country where the event occurred.",
+            "Operator: The telecom operator managing the network connection.",
+            "Timestamp: The exact date and time when the event occurred.",
+            "IP Address: The public or private IP address assigned to the SIM during the session when the event occurred.",
+            "Connection Status Log: Provides options to view, download, and copy network event details in JSON format.",
+            "Source System: The system or node responsible for the event.",
+            "Location Details: Including Location Area Code (LAC), Cell Identifier (CID), Mobile Country Code (MCC), and Mobile Network Code (MNC).",
+            "RAT Type: The Radio Access Technology used for the network connection (e.g., LTE, 5G).",
+            "Data Cap Reached: Indicates whether the SIM has exceeded the allocated data usage limit.",
+            "Event Name: The type of event that occurred, such as session initiated, authorized, or disconnected (e.g., DATA_SESSION_ONLINE).",
+            "Session ID: A unique identifier assigned to the session.",
+            "SIM ID: A unique identifier assigned to the SIM card used in the device.",
+            "SIM EID: A unique identifier for the embedded SIM (eSIM) used in the device.",
+            "Locate the event of interest in the table and click ICCID."
+          ]
+        }
+      ]
+    },
+    "event-json-log": {
+      "statement": "The Connection Status Log in the Event Details drawer lets you view, download and copy the network event details in JSON format.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-network-event-details.json",
+          "quotes": [
+            "Connection Status Log: Provides options to view, download, and copy network event details in JSON format."
+          ]
+        }
+      ]
+    },
     "network-events": {
       "statement": "The Network Events page logs network and authorization events for all SIMs provisioned to the organization, with time filters, so SIM transitions between online and offline can be tracked.",
       "tier": "A",
@@ -200,7 +246,7 @@
       "kind": "data",
       "title": "Retention, export and streaming of network events and audit logs",
       "status": "open",
-      "detail": "Unverified legacy statement: the captured articles state page-size controls but no retention period, and do not establish export or streaming behavior for network events or Cellular audit logs.",
+      "detail": "The Network Events and Audit Logs articles state page-size controls and a per-event JSON download (claim event-json-log) but no retention period or bulk export. The Cellular logs-and-fair-use page states 180 days for logs, six months for audit logs and NSS streaming (shared.logs-fair-use.log-retention:cellular), but it does not say those logs are the ones behind the Network Events or Audit Logs pages.",
       "blocks": "answering how far back Cellular events can be investigated and whether they can reach a SIEM",
       "resolves_with": [
         "source-read"
@@ -211,9 +257,9 @@
     },
     "non-geofence-anomalies": {
       "kind": "semantic",
-      "title": "Anomaly types other than geofence",
+      "title": "Anomaly types other than geofence in later releases",
       "status": "partial",
-      "detail": "The captured anomaly article describes only geofence violations, and the API accepts only the `geoFencing` policy type (claim api-policy-type-geofence-only). Whether the console offers, or a later release adds, other anomaly types such as usage-based ones is not stated.",
+      "detail": "The policy configuration article says geofencing is the only policy type currently available (zscaler-cellular.anomaly-policies claim policy-config), and the API accepts only the `geoFencing` policy type (claim api-policy-type-geofence-only). Whether a later release adds other anomaly types such as usage-based ones is not stated.",
       "blocks": "answering whether usage spikes or other behavior raise Cellular anomalies",
       "resolves_with": [
         "source-read"

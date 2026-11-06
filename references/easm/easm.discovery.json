@@ -1,0 +1,486 @@
+{
+  "schema_version": 1,
+  "id": "easm.discovery",
+  "title": "EASM organizations, seeds and discovery profiles: defaults, permissions, disable and delete, and scan cadence",
+  "related": [
+    { "rel": "see-also", "to": "easm.overview" },
+    { "rel": "see-also", "to": "easm.assets" },
+    { "rel": "see-also", "to": "uvm.easm-discovery" }
+  ],
+  "prose": [
+    {
+      "text": "{{discovery-steps}}"
+    },
+    {
+      "heading": "Organizations"
+    },
+    {
+      "text": "{{default-and-risk360-org}} {{org-purpose}} {{org-super-admin}} {{org-enabled-default}}"
+    },
+    {
+      "label": "Disabling.",
+      "text": "{{org-disable}} {{org-disabled-readonly}} Whether an administrator keeps access to a disabled organization is in dispute {{divergence:org-disabled-access}}."
+    },
+    {
+      "label": "Deleting.",
+      "text": "{{org-delete}}"
+    },
+    {
+      "heading": "Seeds and recursive discovery"
+    },
+    {
+      "text": "{{seed-types}} {{recursive-scan}}"
+    },
+    {
+      "heading": "Discovery profiles"
+    },
+    {
+      "text": "{{profile-one-per-org}} {{profile-permission}} {{profile-frequency}} {{profile-seed-entry}} {{profile-first-scan}} {{profile-page-columns}} {{included-seeds-tab}} {{profile-edit}}"
+    },
+    {
+      "label": "Disabling and deleting.",
+      "text": "{{profile-disable}} {{profile-delete}}"
+    },
+    {
+      "text": "The unified portal's discovery settings are in [[uvm.easm-discovery]]; they differ from this page on first-scan time {{divergence:first-scan-time}}, seed types {{divergence:seed-types-unified}} and permissions {{divergence:permissions-unified}}. The scan cadence beyond the Weekly setting on the EASM pages and what a high-confidence connection means are open {{gap:scan-cadence-and-confidence}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the organization is enabled before asking why scans or updates have stopped, and whether its discovery profile is enabled.",
+      "uses": [
+        "org-enabled-default",
+        "org-disable",
+        "profile-disable"
+      ]
+    },
+    {
+      "do": "How long ago the discovery profile was submitted before asking why the inventory is empty.",
+      "uses": [
+        "profile-first-scan"
+      ]
+    }
+  ],
+  "claims": {
+    "default-and-risk360-org": {
+      "statement": "EASM provides a default organization out of the box, and where the customer has a Risk360 tenant an organization is created in the EASM Admin Portal through the Risk360 and EASM integration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "EASM provides a default organization out of the box, which you can configure to set up your discovery profile.",
+            "if you have a Risk360 tenant, an organization is created for you in the EASM Admin Portal through the seamless integration between Risk360 and EASM"
+          ]
+        }
+      ]
+    },
+    "org-purpose": {
+      "statement": "Custom organizations keep attack surface discovery and inventory management separate for distinct entities, subsidiaries or business verticals, each with its own discovery profiles of seeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "EASM allows you to add custom organizations to help keep your attack surface discovery and inventory management separate for distinct entities, subsidiaries, or business verticals that are part of your company.",
+            "For each custom organization, you can configure distinct discovery profiles by adding seeds, which are known legitimate assets belonging to that specific organization."
+          ]
+        }
+      ]
+    },
+    "org-super-admin": {
+      "statement": "Only super admins can create and manage organization-specific configurations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "Only super admins can create and manage organization-specific configurations."
+          ]
+        }
+      ]
+    },
+    "org-enabled-default": {
+      "statement": "A new organization is enabled by default, and being enabled is required to initiate the asset discovery scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "By default, the organization is enabled and this is required to initiate the asset discovery scan."
+          ]
+        }
+      ]
+    },
+    "org-disable": {
+      "statement": "Disabling an organization disables all its discovery profiles, discontinues periodic scans and stops updates to asset data and risk information, and suspends discovery from the seeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "all discovery profiles configured for the organization are disabled.",
+            "periodic scans for the inventoried assets performed via the discovery profiles are also discontinued and the asset data and the associated risk information are no longer updated.",
+            "the asset discovery process using the seeds within the discovery profiles and their connections is suspended"
+          ]
+        }
+      ]
+    },
+    "org-disabled-readonly": {
+      "statement": "After an organization is disabled, assets and findings data reported henceforth can still be viewed, but no actions on the data (such as changing asset status) and no changes to organization details are possible.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "you can still view the assets and findings data reported henceforth for the organization in the EASM Admin Portal.",
+            "you cannot perform any actions on the data (e.g., changing asset status) or modify any organization details."
+          ]
+        }
+      ]
+    },
+    "org-delete": {
+      "statement": "Only disabled organizations can be deleted; deleting one permanently removes its associated components, including historical assets and findings, and cannot be reversed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "You can only delete organizations that have been disabled.",
+            "If you delete an organization, all associated components, including the historical assets and findings that were discovered and inventoried for that organization, are permanently removed. This action cannot be reversed and the deleted data cannot be restored."
+          ]
+        }
+      ]
+    },
+    "seed-types": {
+      "statement": "A seed is a known legitimate asset of the organization, and domains, IP addresses and IP blocks can be configured as seeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-setting-up-asset-discovery.json",
+          "quotes": [
+            "A seed is a known legitimate asset of your organization. Domains, IP addresses, and IP blocks are assets that can be configured as seeds."
+          ]
+        }
+      ]
+    },
+    "recursive-scan": {
+      "statement": "Discovery scans the seeds, then recursively scans each level of connected assets, evaluating whether each level's relationship with the previous seed is strong enough before scanning further.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-setting-up-asset-discovery.json",
+          "quotes": [
+            "Then the first level of connections are scanned further to discover a second level of connected assets, followed by each consecutive level of connections being recursively scanned",
+            "The assets discovered in each level of connections are evaluated to determine if their relationship with the previous seed is strong enough before being recursively scanned to discover subsequent connections.",
+            "When a discovery profile is created and submitted, EASM initially scans the configured seeds to discover assets that are immediately connected to the seeds."
+          ]
+        }
+      ]
+    },
+    "discovery-steps": {
+      "statement": "The article's key steps in EASM's asset discovery and monitoring process are seed-based scanning, a discovery chain, risk evaluation and automated monitoring through periodic scans.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-discovery.json",
+          "quotes": [
+            "Seed-based Scanning: EASM starts by scanning the seed, mapping its direct connections and discovering related assets.",
+            "Discovery Chain: When the first level of assets connected to the seed is found, EASM recursively scans subsequent levels of connections",
+            "Risk Evaluation: After assets are discovered, EASM evaluates each asset against a set of risk parameters.",
+            "Automated Monitoring: After the discovery process is complete, EASM continues to monitor the organization's external attack surface through periodic scans.",
+            "The following sections outline the key steps in EASM's asset discovery and monitoring process:"
+          ]
+        }
+      ]
+    },
+    "profile-frequency": {
+      "statement": "When creating a discovery profile, the Scan Frequency is automatically set to Weekly and is not editable.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "The Scan Frequency is automatically set to Weekly and is non-editable."
+          ]
+        }
+      ]
+    },
+    "profile-one-per-org": {
+      "statement": "The discovery profiles page says that currently only one discovery profile can be configured for an organization and that its Add New Discovery button disappears once a profile is added; the creation steps call the button Add Discovery Profile, and the organization page speaks of distinct discovery profiles for each custom organization.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-discovery-profiles.json",
+          "quotes": [
+            "Currently, only one discovery profile can be configured for an organization. When a discovery profile is added, the Add New Discovery button disappears."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "Click the Add Discovery Profile button."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-organizations.json",
+          "quotes": [
+            "For each custom organization, you can configure distinct discovery profiles by adding seeds, which are known legitimate assets belonging to that specific organization."
+          ]
+        }
+      ]
+    },
+    "profile-permission": {
+      "statement": "Only admins with full access permissions can create and manage discovery profiles.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "Only admins with full access permissions can create and manage discovery profiles."
+          ]
+        }
+      ]
+    },
+    "profile-seed-entry": {
+      "statement": "Seeds are added per asset type (domains, IP addresses, IP blocks), manually with Enter or Add, or imported from a CSV file with Upload File.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "Currently, you can configure domains, IP addresses, and IP blocks as seed assets.",
+            "To add multiple seeds manually, press Enter or click Add after specifying each item.",
+            "Alternatively, you can import a list of seeds from a CSV file by using the Upload File option.",
+            "Select the type of the seed asset by clicking the respective tab."
+          ]
+        }
+      ]
+    },
+    "profile-first-scan": {
+      "statement": "After a discovery profile is submitted, EASM starts scanning the internet for asset connections using the seeds; the process typically takes 24–48 hours, after which the asset inventory and associated risks can be viewed in the Admin Portal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "When you submit the discovery profile, EASM starts scanning the internet for asset connections using the seeds",
+            "This process typically takes 24–48 hours and then you can view the asset inventory and the associated risks identified for the assets within the EASM Admin Portal."
+          ]
+        }
+      ]
+    },
+    "profile-page-columns": {
+      "statement": "The Discovery Profiles page lists, per profile, Name, Included Seeds, Last Scan, Duration, Frequency and Status.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-discovery-profiles.json",
+          "quotes": [
+            "Name: The name of the discovery profile.",
+            "Included Seeds: The seeds that are included in the asset scan performed via the discovery profile.",
+            "Last Scan: The timestamp when the last scan was performed via the discovery profile.",
+            "Duration: The time taken for the last discovery scan to run to completion.",
+            "Frequency: The frequency of asset scan.",
+            "Status: The status of the discovery profile indicating whether it is enabled or disabled."
+          ]
+        }
+      ]
+    },
+    "included-seeds-tab": {
+      "statement": "The Included Seeds tab lists the seeds configured for the whole organization with their name, domain type and the discovery profile they map to.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "an Included Seeds tab, appears for the organization where you can view the list of seeds configured for the entire organization.",
+            "You can view the list of seeds along with their name, domain type, and the discovery profile to which they are mapped."
+          ]
+        }
+      ]
+    },
+    "profile-disable": {
+      "statement": "Disabling a discovery profile disables all its scans and stops updates to asset and risk data; afterwards data can still be viewed but no actions on the data or changes to the profile (including seeds) are possible, and only an admin user can re-enable it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "When a discovery profile is disabled, periodic scans for the inventoried assets are discontinued and the asset data and the associated risk information are no longer updated.",
+            "you cannot perform any actions on the data (e.g., changing asset status) or modify the discovery profile configuration, including the seeds.",
+            "Only an admin user can re-enable the discovery profile.",
+            "After disabling a discovery profile, you can still view the asset and findings data reported henceforth via the discovery profile in the EASM Admin Portal.",
+            "If you disable a discovery profile, all scans defined within the profile are disabled."
+          ]
+        }
+      ]
+    },
+    "profile-delete": {
+      "statement": "Only disabled discovery profiles can be deleted, and deleting one permanently removes its associated assets and findings data, which cannot be restored.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "You can delete only discovery profiles that have been disabled.",
+            "If you delete a discovery profile, all associated assets and findings data are permanently removed. This action cannot be reversed and the deleted data cannot be restored."
+          ]
+        }
+      ]
+    },
+    "profile-edit": {
+      "statement": "Editing a discovery profile allows changing the Name and Description fields and adding or removing seeds.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-managing-discovery-profiles.json",
+          "quotes": [
+            "you can make changes to the Name and Description fields as needed.",
+            "you can select the respective tab for the seeds that you want to modify to add or remove seeds."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "first-scan-time": {
+      "summary": "The EASM help says the first discovery scan typically takes 24–48 hours; the unified portal help says the scanning process typically takes a few hours.",
+      "positions": [
+        {
+          "says": "After a discovery profile is submitted, the process typically takes 24–48 hours before the inventory can be viewed.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-creating-managing-discovery-profiles.json",
+            "quotes": [
+              "This process typically takes 24–48 hours and then you can view the asset inventory and the associated risks identified for the assets within the EASM Admin Portal."
+            ]
+          }
+        },
+        {
+          "says": "In the unified portal the scanning process typically takes a few hours.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-discovery-settings.json",
+            "quotes": [
+              "The scanning process typically takes a few hours"
+            ]
+          }
+        }
+      ],
+      "impact": "Do not give one wait time for both portals; the pages do not say whether the figures measure the same thing."
+    },
+    "seed-types-unified": {
+      "summary": "The EASM profile page lists domains, IP addresses and IP blocks as seed types; the unified portal page adds an organization name as a seed.",
+      "positions": [
+        {
+          "says": "Currently, you can configure domains, IP addresses and IP blocks as seed assets.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-creating-managing-discovery-profiles.json",
+            "quotes": [
+              "Currently, you can configure domains, IP addresses, and IP blocks as seed assets."
+            ]
+          }
+        },
+        {
+          "says": "In the unified portal an organization's name can also be used as a seed.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-discovery-settings.json",
+            "quotes": [
+              "You can also use an organization's name as a seed to find related domains by performing a reverse domain lookup."
+            ]
+          }
+        }
+      ],
+      "impact": "Offer an organization-name seed only where the unified portal page applies."
+    },
+    "permissions-unified": {
+      "summary": "The EASM page requires admins with full access permissions to manage discovery profiles; the unified portal page requires Read, Create, Edit and Delete permissions for the EASM Configuration resource.",
+      "positions": [
+        {
+          "says": "Only admins with full access permissions can create and manage discovery profiles.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-creating-managing-discovery-profiles.json",
+            "quotes": [
+              "Only admins with full access permissions can create and manage discovery profiles."
+            ]
+          }
+        },
+        {
+          "says": "In the unified portal the assigned role must include Read, Create, Edit and Delete permissions for the EASM Configuration resource.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "uvm-configuring-discovery-settings.json",
+            "quotes": [
+              "your assigned role must include Read, Create, Edit, and Delete permissions for the EASM Configuration resource."
+            ]
+          }
+        }
+      ],
+      "impact": "Check the permission model of the portal the user is in; whether the two requirements are equivalent is not stated."
+    },
+    "org-disabled-access": {
+      "summary": "One page says data of a disabled organization can still be viewed in the EASM Admin Portal, and also says the admins are locked out of the organization.",
+      "positions": [
+        {
+          "says": "After an organization is disabled, its assets and findings data reported henceforth can still be viewed in the EASM Admin Portal.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-creating-managing-organizations.json",
+            "quotes": [
+              "you can still view the assets and findings data reported henceforth for the organization in the EASM Admin Portal."
+            ]
+          }
+        },
+        {
+          "says": "Disabling an organization disables its discovery profile scans and locks the admins out of the organization.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-creating-managing-organizations.json",
+            "quotes": [
+              "If you disable an organization, all associated discovery profile scans are disabled and the admins are locked out of the organization."
+            ]
+          }
+        }
+      ],
+      "impact": "Whether an admin can open a disabled organization to read its data is not settled by the page; check the tenant before telling a user the data is or is not viewable."
+    }
+  },
+  "gaps": {
+    "scan-cadence-and-confidence": {
+      "kind": "semantic",
+      "title": "Whether the periodic-scan interval for approved assets is the profile's Weekly setting, and what high confidence means for the discovery chain",
+      "status": "open",
+      "detail": "No EASM page gives the periodic-scan interval for approved assets beyond the profile's Weekly setting; the unified portal page (uvm.easm-discovery, discovery-process) says the attack surface is continuously monitored through weekly scans. No captured page says what makes a discovery path the one with the highest confidence.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

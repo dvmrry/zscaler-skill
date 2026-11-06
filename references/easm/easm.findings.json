@@ -1,7 +1,7 @@
 {
   "schema_version": 1,
   "id": "easm.findings",
-  "title": "EASM findings: the three drill-down levels and what the risk fields mean",
+  "title": "EASM findings: the three drill-down levels, what the risk fields mean, statuses, ROI and the Admin Portal pages",
   "aliases": [
     "easm findings",
     "easm finding evidence",
@@ -20,6 +20,22 @@
     {
       "rel": "see-also",
       "to": "easm.mcp"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.dashboards"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.assets"
+    },
+    {
+      "rel": "see-also",
+      "to": "easm.jira-integration"
     }
   ],
   "prose": [
@@ -43,8 +59,26 @@
       "text": "{{description-osint}} {{description-untrusted}}"
     },
     {
+      "heading": "In the Admin Portal"
+    },
+    {
+      "text": "{{findings-page-columns}} {{many-to-many}} {{finding-age}} {{risk-level-score}} {{category-contents}} {{scan-type-examples}} {{vuln-only-fields}} {{details-sections}}"
+    },
+    {
+      "label": "Status.",
+      "text": "{{status-values}} {{status-not-verified}} {{status-meanings}} {{status-resolved-reopen}} {{status-dashboard-scope}} {{status-change-reason}}"
+    },
+    {
+      "label": "Filters and download.",
+      "text": "{{type-filter}} The Type values are open {{gap:type-values}}. {{last-seen-filter}} {{csv-download}}"
+    },
+    {
+      "label": "Impact.",
+      "text": "{{roi-definition}} {{impact-page}} The ROI computation is open {{gap:roi-formula}}."
+    },
+    {
       "label": "Calling it.",
-      "text": "Organization scoping and paging are in [[easm.api]]."
+      "text": "Organization scoping and paging are in [[easm.api]]. The product entry is [[easm.overview]], the dashboards that show findings are in [[easm.dashboards]] and creating Jira tickets is in [[easm.jira-integration]]."
     }
   ],
   "checks": [
@@ -292,9 +326,307 @@
         "shared.mcp-server.results:untrusted-criterion"
       ],
       "conditions": "Follows from description-osint and the MCP flagged set, which covers only the evidence and scan-output finding tools; the flag criterion is authorship by a party without tenant credentials."
+    },
+    "findings-page-columns": {
+      "statement": "The Findings page lists each finding's Category, Risk Score and Impacted Asset, among other columns.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-findings.json",
+          "quotes": [
+            "Category: The category assigned to the finding from Exposure, Misconfiguration, and Vulnerability.",
+            "Risk Score: A computed risk score for the finding by Zscaler based on multiple vectors such as threat severity, likelihood, and impact.",
+            "Impacted Asset: The asset in which the finding was detected during the scan."
+          ]
+        }
+      ]
+    },
+    "many-to-many": {
+      "statement": "Findings map to assets in a many-to-many relationship.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "each finding is also mapped to the assets affected by the finding in a many-to-many relationship (i.e., one finding can impact multiple assets and vice-versa)."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "Finding status is one of Not Verified, Verified, Disputed, Risk Accepted and Resolved.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-findings.json",
+          "quotes": [
+            "Status: The status assigned to the finding from Not Verified, Verified, Disputed, Risk Accepted, and Resolved."
+          ]
+        }
+      ]
+    },
+    "status-not-verified": {
+      "statement": "Findings are automatically tagged Not Verified when the risk parameters are initially detected in assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-finding-status.json",
+          "quotes": [
+            "When the risk parameters are initially detected in assets, they are populated in the EASM Admin Portal, automatically tagged with the label \"Not Verified\"."
+          ]
+        }
+      ]
+    },
+    "status-meanings": {
+      "statement": "Verified means a finding was investigated manually and confirmed present; Risk Accepted means deemed acceptable; Resolved means remediation was taken or planned; Disputed means manual verification differed and the finding might be a false positive.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-finding-status.json",
+          "quotes": [
+            "Verified: Risk findings are investigated manually and it's verified that the risk is present",
+            "Risk Accepted: Represents risk findings that are deemed acceptable.",
+            "Resolved: Risk findings for which remediation steps are taken or are planned can be marked as resolved.",
+            "Disputed: If the manual verification of the finding turns out differently from the risk finding, the finding can be moved to the Disputed status, indicating that it might be a false positive."
+          ]
+        }
+      ]
+    },
+    "status-resolved-reopen": {
+      "statement": "A finding marked Resolved is set back to Not Verified if it is discovered again in a subsequent scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-finding-status.json",
+          "quotes": [
+            "However, if the finding is discovered again in a subsequent scan, then it is marked as \"Not Verified\".",
+            "Resolved: Risk findings for which remediation steps are taken or are planned can be marked as resolved."
+          ]
+        }
+      ]
+    },
+    "status-dashboard-scope": {
+      "statement": "The Insights Overview dashboard presents findings in Not Verified and Verified statuses, and excludes Risk Accepted, Resolved and Disputed findings, which can be moved back to Not Verified or Verified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-finding-status.json",
+          "quotes": [
+            "The Insights Overview dashboard focuses on findings that are in Not Verified and Verified statuses",
+            "Findings that are in Risk Accepted, Resolved, or Disputed statuses are excluded from the dashboard",
+            "However, risks in these statuses can be moved to Not Verified or Verified if they require further examination."
+          ]
+        }
+      ]
+    },
+    "status-change-reason": {
+      "statement": "Changing a finding's status prompts a Status Update Confirmation window in which a reason is entered, which the page says is useful for auditing trails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-finding-status.json",
+          "quotes": [
+            "A Status Update Confirmation window appears.",
+            "enter the reason for modifying the finding's status which can be useful for auditing trails and general tracking purposes."
+          ]
+        }
+      ]
+    },
+    "risk-level-score": {
+      "statement": "Finding risk level maps from the risk score as Low 1–39, Medium 40–69, High 70–89 and Critical 90–100.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-findings-page.json",
+          "quotes": [
+            "| Low | 1–39 |",
+            "| Medium | 40–69 |",
+            "| High | 70–89 |",
+            "| Critical | 90–100 |"
+          ]
+        }
+      ]
+    },
+    "finding-age": {
+      "statement": "Finding Age is the number of days from the first encounter with the finding until it was last seen.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "Finding Age: The number of days elapsed since the first encounter with the finding until it was last seen"
+          ]
+        }
+      ]
+    },
+    "vuln-only-fields": {
+      "statement": "The finding details page says NVD CVSS Severity, CISA KEV Likelihood and EPSS Likelihood are only applicable to vulnerability findings in one place and most relevant to them rather than exposures or misconfigurations in another; it gives CISA KEV Likelihood as a Boolean and EPSS Likelihood as a percentage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "Specific finding details, such as NVD CVSS Severity, CISA KEV Likelihood, and EPSS Likelihood are only applicable to vulnerability findings",
+            "For example, the NVD CVSS Severity, CISA KEV Likelihood, and EPSS Likelihood are all most relevant to vulnerability findings rather than exposures or misconfigurations.",
+            "CISA KEV Likelihood: Indicates whether a vulnerability is listed in the Known Exploited Vulnerabilities (KEV) catalog using a Boolean value, if applicable.",
+            "EPSS Likelihood: The Exploit Prediction Scoring System (EPSS) likelihood indicates the probability that a vulnerability can be exploited in the wild, if applicable. The value is represented in a percentage."
+          ]
+        }
+      ]
+    },
+    "scan-type-examples": {
+      "statement": "Scan types are Web, Network, Certificate and DNS; the page says domain expiration is likely to be detected in a DNS scan, while an outdated SSL/TLS version might be detected in a web scan and a CVE might be detected in a web, DNS or network scan.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "The available scan types are Web, Network, Certificate, and DNS scans.",
+            "domain expiration is likely to be detected in a DNS scan, SSL/TLS outdated version might be detected in a web scan, and a CVE vulnerability might be detected in a web, DNS, or network scan."
+          ]
+        }
+      ]
+    },
+    "details-sections": {
+      "statement": "Finding details include a Scan Output section (labeled by scan, such as HTTP Response, Nmap Response or Certificate Response) and a Matched Evidence section that lets organizations self-validate findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "This section is labeled differently for assets depending on their type and the corresponding scan performed (e.g., HTTP Response, Nmap Response, and Certificate Response).",
+            "Matched Evidence: This section contains specific portions of the scan results that attest to the finding.",
+            "[Scan Output]: This section contains the complete output of the scan that was used to identify the finding.",
+            "This information provides attestation of detected findings and enables organizations to self-validate their findings using the investigative trail provided."
+          ]
+        }
+      ]
+    },
+    "category-contents": {
+      "statement": "The Exposure category covers business-critical services such as SSH, FTP, Telnet, VPN, MySQL data stores and revealing hostnames; Misconfiguration covers outdated SSL/TLS versions, certificate and domain expiration, self-signed certificates and missing security headers; Vulnerability covers CVEs.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-accessing-interacting-insights-overview-dashboard.json",
+          "quotes": [
+            "Exposure: Shows the percentage of business-critical services, such as SSH, FTP, Telnet, and VPN services, MySQL data stores, revealing hostnames, etc.",
+            "Misconfiguration: Shows the percentage of outdated SSL/TLS versions, SSL/TLS certificate expiration, domain registration expiration, usage of self-signed certificates, and absence of common security headers in HTTP requests including but not limited to HTTP Strict Transport Security (HSTS)",
+            "Vulnerability: Shows the percentage of vulnerabilities that are part of the Common Vulnerabilities and Exposures (CVE) database."
+          ]
+        }
+      ]
+    },
+    "type-filter": {
+      "statement": "Types are sub-classifications of findings within categories, and Zscaler's list of types is constantly updated.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-findings-page.json",
+          "quotes": [
+            "Types are sub-classifications of findings within specific Categories",
+            "this list is constantly updated based on new vulnerability and exploit discoveries and threat intelligence information.",
+            "Zscaler uses a number of types to classify the findings, and this list is constantly updated"
+          ]
+        }
+      ]
+    },
+    "last-seen-filter": {
+      "statement": "The Findings page Last Seen filter is single-select with Within 7 Days, Within 30 Days, Within 90 Days and Within 1 Year.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-findings-page.json",
+          "quotes": [
+            "This filter supports single value selection using a drop-down menu and comes with the following options: Within 7 Days, Within 30 Days, Within 90 Days, and Within 1 Year.",
+            "Last Seen: Filters the findings based on when they were last detected in the EASM asset scan."
+          ]
+        }
+      ]
+    },
+    "csv-download": {
+      "statement": "The Findings page downloads as a CSV file that replicates the table as displayed, including any sorting, filtering and column selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-downloading-findings.json",
+          "quotes": [
+            "You can download the list of all findings that are tracked in the discovered assets as part of your organization's external attack surface from the Findings page as a CSV file.",
+            "The data captured in the file directly replicates the table as it is displayed on the Findings page, reflecting any customization made through sorting, filtering, and selecting columns."
+          ]
+        }
+      ]
+    },
+    "roi-definition": {
+      "statement": "The ROI score expresses a finding's risk impact and financial implications, and is computed from factors such as the assets affected, their risk level and asset coverage percentage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-findings-impact.json",
+          "quotes": [
+            "EASM ascertains the risk impact and the associated financial implications for each finding and expresses it as the Return on Investment (ROI) score",
+            "The ROI score is computed based on factors that can quickly and efficiently reduce the attack surface, such as the assets affected by a finding, their risk level, and asset coverage percentage"
+          ]
+        }
+      ]
+    },
+    "impact-page": {
+      "statement": "The Findings Impact page lists Finding Name, ROI on a scale of 1 to 10, Impacted Assets and Coverage, sortable by Finding Name and ROI.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-findings-impact.json",
+          "quotes": [
+            "ROI: The ROI calculated for the finding, on a scale of 1 to 10",
+            "Coverage: The percentage of overall assets in the network that are affected by this finding.",
+            "You can sort the table entries by the Finding Name and ROI columns.",
+            "Impacted Assets: The number of assets that are affected by this finding."
+          ]
+        }
+      ]
     }
   },
   "gaps": {
+    "type-values": {
+      "kind": "data",
+      "title": "The Type filter's value set for findings",
+      "status": "open",
+      "detail": "The Findings page Type filter lists the current types when opened in the portal, and the help page does not list them; the API type values are open as well.",
+      "resolves_with": [
+        "tenant-data"
+      ],
+      "resolvable_by": [
+        "operator"
+      ]
+    },
+    "roi-formula": {
+      "kind": "semantic",
+      "title": "How the ROI score and the Coverage percentage are computed",
+      "status": "open",
+      "detail": "Only the inputs (assets affected, risk level, coverage percentage) are named; no page gives a formula, weights or financial model, and Coverage says percentage of overall assets in the network without defining the denominator.",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    },
     "scan-type-values": {
       "kind": "data",
       "title": "The complete set of scan_type values",
@@ -302,7 +634,7 @@
       "former_ids": [
         "easm-01"
       ],
-      "detail": "The SDK model declares scan_type with no enumeration. The contract now describes it as the scanning service, such as Web, Network, Certificate and DNS scans, which gives examples rather than a closed list, and the literal strings returned are not shown.",
+      "detail": "The SDK model declares scan_type with no enumeration. The contract describes it as the scanning service, such as Web, Network, Certificate and DNS scans, while the finding details help page calls those four the available scan types (scan-type-examples); the literal strings the API returns are not shown.",
       "blocks": "mapping every scan_type value to a scanning service",
       "resolves_with": [
         "tenant-data"
@@ -318,7 +650,7 @@
       "former_ids": [
         "easm-02"
       ],
-      "detail": "The contract now states risk_level ranges over Low, Medium, High and Critical, risk_score over 1 to 100, severity_score is CVSS 1 to 10, cisa_likelihood reflects KEV listing and epss_likelihood is the EPSS probability. Still open: the literal strings of cisa_likelihood (a flag or a label) and epss_likelihood (a 0 to 1 fraction or a percentage, since both are strings), the finding status values, and whether country is a name or a code.",
+      "detail": "The contract now states risk_level ranges over Low, Medium, High and Critical, risk_score over 1 to 100, severity_score is CVSS 1 to 10, cisa_likelihood reflects KEV listing and epss_likelihood is the EPSS probability. The finding details help page gives CISA KEV Likelihood as a Boolean and EPSS Likelihood as a percentage (vuln-only-fields), and the finding status values are listed in status-values. Still open: whether the API strings for cisa_likelihood and epss_likelihood match those portal formats (a flag or a label; a 0 to 1 fraction or a percentage, since both are strings), the API's literal status strings, and whether country is a name or a code.",
       "blocks": "filtering or ranking findings on CISA, EPSS, status or country values",
       "resolves_with": [
         "tenant-data"

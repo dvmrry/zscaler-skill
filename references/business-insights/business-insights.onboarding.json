@@ -1,0 +1,333 @@
+{
+  "schema_version": 1,
+  "id": "business-insights.onboarding",
+  "title": "Onboarding a SaaS application to Business Insights: connector or plan information, and per-application prerequisites",
+  "aliases": [
+    "saas app connector",
+    "application connector",
+    "onboard saas apps",
+    "box connector",
+    "okta connector",
+    "salesforce connector",
+    "servicenow connector"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "business-insights.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "business-insights.applications"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{connector-recommended}} {{connector-apps}}"
+    },
+    {
+      "label": "Connection.",
+      "text": "{{connection-time}} {{skip-connector}} {{subscription-fields}}"
+    },
+    {
+      "label": "Box.",
+      "text": "{{box-tenant-id}}"
+    },
+    {
+      "label": "Google Workspace.",
+      "text": "{{google-delegation}}"
+    },
+    {
+      "label": "Okta.",
+      "text": "{{okta-app-integration}} {{okta-scopes}} {{gap:okta-client-secret-step}}"
+    },
+    {
+      "label": "Salesforce.",
+      "text": "{{salesforce-package-and-content}} {{salesforce-connected-app-policies}} {{salesforce-tenant-type}}"
+    },
+    {
+      "label": "ServiceNow.",
+      "text": "{{servicenow-prerequisites}} {{servicenow-refresh-token}}"
+    },
+    {
+      "label": "Slack.",
+      "text": "{{slack-workspace}}"
+    },
+    {
+      "text": "{{gap:connector-details}} What the discovered apps look like is in [[business-insights.applications]]; the product overview is in [[business-insights.overview]]."
+    }
+  ],
+  "claims": {
+    "connector-recommended": {
+      "statement": "Zscaler recommends a direct SaaS application connector (which requires admin access to the app) for supported apps; when a connector cannot be configured, metrics can still be viewed from Internet & SaaS and IdP data by specifying plan information.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Zscaler recommends configuring a direct SaaS application connector (requires admin access to the app) for the supported apps.",
+            "you can view Business Insights metrics even when you're unable to configure a connector for a specific app with the help of Internet & SaaS and IdP-sourced data by simply specifying the plan information."
+          ]
+        }
+      ]
+    },
+    "connector-apps": {
+      "statement": "The onboarding article gives connector configuration steps for eight applications: Box, GitHub, Google Workspace, Microsoft 365, Okta, Salesforce, ServiceNow and Slack.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "To configure Box:",
+            "To configure GitHub:",
+            "To configure Google Workspace:",
+            "To configure Microsoft 365:",
+            "To configure Okta:",
+            "To configure Salesforce:",
+            "Instance URL: Enter the URL used to log in to your ServiceNow instance.",
+            "To configure Slack:"
+          ]
+        }
+      ]
+    },
+    "connection-time": {
+      "statement": "The Business Insights service begins to retrieve subscription details and establish an API connection, which might take a few minutes or hours; the admin can navigate away and is notified when the connector is configured.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "after": "To configure Box:",
+          "quotes": [
+            "The Business Insights service begins to retrieve your subscription details and establish an API connection. This might take a few minutes or hours.",
+            "You can navigate away from the page while the Business Insights service establishes the connection; you're notified after the connector is configured successfully."
+          ]
+        }
+      ]
+    },
+    "skip-connector": {
+      "statement": "The connector configuration can be skipped by providing only licensing information, for an app where the admin lacks admin access or does not want a connector.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "You can also skip the connector configuration and just provide the licensing information if you don't have admin access to the app, or don't want to configure the connector."
+          ]
+        }
+      ]
+    },
+    "subscription-fields": {
+      "statement": "Onboarding collects subscription details: Purchased Seats, Assigned Seats, Per User License Cost (the cost of one seat per month), Contract Start Date and Contract End Date.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "after": "To configure Box:",
+          "quotes": [
+            "Purchased Seats: The number of seats purchased as part of the subscription.",
+            "Assigned Seats: The number of seats assigned to the users from the purchased seats.",
+            "Per User License Cost: The cost incurred to buy one seat per month.",
+            "Contract Start Date: The start date of the subscription.",
+            "Contract End Date: The end date of the subscription."
+          ]
+        }
+      ]
+    },
+    "box-tenant-id": {
+      "statement": "For Box, the Zscaler SaaS Connector value is needed when adding a custom application for Box and is entered as the Client ID, and the Box Enterprise ID entered in the Zscaler Admin Console identifies the tenant.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Copy the information from the Zscaler SaaS Connector field. You need it for Step i when adding a custom application for Box.",
+            "In the Zscaler Admin Console, under Box Enterprise ID, enter the enterprise ID you copied from the Box portal in the previous step. This ID is used to identify the tenant."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "after": "The Add App window appears.",
+          "quotes": [
+            "Client ID: Enter the Zscaler SaaS Connector value you copied in Step c."
+          ]
+        }
+      ]
+    },
+    "google-delegation": {
+      "statement": "Google Workspace onboarding adds the Zscaler connector as an API client under domain-wide delegation, with Overwrite existing client ID deselected; the OAuth scope grants read-only access to the usage reporting API.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Under Domain wide delegation, click MANAGE DOMAIN WIDE DELEGATION.",
+            "Overwrite existing client ID: Deselect this checkbox.",
+            "The Zscaler Connector App is added as an API client.",
+            "This OAuth scope grants read-only access to the usage reporting API."
+          ]
+        }
+      ]
+    },
+    "okta-app-integration": {
+      "statement": "Okta onboarding needs an OIDC web-application integration named Business Insights with the Authorization Code and Refresh Token grant types and the redirect URI https://admin.zscaleranalytics.net/admin/onboarding-wizard.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "To configure Okta:",
+            "App integration name: Enter Business Insights.",
+            "Select OIDC - OpenID Connect as the Sign-in method.",
+            "Select Web Application as Application type.",
+            "Grant type: Select the Authorization Code and Refresh Token checkboxes.",
+            "Sign-in redirect URIs: Enter https://admin.zscaleranalytics.net/admin/onboarding-wizard"
+          ]
+        }
+      ]
+    },
+    "okta-scopes": {
+      "statement": "Okta onboarding grants four API scopes: okta.apps.read, okta.logs.read, okta.userTypes.read and okta.users.read, and then assigns the Okta admin account to the Business Insights app.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Click Grant for the following API Scopes:",
+            "okta.apps.read",
+            "okta.logs.read",
+            "okta.userTypes.read",
+            "okta.users.read",
+            "After the app is successfully integrated, assign your Okta Admin account to the Business Insights app."
+          ]
+        }
+      ]
+    },
+    "salesforce-package-and-content": {
+      "statement": "Salesforce onboarding installs the ZscalerBIPackage with Install for Admins Only selected, and enables Salesforce CRM Content, auto-assignment of feature licenses to existing and new users, and Files sharing with libraries.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "You must install the ZscalerBIPackage, which contains the information for the connector configuration.",
+            "Ensure the Install for Admins Only checkbox is selected.",
+            "Enable Salesforce CRM Content",
+            "Autoassign feature licenses to existing and new users",
+            "Files user interface allows sharing files with libraries"
+          ]
+        }
+      ]
+    },
+    "salesforce-connected-app-policies": {
+      "statement": "Salesforce onboarding sets the Zscaler SaaS Connector connected app to Admin approved users are pre-authorized, Relax IP restrictions and Refresh token is valid until revoked, and assigns the System Administrator profile.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "To configure Salesforce:",
+            "Click the down arrow icon for the Zscaler SaaS Connector application.",
+            "Permitted Users: Select Admin approved users are pre-authorized.",
+            "IP Relaxation: Select Relax IP restrictions.",
+            "Refresh Token Policy: Ensure Refresh token is valid until revoked is selected.",
+            "In the Application Profile Assignment window, select the System Administrator checkbox."
+          ]
+        }
+      ]
+    },
+    "salesforce-tenant-type": {
+      "statement": "A Salesforce tenant is added as a Sandbox account (test.salesforce.com) or Production account (login.salesforce.com); both can be added separately, but a tenant's type cannot be changed between sandbox and production.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Sandbox Account: This option allows you to access Salesforce from the test.salesforce.com URL",
+            "Production Account: This option allows you to access Salesforce from the login.salesforce.com URL",
+            "You can add both tenant types separately, but you can't change from a sandbox tenant type to production, or vice versa."
+          ]
+        }
+      ]
+    },
+    "servicenow-prerequisites": {
+      "statement": "ServiceNow onboarding requires the OAuth 2.0 plugin to be installed and the com.snc.platform.security.oauth.is.active system property to be true, and asks for the OAuth client ID and secret, instance URL, and the user ID and password of the user who configured the OAuth client application.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Enter OAuth 2.0 in the search field. The OAuth 2.0 plugin appears. Ensure it's installed.",
+            "Ensure that the Value column for the com.snc.platform.security.oauth.is.active property is true.",
+            "Client ID: Enter the client ID you copied in c. Configure an OAuth Client Application.",
+            "Client Secret: Enter the client secret you copied in c. Configure an OAuth Client Application.",
+            "Instance URL: Enter the URL used to log in to your ServiceNow instance.",
+            "User ID: Enter the user ID of the user account used to configure the OAuth client application.",
+            "User Password: Enter the password of the user account used to configure the OAuth client application."
+          ]
+        }
+      ]
+    },
+    "servicenow-refresh-token": {
+      "statement": "In the ServiceNow onboarding steps the OAuth client's Refresh Token Lifespan defaults to 8,640,000 seconds (100 days); Zscaler recommends a larger value such as 157,700,000 seconds (5 years), because ServiceNow must be configured as a new tenant after the refresh token expires.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Refresh Token Lifespan: The default lifespan is 8,640,000 seconds (100 days). Zscaler recommends changing it to a larger value, such as 157,700,000 seconds (5 years) because you'll need to configure ServiceNow as a new tenant after the refresh token expires."
+          ]
+        }
+      ]
+    },
+    "slack-workspace": {
+      "statement": "For Slack onboarding, the workspace must be chosen from the Other workspaces section, not the Your organizations section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zbi-onboarding-saas-apps-business-insights.json",
+          "quotes": [
+            "Ensure you are not selecting the workspace under the Your organizations section, and instead select from the Other workspaces section."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "connector-details": {
+      "kind": "semantic",
+      "title": "What the GitHub and Microsoft 365 connectors need, and what happens when other connections expire",
+      "status": "open",
+      "detail": "The onboarding article gives no connection duration beyond a few minutes or hours, no behavior when a connector's API connection expires beyond the Status field (only ServiceNow's refresh token expiry is described, and only as needing a new tenant configuration), and no prerequisites for GitHub or Microsoft 365 beyond admin sign-in and accepting permissions (diff of the eight application sections; the permissions shown on the consent pages are not listed in the text).",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    },
+    "okta-client-secret-step": {
+      "kind": "semantic",
+      "title": "Whether the Okta Client Secret step is a typo",
+      "status": "open",
+      "detail": "The Okta section's Client Secret field instruction reads \"Paste the Client ID that you copied from Okta Admin console\" while the copy step lists Client ID and Client Secret as separate values; no source says which value the Client Secret field takes.",
+      "resolves_with": [
+        "lab-test",
+        "support-ticket"
+      ]
+    }
+  }
+}

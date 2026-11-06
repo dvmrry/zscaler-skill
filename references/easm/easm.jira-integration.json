@@ -1,0 +1,241 @@
+{
+  "schema_version": 1,
+  "id": "easm.jira-integration",
+  "title": "EASM Jira integration: personal access token, connection, ticket fields and synchronization limits",
+  "related": [
+    { "rel": "see-also", "to": "easm.overview" },
+    { "rel": "see-also", "to": "easm.findings" },
+    { "rel": "see-also", "to": "easm.admin-portal" }
+  ],
+  "prose": [
+    {
+      "text": "{{scope}} {{prerequisites}}"
+    },
+    {
+      "heading": "Personal access token"
+    },
+    {
+      "text": "{{pat-shown-once}} {{pat-permissions-expiry}} {{pat-validity}}"
+    },
+    {
+      "heading": "Connecting"
+    },
+    {
+      "text": "{{connect-fields}} {{connected-badge}} {{edit-disconnect}} {{sync-until-expiry}}"
+    },
+    {
+      "heading": "Creating tickets"
+    },
+    {
+      "text": "{{ticket-fields}} {{ticket-contents}} {{tickets-tab}} {{tickets-tab-availability}}"
+    },
+    {
+      "text": "The finding the ticket is created from is in [[easm.findings]]. The token lifetime default, the Jira permission scopes and the synchronized fields beyond those cited are open {{gap:jira-details}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Whether the Jira personal access token has expired before asking why tickets stopped synchronizing or cannot be created.",
+      "uses": [
+        "sync-until-expiry",
+        "pat-validity"
+      ]
+    }
+  ],
+  "claims": {
+    "scope": {
+      "statement": "Jira can be integrated with one or more EASM organizations, and admins with full permission to the organization can create tickets for different projects and issue types such as Task, Story and Bug.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-jira-tickets-findings.json",
+          "quotes": [
+            "You can integrate your Jira instance with one or more EASM organizations",
+            "Admins with full permission to the organization can create Jira tickets for different projects and different issue types (e.g., Task, Story, and Bug)"
+          ]
+        }
+      ]
+    },
+    "prerequisites": {
+      "statement": "Configuring the Jira integration requires admin privileges to the EASM organization and permission in Jira to create a personal access token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "Admin privileges to the EASM organization for which you want to enable the Jira integration.",
+            "User permission in Jira to create a personal access token, which is required for authenticating the integration."
+          ]
+        }
+      ]
+    },
+    "pat-shown-once": {
+      "statement": "Jira displays the personal access token only once and it cannot be viewed again after clicking Close.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "The token displays only once and cannot be viewed again after you click Close."
+          ]
+        }
+      ]
+    },
+    "pat-permissions-expiry": {
+      "statement": "A Jira token's permissions are set at the creator's current access level by default, and an expiry period can be required or optional depending on admin configuration.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "The token's permissions are set at your current level of access by default.",
+            "Setting an expiration period can be required or optional based on your admin configurations."
+          ]
+        }
+      ]
+    },
+    "pat-validity": {
+      "statement": "The personal access token must be valid when the integration is configured and when admins create Jira tickets from EASM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "The personal access token must be valid at the time of configuring Jira integration in EASM, and subsequently, when admins create Jira tickets from EASM."
+          ]
+        }
+      ]
+    },
+    "connect-fields": {
+      "statement": "Connecting Jira in EASM takes the organization's Jira domain and a personal access token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "Enter your organization's domain used in Jira.",
+            "Enter your personal access token generated in Jira."
+          ]
+        }
+      ]
+    },
+    "connected-badge": {
+      "statement": "When the connection succeeds, the Jira tile displays a Connected badge and the token expiration time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "If the Jira connection is successfully established, a Connected badge and the token expiration time are displayed in the tile."
+          ]
+        }
+      ]
+    },
+    "edit-disconnect": {
+      "statement": "The domain and token can be edited with the Edit button, which re-establishes the connection on save, and the connection is revoked with Disconnect from the Jira tile menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "You can edit the domain and personal access token details using the Edit button. The connection is re-established when you save the changes.",
+            "To revoke the connection, use the vertical ellipses icon in the Jira tile and click Disconnect."
+          ]
+        }
+      ]
+    },
+    "sync-until-expiry": {
+      "statement": "Ticket synchronization between Jira and EASM takes place until the Jira token expires, after which the integration must be reconfigured with a new token.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-configuring-jira-integration.json",
+          "quotes": [
+            "the ticket synchronization takes place between Jira and EASM until the Jira token expires. When the token expires, you need to reconfigure the integration using a new token generated in Jira."
+          ]
+        }
+      ]
+    },
+    "ticket-fields": {
+      "statement": "The Create Jira Ticket window has Ticket Name, Project, Issue Type, Component, Assignee, Priority and Description, and fields with predefined values are populated automatically from Jira.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-jira-tickets-findings.json",
+          "quotes": [
+            "Fields that have predefined values are automatically populated from Jira.",
+            "Ticket Name: Enter a name that identifies your ticket.",
+            "Issue Type: Select the issue type from the drop-down menu.",
+            "Assignee: Enter the name or email address of the Jira user who you want to assign to the ticket.",
+            "Priority: Select a priority for the ticket from the drop-down menu.",
+            "Project: Select the Jira project to which the ticket must be added.",
+            "Component: Select the component that you want to associate with the ticket.",
+            "Description: Enter a description for the ticket."
+          ]
+        }
+      ]
+    },
+    "ticket-contents": {
+      "statement": "A created ticket is added to Jira along with the finding details and any attachment files present for the finding in EASM.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-jira-tickets-findings.json",
+          "quotes": [
+            "The Jira ticket is created, and the record is added to Jira along with the finding details and any attachment files present for the finding in EASM."
+          ]
+        }
+      ]
+    },
+    "tickets-tab": {
+      "statement": "The Tickets tab lists tickets with the ticket ID, status and created and updated times fetched from Jira.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-creating-jira-tickets-findings.json",
+          "quotes": [
+            "This tabulated list includes additional information about the ticket fetched from Jira, such as the ticket ID (labeled as ID), status (e.g., Open), and created and updated times.",
+            "On the Tickets tab, the newly created ticket is listed."
+          ]
+        }
+      ]
+    },
+    "tickets-tab-availability": {
+      "statement": "The finding's Tickets tab is available if Jira integration is enabled for the organization the finding is associated with.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-finding-details.json",
+          "quotes": [
+            "This tab is available if Jira integration is enabled for the organization with the finding is associated."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "jira-details": {
+      "kind": "semantic",
+      "title": "Token lifetime default, required Jira permission scopes and the full set of synchronized fields",
+      "status": "open",
+      "detail": "The Jira pages give no token-lifetime default, no required Jira permission scopes and no list of synchronized fields beyond ticket ID, status and created and updated times.",
+      "resolves_with": [
+        "source-read",
+        "lab-test"
+      ]
+    }
+  }
+}

@@ -20,6 +20,18 @@
     {
       "rel": "see-also",
       "to": "risk360.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.financial-risk"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.frameworks-and-reports"
+    },
+    {
+      "rel": "see-also",
+      "to": "risk360.administration"
     }
   ],
   "prose": [
@@ -27,25 +39,31 @@
       "heading": "The organization score"
     },
     {
-      "text": "{{org-score}} {{severity-ranges}} {{weights}} {{trend-and-peers}} {{dashboard-top-ten}}"
+      "text": "{{org-score}} {{severity-ranges}} {{weights}} {{trend-and-peers}} {{peer-strategy-attributes}} {{peer-strategy-delete}} {{dashboard-top-ten}} {{dashboard-factor-columns}} {{dashboard-key-events}} {{dashboard-high-impact}} {{dashboard-risk-event-map}} {{dashboard-financial-hover}}"
     },
     {
       "heading": "Factors"
     },
     {
-      "text": "{{factor-weighting}} {{entities}} {{factor-views}} {{licensed-column}} {{factor-exclusion}} {{factor-csv-export}} How many factors exist depends on the source {{divergence:factor-count}}, and the catalog, weights and peer method are not published {{gap:factor-methodology}}."
+      "text": "{{factor-weighting}} {{entities}} {{factor-views}} {{licensed-column}} {{factor-exclusion}} {{factor-csv-export}} {{factor-include-column}} {{factor-compensating-controls}} {{factor-drawer}} How many factors exist depends on the source {{divergence:factor-count}}, and the catalog, weights and peer method are not published {{gap:factor-methodology}}. The frameworks a factor maps to are in [[risk360.frameworks-and-reports]]."
+    },
+    {
+      "heading": "Insights and investigation"
+    },
+    {
+      "text": "{{insights-page}} {{explore-investigate}} {{entity-override}} The Score Change Log and audit logs are in [[risk360.administration]]."
     },
     {
       "heading": "Asset-level risk"
     },
     {
-      "text": "{{asset-indicators}} {{asset-bands}} {{asset-bands-differ-from-org}} {{asset-inventory}}"
+      "text": "{{asset-indicators}} {{asset-bands}} {{asset-bands-differ-from-org}} {{asset-inventory}} {{asset-inventory-operators}} {{asset-indicator-samples}} {{asset-suspicious-vs-pre}} {{asset-location-view}} {{asset-auth-charts}} {{asset-details-metadata}} {{asset-details-events}} {{asset-details-severity}} The Asset Details page lists different severity bands from the Assets page {{divergence:asset-severity-bands}}, and describes Location differently from the Risky Asset Inventory {{divergence:asset-location-meaning}}."
     },
     {
       "heading": "Financial estimates"
     },
     {
-      "text": "{{monte-carlo-runs}} {{monte-carlo-outputs}} {{monte-carlo-scenarios}}"
+      "text": "{{monte-carlo-runs}} {{monte-carlo-outputs}} {{monte-carlo-scenarios}} The Financial Risk page, its settings and the Monte Carlo Simulation page are in [[risk360.financial-risk]]."
     }
   ],
   "checks": [
@@ -237,13 +255,13 @@
       ]
     },
     "asset-bands-differ-from-org": {
-      "statement": "The asset-level bands differ from the organization-level score severities: they add a No Risk band (0–1) and start Low above 1.",
+      "statement": "The Assets page's asset-level bands differ from the organization-level score severities: they add a No Risk band (0–1) and start Low above 1.",
       "tier": "B",
       "derived_from": [
         "asset-bands",
         "severity-ranges"
       ],
-      "conditions": "Compares two pages: asset-bands (the Assets page, risk360-about-asset-level-risk.json) and severity-ranges (the dashboard's organization score, risk360-about-dashboard.json). No source compares the two scales. The Medium, High and Critical bounds are written differently (>25–50 against 26–50) and match only if scores are whole numbers, which neither page states."
+      "conditions": "Compares two pages: asset-bands (the Assets page, risk360-about-asset-level-risk.json) and severity-ranges (the dashboard's organization score, risk360-about-dashboard.json). No source compares the two scales. The Medium, High and Critical bounds are written differently (>25–50 against 26–50) and match only if scores are whole numbers, which neither page states. The Asset Details page's severities (asset-details-severity) have no No Risk band and match the organization scale's upper three bands; this statement is about the Assets page only."
     },
     "asset-inventory": {
       "statement": "The Risky Asset Inventory table shows the top 1,000 risky assets, each with an asset ID assigned by the Zscaler service, private and egress IP address, username, asset type, authentication status, risk score, last seen time and location (city), and can be downloaded as CSV.",
@@ -341,11 +359,410 @@
           ]
         }
       ]
+    },
+    "dashboard-risk-event-map": {
+      "statement": "The Dashboard's Risk Event by Location map plots risky events by geolocation derived from the client or server IP; because geo-IP lookup is only possible for a subset of risky events, it represents a small fraction of overall risky events.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-dashboard.json",
+          "quotes": [
+            "The map shows a category-based number of risky events from geolocation coordinates derived by looking at the client or server IP.",
+            "As geo-IP lookups are only possible for a subset of overall risky events, the location visualizations represent a small fraction of overall risky events",
+            "Risk Event by Location"
+          ]
+        }
+      ]
+    },
+    "dashboard-key-events": {
+      "statement": "The Dashboard's Key Events enlarged view shows the top 10 events on the Risk Score Trend graph, with the score change and contributing factors on hover; View All Events opens the Score Change Log page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-dashboard.json",
+          "quotes": [
+            "The Risk Score Trend graph shows the top 10 events impacting the risk score.",
+            "Hover over an event to view the change in the risk score because of the event and the list of contributing factors within the event.",
+            "Click View All Events to go to the Score Change Log page"
+          ]
+        }
+      ]
+    },
+    "dashboard-factor-columns": {
+      "statement": "The Dashboard's factors table shows each contributing factor's Your Score (0 being a healthy score), a Last 30 Days graph and Recommended Actions.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-dashboard.json",
+          "quotes": [
+            "Your Score: The score for the contributing factor. The total score for a factor depends on its severity (0 being a healthy score).",
+            "Last 30 Days: The graph showing the last 30-day score trend for that factor.",
+            "Recommended Actions: The recommended action required to lower the risk score."
+          ]
+        }
+      ]
+    },
+    "dashboard-high-impact": {
+      "statement": "The High Impact Recommendations section shows top factors with high impact on the risk score and the recommendation to lower it; each recommendation has its category name, the day discovered, the consequence of not implementing it and the trend if applicable, and View All opens the Insights page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-dashboard.json",
+          "quotes": [
+            "Each recommendation consists of the category name, the day it was discovered, the consequence of not implementing the recommendation, and the trend (if applicable).",
+            "click View All to view the list of all the recommended actions; you are redirected to the Insights page.",
+            "The section shows top factors with high impact on your risk score and the recommendation to lower your organization's risk score."
+          ]
+        }
+      ]
+    },
+    "dashboard-financial-hover": {
+      "statement": "Hovering the dollar symbol in the Organization Risk Score section shows the financial risk estimates, and View Details opens the Financial Risk page.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk360-dashboard.json",
+          "quotes": [
+            "Hover over the dollar symbol to view the financial risk estimates.",
+            "You can click View Details to further analyze it; you are redirected to the Financial Risk page."
+          ]
+        }
+      ]
+    },
+    "factor-drawer": {
+      "statement": "Clicking any of a factor's columns except Licensed?, Include and Entities opens a drawer with a Details tab (severity, description with help links and a link to the responsible Zscaler service's admin portal if available, related recommendation cards) and a Compliance tab listing the recognized cybersecurity frameworks and control IDs mapped to the factor.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk-factors.json",
+          "quotes": [
+            "Severity: The severity of the factor.",
+            "Description: Detailed information about the factor, useful help article links, and a link that redirects you to the Zscaler service's admin portal that is responsible for the factor, if available.",
+            "Related Recommendation Cards: The related discovered problems and their recommendations.",
+            "On the Compliance tab, you can view a list of recognized cybersecurity frameworks and their control IDs mapped to the factor.",
+            "Click on any of the columns (except Licensed?, Include, and Entities) to view more information about the factor in the drawer view:"
+          ],
+          "after": "Attack-Based"
+        }
+      ]
+    },
+    "factor-include-column": {
+      "statement": "The Include column shows whether the factor is enabled for risk score computation.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk-factors.json",
+          "quotes": [
+            "Include: Whether the factor is enabled for risk score computation."
+          ]
+        }
+      ]
+    },
+    "factor-compensating-controls": {
+      "statement": "Factors can be excluded from score computation for a compensating control or any other reason; compensating controls are supplementary security measures against identified risks, for example multi-factor authentication, firewalls and antivirus software.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk-factors.json",
+          "quotes": [
+            "You can exclude a factor if you have a compensating control over the factor or any other reason.",
+            "Compensating controls are supplementary security measures that are implemented to protect against identified risks or threats (e.g., multi-factor authentication, firewalls, antivirus software)."
+          ],
+          "after": "Attack-Based"
+        }
+      ]
+    },
+    "insights-page": {
+      "statement": "The Insights page updates in real time with risks and recommendations discovered in the Zscaler environment, and lists each problem with its title, category, day generated, problem statement (Problem), recommendation and trend (if applicable).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-risk-insights.json",
+          "quotes": [
+            "The page keeps updating in real time with the latest risks and recommendations discovered within your Zscaler environment.",
+            "The problem title, its category, and the day it was generated.",
+            "Recommendation: The recommendation to remediate the problem.",
+            "Trend: The section shows the problem trend (if applicable).",
+            "Problem: The statement explaining the problem."
+          ]
+        }
+      ]
+    },
+    "explore-investigate": {
+      "statement": "The Explore page presents multiple sections of a problem's affected areas, and each section's Investigate link leads to the Investigate page, which shows detailed data in tabular form for each asset involved, with filter options that vary by section.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-exploring-risk-problems.json",
+          "quotes": [
+            "shows in-depth analysis of a problem by presenting multiple sections highlighting the affected areas within your organization.",
+            "Click the Investigate link available for each section",
+            "you're redirected to the Investigate page where you can view detailed data for the sections in a tabular form."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "risk360-investigating-sections-risk-problem.json",
+          "quotes": [
+            "you can view the data shown in the section in detail for each asset involved in the section (e.g., server, ports, etc.).",
+            "The filter options vary based on the section that you investigate."
+          ]
+        }
+      ]
+    },
+    "entity-override": {
+      "statement": "On the Investigate page, where available, an entity can be included or excluded from risk score computation via an Include toggle with an explanation in the Entity Override Note window; several entities can be changed at once with one explanation, and the change is captured in the audit logs with the username and reason.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-investigating-sections-risk-problem.json",
+          "quotes": [
+            "If available, you can include or exclude an entity in the table from risk score computation by providing an explanation:",
+            "You can modify the Include toggle for multiple entities at once and provide an explanation in the same Entity Override Note window.",
+            "The changes made by the admin are captured in the audit logs with the username and reason provided for the override."
+          ]
+        }
+      ]
+    },
+    "peer-strategy-attributes": {
+      "statement": "A custom peer score strategy's attributes are chosen from Industry Vertical, Geographical Region and Revenue ID (revenue range).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-managing-peer-score-settings.json",
+          "quotes": [
+            "Industry Vertical: Select your industry vertical from the drop-down menu.",
+            "Geographical Region: Select your organization's geographical region from the drop-down menu.",
+            "Revenue ID: Select your organization's revenue range from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "peer-strategy-delete": {
+      "statement": "Deleting a peer score strategy that is enabled makes the Zscaler service enable the default strategy; the default strategy cannot be deleted, only modified.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-managing-peer-score-settings.json",
+          "quotes": [
+            "If you delete a strategy that is enabled for peer score calculation, the Zscaler service enables the default strategy for calculation.",
+            "You cannot delete the default strategy, you can only modify it."
+          ]
+        }
+      ]
+    },
+    "asset-indicator-samples": {
+      "statement": "Sample asset-risk indicators are: pre-infection, blocked malware (Advanced Threat Protection or inline Sandbox), malicious URLs, phishing sites and browser-exploit pages; post-infection, botnet and command-and-control traffic; suspicious, denylisted URLs and anonymizing sites.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-asset-level-risk.json",
+          "quotes": [
+            "Malware blocked by Zscaler’s Advanced Threat Protection or inline Sandbox",
+            "Blocked known and suspected malicious URLs",
+            "Blocked websites with known and suspected phishing content",
+            "Blocked pages with known browser exploits",
+            "Post-infection behavior indicators include a range of blocked actions that are attempted after an asset is infected.",
+            "Botnet traffic",
+            "Command-and-control traffic",
+            "URLs that are denylisted",
+            "Anonymizing sites"
+          ]
+        }
+      ]
+    },
+    "asset-suspicious-vs-pre": {
+      "statement": "Suspicious-behavior indicators are similar to pre-infection indicators, with less severity and less guarantee of leading to infection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-asset-level-risk.json",
+          "quotes": [
+            "Suspicious behavior indicators are similar to pre-infection indicators, with less severity and less guarantee of leading to infection."
+          ]
+        }
+      ]
+    },
+    "asset-location-view": {
+      "statement": "The Assets page Location view's map shows the country where assets are located, with bubble size signifying asset count relative to other locations, the number of assets with unknown locations at top-left, and a Top Risky Locations list of the locations with the highest percentage of risky assets in descending order.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-asset-level-risk.json",
+          "quotes": [
+            "The size of the bubble signifies the number of assets present, relative to other locations.",
+            "The top-left of the section displays the number of assets with unknown locations.",
+            "The Top Risky Locations section at the bottom-left displays the locations with the highest percentage of risky assets in descending order.",
+            "The map shows the country where the assets are located."
+          ]
+        }
+      ]
+    },
+    "asset-auth-charts": {
+      "statement": "The Assets page shows a pie chart of the percentage split of authenticated versus unauthenticated assets, and an Authenticated Assets chart of asset types with counts for authenticated assets only.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-asset-level-risk.json",
+          "quotes": [
+            "The pie chart shows the percentage split between the number of authenticated and unauthenticated assets.",
+            "The chart shows the types of assets available in your organization's traffic with their count. This data is for authenticated assets only."
+          ]
+        }
+      ]
+    },
+    "asset-inventory-operators": {
+      "statement": "The Risky Asset Inventory shows Road Warrior as the Location if the asset isn't tied to a location, can be filtered by Asset ID, Asset Type or Location, and searched by asset ID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-asset-level-risk.json",
+          "quotes": [
+            "Displays Road Warrior if the asset isn't tied to a location.",
+            "Filter the data for specific Asset ID, Asset Type, or Location.",
+            "Search for a specific asset using the asset ID."
+          ]
+        }
+      ]
+    },
+    "asset-details-metadata": {
+      "statement": "The Asset Details page shows Asset ID, Username, Private IP, Egress IP, Location, Department, Asset Type, Last Seen, Authentication Status, Enrolled Device Type Version (the Zscaler Client Connector version installed on the asset), Device Hostname, OS Type and OS Version.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-assets-risk.json",
+          "quotes": [
+            "Enrolled Device Type Version: The Zscaler Client Connector version installed on the asset.",
+            "Department: The department to which the asset belongs.",
+            "Device Hostname: The unique ID assigned to the asset to identify it on the internet.",
+            "OS Type: The asset's operating system.",
+            "OS Version: The operating system version information.",
+            "Location: The location ID assigned to the asset's workplace. Displays Road Warrior if the asset isn't tied to a location.",
+            "Asset ID: The unique ID assigned to the asset by the Zscaler service.",
+            "Username: The name of the user with whom the asset is associated.",
+            "Private IP: The IP address of the asset.",
+            "Egress IP: The gateway IP address that sends the local network traffic to other networks on the internet.",
+            "Asset Type: The type of asset (iOS, Android OS, etc.).",
+            "Last Seen: The time and date when the last activity was observed on the asset.",
+            "Authentication Status: Indicates whether the asset is authenticated or not."
+          ]
+        }
+      ]
+    },
+    "asset-details-events": {
+      "statement": "The Asset Details page lists the top events of the last 7 days that changed the asset's risk score in ascending order with timestamp, each with Threat Category, Threat Name, URL Category and URL Name; they can be exported to CSV and all events viewed in a drawer.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-assets-risk.json",
+          "quotes": [
+            "This section lists the top events observed within the last 7 days that have contributed to the risk score change of the asset.",
+            "These events are listed in ascending order with the timestamp.",
+            "Threat Category",
+            "URL Category",
+            "click View All Events to view all the risky events in a drawer.",
+            "Threat Name",
+            "URL Name",
+            "to download the risky events to a CSV file"
+          ]
+        }
+      ]
+    },
+    "asset-details-severity": {
+      "statement": "The Asset Details page's asset risk score severities are Low (1–25), Medium (26–50), High (51–75) and Critical (76–100).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "risk360-viewing-assets-risk.json",
+          "quotes": [
+            "Low (1–25)",
+            "Medium (26–50)",
+            "High (51–75)",
+            "Critical (76–100)"
+          ]
+        }
+      ]
     }
   },
   "divergences": {
+    "asset-severity-bands": {
+      "summary": "The Assets page and the Asset Details page list different asset risk severity bands.",
+      "positions": [
+        {
+          "says": "The Assets page lists No Risk (0–1), Low (>1–25), Medium (>25–50), High (>50–75) and Critical (>75–100).",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-about-asset-level-risk.json",
+            "quotes": [
+              "Each risk severity is highlighted with a unique color code: - No Risk (0–1) - Low (>1–25) - Medium (>25–50) - High (>50–75) - Critical (>75–100)"
+            ]
+          }
+        },
+        {
+          "says": "The Asset Details page lists Low (1–25), Medium (26–50), High (51–75) and Critical (76–100), with no No Risk band.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-viewing-assets-risk.json",
+            "quotes": [
+              "Low (1–25)",
+              "Medium (26–50)",
+              "High (51–75)",
+              "Critical (76–100)"
+            ]
+          }
+        }
+      ],
+      "impact": "State which page a severity band comes from; an asset scoring between 0 and 1 has a No Risk band only on the Assets page."
+    },
+    "asset-location-meaning": {
+      "summary": "The Assets page and the Asset Details page describe an asset's Location differently.",
+      "positions": [
+        {
+          "says": "The Risky Asset Inventory's Location is the city where the asset is located.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-about-asset-level-risk.json",
+            "quotes": [
+              "Location: The city where the asset is located."
+            ]
+          }
+        },
+        {
+          "says": "The Asset Details page's Location is the location ID assigned to the asset's workplace.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-viewing-assets-risk.json",
+            "quotes": [
+              "Location: The location ID assigned to the asset's workplace. Displays Road Warrior if the asset isn't tied to a location."
+            ]
+          }
+        }
+      ],
+      "impact": "Do not equate the inventory's Location with a location ID when filtering or matching assets across the two pages."
+    },
     "factor-count": {
-      "summary": "Zscaler's Risk360 product page gives two different counts of predefined factors.",
+      "summary": "Zscaler's Risk360 pages give three different counts of factors.",
       "positions": [
         {
           "says": "Risk360 accounts for 140+ predefined factors.",
@@ -366,6 +783,16 @@
               "By ingesting real-world traffic data and security events directly from the Zscaler platform, Risk360 develops a risk score based on more than 115 predefined risk factors."
             ]
           }
+        },
+        {
+          "says": "Asset-level risk is described as built on over 100 factors that can drill down to specific users and locations.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "risk360-viewing-asset-level-risk.json",
+            "quotes": [
+              "over 100 factors that can drill down to show specific users and locations at risk"
+            ]
+          }
         }
       ],
       "impact": "No exact factor count can be stated; the catalog grows and the pages were written at different times."
@@ -379,7 +806,7 @@
       "former_ids": [
         "risk360-02"
       ],
-      "detail": "Unverified legacy statement: the sources establish four attack-stage categories, weighted factors, industry-peer comparison and a moving factor count, but do not enumerate the current factor catalog, disclose per-factor weights, or explain how the peer cohort is chosen.",
+      "detail": "Unverified legacy statement: the sources establish four attack-stage categories, weighted factors, industry-peer comparison and a moving factor count, but do not enumerate the current factor catalog, disclose per-factor weights, or explain how the Zscaler-defined default peer strategy chooses its cohort (a custom strategy's attributes are Industry Vertical, Geographical Region and Revenue ID).",
       "blocks": "explaining why a specific factor moved the score by a given amount, or how the peer average is computed",
       "resolves_with": [
         "source-read",

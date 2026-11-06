@@ -1,0 +1,250 @@
+{
+  "schema_version": 1,
+  "id": "aem.ticket-lifecycle",
+  "title": "AEM violation ticket lifecycle: status buckets, statuses and ticket workflows",
+  "aliases": [
+    "violation ticket lifecycle",
+    "violation ticket workflows",
+    "status bucket",
+    "lock violation ticket scope triggers",
+    "auto-dispatch to external systems",
+    "resurface policy violation"
+  ],
+  "related": [
+    {
+      "rel": "see-also",
+      "to": "aem.overview"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.violation-tickets"
+    },
+    {
+      "rel": "see-also",
+      "to": "aem.ticket-grouping-rules"
+    },
+    {
+      "rel": "see-also",
+      "to": "uvm.tickets"
+    }
+  ],
+  "prose": [
+    {
+      "text": "{{lifecycle-page}}"
+    },
+    {
+      "label": "Statuses.",
+      "text": "{{status-bucket}} {{status-timeline}} {{status-edit-limits}} The default bucket and rule configuration is open {{gap:default-configuration}}."
+    },
+    {
+      "label": "Workflows.",
+      "text": "{{workflow-categories}} {{status-rule-categories}} {{resurface-new-ticket}} {{third-party-condition}} {{lock-scope}} {{auto-dispatch}}"
+    },
+    {
+      "label": "Applying rule sets.",
+      "text": "{{save-run}} The tickets these workflows act on are in [[aem.violation-tickets]]."
+    }
+  ],
+  "claims": {
+    "lifecycle-page": {
+      "statement": "The Violation Ticket Lifecycle page lets an organization define status transitions, workflows that open new tickets or aggregate into existing ones, conditions for automatic dispatch to third-party vendors, and rules that automatically lock a ticket.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "quotes": [
+            "The Violation Ticket Lifecycle page in the Zscaler Asset Exposure Management (AEM) app enables you to fully configure the ticket lifecycle",
+            "You can define violation ticket status transitions, set up workflows to automatically open new violation tickets or aggregate them within existing violation tickets, define conditions to trigger automatic dispatch to third-party vendors, and set rules to automatically lock a violation ticket."
+          ]
+        }
+      ]
+    },
+    "status-bucket": {
+      "statement": "A status bucket is a high-level container grouping violation tickets with similar statuses; buckets can carry Closed or Remediated labels, which provide insights for metrics and calculations and allow viewing all closed violation tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-managing-violation-ticket-statuses-aem.json",
+          "quotes": [
+            "A status bucket is a high-level container that logically groups violation tickets with similar statuses",
+            "Closed: Indicates that the violation ticket is closed.",
+            "Remediated: Indicates that the violation ticket is resolved.",
+            "These labels provide insights for metrics and calculations and allow you to view all closed violation tickets."
+          ]
+        }
+      ]
+    },
+    "status-edit-limits": {
+      "statement": "Only the most recently added status bucket or violation ticket status can be deleted, and a violation ticket status can be edited only when no violation ticket currently uses it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-managing-violation-ticket-statuses-aem.json",
+          "quotes": [
+            "You can only delete the most recently added bucket.",
+            "You can only edit a status that is currently not used for a violation ticket.",
+            "You can only delete the most recently added violation ticket status."
+          ]
+        }
+      ]
+    },
+    "status-timeline": {
+      "statement": "A status timeline at the top of each violation ticket shows its current status, and the status can be changed manually from a drop-down menu.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-managing-violation-ticket-statuses-aem.json",
+          "quotes": [
+            "A status timeline is displayed on the top of each violation ticket, providing a visual cue of the violation ticket's current status.",
+            "You can manually change the status of the violation ticket by selecting a new one from the drop-down menu."
+          ]
+        }
+      ]
+    },
+    "workflow-categories": {
+      "statement": "The Violation Ticket Workflows page has three rule-set categories: Violation Ticket Status Management (update status), Lock Violation Ticket Scope Triggers (lock a ticket) and Auto-Dispatch to External Systems (create third-party work items and alerts).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "quotes": [
+            "Violation Ticket Status Management: Define the rules to update the status of a violation ticket.",
+            "Lock Violation Ticket Scope Triggers: Define the rules to lock a violation ticket.",
+            "Auto-Dispatch to External Systems: Automate the creation of third-party work management items and alerts."
+          ]
+        }
+      ]
+    },
+    "status-rule-categories": {
+      "statement": "A Status Management rule has a category: Automatic Violation Ticket Closure, Resurface Policy Violation - Create New Violation Ticket, Resurface Policy Violation - Reopen Violation Ticket, or Custom Status Transition.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "quotes": [
+            "Automatic Violation Ticket Closure",
+            "Resurface Policy Violation - Create New Violation Ticket",
+            "Resurface Policy Violation - Reopen Violation Ticket",
+            "Custom Status Transition",
+            "Set the conditions to close a violation ticket.",
+            "Create a new violation ticket if a previously detected policy violation resurfaces.",
+            "Reopen the violation ticket if a previously detected policy violation resurfaces.",
+            "Define custom conditions for the violation ticket status transition."
+          ]
+        }
+      ]
+    },
+    "resurface-new-ticket": {
+      "statement": "The Resurface Policy Violation - Create New Violation Ticket rule triggers even if only one policy violation is active for the specified number of days, and creates a new violation ticket with the resurfaced policy violation (the default THEN).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "after": "Resurface Policy Violation - Create New Violation Ticket",
+          "quotes": [
+            "At least one policy violation is active for: Enter the number of days. The rule is triggered even if one policy violation is active for the specified period.",
+            "THEN: A new violation ticket is created with the resurfaced policy violation. This option is displayed by default."
+          ]
+        }
+      ]
+    },
+    "third-party-condition": {
+      "statement": "Status Management rule conditions can be limited to violation tickets linked to a third-party tool such as Jira by selecting the checkbox 'A third-party work management item is attached', and AND/OR can add criteria.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "after": "Automatic Violation Ticket Closure",
+          "quotes": [
+            "A third-party work management item is attached: Select the checkbox to apply the rule only to violation tickets linked to a third-party tool (e.g., Jira).",
+            "(Optional) You can use the AND/OR operators to include additional criteria and create custom rules."
+          ]
+        }
+      ]
+    },
+    "lock-scope": {
+      "statement": "A Lock Violation Ticket Scope Triggers rule has the condition 'Violation Ticket is manually split or merged' selected by default, and its THEN locks the violation ticket (shown by default).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "quotes": [
+            "Violation Ticket is manually split or merged: This checkbox is selected by default.",
+            "THEN: The violation ticket is locked. This option is displayed by default."
+          ]
+        }
+      ]
+    },
+    "auto-dispatch": {
+      "statement": "Auto-Dispatch to External Systems rules can condition on violation ticket status, severity and assignee, and create a third-party item on a chosen value, with Create New Outegration to configure an outegration for it.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "quotes": [
+            "Violation Ticket status is: Select the checkbox to add the violation ticket status to which the rule should be applied.",
+            "Violation Ticket severity is: Select the checkbox to add the violation ticket severity to which the rule should be applied.",
+            "Violation Ticket assignee is: Select the checkbox to add the assignee of the violation ticket on which the rule should be applied.",
+            "Create a third-party item on: Select a value from the drop-down menu.",
+            "Create New Outegration: Click to configure an outegration for the third-party value selected previously."
+          ]
+        }
+      ]
+    },
+    "save-run": {
+      "statement": "For Violation Ticket Status Management, Lock Violation Ticket Scope Triggers and Auto-Dispatch to External Systems rule sets alike, Save makes the rules take effect when new data is ingested into the account and Save & Run applies them immediately to the tickets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "after": "Click Violation Ticket Status Management.",
+          "quotes": [
+            "Click Save for rules take effect when new data is ingested into your account.",
+            "Click Save & Run to save the rule set and immediately apply the rules on the tickets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "after": "Click Lock Violation Ticket Scope Triggers.",
+          "quotes": [
+            "Click Save for rules to take effect when new data is ingested into your account.",
+            "Click Save & Run to save the rule set and immediately apply the rules on the tickets."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "aem-configuring-violation-ticket-workflows.json",
+          "after": "Click Auto-Dispatch to External Systems.",
+          "quotes": [
+            "Click Save for rules to take effect when new data is ingested into your account.",
+            "Click Save & Run to save the rule set and immediately apply the rules on the tickets."
+          ]
+        }
+      ]
+    }
+  },
+  "gaps": {
+    "default-configuration": {
+      "kind": "semantic",
+      "title": "Which status buckets and default workflow rules exist after initial setup",
+      "status": "open",
+      "detail": "The pages do not describe the default status bucket configuration or any default Status Management or Lock rules created on initial setup; under both, the workflows page tells the user to click \"Unlink & Override\" to enable rule creation, without saying what the default is linked to. Auto-Dispatch has no such step.",
+      "resolves_with": [
+        "tenant-data",
+        "lab-test"
+      ]
+    }
+  }
+}

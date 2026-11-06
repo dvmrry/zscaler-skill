@@ -1,0 +1,498 @@
+{
+  "schema_version": 1,
+  "id": "easm.assets",
+  "title": "EASM asset inventory: types, risk levels, Approved, Candidate and Archived status, detail fields and the Assets page",
+  "related": [
+    { "rel": "see-also", "to": "easm.overview" },
+    { "rel": "see-also", "to": "easm.discovery" },
+    { "rel": "see-also", "to": "easm.findings" },
+    { "rel": "see-also", "to": "easm.dashboards" }
+  ],
+  "prose": [
+    {
+      "text": "{{asset-types}} {{asset-types-multi}} {{many-to-many}}"
+    },
+    {
+      "heading": "The Assets page"
+    },
+    {
+      "text": "{{list-columns}} {{name-contents}} {{status-default-view}} {{filters}} {{table-customization}} {{csv-download}}"
+    },
+    {
+      "heading": "Risk level"
+    },
+    {
+      "text": "{{asset-risk-derivation}} {{risk-level-score}} {{risk-level-label-variants}}"
+    },
+    {
+      "heading": "Status"
+    },
+    {
+      "text": "{{status-values}} {{approved}} {{candidate}} {{candidate-validation}} {{archived}} Whether Archived is permanent is disputed {{divergence:archived-permanence}}. {{status-reason}}"
+    },
+    {
+      "heading": "Asset details"
+    },
+    {
+      "text": "{{details-domain-fields}} {{details-host-web-fields}} {{details-certificate-fields}} {{details-asn-fields}} {{whois-fields}}"
+    },
+    {
+      "text": "{{discovery-chain}} {{details-services}} {{details-asset-findings-fields}}"
+    },
+    {
+      "text": "The seeds and profiles behind discovery are in [[easm.discovery]]; the findings behind the risk level are in [[easm.findings]]. The risk-score derivation is open {{gap:asset-risk-score-formula}}."
+    }
+  ],
+  "checks": [
+    {
+      "do": "Which statuses the Assets page filter includes before concluding an asset is missing, since by default it shows only approved assets.",
+      "uses": [
+        "status-default-view"
+      ]
+    },
+    {
+      "do": "Whether the asset is Approved, Candidate or Archived before asking why it is or is not scanned.",
+      "uses": [
+        "approved",
+        "candidate",
+        "archived"
+      ]
+    }
+  ],
+  "claims": {
+    "asset-types": {
+      "statement": "Internet-facing assets that asset discovery identifies and inventories include domains, hosts, web pages, certificates, ASNs, IP addresses and IP blocks.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-discovery.json",
+          "quotes": [
+            "Asset discovery involves identifying and inventorying all internet-facing assets an organization owns or manages. These assets include domains, hosts, web pages, certificates, ASNs, IP addresses, and IP blocks exposed to the public internet."
+          ]
+        }
+      ]
+    },
+    "asset-types-multi": {
+      "statement": "Discovered assets are categorized into one or more types, with the details varying across asset types.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "The discovered assets are categorized into one or more of the following types, with the details varying across asset types"
+          ]
+        }
+      ]
+    },
+    "list-columns": {
+      "statement": "The Assets page lists each asset's Name, Type, Risk Level, Findings Count, Status, First Seen, Last Seen and UUID.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-asset-inventory.json",
+          "quotes": [
+            "Name: An identifier for the asset sourced from the scan.",
+            "Type: The type of the asset classified as Domain, Host, Web Page, Certificate, ASN, IP Address, or IP Block.",
+            "Findings Count: The number of risk findings that are identified and tracked for the asset.",
+            "First Seen: The timestamp when the asset was first discovered in a scan.",
+            "Last Seen: The timestamp when the asset was last observed in a scan.",
+            "UUID: A Universally Unique Identifier (UUID) generated and assigned to the asset by EASM.",
+            "Risk Level: The risk level assigned to the asset from Minimum, Low, Medium, High, and Critical.",
+            "Status: The status of the asset represented by the values Approved, Candidate, and Archived"
+          ]
+        }
+      ]
+    },
+    "name-contents": {
+      "statement": "An asset's Name might contain a domain name, host name, IP address or IP block, web page URL, ASN or certificate ID, depending on its type.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-asset-inventory.json",
+          "quotes": [
+            "Depending on the type of asset, this field might contain a domain name, host name, IP address or IP block, web page URL, autonomous system number (ASN), or certificate ID.",
+            "Name: An identifier for the asset sourced from the scan."
+          ]
+        }
+      ]
+    },
+    "risk-level-score": {
+      "statement": "Asset risk level maps from the asset risk score as Minimal 0, Low 1–39, Medium 40–69, High 70–89 and Critical 90–100.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-assets-page.json",
+          "quotes": [
+            "| Minimal | 0 |",
+            "| Low | 1–39 |",
+            "| Medium | 40–69 |",
+            "| High | 70–89 |",
+            "| Critical | 90–100 |"
+          ]
+        }
+      ]
+    },
+    "risk-level-label-variants": {
+      "statement": "The About Asset Inventory and Understanding Asset Details pages name the lowest asset risk level Minimum, where the asset risk-score table names it Minimal.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-about-asset-inventory.json",
+          "quotes": [
+            "Risk Level: The risk level assigned to the asset from Minimum, Low, Medium, High, and Critical."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Available risk levels: Minimum, Low, Medium, High, and Critical."
+          ]
+        },
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-assets-page.json",
+          "quotes": [
+            "| Minimal | 0 |"
+          ]
+        }
+      ]
+    },
+    "asset-risk-derivation": {
+      "statement": "An asset's risk level quantifies the risk posed by the asset and is derived from the risk score calculated for its associated findings.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Risk Level: The risk level quantifies the amount of risk posed by an asset, and it is derived from the risk score calculated for the associated findings."
+          ]
+        }
+      ]
+    },
+    "many-to-many": {
+      "statement": "Assets map to risk findings in a many-to-many relationship.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "The assets are mapped to their risk findings in a many-to-many relationship (i.e., one asset can have multiple risk findings and vice-versa)."
+          ]
+        }
+      ]
+    },
+    "status-values": {
+      "statement": "Assets have three statuses, and an asset can be moved from any status to any other.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "The following three statuses are supported for assets, and assets can be transitioned from one status to any other status depending on the requirements:"
+          ]
+        }
+      ]
+    },
+    "status-default-view": {
+      "statement": "By default the Assets page is filtered to show only approved assets, and the Status filter can include Candidate and Archived assets.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "By default, the assets page is filtered to show only the approved assets. You can use the Status filter to include Candidate and Archived assets."
+          ]
+        }
+      ]
+    },
+    "approved": {
+      "statement": "Approved assets are periodically scanned and their connections are also scanned, and all seed assets are marked approved by default.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "Assets in this state are periodically scanned to update their inventory details and their connections are also scanned.",
+            "All seed assets are marked as approved by default."
+          ]
+        }
+      ]
+    },
+    "candidate": {
+      "statement": "Candidate is the default status for attributed assets before they are validated and marked approved; Candidate assets are not included in periodic scans, and their successive connections are not scanned.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "Candidate: Indicates that the asset needs further review and investigation into whether it comes under your organization's responsibility. This is the default status for all attributed assets before they are validated and marked as approved.",
+            "Candidate assets are not included in periodic scans and are no longer part of the discovery chain that's established by its initial connection to the seed.",
+            "Scanning of assets in this state is temporarily suspended, and the asset's successive connections are also not scanned."
+          ]
+        }
+      ]
+    },
+    "candidate-validation": {
+      "statement": "EASM automatically validates attributed assets after discovery, and assets it does not validate need to be manually verified by admins.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "Attributed assets are automatically validated by EASM after discovery. However, specific assets that are not validated by EASM need to be manually verified by admins."
+          ]
+        }
+      ]
+    },
+    "archived": {
+      "statement": "Archived assets, and their successive connections, are removed from the scanning process, and archived assets are not part of the discovery chain established by their original connection to the seed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "Archived: Assets that are reviewed confirmed to have no relationship with your organization or that no longer require monitoring can be marked as Archived. Assets in this state and their successive connections are removed from the scanning process.",
+            "Archived assets are also not included in scanning and are not part of the discovery chain established by their original connection to the seed."
+          ]
+        }
+      ]
+    },
+    "status-reason": {
+      "statement": "Changing an asset's status prompts a Status Update Confirmation window in which a reason is entered, which the page says is useful for auditing trails.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-modifying-asset-status.json",
+          "quotes": [
+            "A Status Update Confirmation window appears.",
+            "enter the reason for modifying the asset's status which can be useful for auditing trails and general tracking purposes."
+          ]
+        }
+      ]
+    },
+    "csv-download": {
+      "statement": "The Assets page downloads as a CSV file that replicates the table as displayed, including any sorting, filtering and column selection.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-downloading-assets.json",
+          "quotes": [
+            "You can download the list of all assets that are part of your organization's external attack surface from the Assets page as a CSV file.",
+            "The data captured in the file directly replicates the table as it is displayed on the Assets page, reflecting any customization made through sorting, filtering, and selecting columns."
+          ]
+        }
+      ]
+    },
+    "filters": {
+      "statement": "The Assets page filters include Status, Risk Level, Last Seen and Type; Last Seen is single-select with Within 7 Days, Within 30 Days, Within 90 Days and Within 1 Year.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-assets-page.json",
+          "quotes": [
+            "- Status: Filters the assets based on their status.",
+            "- Risk Level: Filters the assets based on their criticality into Minimal, Low, Medium, High, and Critical risk levels",
+            "This filter supports single value selection using a drop-down menu and comes with the following options: Within 7 Days, Within 30 Days, Within 90 Days, and Within 1 Year.",
+            "- Type: Filters the assets based on the type into which the asset is classified by EASM.",
+            "- Last Seen: Filters the assets based on when they were last detected in the EASM asset scan."
+          ]
+        }
+      ]
+    },
+    "table-customization": {
+      "statement": "On the Assets page the Name column is always shown and cannot be modified, and only one column should be sorted at a time.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-filtering-customizing-assets-page.json",
+          "quotes": [
+            "The Name column is always shown and cannot be modified.",
+            "ensure that only one column is sorted at a time"
+          ]
+        }
+      ]
+    },
+    "details-domain-fields": {
+      "statement": "The Available Fields for Each Asset Type table lists No of Subdomains (on the Domain row), Registration Expiration and WHOIS Registrar.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "| Domain | No of Subdomains | The number of subdomains associated with the asset. |",
+            "Registration Expiration | The date when the asset's registration expires.",
+            "WHOIS Registrar | The registrar listed in the Whois record."
+          ]
+        }
+      ]
+    },
+    "details-host-web-fields": {
+      "statement": "For Host and Web Page assets the details include a Revealing Hostname Boolean.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Host | Revealing Hostname | A Boolean value indicating whether the hostname exposes sensitive information about your asset infrastructure.",
+            "Web Page | Revealing Hostname | A Boolean value indicating whether the hostname exposes sensitive information about your asset infrastructure."
+          ]
+        }
+      ]
+    },
+    "details-certificate-fields": {
+      "statement": "For Certificate assets the details include certificate issued and expiry dates, issuer organization name, signature algorithm, subject common name and subject organization name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Certificate Issued | The date when the certificate was issued.",
+            "Certificate Expires | The date when the certificate expires.",
+            "Issuer Organization Name | The name of the entity (i.e., Certificate Authority) that was responsible for issuing the certificate.",
+            "Signature Algorithm | The signature key algorithm used to encrypt the certificate.",
+            "Subject Common Name | The server name protected by the SSL certificate.",
+            "Subject Organization Name | The name of the organization to which the certificate is issued."
+          ]
+        }
+      ]
+    },
+    "details-asn-fields": {
+      "statement": "For ASN assets the details include Allocation Date, IPv4 Addresses, IPv6 Prefixes and AS Full Name.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Allocation Date | The date when the Internet Assigned Numbers Authority (IANA) allocated an Autonomous System Number (ASN).",
+            "IPv4 Addresses | The IPv4 address space controlled by the AS.",
+            "IPv6 Prefixes | The IPv6 prefix owned by the AS.",
+            "AS Full Name | The full name of ASN."
+          ]
+        }
+      ]
+    },
+    "whois-fields": {
+      "statement": "Whois data (Registrant Organization, Registrant Email, Registrar) is available for all asset types except certificates.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Registrant Organization: The organization that owns the registered entity.",
+            "Registrant Email: Any contact email addresses provided by the registrant.",
+            "These fields are available for all asset types except for certificates.",
+            "Registrar: The internet company that was used to register the asset."
+          ]
+        }
+      ]
+    },
+    "discovery-chain": {
+      "statement": "The Discovery Chain section presents the full path of asset discovery from the seed asset leading up to the discovery of the current asset, and when an asset is discovered in more than one way the path with the highest confidence is shown.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "This section presents the full path of asset discovery in a sequential link chain, originating from the seed asset",
+            "When an asset is discovered in more than one way, the discovery path with the highest confidence is shown.",
+            "Discovery Chain: This section presents the full path of asset discovery",
+            "leading up to the discovery of the current asset."
+          ]
+        }
+      ]
+    },
+    "details-services": {
+      "statement": "The Services section lists the services observed running on the asset, with port number, protocol and the dates the open port was first and last observed.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Information such as port number, protocol, and dates when the open port was first and last observed is available.",
+            "Services: This section provides a tabulated list of services that are observed to be running on the asset."
+          ]
+        }
+      ]
+    },
+    "details-asset-findings-fields": {
+      "statement": "The asset's Risk tab shows, per finding, a Category of Exposure, Vulnerability or Misconfiguration and a Scan Type of Web, Network, Certificate or DNS.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "easm-understanding-asset-details.json",
+          "quotes": [
+            "Category: The classification of the finding as Exposure, Vulnerability, or Misconfiguration, which provides context about the finding instantly.",
+            "Scan Type: The scanning service that was used to uncover the risk finding. The available scan types are Web, Network, Certificate, and DNS scans."
+          ]
+        }
+      ]
+    }
+  },
+  "divergences": {
+    "archived-permanence": {
+      "summary": "The asset status page says archived assets and their connections are permanently removed from the scanning process, and also says assets can be moved from any status to any other.",
+      "positions": [
+        {
+          "says": "Archived assets and their successive connections are permanently removed from the scanning process.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-modifying-asset-status.json",
+            "quotes": [
+              "Archived assets and their successive connections are permanently removed from the scanning process."
+            ]
+          }
+        },
+        {
+          "says": "Assets can be transitioned from one status to any other status.",
+          "evidence": {
+            "source": "zscaler-help",
+            "path": "easm-modifying-asset-status.json",
+            "quotes": [
+              "assets can be transitioned from one status to any other status depending on the requirements"
+            ]
+          }
+        }
+      ],
+      "impact": "Whether an archived asset can be returned to Approved and scanned again is not settled; check the tenant before telling a user an archive is reversible or final."
+    }
+  },
+  "gaps": {
+    "asset-risk-score-formula": {
+      "kind": "semantic",
+      "title": "How an asset's risk score is computed from its findings",
+      "status": "open",
+      "detail": "The page says the asset risk level is derived from the risk score calculated for the associated findings, and gives the score bands, but states no aggregation rule (highest finding, sum or other).",
+      "resolves_with": [
+        "source-read",
+        "support-ticket"
+      ]
+    }
+  }
+}

@@ -26,6 +26,14 @@
     },
     {
       "rel": "see-also",
+      "to": "zscaler-cellular.dashboard"
+    },
+    {
+      "rel": "see-also",
+      "to": "zscaler-cellular.anomaly-policies"
+    },
+    {
+      "rel": "see-also",
       "to": "zscaler-cellular.api"
     },
     {
@@ -35,7 +43,7 @@
   ],
   "prose": [
     {
-      "text": "Zscaler Cellular (ZCell) secures IoT and mobile devices through a Zscaler-issued SIM instead of an agent. This subject covers the architecture; SIMs, deployment credentials, monitoring and the API have their own subjects."
+      "text": "Zscaler Cellular (ZCell) secures IoT and mobile devices through a Zscaler-issued SIM instead of an agent. This subject covers the architecture, Cellular Edge deployment and the setup sequence; SIMs, deployment credentials, monitoring and the API have their own subjects."
     },
     {
       "label": "How traffic flows.",
@@ -43,11 +51,15 @@
     },
     {
       "label": "Policy.",
-      "text": "{{policy-identifiers}} Which ZIA or ZPA objects carry those identifiers, and tenant entitlement, are open {{gap:entitlement-and-policy-mapping}}."
+      "text": "{{policy-identifiers}} {{edge-as-location}} Which ZIA or ZPA objects carry those identifiers, and tenant entitlement, are open {{gap:entitlement-and-policy-mapping}}."
     },
     {
       "label": "Offerings and admin tasks.",
-      "text": "{{service-motions}} {{help-topics}} Most of those task articles are not captured {{gap:uncaptured-articles}}."
+      "text": "{{service-motions}} {{help-topics}} {{setup-steps}}"
+    },
+    {
+      "label": "Cellular Edge deployment.",
+      "text": "{{edge-operations}} {{edge-regions}} {{edge-request}} {{edge-status-colours}} {{edge-request-followup}} Lead time and approval after a request are open {{gap:edge-request-lead-time}}."
     },
     {
       "label": "Entitlements.",
@@ -55,7 +67,7 @@
     },
     {
       "label": "Related.",
-      "text": "The SIM inventory is in [[zscaler-cellular.sims]], the Cloud & Branch Connector credentials Cellular deployment depends on in [[zscaler-cellular.deployment-credentials]], network events, anomaly detection and audit logs in [[zscaler-cellular.monitoring]], and the API, SDK and MCP surface in [[zscaler-cellular.api]]."
+      "text": "The SIM inventory is in [[zscaler-cellular.sims]], the Cloud & Branch Connector credentials Cellular deployment depends on in [[zscaler-cellular.deployment-credentials]], network events, anomaly detection and audit logs in [[zscaler-cellular.monitoring]], the dashboard widgets in [[zscaler-cellular.dashboard]], SIM Location Groups and geofence policies in [[zscaler-cellular.anomaly-policies]], and the API, SDK and MCP surface in [[zscaler-cellular.api]]."
     }
   ],
   "checks": [
@@ -74,14 +86,74 @@
       ]
     },
     {
-      "do": "Whether the answer rests on a captured article body rather than on an article title from the help index, since most of the task articles are not captured.",
+      "do": "Which step of the setup sequence the customer has reached: account, credentials, Cellular Edge deployment, policies, SIM insertion or monitoring.",
       "uses": [
-        "help-topics",
-        "uncaptured-articles"
+        "setup-steps",
+        "edge-as-location"
       ]
     }
   ],
   "claims": {
+    "edge-regions": {
+      "statement": "Zscaler Cellular offers coverage expansion in three regions: AMER, EMEA and APAC.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-deploying-new-cellular-edges.json",
+          "quotes": [
+            "Zscaler Cellular offers coverage expansion in three regions: AMER (North and South America), EMEA (Europe, Middle East, and Africa), and APAC (Asia-Pacific)."
+          ]
+        }
+      ]
+    },
+    "edge-request": {
+      "statement": "New Cellular Edges are requested on the Deployment Regions page by choosing a region and clicking Request Deployment, which submits the request to Zscaler; a subscription for the region is needed first.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-deploying-new-cellular-edges.json",
+          "quotes": [
+            "On the Deployment Regions Page, you can identify regions requiring deployment and submit requests for provisioning new Cellular Edges.",
+            "Before requesting new Cellular Edges, ensure that you have a subscription for the region where you want to deploy them.",
+            "select the region where you want new Cellular Edges",
+            "Click Request Deployment.",
+            "The request to deploy new Cellular Edges is submitted to Zscaler."
+          ]
+        }
+      ]
+    },
+    "edge-status-colours": {
+      "statement": "The Deployment Regions map colours each region by status: Online (green, fully operational), Disruption (red, complete outage or unavailability), Degradation (gray, reduced performance or partial issues) and Pending Deployment (yellow, deployment underway but not yet active).",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-and-monitoring-cellular-edge-deployments.json",
+          "quotes": [
+            "Online: Represented by a green color, indicating that the service is fully operational.",
+            "Disruption: Represented by a red color, signaling a complete service outage or unavailability.",
+            "Degradation: Represented by a gray color, highlighting reduced performance or partial service issues.",
+            "Pending Deployment: Represented by a yellow color, indicating that deployment of Cellular Edges is currently underway for the region but not yet active."
+          ]
+        }
+      ]
+    },
+    "edge-operations": {
+      "statement": "Zscaler deploys and maintains Cellular Edges, which are access on-ramps to the Zero Trust Exchange, and the deployment and service status of the Cellular Edges can be monitored in the Admin Console.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-viewing-and-monitoring-cellular-edge-deployments.json",
+          "quotes": [
+            "Zscaler deploys and maintains Cellular Edges that serve as secure access on-ramps to the Zscaler Zero Trust Exchange (ZTE)",
+            "You can also monitor the deployment and service status of the Cellular Edges directly from the Zscaler Admin Console."
+          ]
+        }
+      ]
+    },
     "what-it-is": {
       "statement": "Zscaler Cellular provides connectivity for IoT and mobile devices on a Zero Trust architecture and is made up of two products, Zscaler SIM and Zscaler Cellular Edge.",
       "tier": "A",
@@ -197,6 +269,51 @@
         }
       ]
     },
+    "setup-steps": {
+      "statement": "The step-by-step guide orders setup as Step 1: Set Up Your Account, Step 2: Configure Credentials for Cellular Edge Deployment, Step 3: Deploy Cellular Edges, Step 4: Configure Polices, Step 5: Deploy Zscaler SIMs and Step 6: Monitor SIM Usage.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-step-step-configuration-guide-zscaler-sim.json",
+          "quotes": [
+            "Step 1: Set Up Your Account",
+            "Step 2: Configure Credentials for Cellular Edge Deployment",
+            "Step 3: Deploy Cellular Edges",
+            "Step 4: Configure Polices",
+            "Step 5: Deploy Zscaler SIMs",
+            "Step 6: Monitor SIM Usage"
+          ]
+        }
+      ]
+    },
+    "edge-request-followup": {
+      "statement": "After a Cellular Edge deployment request, Zscaler starts deploying and setting up the hardware and software systems that provide the egress points for the customer's IoT and mobile devices.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-step-step-configuration-guide-zscaler-sim.json",
+          "quotes": [
+            "After this request, Zscaler starts deploying and setting up the necessary hardware and software systems to enable egress points for your IoT and mobile devices."
+          ]
+        }
+      ]
+    },
+    "edge-as-location": {
+      "statement": "After successful deployment of Cellular Edges, policies are configured in the Zscaler Admin Console, the Cellular Edge appears as a location in Internet & SaaS, and different types of locations or devices can be configured with sublocations.",
+      "tier": "A",
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "cellular-step-step-configuration-guide-zscaler-sim.json",
+          "quotes": [
+            "After successful deployment of Cellular Edges, configure necessary policies in the Zscaler Admin Console as required using parameters relating to mobile and IoT devices.",
+            "The Cellular Edge appears as a location in Internet & SaaS. If you have different types of locations or devices, you can configure it with sublocations."
+          ]
+        }
+      ]
+    },
     "cellular-edge-prereqs": {
       "statement": "Administrative entitlements for Zscaler Cellular need the Cellular Edge service enabled; enabling Cellular Edge needs Internet & SaaS, Private Access and Branch Connector, and Cellular Edge is not supported for an organization with more than one Internet & SaaS or Private Access service.",
       "tier": "A",
@@ -214,6 +331,15 @@
     }
   },
   "gaps": {
+    "edge-request-lead-time": {
+      "kind": "semantic",
+      "title": "Lead time and approval after a Cellular Edge deployment request",
+      "status": "open",
+      "detail": "The deployment articles and the step-by-step guide say the request is submitted to Zscaler and that Zscaler then starts deploying, but state no lead time or approval step after Request Deployment.",
+      "resolves_with": [
+        "support-ticket"
+      ]
+    },
     "entitlement-and-policy-mapping": {
       "kind": "semantic",
       "title": "Tenant entitlement, live acceptance and the ZIA/ZPA objects behind IP, IMEI and IMSI policy",
@@ -221,25 +347,12 @@
       "former_ids": [
         "zscaler-cellular-01"
       ],
-      "detail": "The help pages say policy can be based on IP address, IMEI or IMSI through ZIA and ZPA, and the API contract, Python SDK and MCP read tools establish the programmable surface. Still open: which ZIA or ZPA policy objects carry an IMEI or IMSI criterion, which tenants are entitled to which ZCell operations, and whether the backend accepts every published operation.",
+      "detail": "The help pages say policy can be based on IP address, IMEI or IMSI through ZIA and ZPA, and the API contract, Python SDK and MCP read tools establish the programmable surface. The step-by-step guide says the Cellular Edge appears as an Internet & SaaS location. Still open: which ZIA or ZPA policy objects carry an IMEI or IMSI criterion, which tenants are entitled to which ZCell operations, and whether the backend accepts every published operation.",
       "blocks": "answering how to write a ZIA or ZPA rule that targets a SIM, and whether a given tenant can call a ZCell endpoint",
       "resolves_with": [
         "source-read",
         "tenant-data",
         "support-ticket"
-      ]
-    },
-    "uncaptured-articles": {
-      "kind": "data",
-      "title": "Fourteen Cellular help articles are not captured",
-      "status": "open",
-      "detail": "The help index lists 21 articles; seven are captured (What Is, Architecture, About SIMs, deployment credentials, About Network Events, Understanding Anomaly Detection, About Audit Logs). Not captured: the dashboard, the step-by-step SIM configuration guide, Cellular Edge deployment and monitoring, SIM details, status, IMEI and tag tasks, eSIM assignment, network event details, the anomaly dashboard, and the SIM location group and geofence policy tasks. Answers about those tasks should not be inferred from the titles.",
-      "blocks": "answering step-level questions about Cellular Edge deployment, eSIM activation and geofence policy setup",
-      "resolves_with": [
-        "source-read"
-      ],
-      "resolvable_by": [
-        "none"
       ]
     }
   }
