@@ -90,7 +90,10 @@ Keep scratch output outside the checkout (`$TMP` below).
 5. **Generated layers.** `node scripts/gen-surfaces.mjs all` (or one product) after a spec capture or an SDK or
    provider pin changes, `node scripts/gen-log-types.mjs` after an NSS or LSS field article changes, and
    `node scripts/gen-releases.mjs` after a release-note page changes; each takes `--check`. A zscalerctl pin change also needs `node scripts/kb.mjs export-zscalerctl` and
-   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`.
+   `import-types`, and changes the resolve goldens in `scripts/fixtures/kb-golden/`. Both read the private
+   `vendor/zscalerctl-dev` and `vendor/infrawright-dev`, which clones skip (`update = none`): fetch them first with
+   `git submodule update --init --checkout vendor/zscalerctl-dev vendor/infrawright-dev`. Claims cite the public
+   `vendor/zscalerctl`.
 6. **Records.** `node scripts/kb.mjs manifest` records the changed captures' hashes and
    `node scripts/kb.mjs verified` regenerates `references/_meta/verified.json`.
 6a. **Retrieval.** `node scripts/kb-retrieval.mjs` reports how a plain-question resolve ranks each eval's gold

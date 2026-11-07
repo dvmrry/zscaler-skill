@@ -1,7 +1,10 @@
 // scripts/kb-types.mjs
 //
 // Generates config object types (references/_meta/types/<scope>.json) from two
-// pinned public tools, never by hand:
+// pinned tools, never by hand. Their development repos are private and marked `update = none` in .gitmodules, so
+// clones and CI skip them and the committed output is what readers use; a maintainer fetches them with
+// `git submodule update --init --checkout vendor/zscalerctl-dev vendor/infrawright-dev` before regenerating.
+// Claims cite the public vendor/zscalerctl instead.
 //   - zscalerctl-dev: the offline, credential-free resource catalogue (names,
 //     fields, reviewed field semantics, reference edges, command paths), exported
 //     to references/_meta/imports/zscalerctl.json by exportZscalerctl().

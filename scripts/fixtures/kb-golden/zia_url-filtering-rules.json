@@ -718,10 +718,10 @@
           ]
         },
         {
-          "id": "zia.url-filtering.list-pagination:observed-100-of-133",
-          "statement": "On a real tenant, an SDK-based read of URL Filtering rules returned 100 rules while the console showed 133; reading with `pageSize=100` and advancing until a short page returned all of them.",
-          "tier": "B",
-          "confidence": "medium",
+          "id": "zia.url-filtering.list-pagination:page-parameters-added",
+          "statement": "The December 19, 2025 ZIA release note says `page` and `pageSize` query parameters are available for `GET /urlFilteringRules`, and that default values are used when they are not specified.",
+          "tier": "A",
+          "confidence": "high",
           "binds": [
             "zia/url-filtering-rules"
           ]
@@ -737,9 +737,18 @@
         },
         {
           "id": "zia.url-filtering.list-pagination:silent-truncation",
-          "statement": "Treat any rule list of exactly 100 (or any multiple) as possibly truncated: if the endpoint returns at most 100 rules per page, a 1000-record paginator reads the first page as \"short\" and stops without error.",
+          "statement": "Treat a URL Filtering rule list whose length is a round page size, such as 100, as possibly truncated and confirm the total with `GET /urlFilteringRules/count`: if the endpoint returns fewer rules per page than the 1000 the Go SDK requests, `ReadAllPages` takes the first page for the last and stops without an error.",
           "tier": "C",
           "confidence": "low",
+          "binds": [
+            "zia/url-filtering-rules"
+          ]
+        },
+        {
+          "id": "zia.url-filtering.list-pagination:vendor-count-then-loop",
+          "statement": "Zscaler documents reading every URL Filtering rule by first getting the total from `GET /urlFilteringRules/count`, then requesting each page from 1 to the total divided by the page size, rounded up; its example uses a page size of 100, \"or any desired size up to a max limit\".",
+          "tier": "A",
+          "confidence": "high",
           "binds": [
             "zia/url-filtering-rules"
           ]

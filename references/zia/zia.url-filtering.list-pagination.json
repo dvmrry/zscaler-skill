@@ -35,34 +35,30 @@
   ],
   "prose": [
     {
-      "text": "{{go-readallpages-1000}} {{observed-100-of-133}} {{silent-truncation}} {{incomplete-list-misleads-precedence}}"
+      "text": "{{go-readallpages-1000}} {{vendor-count-then-loop}} {{page-parameters-added}} {{silent-truncation}} {{incomplete-list-misleads-precedence}}"
     },
     {
       "text": "{{python-single-request}} {{zscalerctl-url-rules-reader-pages-100}}"
     },
     {
       "label": "Categories.",
-      "text": "{{categories-clamp-20}}"
+      "text": "{{categories-single-read}} {{categories-two-behaviors}} {{divergence:categories-single-response}}"
     }
   ],
   "checks": [
     {
-      "do": "Whether a rule list that stops at a round number, such as 100, is truncated; re-read with a smaller page size when it is.",
+      "do": "Whether a URL Filtering rule list that stops at a round number, such as 100, is complete: compare it with `GET /urlFilteringRules/count` before reasoning about precedence.",
       "uses": [
         "silent-truncation",
+        "vendor-count-then-loop",
         "page-size-limit"
       ]
     },
     {
-      "do": "Whether the rule count matches the console when the list came from a raw SDK or API call, before reasoning about precedence.",
+      "do": "Whether a URL category inventory read in one SDK call is complete: page it, or compare its count with the console.",
       "uses": [
-        "observed-100-of-133"
-      ]
-    },
-    {
-      "do": "Whether the category inventory is complete, by requesting every category type and checking the count against the console.",
-      "uses": [
-        "categories-clamp-20"
+        "categories-single-read",
+        "categories-two-behaviors"
       ]
     }
   ],
@@ -92,31 +88,50 @@
         }
       ]
     },
-    "observed-100-of-133": {
-      "statement": "On a real tenant, an SDK-based read of URL Filtering rules returned 100 rules while the console showed 133; reading with `pageSize=100` and advancing until a short page returned all of them.",
-      "tier": "B",
+    "vendor-count-then-loop": {
+      "statement": "Zscaler documents reading every URL Filtering rule by first getting the total from `GET /urlFilteringRules/count`, then requesting each page from 1 to the total divided by the page size, rounded up; its example uses a page size of 100, \"or any desired size up to a max limit\".",
+      "tier": "A",
       "binds": [
         "zia/url-filtering-rules"
       ],
-      "conditions": "Observed by the zscalerctl-dev maintainers on a production tenant (vendored zscaler-sdk-go v3.8.55); the validation record and its repeatable check are public.",
       "evidence": [
         {
-          "source": "zscalerctl",
-          "path": "docs/URL_FILTERING_PAGINATION_VALIDATION.md",
+          "source": "zscaler-help",
+          "path": "legacy-api-fetching-url-filtering-rules-using-pagination-and-search-filters.json",
           "quotes": [
-            "The original downstream symptom was a 100-rule CLI result while the admin console showed 133 rules.",
-            "The reader requests `page=1&pageSize=100` and advances until a page contains fewer than 100 records."
+            "make a call using the GET /urlFilteringRules/count endpoint to determine the total number of existing rules.",
+            "(totalPages = ceil (total count / page size)",
+            "You must then loop from page 1 to total pages, making a GET request for each page.",
+            "pageSize = 100 // Or any desired size up to a max limit"
+          ]
+        }
+      ]
+    },
+    "page-parameters-added": {
+      "statement": "The December 19, 2025 ZIA release note says `page` and `pageSize` query parameters are available for `GET /urlFilteringRules`, and that default values are used when they are not specified.",
+      "tier": "A",
+      "binds": [
+        "zia/url-filtering-rules"
+      ],
+      "evidence": [
+        {
+          "source": "zscaler-help",
+          "path": "zia-release-upgrade-summary-2025.json",
+          "after": "#### December 19, 2025",
+          "quotes": [
+            "Two new query parameters, page and pageSize are available for the GET /urlFilteringRules endpoint.",
+            "When you do not specify the page and pageSize query parameters, the default values are used."
           ]
         }
       ]
     },
     "silent-truncation": {
-      "statement": "Treat any rule list of exactly 100 (or any multiple) as possibly truncated: if the endpoint returns at most 100 rules per page, a 1000-record paginator reads the first page as \"short\" and stops without error.",
+      "statement": "Treat a URL Filtering rule list whose length is a round page size, such as 100, as possibly truncated and confirm the total with `GET /urlFilteringRules/count`: if the endpoint returns fewer rules per page than the 1000 the Go SDK requests, `ReadAllPages` takes the first page for the last and stops without an error.",
       "tier": "C",
       "binds": [
         "zia/url-filtering-rules"
       ],
-      "conditions": "Inferred from the SDK's stop condition and the observed 100-of-133 result; the per-page server limit itself is not documented.",
+      "conditions": "Inferred from the SDK's stop condition; the endpoint's maximum page size is not documented.",
       "gaps": [
         "page-size-limit"
       ],
@@ -125,14 +140,16 @@
           "source": "sdk-go",
           "path": "zscaler/zia/services/common/common.go",
           "quotes": [
+            "const defaultPageSize = 1000 // Default page size for most ZIA APIs",
             "if len(pageItems) < pageSize {"
           ]
         },
         {
-          "source": "zscalerctl",
-          "path": "docs/URL_FILTERING_PAGINATION_VALIDATION.md",
+          "source": "zscaler-help",
+          "path": "legacy-api-fetching-url-filtering-rules-using-pagination-and-search-filters.json",
           "quotes": [
-            "The original downstream symptom was a 100-rule CLI result while the admin console showed 133 rules."
+            "make a call using the GET /urlFilteringRules/count endpoint to determine the total number of existing rules.",
+            "pageSize = 100 // Or any desired size up to a max limit"
           ]
         }
       ]
@@ -173,34 +190,80 @@
         }
       ]
     },
-    "categories-clamp-20": {
-      "statement": "Listing URL categories has been seen to clamp at 20 records; a complete inventory must request every category type and confirm the count against the console.",
-      "tier": "B",
-      "binds": [
-        "zia/url-categories"
-      ],
-      "conditions": "Recorded by zscalerctl-dev as a live regression check for tenants with more than 20 URL and TLD categories.",
-      "evidence": [
-        {
-          "source": "zscalerctl",
-          "path": "docs/SDK_PAGINATION_VALIDATION.md",
-          "quotes": [
-            "### URL-category 20-record clamp regression",
-            "`count` is greater than 20 and matches the corresponding console inventory;"
-          ]
-        }
-      ]
-    },
     "zscalerctl-url-rules-reader-pages-100": {
-      "statement": "zscalerctl's URL Filtering rules reader requests pageSize 100 and advances until a page holds fewer than 100 records, and it fails rather than return a partial result when a later page fails or 1,000 full pages are returned.",
+      "statement": "zscalerctl reads `/zia/api/v1/urlFilteringRules` page by page with a page size of 100; its comment says that size matches Zscaler's published pagination example and the observed default boundary.",
       "tier": "A",
       "evidence": [
         {
           "source": "zscalerctl",
-          "path": "docs/URL_FILTERING_PAGINATION_VALIDATION.md",
+          "path": "internal/zscaler/reader_zia.go",
+          "after": "// getZIAURLFilteringRulesAllPages reads /zia/api/v1/urlFilteringRules with an",
           "quotes": [
-            "The reader requests `page=1&pageSize=100` and advances until a page contains fewer than 100 records.",
-            "It fails instead of returning a partial result when a later page fails or when 1,000 full pages are returned."
+            "Keeping the explicit page size at 100 matches Zscaler's published",
+            "pagination example and the observed default boundary.",
+            "const pageSize = 100",
+            "err := ziacommon.ReadPage(ctx, service.Client, \"/zia/api/v1/urlFilteringRules\", page, &items, size)"
+          ]
+        }
+      ]
+    },
+    "categories-single-read": {
+      "statement": "The Go SDK's URL categories `GetAll` makes a single `Read` of `/urlCategories`; its comment says the API does not support pagination and returns all results in a single response.",
+      "tier": "A",
+      "binds": [
+        "zia/url-categories"
+      ],
+      "evidence": [
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "quotes": [
+            "urlCategoriesEndpoint = \"/zia/api/v1/urlCategories\""
+          ]
+        },
+        {
+          "source": "sdk-go",
+          "path": "zscaler/zia/services/urlcategories/urlcategories.go",
+          "after": "func GetAll(ctx context.Context, service *zscaler.Service, customOnly, includeOnlyUrlKeywordCounts bool, categoryType string) ([]URLCategory, error) {",
+          "quotes": [
+            "endpoint := urlCategoriesEndpoint",
+            "// Use service.Client.Read directly since the API doesn't support pagination",
+            "// The API returns all results in a single response",
+            "err := service.Client.Read(ctx, endpoint, &urlCategories)"
+          ]
+        }
+      ]
+    },
+    "categories-two-behaviors": {
+      "statement": "zscalerctl's URL categories reader is built for two behaviors of `/urlCategories` that it observed live: the service clamping a requested page size to 20 records, and a service that ignores pagination and returns every category on each request.",
+      "tier": "B",
+      "binds": [
+        "zia/url-categories"
+      ],
+      "conditions": "Both are zscalerctl's live observations, made on different tenants according to its maintainers; what decides which behavior a tenant shows is not known, and no Zscaler source states a page size for this endpoint.",
+      "evidence": [
+        {
+          "source": "zscalerctl",
+          "path": "docs/RESOURCES.md",
+          "quotes": [
+            "the service clamping a requested page size to 20 instead of treating the first",
+            "short response as complete, and for tenants whose service ignores pagination",
+            "and returns every category on each request (when that is fewer than the"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "internal/zscaler/reader_zia.go",
+          "after": "// getZIAURLCategoriesAll reads every /zia/api/v1/urlCategories page.",
+          "quotes": [
+            "requested page size to 20 records (observed live), so a single read with a"
+          ]
+        },
+        {
+          "source": "zscalerctl",
+          "path": "internal/zscaler/reader_zia.go",
+          "quotes": [
+            "page 1 is everything it will return (observed live for urlCategories, about"
           ]
         }
       ]
@@ -225,41 +288,35 @@
         "support-ticket"
       ],
       "blocks": "stating the truncation mechanism as documented behavior",
-      "detail": "Behavior shows reads of 100 per page work and a 1000-size request returned 100. No source states the server-side limit."
+      "detail": "Zscaler's pagination article gives a page size of 100 \"or any desired size up to a max limit\" and states no limit; zscalerctl pages at 100 as the observed default boundary."
     }
   },
   "divergences": {
-    "getall-completeness": {
-      "summary": "Reading the Go SDK suggests GetAll returns every URL Filtering rule (it loops over pages until a short page); live reads show it can stop after the first page.",
+    "categories-single-response": {
+      "summary": "Whether one read of `/urlCategories` returns every category: the Go SDK's comment says the API returns all results in a single response; zscalerctl observed the service clamp a larger requested page size to 20 records, and also observed it return every category.",
       "positions": [
         {
           "evidence": {
             "source": "sdk-go",
-            "path": "zscaler/zia/services/urlfilteringpolicies/urlfilteringpolicies.go",
-            "after": "func GetAll(ctx context.Context, service *zscaler.Service) ([]URLFilteringRule, error) {",
+            "path": "zscaler/zia/services/urlcategories/urlcategories.go",
             "quotes": [
-              "err := common.ReadAllPages(ctx, service.Client, urlFilteringPoliciesEndpoint, &rules)"
+              "// The API returns all results in a single response"
             ]
           },
-          "says": "GetAll walks pages, so its result reads as the complete rule list."
+          "says": "One read returns every URL category."
         },
         {
           "evidence": {
             "source": "zscalerctl",
-            "path": "docs/URL_FILTERING_PAGINATION_VALIDATION.md",
+            "path": "docs/RESOURCES.md",
             "quotes": [
-              "The original downstream symptom was a 100-rule CLI result while the admin console showed 133 rules."
+              "the service clamping a requested page size to 20 instead of treating the first"
             ]
           },
-          "says": "On a real tenant the read returned 100 of 133 rules."
+          "says": "A larger requested page size can come back clamped to 20 records, so one read can be incomplete."
         }
       ],
-      "impact": "An agent trusting the SDK reading reasons over an incomplete rule list, and the missing rule is often the one that wins.",
-      "resolution": {
-        "by": "observed-100-of-133",
-        "rule": "observed-supersedes-sdk-inference",
-        "note": "SDK code establishes what the client does; only observation establishes what the API returns."
-      }
+      "impact": "A category inventory built from one SDK read can miss categories, and with them the rules that reference them; which tenants clamp is not known."
     }
   }
 }
