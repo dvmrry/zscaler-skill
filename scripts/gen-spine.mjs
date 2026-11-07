@@ -25,11 +25,12 @@ const OUT = path.join(ROOT, META, "spine");
 const REFERENCE = /^(api|sdk-|terraform|ansible|mcp-server|legacy-api)/;
 
 /**
- * What reading an area costs, without its linked subjects, in thousands of tokens (about 4 characters each). Rounded
- * so that a small edit seldom changes the committed spine.
+ * What reading the whole area costs, without its linked subjects, in thousands of tokens (about 4 characters each),
+ * even past the size at which `read` gives its hub and index instead. Rounded so that a small edit seldom changes the
+ * committed spine.
  */
 function readTokens(g, areaId) {
-  return Math.max(1, Math.round(readText(g, [areaId], null, { hops: 0 }).length / 4000)) * 1000;
+  return Math.max(1, Math.round(readText(g, [areaId], null, { hops: 0, areaTokens: Infinity }).length / 4000)) * 1000;
 }
 
 /** An area's entry in its product file: summary, size and the other areas its subjects' typed edges reach. */

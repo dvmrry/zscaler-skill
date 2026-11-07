@@ -998,7 +998,7 @@ function edgesOf(g, id) {
  * Output can run past what a runtime shows inline; runtimes save it to a file the reader opens. Measured on the
  * proxy questions, capping it lost more facts than the read-back costs.
  */
-export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) {
+export function readText(g, args, ov = null, { hops = 1, budget = 15000, areaTokens = AREA_TOKENS } = {}) {
   const out = [];
   // IaC locations name a repo by ID; say where each repo is, so the reader can open the files.
   const repos = (ov?.iacRepos || []).filter((r) => r.available);
@@ -1049,7 +1049,7 @@ export function readText(g, args, ov = null, { hops = 1, budget = 15000 } = {}) 
     if (!ids.length) out.push(`# ${given}: no subject, type, field or area has this ID; check the spine`);
     const cost = new Map(ids.map((id) => [id, g.nodes.get(id).kind === "subject" ? Math.round(readSubject(g, id).length / 4) : 0]));
     const total = [...cost.values()].reduce((a, b) => a + b, 0);
-    if (ids.length > 1 && total > AREA_TOKENS) {
+    if (ids.length > 1 && total > areaTokens) {
       if (g.nodes.get(arg)?.kind === "subject" && !seen.has(arg)) emit(arg);
       const rest = ids.filter((id) => id !== arg);
       out.push([`## ${arg}: ${rest.length} more subjects, about ${total} tokens in all, too many to read at once; read the ones the question needs by ID`,
