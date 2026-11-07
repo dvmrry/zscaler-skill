@@ -725,6 +725,11 @@ test("the surface layer links a Terraform resource through its SDK package to AP
   const [zdx] = lookupSurface(ROOT, "zdx");
   assert.equal(zdx.match, "product");
   assert.ok(zdx.api.includes("/v1/alerts/ongoing") && zdx.sdk_python.alerts.methods.length && !zdx.terraform.length);
+  // A legacy operation an SDK calls and the spec lacks is listed with its callers; a product with no captured spec lists none.
+  const [zpa] = lookupSurface(ROOT, "zpa");
+  assert.deepEqual(zpa.legacy_not_in_spec["GET /mgmtconfig/v1/admin/customers/{customerId}/apiKeys"], { sdk_go: ["api_keys"], sdk_python: ["api_keys"] });
+  const [zwa] = lookupSurface(ROOT, "zwa");
+  assert.equal(zwa.legacy_not_in_spec, undefined);
 });
 
 test("Terraform field paths convert to API field paths", () => {

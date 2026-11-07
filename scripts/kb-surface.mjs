@@ -4,7 +4,8 @@
 // Terraform resource and data source to the Go SDK packages it imports and the OpenAPI paths those
 // packages call, with its arguments (and the provider's own, as provider:<product>), and lists each
 // Python SDK module's methods and paths. A lookup returns every entry
-// whose name or path matches, joined with what reaches the same API paths.
+// whose name or path matches, joined with what reaches the same API paths; a product lookup also lists the
+// legacy operations an SDK still calls that the OneAPI spec lacks (`legacy_not_in_spec`).
 import fs from "node:fs";
 import path from "node:path";
 
@@ -43,6 +44,7 @@ export function lookupSurface(root, query) {
         sdk_python: Object.fromEntries(Object.entries(s.sdk_python).map(([k, e]) => [k, { class: e.class, methods: e.methods }])),
         terraform: Object.keys(s.terraform).sort(),
         legacy_operations: Object.values(s.legacy?.operations || {}).reduce((n, o) => n + Object.keys(o).length, 0),
+        ...specGaps(s),
       });
       continue;
     }
@@ -66,6 +68,23 @@ export function lookupSurface(root, query) {
     }
   }
   return out;
+}
+
+/**
+ * The legacy operations an SDK calls that the captured OneAPI spec has no operation for, as "METHOD path" -> the
+ * calling Go packages and Python modules. Only a product with a captured spec has any: without one, every
+ * operation would be listed.
+ */
+function specGaps(s) {
+  if (!Object.keys(s.inputs || {}).some((k) => k.startsWith("zscaler-api-specs/"))) return {};
+  const gaps = {};
+  for (const [p, ops] of Object.entries(s.legacy?.operations || {})) {
+    for (const [m, e] of Object.entries(ops)) {
+      if (e.oneapi || !(e.sdk_go || e.sdk_python)) continue;
+      gaps[`${m.toUpperCase()} ${p}`] = { ...(e.sdk_go ? { sdk_go: e.sdk_go } : {}), ...(e.sdk_python ? { sdk_python: e.sdk_python } : {}) };
+    }
+  }
+  return Object.keys(gaps).length ? { legacy_not_in_spec: gaps } : {};
 }
 
 function pick(api, paths) {

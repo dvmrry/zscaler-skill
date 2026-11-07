@@ -28,7 +28,8 @@
 //   move-claim <from> <to> [--merge] move a claim to another subject, rewriting every reference to it;
 //                                    --merge drops it in favour of an existing claim that says the same
 //   surface <query>                  API, SDK and Terraform surface for a product key (zia, zdx, zid, ...), a Terraform name, API path,
-//                                    Go SDK package, or Python module, class or method (generated layer)
+//                                    Go SDK package, or Python module, class or method (generated layer); a product
+//                                    also lists the legacy operations an SDK calls that the OneAPI spec lacks
 //   releases [<product>] [--since <date>] [--until <date>] [--grep <text>] [--full] [--json]
 //                                    the vendor's release notes for a product key, help-site section or alias,
 //                                    newest first (generated layer); dates are YYYY, YYYY-MM or YYYY-MM-DD; --grep
