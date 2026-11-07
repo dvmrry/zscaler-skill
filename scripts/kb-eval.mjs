@@ -152,7 +152,8 @@ async function run({ ref, out, reps, jobs, only, set, entry = "skill" }) {
   const meta = { ref, commit, ...(set ? { set } : {}), ...(entry !== "skill" ? { entry } : {}), ...harness(all, claudeVersion()) };
   const prev = readMeta(out);
   if (prev && (prev.commit !== commit || (prev.entry || "skill") !== entry || mismatch(prev, meta).length)) {
-    throw new Error(`${out} holds runs of ${prev.commit.slice(0, 8)} under ${JSON.stringify(Object.fromEntries(mismatch(prev, meta).map((k) => [k, prev[k]])))}; use a new --out`);
+    const held = { ...((prev.entry || "skill") !== entry ? { entry: prev.entry || "skill" } : {}), ...Object.fromEntries(mismatch(prev, meta).map((k) => [k, prev[k]])) };
+    throw new Error(`${out} holds runs of ${prev.commit.slice(0, 8)} under ${JSON.stringify(held)}; use a new --out`);
   }
   fs.mkdirSync(path.join(out, "runs"), { recursive: true });
   fs.writeFileSync(path.join(out, "meta.json"), `${JSON.stringify(meta, null, 2)}\n`);

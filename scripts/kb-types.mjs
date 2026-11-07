@@ -81,6 +81,7 @@ const TF_JOIN = {
     "zcc/trusted-networks": "zcc_trusted_network",
     "zia/devices": "zia_devices",
     "zia/locations-lite": "zia_location_lite",
+    "zia/browser-isolation-profiles": "zia_cloud_browser_isolation_profile", // the reader pages through a helper, so no SDK package
   },
   exclude_data_source: {
     "zia/eusa-status": "zia_activation_status reads activation state, not EUSA acceptance",

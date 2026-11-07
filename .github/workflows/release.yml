@@ -2,8 +2,8 @@ name: release
 
 # A merge to main that adds docs/releases/vX.Y.Z.md releases that version: the gate checks the version surfaces,
 # then the merge commit is tagged and the GitHub release is published with that file as its notes. Tags are made
-# only here. A failed run is repaired by re-running it; the publish step skips a tag that already points at the
-# merge and refuses one that points anywhere else. See docs/release.md.
+# only here. A failed run is repaired by re-running it: a tag already on the merge is reused, one anywhere else is
+# refused. See docs/release.md.
 
 on:
   push:
@@ -36,7 +36,11 @@ jobs:
           BEFORE: ${{ github.event.before }}
         run: |
           set -euo pipefail
-          version="$(bash scripts/release-version.sh "$BEFORE" "$GITHUB_SHA")"
+          # A re-run after the tag was pushed finds that tag on this commit; release-version.sh would refuse it.
+          version="$(git tag --points-at "$GITHUB_SHA" --list 'v[0-9]*.[0-9]*.[0-9]*' | sed -n '1p')"
+          if [[ -z "$version" ]]; then
+            version="$(bash scripts/release-version.sh "$BEFORE" "$GITHUB_SHA")"
+          fi
           if [[ "$version" == "none" ]]; then
             echo "release=false" >>"$GITHUB_OUTPUT"
             exit 0

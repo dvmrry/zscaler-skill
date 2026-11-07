@@ -22,9 +22,13 @@ the patch version.
 
 ## Releasing
 
-A pull request either adds one notes file, `docs/releases/vX.Y.Z.md`, or carries the `no-release` label. The
-`release-notes` check requires exactly one of the two. The file name is the version and must be the next patch,
-minor or major after the latest tag. The file's contents are the release notes.
+A pull request either adds one notes file, `docs/releases/vX.Y.Z.md`, or carries the `no-release` label. The file
+name is the version and must be the next patch, minor or major after the latest tag. The file's contents are the
+release notes.
+
+The `release-notes` check fails a pull request that has neither or both. It is not a required check. The weekly
+refresh opens its pull request with the workflow token, which starts no `pull_request` workflows, so a required
+`release-notes` check would leave that pull request waiting forever.
 
 The same pull request bumps `VERSION`, `pyproject.toml` and `uv.lock` to that version.
 
@@ -37,8 +41,8 @@ Merging a pull request that adds a notes file releases that version. The `releas
 3. tags the merge commit;
 4. publishes the GitHub release with the file as its notes.
 
-Tags are made only by that workflow. `scripts/release-version.sh` decides the version for both the pull-request
-check and the release, so the merge publishes what review saw.
+Tags are made only by that workflow, except in the repair below. `scripts/release-version.sh` decides the version
+for both the pull-request check and the release, so the merge publishes what review saw.
 
 Renovate and the weekly knowledge-graph refresh open their pull requests with `no-release`. Their changes ship
 in the next release that someone writes notes for.
@@ -57,6 +61,17 @@ tag.
 
 ## Release repair
 
-If the `release` workflow fails, fix the cause and re-run the failed run. The publish step makes the tag only if
-it is missing, skips a tag that already points at the merge, and fails on a tag that points at any other commit.
-It also fails when the GitHub release already exists.
+If the `release` workflow fails after its gate passed, fix the cause and re-run the run. A re-run finds a tag that
+already points at the merge and reuses it. It fails on a tag that points at any other commit. It also fails when
+the GitHub release already exists.
+
+If the gate fails, the merged tree's version surfaces disagree, which the pull-request checks should have caught.
+`release-version.sh` will not accept the same notes file again, so the version cannot be released automatically.
+Fix the tree in a `no-release` pull request, then tag that commit and publish by hand:
+
+```bash
+git tag -a vX.Y.Z <commit> -m vX.Y.Z && git push origin vX.Y.Z
+gh release create vX.Y.Z --title vX.Y.Z --notes-file docs/releases/vX.Y.Z.md
+```
+
+Record the manual release in that pull request.

@@ -27,6 +27,9 @@ test("a type joins the one provider resource that shares its SDK package and a n
   assert.equal(joinTerraform("zia/eusa-status", ["zia/activation"], resources), undefined);
   // A reviewed pick wins when several resources fit.
   assert.equal(joinTerraform("zpa/application-segments", [], []), "zpa_application_segment");
+  // The resource named after the type wins without a package, and ZTW's provider prefix is ztc.
+  assert.equal(joinTerraform("zia/url-filtering-rules", [], resources), "zia_url_filtering_rules");
+  assert.equal(joinTerraform("ztw/locations", [], [res("ztc_locations", "locations")]), "ztc_locations");
   // Data sources join separately, with their own reviewed table.
   const ds = [{ name: "zia_location_management", kind: "data-source", sdk_go: ["location/locationmanagement"] }];
   assert.equal(joinTerraform("zia/locations", ["zia/location/locationmanagement"], [...resources, ...ds], "data-source"), "zia_location_management");
